@@ -1,0 +1,49 @@
+[editor]
+line_wrapping=false
+line_break_column=72
+auto_continue_multiline=true
+
+[file_prefs]
+final_new_line=true
+ensure_convert_new_lines=false
+strip_trailing_spaces=false
+replace_tabs=false
+
+[indentation]
+indent_width=4
+indent_type=1
+indent_hard_tab_width=8
+detect_indent=false
+detect_indent_width=false
+indent_mode=2
+
+[project]
+name=ShuJu
+base_path=/home/romuald/Projects/ShuJu/
+description=
+file_patterns=
+
+[long line marker]
+long_line_behaviour=1
+long_line_column=160
+
+[files]
+current_page=0
+FILE_NAME_0=4031;Java;0;EUTF-8;1;1;0;%2Fhome%2Fromuald%2FProjects%2FShuJu%2Fsrc%2Ftest%2Fjava%2Forg%2Fshuju%2FAppTest.java;0;4
+
+[VTE]
+last_dir=/home/romuald
+
+[build-menu]
+NF_00_LB=_Make
+NF_00_CM=mvn clean package
+NF_00_WD=%p
+NF_01_LB=Make Custom _Target...
+NF_01_CM=mvn 
+NF_01_WD=%p
+NF_02_LB=
+NF_02_CM=
+NF_02_WD=
+EX_00_LB=_Execute
+EX_00_CM=java -cp ShuJu-1.0-SNAPSHOT.jar org.shuju.App
+EX_00_WD=%p/target
