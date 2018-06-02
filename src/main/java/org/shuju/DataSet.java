@@ -28,12 +28,19 @@ public class DataSet
 		return this;
 	}
 
-	public DataSet subset(int start, int end) {
+	public DataSet subset(int rowStart, int rowEnd) {
 		List<DataRow> temp = new ArrayList<DataRow>();
-		for(int i = start; i < end; i++) {
+		for(int i = rowStart; i < rowEnd; i++) {
 			temp.add(this.rows.get(i));
 		}
 		return new DataSet(temp);
+	}
+	
+	public DataSet transform(ITransform transfomer, int col) {
+		for(DataRow row: this.rows) {
+			transfomer.apply(row.features().get(col));
+		}
+		return this;
 	}
 
 	public String toString() {

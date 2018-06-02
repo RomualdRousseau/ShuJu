@@ -131,9 +131,9 @@ public class AppTest extends TestCase
 		final IClassifier slr = new SLR();
 		slr.train(training);
 
-		DataRow test = new DataRow();
-		test.addFeature(new NumericFeature(13.0));
-		test.setLabel(new NumericFeature(1.157));
+		DataRow test = new DataRow()
+			.addFeature(new NumericFeature(13.0))
+			.setLabel(new NumericFeature(1.157));
 		
 		Result result = slr.predict(test);
 		
@@ -144,26 +144,23 @@ public class AppTest extends TestCase
 		final DataSet fisherset = loadFisherSet();
 
 		// Scale all features
-		for(int i = 0; i < fisherset.rows().get(0).features().size(); i++) {
-			final ITransform scaler = new NumericScaler(new Summary(fisherset, i));
-			for(DataRow row: fisherset.rows()) {
-				scaler.apply(row.features().get(i));
-			}
-		}
-		fisherset.shuffle();
+		fisherset
+			.transform(new NumericScaler(new Summary(fisherset, 0)), 0)
+			.transform(new NumericScaler(new Summary(fisherset, 1)), 1)
+			.transform(new NumericScaler(new Summary(fisherset, 2)), 2)
+			.transform(new NumericScaler(new Summary(fisherset, 3)), 3)
+			.shuffle();
 
-		// Training samples
-		DataSet training = fisherset.subset(0, 110);
-		// Test samples
-		DataSet test = fisherset.subset(110, 150);
-
-		// classification
 		final IClassifier knn = new KNN(6, 1.0, 1.0);
+		final DataSet training = fisherset.subset(0, 110);
 		knn.train(training);
+		
+		final DataSet test = fisherset.subset(110, 150);
 
 		int total = 0;
 		int success = 0;
 		double error = 0.0;
+		
 		for(DataRow row: test.rows()) {
 			Result result = knn.predict(row);
 			if(result.getLabel().equals(row.getLabel())) {

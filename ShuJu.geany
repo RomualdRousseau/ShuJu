@@ -28,8 +28,7 @@ long_line_behaviour=1
 long_line_column=160
 
 [files]
-current_page=0
-FILE_NAME_0=4031;Java;0;EUTF-8;1;1;0;%2Fhome%2Fromuald%2FProjects%2FShuJu%2Fsrc%2Ftest%2Fjava%2Forg%2Fshuju%2FAppTest.java;0;4
+current_page=-1
 
 [VTE]
 last_dir=/home/romuald
