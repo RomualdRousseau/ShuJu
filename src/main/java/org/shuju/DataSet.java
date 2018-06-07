@@ -36,9 +36,17 @@ public class DataSet
 		return new DataSet(temp);
 	}
 	
-	public DataSet transform(ITransform transfomer, int col) {
-		for(DataRow row: this.rows) {
-			transfomer.apply(row.features().get(col));
+	public DataSet transform(ITransform transfomer, int colIndex) {
+		int rowIndex = 0;
+		if(colIndex == IFeature.LABEL) {
+			for(DataRow row: this.rows) {
+				transfomer.apply(row.getLabel(), rowIndex++, colIndex);
+			}
+		}
+		else {
+			for(DataRow row: this.rows) {
+				transfomer.apply(row.features().get(colIndex), rowIndex++, colIndex);
+			}
 		}
 		return this;
 	}

@@ -1,8 +1,9 @@
 package org.shuju;
 
 import org.shuju.*;
-import org.shuju.knn.*;
-import org.shuju.slr.*;
+import org.shuju.transformer.*;
+import org.shuju.ml.knn.*;
+import org.shuju.ml.slr.*;
 
 import java.util.List;
 import java.util.function.Consumer;
