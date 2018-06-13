@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.shuju</groupId>
+  <groupId>com.github.romualdrousseau.shuju</groupId>
   <artifactId>ShuJu</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>ShuJu</name>
-  <url>http://maven.apache.org</url>
+  <url>https://github.com/romualdrousseau/shuju</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -16,11 +16,6 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.spritesheet</groupId>
-      <artifactId>SpriteSheet</artifactId>
-      <version>1.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
   <build>
@@ -32,13 +27,11 @@
             <phase>package</phase>
             <configuration>
               <tasks>
-				        <copy file="target/${project.name}-${project.version}.jar" tofile="library\${project.name}.jar"/>
-                <copy todir="target/Processing/${project.name}/examples" >
-                  <fileset dir="examples" includes="**"/>
+                <copy todir="target\Processing" >
+                  <fileset dir="Processing" includes="**"/>
                 </copy>
-                <copy file="library.properties" tofile="target\Processing\${project.name}\library.properties"/>
                 <copy file="target/${project.name}-${project.version}.jar" tofile="target\Processing\${project.name}\library\${project.name}.jar"/>
-                <zip basedir="target\Processing\${project.name}" destfile="target\Processing\${project.name}.zip"/>
+                <zip basedir="target\Processing" destfile="target\Processing\${project.name}.zip"/>
               </tasks>
             </configuration>
             <goals>
