@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.romualdrousseau.shuju</groupId>
   <artifactId>ShuJu</artifactId>
@@ -10,6 +9,7 @@
   <url>https://github.com/romualdrousseau/shuju</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.build.reportingEncoding>UTF-8</project.build.reportingEncoding>
   </properties>
   <scm>
     <connection>scm:git:git://github.com/RomualdRousseau/ShuJu.git</connection>
@@ -56,19 +56,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.0.1</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>com.github.github</groupId>
         <artifactId>site-maven-plugin</artifactId>
         <version>0.12</version>
@@ -89,6 +76,31 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.5</version>
+        <configuration>
+          <id>sign-artifacts</id>
+          <phase>verify</phase>
+          <goals>
+            <goal>sign</goal>
+          </goals>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.0.1</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.8</version>
         <executions>
@@ -96,11 +108,11 @@
             <phase>package</phase>
             <configuration>
               <tasks>
-                <copy todir="target\Processing" >
-                  <fileset dir="Processing" includes="**"/>
+                <copy todir="target\Processing">
+                  <fileset dir="Processing" includes="**" />
                 </copy>
-                <copy file="target/${project.name}-${project.version}.jar" tofile="target\Processing\${project.name}\library\${project.name}.jar"/>
-                <zip basedir="target\Processing" destfile="target\Processing\${project.name}.zip"/>
+                <copy file="target/${project.name}-${project.version}.jar" tofile="target\Processing\${project.name}\library\${project.name}.jar" />
+                <zip basedir="target\Processing" destfile="target\Processing\${project.name}.zip" />
               </tasks>
             </configuration>
             <goals>
