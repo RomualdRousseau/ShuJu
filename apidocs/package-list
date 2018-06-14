@@ -1,0 +1,13 @@
+com.github.romualdrousseau.shuju
+com.github.romualdrousseau.shuju.cv
+com.github.romualdrousseau.shuju.cv.templatematching
+com.github.romualdrousseau.shuju.cv.templatematching.shapeextractor
+com.github.romualdrousseau.shuju.features
+com.github.romualdrousseau.shuju.ml.ann
+com.github.romualdrousseau.shuju.ml.knn
+com.github.romualdrousseau.shuju.ml.qlearner
+com.github.romualdrousseau.shuju.ml.slr
+com.github.romualdrousseau.shuju.ml.som
+com.github.romualdrousseau.shuju.ml.tree
+com.github.romualdrousseau.shuju.transforms
+com.github.romualdrousseau.shuju.util
