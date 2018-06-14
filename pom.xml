@@ -84,6 +84,7 @@
           <goals>
             <goal>sign</goal>
           </goals>
+          <passphraseServerId>gpg</passphraseServerId>
         </configuration>
       </plugin>
       <plugin>
