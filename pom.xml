@@ -1,9 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.romualdrousseau.shuju</groupId>
   <artifactId>ShuJu</artifactId>
   <packaging>jar</packaging>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <name>ShuJu</name>
   <description>Framework for Advanced Statistics and Data Sciences</description>
   <url>https://github.com/romualdrousseau/shuju</url>
@@ -95,11 +96,11 @@
             <phase>package</phase>
             <configuration>
               <tasks>
-                <copy todir="target\Processing">
-                  <fileset dir="Processing" includes="**" />
+                <copy todir="target\Processing" >
+                  <fileset dir="Processing" includes="**"/>
                 </copy>
-                <copy file="target/${project.name}-${project.version}.jar" tofile="target\Processing\${project.name}\library\${project.name}.jar" />
-                <zip basedir="target\Processing" destfile="target\Processing\${project.name}.zip" />
+                <copy file="target/${project.name}-${project.version}.jar" tofile="target\Processing\${project.name}\library\${project.name}.jar"/>
+                <zip basedir="target\Processing" destfile="target\Processing\${project.name}.zip"/>
               </tasks>
             </configuration>
             <goals>
