@@ -173,7 +173,7 @@
                   <goal>site</goal>
                 </goals>
                 <configuration>
-                  <server>github</server>
+                  <server>github.com</server>
                   <message>Building site for ${project.version}</message>
                 </configuration>
               </execution>
