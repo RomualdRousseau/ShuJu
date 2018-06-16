@@ -1,6 +1,7 @@
-import org.shuju.*;
-import org.shuju.transformer.*;
-import org.shuju.ml.slr.*;
+import com.github.romualdrousseau.shuju.*;
+import com.github.romualdrousseau.shuju.features.*;
+import com.github.romualdrousseau.shuju.transforms.*;
+import com.github.romualdrousseau.shuju.ml.slr.*;
 
 import java.util.List;
 import java.io.IOException;

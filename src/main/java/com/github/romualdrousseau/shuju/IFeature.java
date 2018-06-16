@@ -53,8 +53,8 @@ public abstract class IFeature<T> extends StatisticClass
 		return this.value == null;
 	}
 
-	public boolean equals(IFeature other) {
-		return this.value.equals(other.getValue());
+	public boolean equals(IFeature<T> other) {
+		return this.value.equals(other.value) && this.probability == other.probability;
 	}
 
 	public static boolean isNullOrEmpty(IFeature feature) {

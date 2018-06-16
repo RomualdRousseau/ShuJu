@@ -1,5 +1,8 @@
 package com.github.romualdrousseau.shuju.ml.tree;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import com.github.romualdrousseau.shuju.IClassifier;
 import com.github.romualdrousseau.shuju.IFeature;
 import com.github.romualdrousseau.shuju.DataRow;
@@ -21,14 +24,18 @@ public class NaiveTree extends IClassifier
         for(DataRow row: trainingSet.rows()) {   
             pushDataRow(this.root, row, 0);
         }
+        this.root.simplify();
+        //this.root.display();
         return this;
     }
 
     public Result predict(DataRow features) {
     	Result result = new Result(features, null, 0.0);
-    	for(TreeNode child: root.children()) {
-    		predictRec(child, features, 1.0, result, 0);
-    	}
+        if(this.root != null && features != null) {
+        	for(TreeNode child: root.children()) {
+        		predictRec(child, features, 1.0, result, 0);
+        	}
+        }
         return result;
     }
 
@@ -70,21 +77,6 @@ public class NaiveTree extends IClassifier
             child = new TreeNode().setValue(feature);
             root.addChild(child);
         }
-
-        /*
-        boolean onlyOneDecision = true;;
-        for(TreeNode child: root.children()) {
-            for(TreeNode sibling: child.siblings()) {
-                if(child != sibling && !child.getValue().equals(sibling.getValue())) {
-                    onlyOneDecision = false;
-                }
-            }
-        }
-        if(onlyOneDecision) {
-            pushLabel(root, row);
-            return;
-        }
-        */
 
         pushDataRow(child, row, level + 1);
     }

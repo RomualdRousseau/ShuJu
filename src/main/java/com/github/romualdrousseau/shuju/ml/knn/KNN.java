@@ -33,7 +33,7 @@ public class KNN extends IClassifier
 	}
 
 	public Result predict(DataRow features) {
-		if(features == null) {
+		if(this.trainingSet == null || features == null) {
 			return new Result(features, null, 0.0);
 		}
 
