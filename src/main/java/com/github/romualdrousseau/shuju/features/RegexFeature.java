@@ -13,13 +13,11 @@ public class RegexFeature extends StringFeature
 	}
 
 	protected double costFuncImpl(IFeature predictedValue) {
-		assert predictedValue instanceof RegexFeature;
-		RegexFeature typedPredictedValue = (RegexFeature) predictedValue;
-		if(this.getValue().startsWith("^")) {
-			return typedPredictedValue.getValue().matches(this.getValue()) ? 1.0 : 0.0;	
+		if(this.getValue().startsWith("\\neg")) {
+			return String.valueOf(predictedValue.getValue()).matches(this.getValue().substring(4)) ? 1.0 : 0.0;	
 		}
 		else {
-			return typedPredictedValue.getValue().matches(this.getValue()) ? 0.0 : 1.0;	
+			return String.valueOf(predictedValue.getValue()).matches(this.getValue()) ? 0.0 : 1.0;	
 		}
 	}
 }

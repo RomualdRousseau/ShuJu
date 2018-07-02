@@ -4,7 +4,7 @@ import com.github.romualdrousseau.shuju.ITransform;
 import com.github.romualdrousseau.shuju.IFeature;
 import com.github.romualdrousseau.shuju.features.NumericFeature;
 
-public class SmoothScaler extends ITransform
+public class SmoothScaler implements ITransform
 {
 	public SmoothScaler(double coef) {
 		this.firstRow = false; 

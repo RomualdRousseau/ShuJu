@@ -9,9 +9,14 @@ import com.github.romualdrousseau.shuju.Result;
 import com.github.romualdrousseau.shuju.IFeature;
 import com.github.romualdrousseau.shuju.features.NumericFeature;
 
-public class SLR extends IClassifier
+public class SLR implements IClassifier
 {
+	public DataSet getTrainingSet() {
+		return this.trainingSet;
+	}
+
 	public IClassifier train(DataSet trainingSet) {
+		this.trainingSet = trainingSet;
 		final DataSummary summary1 = new DataSummary(trainingSet, 0);
 		final DataSummary summary2 = new DataSummary(trainingSet, IFeature.LABEL);
 		beta = DataStatistics.cov(trainingSet, 0, IFeature.LABEL, summary1, summary2) / DataStatistics.var(trainingSet, 0, summary1);
@@ -26,4 +31,5 @@ public class SLR extends IClassifier
 	
 	private double beta;
 	private double alpha;
+	private DataSet trainingSet;
 }

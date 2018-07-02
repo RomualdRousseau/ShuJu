@@ -2,7 +2,7 @@ package com.github.romualdrousseau.shuju.util;
 
 import com.github.romualdrousseau.shuju.StatisticClass;
 
-public class Winner<T> extends StatisticClass
+public class Winner<T extends StatisticClass> implements StatisticClass
 {
 	public Winner(T candidate, double probability) {
 		this.candidate = candidate;

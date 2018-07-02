@@ -4,7 +4,7 @@ import com.github.romualdrousseau.shuju.ITransform;
 import com.github.romualdrousseau.shuju.IFeature;
 import com.github.romualdrousseau.shuju.features.NumericFeature;
 
-public class VectorShift extends ITransform
+public class VectorShift implements ITransform
 {
 	public VectorShift(double a) {
 		this.a = a;

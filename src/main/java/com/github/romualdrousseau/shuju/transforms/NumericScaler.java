@@ -5,7 +5,7 @@ import com.github.romualdrousseau.shuju.IFeature;
 import com.github.romualdrousseau.shuju.DataSummary;
 import com.github.romualdrousseau.shuju.features.NumericFeature;
 
-public class NumericScaler extends ITransform
+public class NumericScaler implements ITransform
 {
 	public NumericScaler(DataSummary summary) {
 		this.min = summary.min;

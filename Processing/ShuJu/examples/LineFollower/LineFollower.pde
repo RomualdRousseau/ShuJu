@@ -1,4 +1,4 @@
-import org.shuju.qlearner.*;
+import com.github.romualdrousseau.shuju.ml.qlearner.*;
 import org.spritesheet.*;
 
 SpriteSheetLibrary spl;

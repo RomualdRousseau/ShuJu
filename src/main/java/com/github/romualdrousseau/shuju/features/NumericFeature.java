@@ -13,9 +13,7 @@ public class NumericFeature extends IFeature<Double>
 	}
 
 	protected double costFuncImpl(IFeature predictedValue) {
-		assert predictedValue instanceof NumericFeature;
-		NumericFeature typedPredictedValue = (NumericFeature) predictedValue;
-		double dist = typedPredictedValue.getValue() - this.getValue();
+		double dist = (Double) predictedValue.getValue() - this.getValue();
 		return dist * dist;
 	}
 }

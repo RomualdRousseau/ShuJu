@@ -1,6 +1,6 @@
 package com.github.romualdrousseau.shuju;
 
-public abstract class IFeature<T> extends StatisticClass
+public abstract class IFeature<T> implements StatisticClass
 {
 	public static final int LABEL = -1;
 	
@@ -53,7 +53,7 @@ public abstract class IFeature<T> extends StatisticClass
 		return this.value == null;
 	}
 
-	public boolean equals(IFeature<T> other) {
+	public boolean equals(IFeature other) {
 		return this.value.equals(other.value) && this.probability == other.probability;
 	}
 
@@ -72,9 +72,9 @@ public abstract class IFeature<T> extends StatisticClass
 
 		return this.costFuncImpl(predictedValue);
 	}
-	
+
 	public String toString() {
-		return String.format("[%s, %.1f]", this.value, this.probability);
+		return String.format("[%s, %.2f]", this.value, this.probability);
 	}
 	
 	protected abstract double costFuncImpl(IFeature predictedValue);

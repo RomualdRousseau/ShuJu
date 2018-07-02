@@ -8,36 +8,34 @@ import java.nio.file.Paths;
 import java.net.URL;
 import java.net.URISyntaxException;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.*;
 
 import com.github.romualdrousseau.shuju.features.*;
 import com.github.romualdrousseau.shuju.transforms.*;
 import com.github.romualdrousseau.shuju.ml.knn.*;
 import com.github.romualdrousseau.shuju.ml.slr.*;
+import com.github.romualdrousseau.shuju.util.*;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest extends TestCase
+public class AppTest
 {
-	/**
-	 * Create the test case
-	 *
-	 * @param testName name of the test case
-	 */
-	public AppTest(String testName) {
-		super(testName);
+	@Test
+	public void testFuzzyString() {
+		assertThat(FuzzyString.similarity("MATERIAL CODE", "MATERIAL CODE", " "), is(greaterThanOrEqualTo(0.8)));
+		assertThat(FuzzyString.similarity("MATERIAL CODE", "MATERIAL COCE", " "), is(greaterThanOrEqualTo(0.8)));
+		assertThat(FuzzyString.similarity("MATERIAL CODE", "MAT. CODE", " "), is(greaterThanOrEqualTo(0.8)));
+		assertThat(FuzzyString.similarity("MATERIAL CODE", "MATERIAL NAME", " "),is(lessThan(0.8)));
+		assertThat(FuzzyString.similarity("MATERIAL CODE", "MAT. NAME", " "), is(lessThan(0.8)));
+
+		assertThat(FuzzyString.distance("MATERIAL CODE", "MATERIAL CODE", " "), is(lessThanOrEqualTo(0.2)));
+		assertThat(FuzzyString.distance("MATERIAL CODE", "MATERIAL COCE", " "), is(lessThanOrEqualTo(0.2)));
+		assertThat(FuzzyString.distance("MATERIAL CODE", "MAT. CODE", " "), is(lessThanOrEqualTo(0.2)));
+		assertThat(FuzzyString.distance("MATERIAL CODE", "MATERIAL NAME", " "), is(greaterThan(0.2)));
+		assertThat(FuzzyString.distance("MATERIAL CODE", "MAT. NAME", " "), is(greaterThan(0.2)));
 	}
 
-	/**
-	 * @return the suite of tests being tested
-	 */
-	public static Test suite() {
-		return new TestSuite(AppTest.class);
-	}
-
+	@Test
 	public void testSepalLengthDataSummary() {
 		final DataSet fisherset = loadFisherSet();
 
@@ -54,6 +52,7 @@ public class AppTest extends TestCase
 		assertEquals("Stdev", 0.828, stdev, 0.001);
 	}
 	
+	@Test
 	public void testSepalWidthDataSummary() {
 		final DataSet fisherset = loadFisherSet();
 
@@ -70,6 +69,7 @@ public class AppTest extends TestCase
 		assertEquals("Stdev", 0.436, stdev, 0.001);
 	}
 	
+	@Test
 	public void testPetalLengthDataSummary() {
 		final DataSet fisherset = loadFisherSet();
 
@@ -86,6 +86,7 @@ public class AppTest extends TestCase
 		assertEquals("Stdev", 1.765, stdev, 0.001);
 	}
 	
+	@Test
 	public void testPetalWidthDataSummary() {
 		final DataSet fisherset = loadFisherSet();
 
@@ -102,6 +103,7 @@ public class AppTest extends TestCase
 		assertEquals("Stdev", 0.761, stdev, 0.001);
 	}
 	
+	@Test
 	public void testLengthCovariance() {
 		final DataSet fisherset = loadFisherSet();
 
@@ -110,6 +112,7 @@ public class AppTest extends TestCase
 		assertEquals("Cov", 1.274, cov, 0.001);
 	}
 	
+	@Test
 	public void testWidthCovariance() {
 		final DataSet fisherset = loadFisherSet();
 
@@ -118,6 +121,7 @@ public class AppTest extends TestCase
 		assertEquals("Cov", -0.121, cov, 0.001);
 	}
 	
+	@Test
 	public void testLengthCorellation() {
 		final DataSet fisherset = loadFisherSet();
 
@@ -126,6 +130,7 @@ public class AppTest extends TestCase
 		assertEquals("Corr", 0.872, corr, 0.001);
 	}
 	
+	@Test
 	public void testSLR() {
 		final DataSet training = loadLiquidStat();
 
@@ -141,6 +146,7 @@ public class AppTest extends TestCase
 		assertEquals("Result", (Double) test.getLabel().getValue(), (Double) result.getLabel().getValue(), 0.001);
 	}
 	
+	@Test
 	public void testKNN() {
 		final DataSet fisherset = loadFisherSet();
 

@@ -9,7 +9,7 @@ import com.github.romualdrousseau.shuju.DataRow;
 import com.github.romualdrousseau.shuju.DataSet;
 import com.github.romualdrousseau.shuju.Result;
 
-public class NaiveTree extends IClassifier
+public class NaiveTree implements IClassifier
 {	
     public NaiveTree() {
         this.minProbability = 1.0;
@@ -19,7 +19,12 @@ public class NaiveTree extends IClassifier
         this.minProbability = minProbability;
 	}
 
+    public DataSet getTrainingSet() {
+        return this.trainingSet;
+    }
+
 	public IClassifier train(DataSet trainingSet) {
+        this.trainingSet = trainingSet;
         this.root = new TreeNode();
         for(DataRow row: trainingSet.rows()) {   
             pushDataRow(this.root, row, 0);
@@ -90,4 +95,5 @@ public class NaiveTree extends IClassifier
 
     private TreeNode root;
     private double minProbability;
+    private DataSet trainingSet;
 }

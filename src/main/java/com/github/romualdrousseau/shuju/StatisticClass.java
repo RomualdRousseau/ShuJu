@@ -1,6 +1,6 @@
 package com.github.romualdrousseau.shuju;
 
-public abstract class StatisticClass
+public interface StatisticClass
 {
-	public abstract double getProbability();
+	public double getProbability();
 } 

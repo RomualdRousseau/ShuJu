@@ -1,6 +1,6 @@
 package com.github.romualdrousseau.shuju;
 
-public abstract class ITransform
+public interface ITransform
 {
-	public abstract void apply(IFeature feature, int rowIndex, int colIndex);
+	public void apply(IFeature feature, int rowIndex, int colIndex);
 }

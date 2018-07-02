@@ -15,7 +15,7 @@ import com.github.romualdrousseau.shuju.util.TreeMapWithDuplicates;
 import com.github.romualdrousseau.shuju.util.Election;
 import com.github.romualdrousseau.shuju.util.Winner;
 
-public class KNN extends IClassifier
+public class KNN implements IClassifier
 {	
 	public KNN(int k) {
 		this.k = k;
@@ -25,6 +25,10 @@ public class KNN extends IClassifier
 	public KNN(int k, double p) {
 		this.k = k;
 		this.p = p;
+	}
+
+	public DataSet getTrainingSet() {
+		return this.trainingSet;
 	}
 
 	public IClassifier train(DataSet trainingSet) {

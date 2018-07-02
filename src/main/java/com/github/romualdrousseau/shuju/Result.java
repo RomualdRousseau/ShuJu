@@ -3,7 +3,7 @@ package com.github.romualdrousseau.shuju;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Result extends StatisticClass
+public class Result implements StatisticClass
 {
 	public Result(DataRow features, IFeature label, double probability) {
 		this.features = features;
@@ -85,7 +85,7 @@ public class Result extends StatisticClass
 			}
 		}
 		
-		return String.format("[%s :- %s, %.1f]", featuresString, labelString, this.probability);
+		return String.format("[%s :- %s, %.2f]", featuresString, labelString, this.probability);
 	}
 
 	public int hashCode() {

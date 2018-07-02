@@ -5,7 +5,7 @@ import com.github.romualdrousseau.shuju.IFeature;
 import com.github.romualdrousseau.shuju.DataSet;
 import com.github.romualdrousseau.shuju.features.NumericFeature;
 
-public class VectorAdd extends ITransform
+public class VectorAdd implements ITransform
 {
 	public VectorAdd(DataSet other) {
 		this.other = other;

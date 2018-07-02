@@ -13,8 +13,6 @@ public class StringFeature extends IFeature<String>
 	}
 
 	protected double costFuncImpl(IFeature predictedValue) {
-		assert predictedValue instanceof StringFeature;
-		StringFeature typedPredictedValue = (StringFeature) predictedValue;
-		return typedPredictedValue.getValue().equals(this.getValue()) ? 0.0 : 1.0;
+		return predictedValue.getValue().equals(this.getValue()) ? 0.0 : 1.0;
 	}
 }
