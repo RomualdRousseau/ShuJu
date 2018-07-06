@@ -32,7 +32,7 @@
   </properties>
 
   <scm>
-    <connection>scm:git:git://github.com/romualdrousseau/shuju.git</connection>
+    <connection>scm:git:https://github.com/romualdrousseau/shuju.git</connection>
     <developerConnection>scm:git:https://github.com/romualdrousseau/shuju.git</developerConnection>
     <url>https://github.com/romualdrousseau/shuju</url>
     <tag>HEAD</tag>
