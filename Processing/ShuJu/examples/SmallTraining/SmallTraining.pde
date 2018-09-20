@@ -1,4 +1,4 @@
-import romuald.ann.*;
+import com.github.romualdrousseau.shuju.ml.ann.*;
 
 double[][] examples = new double[][] {{0, 1, 0}, {1, 1, 0}, {0, 0, 1}, {0, 1, 1}};
 double[][] labels = new double[][] {{0, 0, 1, 0.25}, {0, 0, 0, 0.25}, {0, 0, 1, 0.15}, {0, 0, 1, 0.25}};

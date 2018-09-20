@@ -1,7 +1,7 @@
 import java.util.List;
-import org.shuju.cv.templatematching.SearchPoint;
-import org.shuju.cv.templatematching.ISearchBitmap;
-import org.shuju.cv.templatematching.shapeextractor.RectangleExtractor;
+import com.github.romualdrousseau.shuju.cv.templatematching.SearchPoint;
+import com.github.romualdrousseau.shuju.cv.templatematching.ISearchBitmap;
+import com.github.romualdrousseau.shuju.cv.templatematching.shapeextractor.RectangleExtractor;
 
 PImage image;
 List<SearchPoint[]> shapes;

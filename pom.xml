@@ -29,6 +29,7 @@
     <project.build.reportingEncoding>UTF-8</project.build.reportingEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
+    <processing.libraries.path>${user.home}/Projects/Processing/libraries</processing.libraries.path>
   </properties>
 
   <scm>
@@ -127,8 +128,8 @@
             </goals>
             <configuration>
               <target>
-                <delete dir="${user.home}/Documents/Processing/libraries/${project.name}" />
-                <copy todir="${user.home}/Documents/Processing/libraries/${project.name}">
+                <delete dir="${processing.libraries.path}/${project.name}" />
+                <copy todir="${processing.libraries.path}/${project.name}">
                   <fileset dir="target/processing-staging/${project.name}" includes="**" />
                 </copy>
               </target>

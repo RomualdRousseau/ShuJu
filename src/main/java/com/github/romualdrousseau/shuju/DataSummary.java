@@ -30,7 +30,6 @@ public class DataSummary
 		this.max = 0;
 		this.sum = 0;
 		this.avg = 0;
-
 		
 		boolean firstRow = true;
 		for(DataRow row: dataset.rows()) {

@@ -1,5 +1,7 @@
-import romuald.*;
-import romuald.knn.*;
+import com.github.romualdrousseau.shuju.*;
+import com.github.romualdrousseau.shuju.features.*;
+import com.github.romualdrousseau.shuju.transforms.*;
+import com.github.romualdrousseau.shuju.ml.knn.*;
 
 import java.util.List;
 import java.io.IOException;
@@ -47,31 +49,30 @@ void setup() {
   
   try {
     DataSet fisherSet = loadTrainingSet("fisher's data.csv");
-    
+   
     // transform
-    for(DataRow row: fisherSet.rows()) {
-      for(IFeature feature: row.features()) {
-          DataSet.Statistic stat = feature.getStatistic();
-          feature.normalize(stat.min, stat.max);
-        }
-    }
-    fisherSet.shuffle();
-        
+    fisherSet
+      .transform(new NumericScaler(new DataSummary(fisherSet, 0)), 0) 
+      .transform(new NumericScaler(new DataSummary(fisherSet, 1)), 1) 
+      .transform(new NumericScaler(new DataSummary(fisherSet, 2)), 2)
+      .transform(new NumericScaler(new DataSummary(fisherSet, 3)), 3) 
+      .shuffle();
+    
     // Training samples
     DataSet training = fisherSet.subset(0, 110);
     // Test samples
     DataSet test = fisherSet.subset(110, 150);
 
     // classification
-    KNN knn = new KNN(6, 1.0, 1.0); 
+    KNN knn = new KNN(6); 
     knn.train(training);
     
     for(DataRow row: test.rows()) {
-      IResult result = knn.predict(row);
+      Result result = knn.predict(row);
       if(result.getLabel().equals(row.getLabel())) {
         success++;
       }
-      double squaredError = result.getConfidence() * result.getConfidence();
+      double squaredError = result.getError();
       avgError += squaredError;
       absError = Math.max(absError, squaredError);
     }

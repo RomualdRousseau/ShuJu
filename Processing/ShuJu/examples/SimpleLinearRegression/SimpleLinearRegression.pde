@@ -33,7 +33,7 @@ void setup() {
     }
     
     test = loadTrainingSet("x62.csv")
-      .transform(new VectorAdd(test, -1.0), IFeature.LABEL)           // extract seaonability
+      .transform(new VectorAdd(test, -1.0), IFeature.LABEL)           // extract seasonability
       .transform(new SmoothScaler(0.5), IFeature.LABEL)               // filter data by exponential average
       .transform(new VectorShift(12.0), 0)                            // translate in the future
       .transform(new VectorAdd(test.subset(12, 24)), IFeature.LABEL); // add trend
