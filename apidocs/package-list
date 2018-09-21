@@ -4,6 +4,7 @@ com.github.romualdrousseau.shuju.cv.templatematching
 com.github.romualdrousseau.shuju.cv.templatematching.shapeextractor
 com.github.romualdrousseau.shuju.features
 com.github.romualdrousseau.shuju.ml.ann
+com.github.romualdrousseau.shuju.ml.kmean
 com.github.romualdrousseau.shuju.ml.knn
 com.github.romualdrousseau.shuju.ml.qlearner
 com.github.romualdrousseau.shuju.ml.slr
