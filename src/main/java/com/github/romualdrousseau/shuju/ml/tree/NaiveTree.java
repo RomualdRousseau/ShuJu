@@ -74,7 +74,7 @@ public class NaiveTree implements IClassifier
 
         TreeNode child = root.findChild(row.features().get(level));
         if(child == null) {
-            IFeature feature = row.features().get(level);
+            IFeature<?> feature = row.features().get(level);
             feature.setProbability(1.0);
             child = new TreeNode().setValue(feature);
             root.addChild(child);
