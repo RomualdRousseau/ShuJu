@@ -12,7 +12,7 @@ public class NumericFeature extends IFeature<Double>
 		super(value, probability);
 	}
 
-	protected double costFuncImpl(IFeature predictedValue) {
+	protected double costFuncImpl(IFeature<?> predictedValue) {
 		double dist = (Double) predictedValue.getValue() - this.getValue();
 		return dist * dist;
 	}

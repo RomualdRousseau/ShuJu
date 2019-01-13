@@ -1,7 +1,6 @@
 package com.github.romualdrousseau.shuju.ml.kmean;
 
 import com.github.romualdrousseau.shuju.IClassifier;
-import com.github.romualdrousseau.shuju.IFeature;
 import com.github.romualdrousseau.shuju.DataRow;
 import com.github.romualdrousseau.shuju.DataSet;
 import com.github.romualdrousseau.shuju.Result;

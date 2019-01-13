@@ -12,12 +12,12 @@ public class RegexFeature extends StringFeature
 		super(value, probability);
 	}
 
-	protected double costFuncImpl(IFeature predictedValue) {
+	protected double costFuncImpl(IFeature<?> predictedValue) {
 		if(this.getValue().startsWith("\\neg")) {
-			return String.valueOf(predictedValue.getValue()).matches(this.getValue().substring(4)) ? 1.0 : 0.0;	
+			return String.valueOf(predictedValue.getValue()).matches(this.getValue().substring(4)) ? 1.0 : 0.0;
 		}
 		else {
-			return String.valueOf(predictedValue.getValue()).matches(this.getValue()) ? 0.0 : 1.0;	
+			return String.valueOf(predictedValue.getValue()).matches(this.getValue()) ? 0.0 : 1.0;
 		}
 	}
 }

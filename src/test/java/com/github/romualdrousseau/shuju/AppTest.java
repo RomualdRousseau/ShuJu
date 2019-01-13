@@ -1,7 +1,6 @@
 package com.github.romualdrousseau.shuju;
 
 import java.util.List;
-import java.util.function.Consumer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -42,16 +41,16 @@ public class AppTest
 		final DataSummary summary = new DataSummary(fisherset, 0);
 		double var = DataStatistics.var(fisherset, 0, summary);
 		double stdev = Math.sqrt(var);
-		
+
 		assertEquals("Count", 150, summary.count);
 		assertEquals("Min", 4.300, summary.min, 0.001);
 		assertEquals("Max", 7.900, summary.max, 0.001);
 		assertEquals("Sum", 876.500, summary.sum, 0.001);
 		assertEquals("Avg", 5.843, summary.avg, 0.001);
-		assertEquals("Var", 0.685, var, 0.001); 
+		assertEquals("Var", 0.685, var, 0.001);
 		assertEquals("Stdev", 0.828, stdev, 0.001);
 	}
-	
+
 	@Test
 	public void testSepalWidthDataSummary() {
 		final DataSet fisherset = loadFisherSet();
@@ -68,7 +67,7 @@ public class AppTest
 		assertEquals("Var", 0.189, var, 0.001);
 		assertEquals("Stdev", 0.436, stdev, 0.001);
 	}
-	
+
 	@Test
 	public void testPetalLengthDataSummary() {
 		final DataSet fisherset = loadFisherSet();
@@ -76,7 +75,7 @@ public class AppTest
 		final DataSummary summary = new DataSummary(fisherset, 2);
 		double var = DataStatistics.var(fisherset, 2, summary);
 		double stdev = Math.sqrt(var);
-		
+
 		assertEquals("Count", 150, summary.count);
 		assertEquals("Min", 1.000, summary.min, 0.001);
 		assertEquals("Max", 6.900, summary.max, 0.001);
@@ -85,7 +84,7 @@ public class AppTest
 		assertEquals("Var", 3.116, var, 0.001);
 		assertEquals("Stdev", 1.765, stdev, 0.001);
 	}
-	
+
 	@Test
 	public void testPetalWidthDataSummary() {
 		final DataSet fisherset = loadFisherSet();
@@ -102,34 +101,34 @@ public class AppTest
 		assertEquals("Var", 0.580, var, 0.001);
 		assertEquals("Stdev", 0.761, stdev, 0.001);
 	}
-	
+
 	@Test
 	public void testLengthCovariance() {
 		final DataSet fisherset = loadFisherSet();
 
 		double cov = DataStatistics.cov(fisherset, 0, 2);
-		
+
 		assertEquals("Cov", 1.274, cov, 0.001);
 	}
-	
+
 	@Test
 	public void testWidthCovariance() {
 		final DataSet fisherset = loadFisherSet();
 
 		double cov = DataStatistics.cov(fisherset, 1, 3);
-		
+
 		assertEquals("Cov", -0.121, cov, 0.001);
 	}
-	
+
 	@Test
 	public void testLengthCorellation() {
 		final DataSet fisherset = loadFisherSet();
 
 		double corr = DataStatistics.corr(fisherset, 0, 2);
-		
+
 		assertEquals("Corr", 0.872, corr, 0.001);
 	}
-	
+
 	@Test
 	public void testSLR() {
 		final DataSet training = loadLiquidStat();
@@ -140,12 +139,12 @@ public class AppTest
 		DataRow test = new DataRow()
 			.addFeature(new NumericFeature(13.0))
 			.setLabel(new NumericFeature(1.157));
-		
+
 		Result result = slr.predict(test);
-		
+
 		assertEquals("Result", (Double) test.getLabel().getValue(), (Double) result.getLabel().getValue(), 0.001);
 	}
-	
+
 	@Test
 	public void testKNN() {
 		final DataSet fisherset = loadFisherSet();
@@ -161,13 +160,13 @@ public class AppTest
 		final IClassifier knn = new KNN(6);
 		final DataSet training = fisherset.subset(0, 110);
 		knn.train(training);
-		
+
 		final DataSet test = fisherset.subset(110, 150);
 
 		int total = 0;
 		int success = 0;
 		double error = 0.0;
-		
+
 		for(DataRow row: test.rows()) {
 			Result result = knn.predict(row);
 			if(result.getLabel().equals(row.getLabel())) {
@@ -186,10 +185,10 @@ public class AppTest
 		assertEquals("Mean error", 0.0001, error, 0.001);
 		assertEquals("Total Number of Instances", total, test.rows().size());
 	}
-	
+
 	private DataSet loadFisherSet() {
 		DataSet fisherSet = new DataSet();
-		
+
 		List<String> lines = loadTable("/data/fisher's data.csv", "header");
 
 		for(String line: lines) {
@@ -201,13 +200,13 @@ public class AppTest
 				.addFeature(new NumericFeature(Double.valueOf(tokens[4])))
 				.setLabel(new StringFeature(tokens[5])));
 		}
-			
+
 		return fisherSet;
 	}
-	
+
 	private DataSet loadLiquidStat() {
 		DataSet liquidSet = new DataSet();
-		
+
 		List<String> lines = loadTable("/data/x62.csv", "header");
 
 		for(String line: lines) {
@@ -219,18 +218,18 @@ public class AppTest
 
 		return liquidSet;
 	}
-	
+
 	private List<String> loadTable(String resourceName, String options) {
 		try {
 			URL resourceUrl = getClass().getResource(resourceName);
 			assert resourceUrl != null;
-			
+
 			List<String> table = Files.readAllLines(Paths.get(resourceUrl.toURI()));
-			
+
 			if(options.equals("header")) {
 				table.remove(0); // remove headers
 			}
-			
+
 			return table;
 		}
 		catch(URISyntaxException x) {

@@ -2,7 +2,6 @@ package com.github.romualdrousseau.shuju;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 public class DataSet
 {
@@ -35,7 +34,7 @@ public class DataSet
 		}
 		return new DataSet(temp);
 	}
-	
+
 	public DataSet transform(ITransform transfomer, int colIndex) {
 		int rowIndex = 0;
 		if(colIndex == IFeature.LABEL) {

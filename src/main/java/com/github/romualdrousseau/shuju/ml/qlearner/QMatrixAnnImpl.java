@@ -1,8 +1,5 @@
 package com.github.romualdrousseau.shuju.ml.qlearner;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
-
 import com.github.romualdrousseau.shuju.ml.ann.*;
 
 public class QMatrixAnnImpl extends QMatrix
@@ -25,12 +22,12 @@ public class QMatrixAnnImpl extends QMatrix
 
     this.memoryMap =  new MemoryMap(memorySpace);
   }
-  
+
   public void reset() {
     this.memoryMap.clear();
     this.network.resetWeights();
   }
-  
+
   public void train(int s, int a, double v, double learnRate) {
     this.memoryMap.put(s, a, v, 1.0);
 
@@ -41,13 +38,13 @@ public class QMatrixAnnImpl extends QMatrix
       this.network.train(state, action, learnRate);
     }
   }
-  
+
   public int predictAction(int s) {
     double[] a = MemoryCell.IntToDoubleArray(s, numInputs);
     double[] b = this.network.evaluate(a);
     return MemoryCell.DoubleArrayToInt(b, numOutputs);
   }
-  
+
   public double predictReward(int s) {
     double[] a = MemoryCell.IntToDoubleArray(s, numInputs);
     double[] b= this.network.evaluate(a);

@@ -9,7 +9,7 @@ public class DataSummary
 	public double max;
 	public double sum;
 	public double avg;
-	
+
 	public DataSummary(DataSet dataset, int col) {
 		calculateStatistics(dataset, col);
 	}
@@ -30,10 +30,10 @@ public class DataSummary
 		this.max = 0;
 		this.sum = 0;
 		this.avg = 0;
-		
+
 		boolean firstRow = true;
 		for(DataRow row: dataset.rows()) {
-			IFeature feature = (col == IFeature.LABEL) ? row.getLabel() : row.features().get(col);
+			IFeature<?> feature = (col == IFeature.LABEL) ? row.getLabel() : row.features().get(col);
 			if(feature instanceof NumericFeature) {
 				if(firstRow) {
 					this.min = (Double) feature.getValue();

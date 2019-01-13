@@ -1,11 +1,5 @@
 package com.github.romualdrousseau.shuju.ml.knn;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-
 import com.github.romualdrousseau.shuju.IClassifier;
 import com.github.romualdrousseau.shuju.IFeature;
 import com.github.romualdrousseau.shuju.DataRow;
@@ -16,7 +10,7 @@ import com.github.romualdrousseau.shuju.util.Election;
 import com.github.romualdrousseau.shuju.util.Winner;
 
 public class KNN implements IClassifier
-{	
+{
 	public KNN(int k) {
 		this.k = k;
 		this.p = 1.0;
@@ -41,7 +35,7 @@ public class KNN implements IClassifier
 			return new Result(features, null, 0.0);
 		}
 
-		TreeMapWithDuplicates<Double, IFeature> nn = new TreeMapWithDuplicates<Double, IFeature>();
+		TreeMapWithDuplicates<Double, IFeature<?>> nn = new TreeMapWithDuplicates<Double, IFeature<?>>();
 
 		//Compute the distance between the data and the trainingSet, eliminates the trainingSet beyond distance p
 		for(DataRow trainingRow: this.trainingSet.rows()) {
@@ -54,7 +48,7 @@ public class KNN implements IClassifier
 			}
 		}
 
-		Winner<IFeature> winner = new Election<IFeature>().voteWithRank(nn.entrySet(this.k));
+		Winner<IFeature<?>> winner = new Election<IFeature<?>>().voteWithRank(nn.entrySet(this.k));
 		if(winner != null) {
 			return new Result(features, winner.getCandidate(), winner.getProbability());
 		}

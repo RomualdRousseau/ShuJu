@@ -12,7 +12,7 @@ public class StringFeature extends IFeature<String>
 		super(value, probability);
 	}
 
-	protected double costFuncImpl(IFeature predictedValue) {
+	protected double costFuncImpl(IFeature<?> predictedValue) {
 		return predictedValue.getValue().equals(this.getValue()) ? 0.0 : 1.0;
 	}
 }

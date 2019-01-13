@@ -19,13 +19,13 @@ public class FuzzyFeature extends StringFeature
 		return this;
 	}
 
-	protected double costFuncImpl(IFeature predictedValue) {
+	protected double costFuncImpl(IFeature<?> predictedValue) {
 		double dist = 1.0;
 		if(this.tokenize) {
 			dist = FuzzyString.distance(String.valueOf(predictedValue.getValue()), this.getValue(), this.tokenSeparator);
 		}
 		else {
-			dist = FuzzyString.distance(String.valueOf(predictedValue.getValue()).replaceAll(this.tokenSeparator, ""), this.getValue()); 
+			dist = FuzzyString.distance(String.valueOf(predictedValue.getValue()).replaceAll(this.tokenSeparator, ""), this.getValue());
 		}
 		return dist * dist;
 	}

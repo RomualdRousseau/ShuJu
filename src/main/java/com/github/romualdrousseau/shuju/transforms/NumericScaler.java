@@ -11,13 +11,13 @@ public class NumericScaler implements ITransform
 		this.min = summary.min;
 		this.ratio = 1.0 / (summary.max - summary.min);
 	}
-	
-	public void apply(IFeature feature, int rowIndex, int colIndex) {
+
+	public void apply(IFeature<?> feature, int rowIndex, int colIndex) {
 		assert(feature instanceof NumericFeature);
 		NumericFeature numericFeature = (NumericFeature) feature;
 		numericFeature.setValue((numericFeature.getValue() - this.min) * this.ratio);
 	}
-	
+
 	private double min;
 	private double ratio;
 }

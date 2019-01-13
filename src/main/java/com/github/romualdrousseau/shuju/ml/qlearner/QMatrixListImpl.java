@@ -1,13 +1,10 @@
 package com.github.romualdrousseau.shuju.ml.qlearner;
 
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 public class QMatrixListImpl extends QMatrix
 {
   public QMatrixListImpl(QEnvironment env) {
-    this.numStates = env.numStates;
-    this.numActions = env.numActions;
   }
 
   public void reset() {
@@ -16,11 +13,11 @@ public class QMatrixListImpl extends QMatrix
 
   public void train(int s, int a, double v, double learnRate) {
     Integer[] node = new Integer[] {s, a};
-    
+
     MemoryCell cell = this.map.get(node);
     if(cell == null) {
       cell = new MemoryCell(s, a, learnRate * v);
-      this.map.put(node, cell); 
+      this.map.put(node, cell);
     }
     else {
       cell.reward += learnRate * (v - cell.reward);
@@ -47,7 +44,5 @@ public class QMatrixListImpl extends QMatrix
     return result;
   }
 
-  private int numStates;
-  private int numActions;
   private HashMap<Integer[], MemoryCell> map = new HashMap<Integer[], MemoryCell>();
 }

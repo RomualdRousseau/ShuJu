@@ -16,8 +16,8 @@ public class VectorAdd implements ITransform
 		this.other = other;
 		this.a = a;
 	}
-	
-	public void apply(IFeature feature, int rowIndex, int colIndex) {
+
+	public void apply(IFeature<?> feature, int rowIndex, int colIndex) {
 		assert(feature instanceof NumericFeature);
 		NumericFeature numericFeature = (NumericFeature) feature;
 		NumericFeature otherFeature = (NumericFeature) ((colIndex == IFeature.LABEL) ? this.other.rows().get(rowIndex).getLabel() : this.other.rows().get(rowIndex).features().get(colIndex));

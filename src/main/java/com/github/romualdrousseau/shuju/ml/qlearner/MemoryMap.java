@@ -2,7 +2,6 @@ package com.github.romualdrousseau.shuju.ml.qlearner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 class MemoryMap
 {
@@ -23,12 +22,12 @@ class MemoryMap
 
 	public void put(int s, int a, double v, double learnRate) {
 		Integer[] node = new Integer[] {s, a};
-		
+
 		MemoryCell cell = this.map.get(node);
 		if(cell == null) {
 			forgetOldestMemory();
 			cell = new MemoryCell(s, a, learnRate * v, this.timestamp);
-			this.map.put(node, cell);	
+			this.map.put(node, cell);
 		}
 		else {
 			cell.reward += learnRate * (v - cell.reward);
@@ -73,7 +72,7 @@ class MemoryMap
 				oldestCell = e;
 			}
 		}
-		
+
 		Integer[] nodeToRemove = new Integer[] {oldestCell.state, oldestCell.action};
 		map.remove(nodeToRemove);
 	}

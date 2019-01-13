@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class Result implements StatisticClass
 {
-	public Result(DataRow features, IFeature label, double probability) {
+	public Result(DataRow features, IFeature<?> label, double probability) {
 		this.features = features;
 		if(label != null) {
 			this.labels.add(label);
@@ -22,11 +22,11 @@ public class Result implements StatisticClass
 		return this;
 	}
 
-	public List<IFeature> labels() {
+	public List<IFeature<?>> labels() {
 		return this.labels;
 	}
 
-	public IFeature getLabel() {
+	public IFeature<?> getLabel() {
 		if(this.labels.size() == 0) {
 			return null;
 		}
@@ -35,7 +35,7 @@ public class Result implements StatisticClass
 		}
 	}
 
-	public Result setLabel(IFeature label) {
+	public Result setLabel(IFeature<?> label) {
 		this.labels.clear();
 		if(label != null) {
 			this.labels.add(label);
@@ -43,7 +43,7 @@ public class Result implements StatisticClass
 		return this;
 	}
 
-	public Result addLabel(IFeature label) {
+	public Result addLabel(IFeature<?> label) {
 		this.labels.add(label);
 		return this;
 	}
@@ -74,7 +74,7 @@ public class Result implements StatisticClass
 		}
 		else {
 			boolean firstPass = true;
-			for(IFeature label: this.labels) {
+			for(IFeature<?> label: this.labels) {
 				if(firstPass) {
 					labelString = label.toString();
 					firstPass = false;
@@ -84,7 +84,7 @@ public class Result implements StatisticClass
 				}
 			}
 		}
-		
+
 		return String.format("[%s :- %s, %.2f]", featuresString, labelString, this.probability);
 	}
 
@@ -95,7 +95,7 @@ public class Result implements StatisticClass
 		}
 		else {
 			boolean firstPass = true;
-			for(IFeature label: this.labels) {
+			for(IFeature<?> label: this.labels) {
 				if(firstPass) {
 					result = label.getValue().toString();
 					firstPass = false;
@@ -109,6 +109,6 @@ public class Result implements StatisticClass
 	}
 
 	private DataRow features;
-	private List<IFeature> labels = new ArrayList<IFeature>();
+	private List<IFeature<?>> labels = new ArrayList<IFeature<?>>();
 	private double probability;
 }

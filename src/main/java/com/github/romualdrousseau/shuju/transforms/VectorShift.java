@@ -10,10 +10,10 @@ public class VectorShift implements ITransform
 		this.a = a;
 	}
 
-	public void apply(IFeature feature, int rowIndex, int colIndex) {
+	public void apply(IFeature<?> feature, int rowIndex, int colIndex) {
 		assert(feature instanceof NumericFeature);
 		NumericFeature numericFeature = (NumericFeature) feature;
-		numericFeature.setValue(numericFeature.getValue() + this.a);	
+		numericFeature.setValue(numericFeature.getValue() + this.a);
 	}
 
 	private double a;

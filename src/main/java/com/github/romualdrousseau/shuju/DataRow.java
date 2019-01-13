@@ -1,24 +1,23 @@
 package com.github.romualdrousseau.shuju;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 public class DataRow
 {
-	public ArrayList<IFeature> features() {
+	public ArrayList<IFeature<?>> features() {
 		return this.features;
 	}
 
-	public DataRow addFeature(IFeature feature) {
+	public DataRow addFeature(IFeature<?> feature) {
 		this.features.add(feature);
 		return this;
 	}
 
-	public IFeature getLabel() {
+	public IFeature<?> getLabel() {
 		return this.label;
 	}
 
-	public DataRow setLabel(IFeature label) {
+	public DataRow setLabel(IFeature<?> label) {
 		this.label = label;
 		return this;
 	}
@@ -26,7 +25,7 @@ public class DataRow
 	public String toString() {
 		String featuresString = "";
 		boolean firstPass = true;
-		for(IFeature feature: this.features) {
+		for(IFeature<?> feature: this.features) {
 			if(firstPass) {
 				featuresString = feature.toString();
 				firstPass = false;
@@ -43,10 +42,10 @@ public class DataRow
 		else {
 			labelString = this.label.toString();
 		}
-		
-		return String.format("[%s :- %s]", featuresString, labelString);	
+
+		return String.format("[%s :- %s]", featuresString, labelString);
 	}
 
-	private ArrayList<IFeature> features = new ArrayList<IFeature>();
-	private IFeature label = null;
+	private ArrayList<IFeature<?>> features = new ArrayList<IFeature<?>>();
+	private IFeature<?> label = null;
 }

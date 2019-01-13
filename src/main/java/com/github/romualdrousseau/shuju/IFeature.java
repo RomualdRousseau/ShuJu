@@ -3,7 +3,7 @@ package com.github.romualdrousseau.shuju;
 public abstract class IFeature<T> implements StatisticClass
 {
 	public static final int LABEL = -1;
-	
+
 	public IFeature() {
 		this.value = null;
 		this.probability = 0.0;
@@ -53,15 +53,15 @@ public abstract class IFeature<T> implements StatisticClass
 		return this.value == null;
 	}
 
-	public boolean equals(IFeature other) {
+	public boolean equals(IFeature<?> other) {
 		return this.value.equals(other.value) && this.probability == other.probability;
 	}
 
-	public static boolean isNullOrEmpty(IFeature feature) {
+	public static boolean isNullOrEmpty(IFeature<?> feature) {
 		return feature == null || feature.isEmpty();
 	}
 
-	public double costFunc(IFeature predictedValue) {
+	public double costFunc(IFeature<?> predictedValue) {
 		if(this.isEmptyAsNoCost() && this.isEmpty()) {
 			return 0.0;
 		}
@@ -76,8 +76,8 @@ public abstract class IFeature<T> implements StatisticClass
 	public String toString() {
 		return String.format("[%s, %.2f]", this.value, this.probability);
 	}
-	
-	protected abstract double costFuncImpl(IFeature predictedValue);
+
+	protected abstract double costFuncImpl(IFeature<?> predictedValue);
 
 	private T value;
 	private double probability;

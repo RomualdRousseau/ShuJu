@@ -7,11 +7,11 @@ import com.github.romualdrousseau.shuju.features.NumericFeature;
 public class SmoothScaler implements ITransform
 {
 	public SmoothScaler(double coef) {
-		this.firstRow = false; 
+		this.firstRow = false;
 		this.coef = coef;
 	}
-	
-	public void apply(IFeature feature, int rowIndex, int colIndex) {
+
+	public void apply(IFeature<?> feature, int rowIndex, int colIndex) {
 		assert(feature instanceof NumericFeature);
 		NumericFeature numericFeature = (NumericFeature) feature;
 		if(this.firstRow) {
