@@ -6,7 +6,7 @@ public class SearchPoint
 		this.x = x;
 		this.y = y;
 		this.sad = sad;
-	} 
+	}
 
 	public int getX() {
 		return this.x;
@@ -18,7 +18,7 @@ public class SearchPoint
 
 	public double getSAD() {
 		return this.sad;
-	}
+    }
 
 	private int x;
 	private int y;

@@ -6,20 +6,10 @@ public class Filter
     	this.filter = filter;
   	}
 
-	public void apply(ISearchBitmap searchBitmap, int threshold) {
-		int hw = filter.getWidth() / 2;
-		int hh = filter.getHeight() / 2;
-
+	public void apply(ISearchBitmap searchBitmap, double threshold) {
 		for(int y = 0; y < searchBitmap.getHeight(); y++) {
 			for(int x = 0; x < searchBitmap.getWidth(); x++) {
-
-				int acc = 0;
-				for(int i = 0; i < this.filter.getHeight(); i++) {
-					for(int j = 0; j < this.filter.getWidth(); j++) {
-						acc += this.filter.get(j, i) * searchBitmap.get(x + j - hw, y + i - hh);
-					}
-				}
-
+                int acc = this.filter.sobel(searchBitmap, x, y);
 				if(acc < threshold) {
 					searchBitmap.set(x, y, 0);
 				}
@@ -27,26 +17,30 @@ public class Filter
 		}
 	}
 
-	public void applyNeg(ISearchBitmap searchBitmap, int threshold) {
-		int hw = filter.getWidth() / 2;
-		int hh = filter.getHeight() / 2;
-
+	public void applyNeg(ISearchBitmap searchBitmap, double threshold) {
 		for(int y = 0; y < searchBitmap.getHeight(); y++) {
 			for(int x = 0; x < searchBitmap.getWidth(); x++) {
-
-				int acc = 0;
-				for(int i = 0; i < this.filter.getHeight(); i++) {
-					for(int j = 0; j < this.filter.getWidth(); j++) {
-						acc += this.filter.get(j, i) * searchBitmap.get(x + j - hw, y + i - hh);
-					}
-				}
-
+				int acc = this.filter.sobel(searchBitmap, x, y);
 				if(acc >= threshold) {
 					searchBitmap.set(x, y, 1);
 				}
 			}
 		}
-	}
+    }
+
+    public void apply(ISearchBitmap sourceBitmap, ISearchBitmap destBitmap, double threshold) {
+        for(int y = 0; y < sourceBitmap.getHeight(); y++) {
+			for(int x = 0; x < sourceBitmap.getWidth(); x++) {
+				int acc = this.filter.sobel(sourceBitmap, x, y);
+				if(acc < threshold) {
+					destBitmap.set(x, y, 0);
+                }
+                else {
+                    destBitmap.set(x, y, 1);
+                }
+			}
+		}
+    }
 
 	private Template filter;
 }
