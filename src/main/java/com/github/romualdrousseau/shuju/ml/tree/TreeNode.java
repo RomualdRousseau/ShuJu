@@ -5,8 +5,7 @@ import java.util.ArrayList;
 
 import com.github.romualdrousseau.shuju.IFeature;
 
-public class TreeNode
-{
+public class TreeNode {
     public TreeNode setValue(IFeature<?> value) {
         this.value = value;
         return this;
@@ -29,27 +28,26 @@ public class TreeNode
     }
 
     public List<TreeNode> siblings() {
-        if(this.parent == null) {
+        if (this.parent == null) {
             return null;
-        }
-        else {
+        } else {
             return this.parent.children;
         }
     }
 
-	public TreeNode addChild(TreeNode child) {
-		child.parent = this;
+    public TreeNode addChild(TreeNode child) {
+        child.parent = this;
         this.children.add(child);
-		return this;
-	}
+        return this;
+    }
 
-	public TreeNode findChild(IFeature<?> valueToFound) {
-    	for(TreeNode child: this.children) {
-    		if(child.value.getValue().equals(valueToFound.getValue())) {
-    			return child;
-    		}
-    	}
-    	return null;
+    public TreeNode findChild(IFeature<?> valueToFound) {
+        for (TreeNode child : this.children) {
+            if (child.value.getValue().equals(valueToFound.getValue())) {
+                return child;
+            }
+        }
+        return null;
     }
 
     public void simplify() {
@@ -63,26 +61,25 @@ public class TreeNode
     private List<IFeature<?>> simplifyRec() {
         List<IFeature<?>> pool = new ArrayList<IFeature<?>>();
 
-        if(this.children.size() == 0) {
+        if (this.children.size() == 0) {
             pool.add(this.value);
-        }
-        else {
-            for(TreeNode child: this.children) {
+        } else {
+            for (TreeNode child : this.children) {
                 List<IFeature<?>> features = child.simplifyRec();
-                for(IFeature<?> feature1: features) {
+                for (IFeature<?> feature1 : features) {
                     boolean foundFeature = false;
-                    for(IFeature<?> feature2: pool) {
-                        if(feature2.equals(feature1)) {
+                    for (IFeature<?> feature2 : pool) {
+                        if (feature2.equals(feature1)) {
                             foundFeature = true;
                         }
                     }
-                    if(!foundFeature) {
+                    if (!foundFeature) {
                         pool.add(feature1);
                     }
                 }
             }
 
-            if(pool.size() == 1 && this.children.size() > 0) {
+            if (pool.size() == 1 && this.children.size() > 0) {
                 this.children.clear();
                 this.addChild(new TreeNode().setValue(pool.get(0)));
             }
@@ -92,14 +89,15 @@ public class TreeNode
     }
 
     private void displayRec(int level) {
-        for(int i = 0; i < level; i++) System.out.print("\t");
+        for (int i = 0; i < level; i++)
+            System.out.print("\t");
         System.out.println("> " + getValue());
-        for(TreeNode child: this.children) {
+        for (TreeNode child : this.children) {
             child.displayRec(level + 1);
         }
     }
 
     private IFeature<?> value;
     private TreeNode parent = null;
-	private List<TreeNode> children = new ArrayList<TreeNode>();
+    private List<TreeNode> children = new ArrayList<TreeNode>();
 }

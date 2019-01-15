@@ -1,12 +1,11 @@
 package com.github.romualdrousseau.shuju.cv;
 
-public abstract class ISearchBitmap
-{
-	public abstract int getWidth();
+public abstract class ISearchBitmap {
+    public abstract int getWidth();
 
-	public abstract int getHeight();
+    public abstract int getHeight();
 
-	public abstract int get(int x, int y);
+    public abstract int get(int x, int y);
 
-	public abstract void set(int x, int y, int v);
+    public abstract void set(int x, int y, int v);
 }

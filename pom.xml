@@ -113,7 +113,7 @@
             <configuration>
               <target>
                 <copy todir="target\processing-staging">
-                  <fileset dir="Processing" includes="**" />
+                  <fileset dir="src/main/processing" includes="**" />
                 </copy>
                 <copy file="target/${project.artifactId}-${project.version}.jar" tofile="target/processing-staging/${project.name}/library/${project.name}.jar" />
                 <zip basedir="target/processing-staging" destfile="target/${project.name}-${project.version}-processing.zip" />
