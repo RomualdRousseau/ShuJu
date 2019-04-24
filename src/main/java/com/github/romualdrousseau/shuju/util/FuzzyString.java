@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.romualdrousseau.shuju.math.Vector;
+
 public class FuzzyString {
     public static double similarity(String s1, String s2) {
         return levenshtein(s1, s2);
@@ -13,8 +15,8 @@ public class FuzzyString {
         String[] w1 = s1.split(separator);
         String[] w2 = s2.split(separator);
         String[] q = FuzzyString.union(w1, w2);
-        double[] v1 = Vector.fromTokens(q, w1);
-        double[] v2 = Vector.fromTokens(q, w2);
+        double[] v1 = FuzzyString.fromTokens(q, w1);
+        double[] v2 = FuzzyString.fromTokens(q, w2);
         return Vector.scalar(v1, v2) / (Vector.norm(v1) * Vector.norm(v2));
     }
 
@@ -98,5 +100,13 @@ public class FuzzyString {
         }
 
         return result.toArray(new String[result.size()]);
+    }
+
+    public static double[] fromTokens(String[] w, String[] q) {
+        double[] result = new double[w.length];
+        for (int i = 0; i < w.length; i++) {
+            result[i] = FuzzyString.levenshtein(q, w[i]);
+        }
+        return result;
     }
 }

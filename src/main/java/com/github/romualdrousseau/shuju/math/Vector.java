@@ -1,4 +1,4 @@
-package com.github.romualdrousseau.shuju.util;
+package com.github.romualdrousseau.shuju.math;
 
 public class Vector {
     public static double scalar(double[] v1, double[] v2) {
@@ -11,13 +11,5 @@ public class Vector {
 
     public static double norm(double[] v) {
         return Math.sqrt(scalar(v, v));
-    }
-
-    public static double[] fromTokens(String[] w, String[] q) {
-        double[] result = new double[w.length];
-        for (int i = 0; i < w.length; i++) {
-            result[i] = FuzzyString.levenshtein(q, w[i]);
-        }
-        return result;
     }
 }
