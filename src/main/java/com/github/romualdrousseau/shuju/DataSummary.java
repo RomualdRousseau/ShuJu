@@ -4,10 +4,10 @@ import com.github.romualdrousseau.shuju.features.NumericFeature;
 
 public class DataSummary {
     public int count;
-    public double min;
-    public double max;
-    public double sum;
-    public double avg;
+    public float min;
+    public float max;
+    public float sum;
+    public float avg;
 
     public DataSummary(DataSet dataset, int col) {
         calculateStatistics(dataset, col);
@@ -35,17 +35,17 @@ public class DataSummary {
             IFeature<?> feature = (col == IFeature.LABEL) ? row.getLabel() : row.features().get(col);
             if (feature instanceof NumericFeature) {
                 if (firstRow) {
-                    this.min = (Double) feature.getValue();
-                    this.max = (Double) feature.getValue();
-                    this.sum = (Double) feature.getValue();
+                    this.min = (Float) feature.getValue();
+                    this.max = (Float) feature.getValue();
+                    this.sum = (Float) feature.getValue();
                     firstRow = false;
                 } else {
-                    this.min = Math.min(this.min, (Double) feature.getValue());
-                    this.max = Math.max(this.max, (Double) feature.getValue());
+                    this.min = Math.min(this.min, (Float) feature.getValue());
+                    this.max = Math.max(this.max, (Float) feature.getValue());
                     this.sum += (Double) feature.getValue();
                 }
             }
         }
-        this.avg = this.sum / (double) this.count;
+        this.avg = this.sum / (float) this.count;
     }
 }

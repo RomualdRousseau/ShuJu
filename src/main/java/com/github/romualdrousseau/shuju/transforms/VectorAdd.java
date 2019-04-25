@@ -8,10 +8,10 @@ import com.github.romualdrousseau.shuju.features.NumericFeature;
 public class VectorAdd implements ITransform {
     public VectorAdd(DataSet other) {
         this.other = other;
-        this.a = 1.0;
+        this.a = 1.0f;
     }
 
-    public VectorAdd(DataSet other, double a) {
+    public VectorAdd(DataSet other, float a) {
         this.other = other;
         this.a = a;
     }
@@ -26,5 +26,5 @@ public class VectorAdd implements ITransform {
     }
 
     private DataSet other;
-    private double a;
+    private float a;
 }

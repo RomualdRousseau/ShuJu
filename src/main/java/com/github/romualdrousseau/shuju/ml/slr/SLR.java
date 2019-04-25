@@ -25,11 +25,11 @@ public class SLR implements IClassifier {
     }
 
     public Result predict(DataRow row) {
-        double value = (Double) row.features().get(0).getValue() * beta + alpha;
+        float value = (Float) row.features().get(0).getValue() * beta + alpha;
         return new Result(row, new NumericFeature(value), 1.0);
     }
 
-    private double beta;
-    private double alpha;
+    private float beta;
+    private float alpha;
     private DataSet trainingSet;
 }

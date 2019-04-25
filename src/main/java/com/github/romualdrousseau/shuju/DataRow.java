@@ -21,6 +21,22 @@ public class DataRow {
         return this;
     }
 
+    public boolean isSimilar(DataRow other) {
+        boolean result = this.features.size() == other.features.size();
+        for(int i = 0; i < this.features.size() && result; i++) {
+            result &= this.features.get(i).equals(other.features.get(i));
+        }
+        return result;
+    }
+
+    public boolean equals(DataRow other) {
+        boolean result = this.features.size() == other.features.size();
+        for(int i = 0; i < this.features.size() && result; i++) {
+            result &= this.features.get(i).equals(other.features.get(i));
+        }
+        return result && this.getLabel().equals(other.getLabel());
+    }
+
     public String toString() {
         String featuresString = "";
         boolean firstPass = true;

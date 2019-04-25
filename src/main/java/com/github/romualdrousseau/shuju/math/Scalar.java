@@ -1,12 +1,14 @@
 package com.github.romualdrousseau.shuju.math;
 
+import java.util.Random;
+
 public class Scalar {
     public static final float EPSILON = 1e-8f;
 
-    public static float[] oneHot(int i, int n) {
-        float[] state = new float[n];
-        state[i] = 1.0f;
-        return state;
+    private static Random randomGenerator;
+
+    static {
+        Scalar.randomGenerator = new Random(System.currentTimeMillis());
     }
 
     public static float abs(float x) {
@@ -46,64 +48,15 @@ public class Scalar {
     }
 
     public static float random(float a, float b) {
-        return (float) (Math.random() * (b - a) + a);
+        return randomGenerator.nextFloat() * (b - a) + a;
     }
 
     public static float randomGaussian() {
-        return (float) Math.random();
+        return (float) randomGenerator.nextGaussian();
     }
 
     public static float sgn(float x) {
         return (x > 0.0f) ? 1.0f : ((x < 0.0f) ? -1.0f : 0.0f);
-    }
-
-    public static int argmax(float[] v) {
-        int result = 0;
-        float maxValue = v[0];
-        for (int i = 1; i < v.length; i++) {
-            if (v[i] > maxValue) {
-                maxValue = v[i];
-                result = i;
-            }
-        }
-        return result;
-    }
-
-    public static int argmin(float[] v) {
-        int result = 0;
-        float minValue = v[0];
-        for (int i = 1; i < v.length; i++) {
-            if (v[i] < minValue) {
-                minValue = v[i];
-                result = i;
-            }
-        }
-        return result;
-    }
-
-    public static float[] add(float[] u, float[] v) {
-        for (int i = 0; i < u.length; i++) {
-            u[i] += v[i];
-        }
-        return u;
-    }
-
-    public static float constrain(float x, float a, float b) {
-        return (x > a) ? a : ((x < b) ? b : x);
-    }
-
-    public static float[] constrain(float[] u, float a, float b) {
-        for (int i = 0; i < u.length; i++) {
-            u[i] = Scalar.constrain(u[i], a, b);
-        }
-        return u;
-    }
-
-    public static float[] filter(float[] u, float p, float a, float b) {
-        for (int j = 0; j < u.length; j++) {
-            u[j] = (u[j] < p) ? a : b;
-        }
-        return u;
     }
 
     public static float unlerp(float a, float b, float v) {

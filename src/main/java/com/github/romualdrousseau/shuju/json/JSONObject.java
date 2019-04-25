@@ -1,19 +1,23 @@
 package com.github.romualdrousseau.shuju.json;
 
 public interface JSONObject {
-    int getInt(String s);
+    int getInt(String k);
 
-    void setInt(String s, int n);
+    void setInt(String k, int n);
 
-    float getFloat(String s);
+    float getFloat(String k);
 
-    void setFloat(String s, float f);
+    void setFloat(String k, float f);
 
-    JSONArray getJSONArray(String s);
+    String getString(String k);
 
-    void setJSONArray(String s, JSONArray a);
+    void setString(String k, String s);
 
-    JSONObject getJSONObject(String s);
+    JSONArray getJSONArray(String k);
 
-    void setJSONObject(String s, JSONObject o);
+    void setJSONArray(String k, JSONArray a);
+
+    JSONObject getJSONObject(String k);
+
+    void setJSONObject(String k, JSONObject o);
 }

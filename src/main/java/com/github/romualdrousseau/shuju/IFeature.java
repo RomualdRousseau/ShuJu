@@ -1,5 +1,8 @@
 package com.github.romualdrousseau.shuju;
 
+import com.github.romualdrousseau.shuju.json.JSONFactory;
+import com.github.romualdrousseau.shuju.json.JSONArray;
+
 public abstract class IFeature<T> implements StatisticClass {
     public static final int LABEL = -1;
 
@@ -75,6 +78,12 @@ public abstract class IFeature<T> implements StatisticClass {
     public String toString() {
         return String.format("[%s, %.2f]", this.value, this.probability);
     }
+
+    public abstract float[] toVector();
+
+    protected abstract JSONArray toJSON(JSONFactory jsonFactory);
+
+    protected abstract void fromJSON(JSONArray json);
 
     protected abstract double costFuncImpl(IFeature<?> predictedValue);
 

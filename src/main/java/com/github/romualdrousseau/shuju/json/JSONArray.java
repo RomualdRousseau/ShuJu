@@ -11,6 +11,10 @@ public interface JSONArray {
 
     void setFloat(int i, float f);
 
+    String getString(int i);
+
+    void setString(int i, String s);
+
     JSONArray getJSONArray(int i);
 
     void setJSONArray(int i, JSONArray f);
@@ -22,6 +26,10 @@ public interface JSONArray {
     void append(int i );
 
     void append(float f);
+
+    void append(String s);
+
+    void append(JSONArray a);
 
     void append(JSONObject o);
 }

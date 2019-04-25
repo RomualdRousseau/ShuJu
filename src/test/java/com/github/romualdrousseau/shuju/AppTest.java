@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
 
 import com.github.romualdrousseau.shuju.features.*;
+import com.github.romualdrousseau.shuju.math.Scalar;
 import com.github.romualdrousseau.shuju.transforms.*;
 import com.github.romualdrousseau.shuju.ml.knn.*;
 import com.github.romualdrousseau.shuju.ml.slr.*;
@@ -39,8 +40,8 @@ public class AppTest
 		final DataSet fisherset = loadFisherSet();
 
 		final DataSummary summary = new DataSummary(fisherset, 0);
-		double var = DataStatistics.var(fisherset, 0, summary);
-		double stdev = Math.sqrt(var);
+		float var = DataStatistics.var(fisherset, 0, summary);
+		float stdev = Scalar.sqrt(var);
 
 		assertEquals("Count", 150, summary.count);
 		assertEquals("Min", 4.300, summary.min, 0.001);
@@ -56,8 +57,8 @@ public class AppTest
 		final DataSet fisherset = loadFisherSet();
 
 		final DataSummary summary = new DataSummary(fisherset, 1);
-		double var = DataStatistics.var(fisherset, 1, summary);
-		double stdev = Math.sqrt(var);
+		float var = DataStatistics.var(fisherset, 1, summary);
+		float stdev = Scalar.sqrt(var);
 
 		assertEquals("Count", 150, summary.count);
 		assertEquals("Min", 2.000, summary.min, 0.001);
@@ -73,8 +74,8 @@ public class AppTest
 		final DataSet fisherset = loadFisherSet();
 
 		final DataSummary summary = new DataSummary(fisherset, 2);
-		double var = DataStatistics.var(fisherset, 2, summary);
-		double stdev = Math.sqrt(var);
+		float var = DataStatistics.var(fisherset, 2, summary);
+		float stdev = Scalar.sqrt(var);
 
 		assertEquals("Count", 150, summary.count);
 		assertEquals("Min", 1.000, summary.min, 0.001);
@@ -90,8 +91,8 @@ public class AppTest
 		final DataSet fisherset = loadFisherSet();
 
 		final DataSummary summary = new DataSummary(fisherset, 3);
-		double var = DataStatistics.var(fisherset, 3, summary);
-		double stdev = Math.sqrt(var);
+		float var = DataStatistics.var(fisherset, 3, summary);
+		float stdev = Scalar.sqrt(var);
 
 		assertEquals("Count", 150, summary.count);
 		assertEquals("Min", 0.100, summary.min, 0.001);
@@ -106,7 +107,7 @@ public class AppTest
 	public void testLengthCovariance() {
 		final DataSet fisherset = loadFisherSet();
 
-		double cov = DataStatistics.cov(fisherset, 0, 2);
+		float cov = DataStatistics.cov(fisherset, 0, 2);
 
 		assertEquals("Cov", 1.274, cov, 0.001);
 	}
@@ -115,7 +116,7 @@ public class AppTest
 	public void testWidthCovariance() {
 		final DataSet fisherset = loadFisherSet();
 
-		double cov = DataStatistics.cov(fisherset, 1, 3);
+		float cov = DataStatistics.cov(fisherset, 1, 3);
 
 		assertEquals("Cov", -0.121, cov, 0.001);
 	}
@@ -124,7 +125,7 @@ public class AppTest
 	public void testLengthCorellation() {
 		final DataSet fisherset = loadFisherSet();
 
-		double corr = DataStatistics.corr(fisherset, 0, 2);
+		float corr = DataStatistics.corr(fisherset, 0, 2);
 
 		assertEquals("Corr", 0.872, corr, 0.001);
 	}
@@ -137,12 +138,12 @@ public class AppTest
 		slr.train(training);
 
 		DataRow test = new DataRow()
-			.addFeature(new NumericFeature(13.0))
-			.setLabel(new NumericFeature(1.157));
+			.addFeature(new NumericFeature(13.0f))
+			.setLabel(new NumericFeature(1.157f));
 
 		Result result = slr.predict(test);
 
-		assertEquals("Result", (Double) test.getLabel().getValue(), (Double) result.getLabel().getValue(), 0.001);
+		assertEquals("Result", (Float) test.getLabel().getValue(), (Float) result.getLabel().getValue(), 0.001f);
 	}
 
 	@Test
@@ -165,7 +166,7 @@ public class AppTest
 
 		int total = 0;
 		int success = 0;
-		double error = 0.0;
+		float error = 0.0f;
 
 		for(DataRow row: test.rows()) {
 			Result result = knn.predict(row);
@@ -176,13 +177,13 @@ public class AppTest
 			total++;
 		}
 
-		double correct = (double) success / (double) total;
-		double incorrect = 1.0 - correct;
-		error /= (double) total;
+		float correct = (float) success / (float) total;
+		float incorrect = 1.0f - correct;
+		error /= (float) total;
 
 		assertEquals("Correctly Classified Instances", 1.0, correct, 0.1);
 		assertEquals("Incorrectly Classified Instances", 0.0, incorrect, 0.1);
-		assertEquals("Mean error", 0.0001, error, 0.001);
+		assertEquals("Mean error", 0.0001f, error, 0.001);
 		assertEquals("Total Number of Instances", total, test.rows().size());
 	}
 
@@ -194,10 +195,10 @@ public class AppTest
 		for(String line: lines) {
 			String[] tokens = line.split(",");
 			fisherSet.addRow(new DataRow()
-				.addFeature(new NumericFeature(Double.valueOf(tokens[1])))
-				.addFeature(new NumericFeature(Double.valueOf(tokens[2])))
-				.addFeature(new NumericFeature(Double.valueOf(tokens[3])))
-				.addFeature(new NumericFeature(Double.valueOf(tokens[4])))
+				.addFeature(new NumericFeature(Float.valueOf(tokens[1])))
+				.addFeature(new NumericFeature(Float.valueOf(tokens[2])))
+				.addFeature(new NumericFeature(Float.valueOf(tokens[3])))
+				.addFeature(new NumericFeature(Float.valueOf(tokens[4])))
 				.setLabel(new StringFeature(tokens[5])));
 		}
 
@@ -212,8 +213,8 @@ public class AppTest
 		for(String line: lines) {
 			String[] tokens = line.split(",");
 			liquidSet.addRow(new DataRow()
-				.addFeature(new NumericFeature(Double.valueOf(tokens[1])))
-				.setLabel(new NumericFeature(Double.valueOf(tokens[2]))));
+				.addFeature(new NumericFeature(Float.valueOf(tokens[1])))
+				.setLabel(new NumericFeature(Float.valueOf(tokens[2]))));
 		}
 
 		return liquidSet;

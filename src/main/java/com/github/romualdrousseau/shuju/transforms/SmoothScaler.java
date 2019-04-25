@@ -5,7 +5,7 @@ import com.github.romualdrousseau.shuju.IFeature;
 import com.github.romualdrousseau.shuju.features.NumericFeature;
 
 public class SmoothScaler implements ITransform {
-    public SmoothScaler(double coef) {
+    public SmoothScaler(float coef) {
         this.firstRow = false;
         this.coef = coef;
     }
@@ -17,11 +17,11 @@ public class SmoothScaler implements ITransform {
             this.lastValue = numericFeature.getValue();
             firstRow = false;
         } else {
-            numericFeature.setValue(this.lastValue * (1.0 - this.coef) + numericFeature.getValue() * this.coef);
+            numericFeature.setValue(this.lastValue * (1.0f - this.coef) + numericFeature.getValue() * this.coef);
         }
     }
 
     private boolean firstRow;
-    private double lastValue;
-    private double coef;
+    private float lastValue;
+    private float coef;
 }

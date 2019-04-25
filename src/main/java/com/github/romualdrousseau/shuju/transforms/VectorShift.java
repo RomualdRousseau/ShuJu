@@ -5,7 +5,7 @@ import com.github.romualdrousseau.shuju.IFeature;
 import com.github.romualdrousseau.shuju.features.NumericFeature;
 
 public class VectorShift implements ITransform {
-    public VectorShift(double a) {
+    public VectorShift(float a) {
         this.a = a;
     }
 
@@ -15,5 +15,5 @@ public class VectorShift implements ITransform {
         numericFeature.setValue(numericFeature.getValue() + this.a);
     }
 
-    private double a;
+    private float a;
 }
