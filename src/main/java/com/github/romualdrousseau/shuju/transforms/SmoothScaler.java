@@ -1,8 +1,7 @@
 package com.github.romualdrousseau.shuju.transforms;
 
 import com.github.romualdrousseau.shuju.ITransform;
-import com.github.romualdrousseau.shuju.IFeature;
-import com.github.romualdrousseau.shuju.features.NumericFeature;
+import com.github.romualdrousseau.shuju.math.Vector;
 
 public class SmoothScaler implements ITransform {
     public SmoothScaler(float coef) {
@@ -10,18 +9,16 @@ public class SmoothScaler implements ITransform {
         this.coef = coef;
     }
 
-    public void apply(IFeature<?> feature, int rowIndex, int colIndex) {
-        assert (feature instanceof NumericFeature);
-        NumericFeature numericFeature = (NumericFeature) feature;
+    public void apply(Vector feature, int rowIndex, int colIndex) {
         if (this.firstRow) {
-            this.lastValue = numericFeature.getValue();
+            this.lastValue = feature;
             firstRow = false;
         } else {
-            numericFeature.setValue(this.lastValue * (1.0f - this.coef) + numericFeature.getValue() * this.coef);
+            this.lastValue = feature.mult(this.coef).add(this.lastValue.mult(1.0f - this.coef));
         }
     }
 
     private boolean firstRow;
-    private float lastValue;
+    private Vector lastValue;
     private float coef;
 }

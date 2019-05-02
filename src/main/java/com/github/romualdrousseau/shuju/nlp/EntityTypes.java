@@ -1,46 +1,57 @@
 package com.github.romualdrousseau.shuju.nlp;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.github.romualdrousseau.shuju.json.JSONFactory;
+import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
+import com.github.romualdrousseau.shuju.math.Vector;
 
-public class EntityTypes<T extends Enum<T>> {
-    private HashMap<String, T> entities = new HashMap<String, T>();
+public class EntityTypes {
+    private ArrayList<String> types = new ArrayList<String>();
+    private HashMap<String, String> patterns = new HashMap<String, String>();
 
-    public T[] find(String s, T[] result) {
-        int i = 0;
-
-        for (String pattern : this.entities.keySet()) {
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(s);
-            if (m.find()) {
-                result[i] = this.entities.get(pattern);
+    public EntityTypes(JSONArray json) {
+        for(int i = 0; i < json.size(); i++) {
+            JSONObject entity = json.getJSONObject(i);
+            String p = entity.getString("pattern");
+            String t = entity.getString("type");
+            this.patterns.put(p, t);
+            if(this.types.indexOf(t) == -1) {
+                this.types.add(t);
             }
-            i++;
+        }
+    }
+
+    public void registerType(String type, String pattern) {
+        this.patterns.put(pattern, type);
+        if(this.types.indexOf(type) == -1) {
+            this.types.add(type);
+        }
+    }
+
+    public Vector word2vec(String w) {
+        Vector result = new Vector(this.types.size());
+
+        for (String pattern : this.patterns.keySet()) {
+            Pattern r = Pattern.compile(pattern);
+            Matcher m = r.matcher(w);
+            if (m.find()) {
+                result.set(types.indexOf(this.patterns.get(pattern)), 1.0f);
+            }
         }
 
         return result;
     }
 
-    public void fromJSON(JSONArray json, Class<T> enumType) {
-        this.entities.clear();
-        for(int i = 0; i < json.size(); i++) {
-            JSONObject entity = json.getJSONObject(i);
-            String p = entity.getString("pattern");
-            T t = Enum.valueOf(enumType, entity.getString("type"));
-            this.entities.put(p, t);
-        }
-    }
-
-    public JSONArray toJSON(JSONFactory jsonFactory) {
-        JSONArray json = jsonFactory.newJSONArray();
-        for (String p : this.entities.keySet()) {
-            T t = this.entities.get(p);
-            JSONObject entity = jsonFactory.newJSONObject();
+    public JSONArray toJSON() {
+        JSONArray json = JSON.getFactory().newJSONArray();
+        for (String p : this.patterns.keySet()) {
+            String t = this.patterns.get(p);
+            JSONObject entity =  JSON.getFactory().newJSONObject();
             entity.setString("pattern", p);
             entity.setString("type", t.toString());
             json.append(entity);

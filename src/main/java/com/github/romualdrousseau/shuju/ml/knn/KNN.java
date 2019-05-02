@@ -1,62 +1,43 @@
 package com.github.romualdrousseau.shuju.ml.knn;
 
-import com.github.romualdrousseau.shuju.IClassifier;
-import com.github.romualdrousseau.shuju.IFeature;
-import com.github.romualdrousseau.shuju.DataRow;
-import com.github.romualdrousseau.shuju.DataSet;
-import com.github.romualdrousseau.shuju.Result;
-import com.github.romualdrousseau.shuju.util.TreeMapWithDuplicates;
-import com.github.romualdrousseau.shuju.util.Election;
-import com.github.romualdrousseau.shuju.util.Winner;
+import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Scalar;
+import com.github.romualdrousseau.shuju.math.Vector;
 
-public class KNN implements IClassifier {
+public class KNN {
     public KNN(int k) {
         this.k = k;
-        this.p = 1.0;
     }
 
-    public KNN(int k, double p) {
-        this.k = k;
-        this.p = p;
+    public void fit(final Vector[] inputs, final Vector[] targets) {
+        this.inputs = inputs;
+        this.targets = targets;
     }
 
-    public DataSet getTrainingSet() {
-        return this.trainingSet;
-    }
-
-    public IClassifier train(DataSet trainingSet) {
-        this.trainingSet = trainingSet;
-        return this;
-    }
-
-    public Result predict(DataRow features) {
-        if (this.trainingSet == null || features == null) {
-            return new Result(features, null, 0.0);
+    public Vector predict(final Vector input) {
+        if (this.inputs == null || this.targets == null || input == null) {
+            return new Vector(0);
         }
 
-        TreeMapWithDuplicates<Double, IFeature<?>> nn = new TreeMapWithDuplicates<Double, IFeature<?>>();
+        final int targetSize = this.targets[0].rowCount();
 
-        // Compute the distance between the data and the trainingSet, eliminates the
-        // trainingSet beyond distance p
-        for (DataRow trainingRow : this.trainingSet.rows()) {
-            double kmean = 0.0;
-            for (int i = 0; i < trainingRow.features().size(); i++) {
-                kmean += trainingRow.features().get(i).costFunc(features.features().get(i));
-            }
-            if (kmean < this.p * this.p) {
-                nn.put(kmean, trainingRow.getLabel());
+        Vector kmeans = new Vector(this.k, -1.0f);
+        Matrix results = new Matrix(this.k, targetSize);
+
+        for(int i = 0; i < this.inputs.length; i++) {
+            float kmean = this.inputs[i].distance(input);
+            int kmax = kmeans.argmax();
+            float kvalue = kmeans.get(kmax);
+            if(kvalue == -1.0f || kmean < kvalue) {
+                kmeans.set(kmax, kmean);
+                results.set(kmax, this.targets[i]);
             }
         }
 
-        Winner<IFeature<?>> winner = new Election<IFeature<?>>().voteWithRank(nn.entrySet(this.k));
-        if (winner != null) {
-            return new Result(features, winner.getCandidate(), winner.getProbability());
-        } else {
-            return new Result(features, null, 0.0);
-        }
+        return results.flatten().get(0).l2Norm();
     }
 
     private int k;
-    private double p;
-    private DataSet trainingSet;
+    private Vector[] inputs;
+    private Vector[] targets;
 }

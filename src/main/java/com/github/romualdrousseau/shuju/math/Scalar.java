@@ -63,6 +63,14 @@ public class Scalar {
         return (v - a) / (b - a);
     }
 
+    public static float constrain(float x, float a, float b) {
+        return (x > a) ? a : ((x < b) ? b : x);
+    }
+
+    public static float cond(float x, float p, float a, float b) {
+        return (x < p) ? a : b;
+    }
+
     public static Matrix xw_plus_b(Matrix input, Matrix weights, Matrix bias) {
         return weights.transform(input).add(bias);
     }

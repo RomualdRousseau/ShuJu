@@ -33,7 +33,7 @@ public class Parameters {
       this.V = W.copy().zero();
     }
 
-    public JSONObject toJSON(JSONFactory jsonFactory) {
-      return this.W.toJSON(jsonFactory);
+    public JSONObject toJSON() {
+      return this.W.toJSON();
     }
   }

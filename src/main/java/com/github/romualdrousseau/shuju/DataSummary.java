@@ -1,16 +1,16 @@
 package com.github.romualdrousseau.shuju;
 
-import com.github.romualdrousseau.shuju.features.NumericFeature;
+import com.github.romualdrousseau.shuju.math.Vector;
 
 public class DataSummary {
     public int count;
-    public float min;
-    public float max;
-    public float sum;
-    public float avg;
+    public Vector min;
+    public Vector max;
+    public Vector sum;
+    public Vector avg;
 
-    public DataSummary(DataSet dataset, int col) {
-        calculateStatistics(dataset, col);
+    public DataSummary(DataSet dataset, int part, int col) {
+        this.calculateStatistics(dataset, part, col);
     }
 
     public String toString() {
@@ -23,29 +23,27 @@ public class DataSummary {
         return result;
     }
 
-    private void calculateStatistics(DataSet dataset, int col) {
+    private void calculateStatistics(DataSet dataset, int part, int col) {
         this.count = dataset.rows().size();
-        this.min = 0;
-        this.max = 0;
-        this.sum = 0;
-        this.avg = 0;
+        this.min = new Vector(0);
+        this.max = new Vector(0);
+        this.sum = new Vector(0);
+        this.avg = new Vector(0);
 
         boolean firstRow = true;
         for (DataRow row : dataset.rows()) {
-            IFeature<?> feature = (col == IFeature.LABEL) ? row.getLabel() : row.features().get(col);
-            if (feature instanceof NumericFeature) {
-                if (firstRow) {
-                    this.min = (Float) feature.getValue();
-                    this.max = (Float) feature.getValue();
-                    this.sum = (Float) feature.getValue();
-                    firstRow = false;
-                } else {
-                    this.min = Math.min(this.min, (Float) feature.getValue());
-                    this.max = Math.max(this.max, (Float) feature.getValue());
-                    this.sum += (Double) feature.getValue();
-                }
+            Vector feature = (part == DataRow.LABELS) ? row.label() : row.features().get(col);
+            if (firstRow) {
+                this.min = feature.copy();
+                this.max = feature.copy();
+                this.sum = feature.copy();
+                firstRow = false;
+            } else {
+                this.min.min(feature);
+                this.max.max(feature);
+                this.sum.add(feature);
             }
         }
-        this.avg = this.sum / (float) this.count;
+        this.avg = this.sum.copy().div((float) this.count);
     }
 }

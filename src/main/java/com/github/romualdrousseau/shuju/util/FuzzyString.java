@@ -4,41 +4,63 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.romualdrousseau.shuju.math.Vector;
-
 public class FuzzyString {
-    public static double similarity(String s1, String s2) {
-        return levenshtein(s1, s2);
+    public static float similiraty(String s1, String s2) {
+        return FuzzyString.JaroWinkler(s1, s2);
     }
 
-    public static double similarity(String s1, String s2, String separator) {
-        String[] w1 = s1.split(separator);
-        String[] w2 = s2.split(separator);
-        String[] q = FuzzyString.union(w1, w2);
-        double[] v1 = FuzzyString.fromTokens(q, w1);
-        double[] v2 = FuzzyString.fromTokens(q, w2);
-        return Vector.scalar(v1, v2) / (Vector.norm(v1) * Vector.norm(v2));
-    }
+    public static float JaroWinkler(String s, String t) {
+        int s_len = s.length();
+        int t_len = t.length();
 
-    public static double distance(String s1, String s2) {
-        return 1.0 - FuzzyString.similarity(s1, s2);
-    }
+        if (s_len == 0 && t_len == 0)
+            return 1;
 
-    public static double distance(String s1, String s2, String separator) {
-        return 1.0 - FuzzyString.similarity(s1, s2, separator);
-    }
+        int match_distance = Integer.max(s_len, t_len) / 2 - 1;
 
-    public static double levenshtein(String s1, String s2) {
-        return Double.valueOf(FuzzyString.intersect(s1, s2).length())
-                / Double.valueOf(FuzzyString.union(s1, s2).length());
-    }
+        boolean[] s_matches = new boolean[s_len];
+        boolean[] t_matches = new boolean[t_len];
 
-    public static double levenshtein(String[] w, String s) {
-        double max = 0;
-        for (String v : w) {
-            max = Math.max(max, FuzzyString.levenshtein(v, s));
+        int matches = 0;
+        int transpositions = 0;
+
+        for (int i = 0; i < s_len; i++) {
+            int start = Integer.max(0, i - match_distance);
+            int end = Integer.min(i + match_distance + 1, t_len);
+
+            for (int j = start; j < end; j++) {
+                if (t_matches[j])
+                    continue;
+                if (s.charAt(i) != t.charAt(j))
+                    continue;
+                s_matches[i] = true;
+                t_matches[j] = true;
+                matches++;
+                break;
+            }
         }
-        return max;
+
+        if (matches == 0)
+            return 0;
+
+        int k = 0;
+        for (int i = 0; i < s_len; i++) {
+            if (!s_matches[i])
+                continue;
+            while (!t_matches[k])
+                k++;
+            if (s.charAt(i) != t.charAt(k))
+                transpositions++;
+            k++;
+        }
+
+        return ((((float) matches / (float) s_len) + ((float) matches / (float) t_len)
+                + (((float) matches - (float) transpositions / 2.0f) / (float) matches)) / 3.0f);
+    }
+
+    public static float Jaccard(String s1, String s2) {
+        return Float.valueOf(FuzzyString.intersect(s1, s2).length())
+                / Float.valueOf(FuzzyString.union(s1, s2).length());
     }
 
     public static String union(String s1, String s2) {
@@ -100,13 +122,5 @@ public class FuzzyString {
         }
 
         return result.toArray(new String[result.size()]);
-    }
-
-    public static double[] fromTokens(String[] w, String[] q) {
-        double[] result = new double[w.length];
-        for (int i = 0; i < w.length; i++) {
-            result[i] = FuzzyString.levenshtein(q, w[i]);
-        }
-        return result;
     }
 }

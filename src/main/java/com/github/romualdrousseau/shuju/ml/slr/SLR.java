@@ -1,35 +1,21 @@
 package com.github.romualdrousseau.shuju.ml.slr;
 
-import com.github.romualdrousseau.shuju.IClassifier;
-import com.github.romualdrousseau.shuju.DataRow;
-import com.github.romualdrousseau.shuju.DataSet;
-import com.github.romualdrousseau.shuju.DataSummary;
-import com.github.romualdrousseau.shuju.DataStatistics;
-import com.github.romualdrousseau.shuju.Result;
-import com.github.romualdrousseau.shuju.IFeature;
-import com.github.romualdrousseau.shuju.features.NumericFeature;
+import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Vector;
 
-public class SLR implements IClassifier {
-    public DataSet getTrainingSet() {
-        return this.trainingSet;
+public class SLR {
+    public void fit(final Vector[] inputs, final Vector[] targets) {
+        Matrix m1 = new Matrix(inputs);
+        Matrix m2 = new Matrix(targets);
+        Matrix m3 = m1.cov(m2).div(m1.var());
+        this.beta = m3.toVector(0);
+        this.alpha = m2.avg().sub(m3.mult(m1.avg())).toVector(0);
     }
 
-    public IClassifier train(DataSet trainingSet) {
-        this.trainingSet = trainingSet;
-        final DataSummary summary1 = new DataSummary(trainingSet, 0);
-        final DataSummary summary2 = new DataSummary(trainingSet, IFeature.LABEL);
-        beta = DataStatistics.cov(trainingSet, 0, IFeature.LABEL, summary1, summary2)
-                / DataStatistics.var(trainingSet, 0, summary1);
-        alpha = summary2.avg - beta * summary1.avg;
-        return this;
+    public Vector predict(final Vector row) {
+        return row.copy().mult(this.beta).add(this.alpha);
     }
 
-    public Result predict(DataRow row) {
-        float value = (Float) row.features().get(0).getValue() * beta + alpha;
-        return new Result(row, new NumericFeature(value), 1.0);
-    }
-
-    private float beta;
-    private float alpha;
-    private DataSet trainingSet;
+    private Vector beta;
+    private Vector alpha;
 }

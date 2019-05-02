@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.github.romualdrousseau.shuju.json.JSONFactory;
-import com.github.romualdrousseau.shuju.features.VectorFeature;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
+import com.github.romualdrousseau.shuju.math.Vector;
 
 public class DataSet {
     public DataSet() {
@@ -39,13 +39,13 @@ public class DataSet {
         return new DataSet(temp);
     }
 
-    public DataSet transform(ITransform transfomer, int colIndex) {
+    public DataSet transform(ITransform transfomer, int partIndex, int colIndex) {
         int rowIndex = 0;
-        if (colIndex == IFeature.LABEL) {
+        if (partIndex == DataRow.LABELS) {
             for (DataRow row : this.rows) {
-                transfomer.apply(row.getLabel(), rowIndex++, colIndex);
+                transfomer.apply(row.label(), rowIndex++, colIndex);
             }
-        } else {
+        } else if (partIndex == DataRow.FEATURES) {
             for (DataRow row : this.rows) {
                 transfomer.apply(row.features().get(colIndex), rowIndex++, colIndex);
             }
@@ -55,14 +55,24 @@ public class DataSet {
 
     public int indexOf(DataRow row) {
         int i = 0;
-        while (i < this.rows.size() && this.rows.get(i).isSimilar(row))
-            i++;
+        while (i < this.rows.size() && this.rows.get(i).features().equals(row.features())) i++;
         return (i == this.rows.size()) ? -1 : i;
     }
 
-    public boolean checkConflict(DataRow row) {
-        int i = this.indexOf(row);
-        return (i < 0) && !this.rows.get(i).getLabel().equals(row.getLabel());
+    public Vector[] featuresAsVectorArray() {
+        Vector[] result = new Vector[this.rows.size()];
+        for(int i = 0; i < this.rows.size(); i++) {
+            result[i] = this.rows.get(i).featuresAsOneVector();
+        }
+        return result;
+    }
+
+    public Vector[] labelsAsVectorArray() {
+        Vector[] result = new Vector[this.rows.size()];
+        for(int i = 0; i < this.rows.size(); i++) {
+            result[i] = this.rows.get(i).label();
+        }
+        return result;
     }
 
     public String toString() {
@@ -81,11 +91,11 @@ public class DataSet {
 
             JSONArray jsonInput = jsonFactory.newJSONArray();
             for (int j = 0; j < row.features().size(); j++) {
-                jsonInput.append(row.features().get(j).toJSON(jsonFactory));
+                jsonInput.append(row.features().get(j).toJSON());
             }
             jsonInputs.append(jsonInput);
 
-            jsonTargets.append(row.getLabel().toJSON(jsonFactory));
+            jsonTargets.append(row.label().toJSON());
         }
 
         JSONObject json = jsonFactory.newJSONObject();
@@ -104,18 +114,12 @@ public class DataSet {
             DataRow row = new DataRow();
 
             JSONArray jsonInput = jsonInputs.getJSONArray(i);
-            float[] input = new float[jsonInput.size()];
             for (int j = 0; j < jsonInput.size(); j++) {
-                input[j] = jsonInput.getFloat(j);
+                row.addFeature(new Vector(jsonInputs.getJSONObject(j)));
             }
-            row.addFeature(new VectorFeature(input));
 
-            JSONArray jsonTarget = jsonTargets.getJSONArray(i);
-            float[] target = new float[jsonTarget.size()];
-            for (int j = 0; j < jsonTarget.size(); j++) {
-                target[j] = jsonTarget.getFloat(j);
-            }
-            row.setLabel(new VectorFeature(target));
+            JSONObject jsonTarget = jsonTargets.getJSONObject(i);
+            row.setLabel(new Vector(jsonTarget));
 
             rows.add(row);
         }

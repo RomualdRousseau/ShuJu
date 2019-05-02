@@ -1,30 +1,31 @@
 package com.github.romualdrousseau.shuju.transforms;
 
 import com.github.romualdrousseau.shuju.ITransform;
-import com.github.romualdrousseau.shuju.IFeature;
+import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.DataRow;
 import com.github.romualdrousseau.shuju.DataSet;
-import com.github.romualdrousseau.shuju.features.NumericFeature;
 
 public class VectorAdd implements ITransform {
-    public VectorAdd(DataSet other) {
+    public VectorAdd(DataSet other, int part) {
         this.other = other;
+        this.part = part;
         this.a = 1.0f;
     }
 
-    public VectorAdd(DataSet other, float a) {
+    public VectorAdd(DataSet other, int part, float a) {
         this.other = other;
+        this.part = part;
         this.a = a;
     }
 
-    public void apply(IFeature<?> feature, int rowIndex, int colIndex) {
-        assert (feature instanceof NumericFeature);
-        NumericFeature numericFeature = (NumericFeature) feature;
-        NumericFeature otherFeature = (NumericFeature) ((colIndex == IFeature.LABEL)
-                ? this.other.rows().get(rowIndex).getLabel()
-                : this.other.rows().get(rowIndex).features().get(colIndex));
-        numericFeature.setValue(numericFeature.getValue() + this.a * otherFeature.getValue());
+    public void apply(Vector feature, int rowIndex, int colIndex) {
+        Vector otherFeature = (this.part == DataRow.LABELS)
+                ? this.other.rows().get(rowIndex).label()
+                : this.other.rows().get(rowIndex).features().get(colIndex);
+        feature.add(otherFeature.copy().mult(this.a));
     }
 
     private DataSet other;
+    private int part;
     private float a;
 }

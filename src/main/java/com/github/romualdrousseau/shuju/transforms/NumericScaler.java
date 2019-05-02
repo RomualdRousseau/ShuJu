@@ -1,22 +1,19 @@
 package com.github.romualdrousseau.shuju.transforms;
 
 import com.github.romualdrousseau.shuju.ITransform;
-import com.github.romualdrousseau.shuju.IFeature;
+import com.github.romualdrousseau.shuju.math.Vector;
 import com.github.romualdrousseau.shuju.DataSummary;
-import com.github.romualdrousseau.shuju.features.NumericFeature;
 
 public class NumericScaler implements ITransform {
     public NumericScaler(DataSummary summary) {
-        this.min = summary.min;
-        this.ratio = 1.0f / (summary.max - summary.min);
+        this.min = summary.min.copy();
+        this.ratio = summary.min.copy().ones().div(summary.max.copy().sub(summary.min));
     }
 
-    public void apply(IFeature<?> feature, int rowIndex, int colIndex) {
-        assert (feature instanceof NumericFeature);
-        NumericFeature numericFeature = (NumericFeature) feature;
-        numericFeature.setValue((numericFeature.getValue() - this.min) * this.ratio);
+    public void apply(Vector feature, int rowIndex, int colIndex) {
+        feature.sub(this.min).mult(this.ratio);
     }
 
-    private float min;
-    private float ratio;
+    private Vector min;
+    private Vector ratio;
 }

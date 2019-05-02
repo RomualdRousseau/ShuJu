@@ -3,7 +3,7 @@ package com.github.romualdrousseau.shuju;
 public interface IClassifier {
     public DataSet getTrainingSet();
 
-    public IClassifier train(DataSet trainingSet);
+    public void train(DataSet trainingSet);
 
-    public Result predict(DataRow features);
+    public DataRow predict(DataRow features);
 }
