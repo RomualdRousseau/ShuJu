@@ -18,7 +18,7 @@ public class Vector {
     public Vector(int rows, float v) {
         this.rows = rows;
         this.data = new float[this.rows];
-        for(int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.rows; i++) {
             this.data[i] = v;
         }
     }
@@ -32,7 +32,7 @@ public class Vector {
     public Vector(Float[] v) {
         this.rows = v.length;
         this.data = new float[this.rows];
-        for(int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.rows; i++) {
             this.data[i] = v[i];
         }
     }
@@ -43,6 +43,15 @@ public class Vector {
         JSONArray jsonData = json.getJSONArray("data");
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = jsonData.getFloat(i);
+        }
+    }
+
+    @Deprecated
+    public Vector(JSONArray json) {
+        this.rows = json.size();
+        this.data = new float[this.rows];
+        for (int i = 0; i < this.rows; i++) {
+            this.data[i] = json.getFloat(i);
         }
     }
 
@@ -102,7 +111,7 @@ public class Vector {
     }
 
     public float cov(Vector v) {
-        assert(this.rows == v.rows);
+        assert (this.rows == v.rows);
 
         float avg1 = this.avg();
         float avg2 = v.avg();
@@ -116,9 +125,9 @@ public class Vector {
     }
 
     public Vector min(Vector v) {
-        assert(this.rows == v.rows);
+        assert (this.rows == v.rows);
 
-        for(int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.rows; i++) {
             this.data[i] = Math.min(this.data[i], v.data[i]);
         }
         return this;
@@ -135,9 +144,9 @@ public class Vector {
     }
 
     public Vector max(Vector v) {
-        assert(this.rows == v.rows);
+        assert (this.rows == v.rows);
 
-        for(int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.rows; i++) {
             this.data[i] = Math.max(this.data[i], v.data[i]);
         }
         return this;
@@ -207,10 +216,18 @@ public class Vector {
     }
 
     public <T extends Enum<T>> Vector oneHot(T e) {
+        if (e == null) {
+            return this.zero();
+        }
+
         return this.oneHot(e.ordinal());
     }
 
     public <T extends Enum<T>> Vector oneHot(T[] s) {
+        if (s == null) {
+            return this.zero();
+        }
+
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = (i == s[i].ordinal()) ? 1.0f : 0.0f;
         }
@@ -242,7 +259,7 @@ public class Vector {
         return this;
     }
 
-    public Vector cond( float p, float a, float b) {
+    public Vector cond(float p, float a, float b) {
         for (int j = 0; j < this.rows; j++) {
             this.data[j] = Scalar.cond(this.data[j], p, a, b);
         }
@@ -302,7 +319,7 @@ public class Vector {
     }
 
     public Vector add(final Vector v) {
-        assert(this.rows == v.rows);
+        assert (this.rows == v.rows);
 
         for (int i = 0; i < this.rows; i++) {
             this.data[i] += v.data[i];
@@ -318,7 +335,7 @@ public class Vector {
     }
 
     public Vector sub(final Vector v) {
-        assert(this.rows == v.rows);
+        assert (this.rows == v.rows);
 
         for (int i = 0; i < this.rows; i++) {
             this.data[i] -= v.data[i];
@@ -334,7 +351,7 @@ public class Vector {
     }
 
     public Vector mult(final Vector v) {
-        assert(this.rows == v.rows);
+        assert (this.rows == v.rows);
 
         for (int i = 0; i < this.rows; i++) {
             this.data[i] *= v.data[i];
@@ -350,7 +367,7 @@ public class Vector {
     }
 
     public Vector div(final Vector v) {
-        assert(this.rows == v.rows);
+        assert (this.rows == v.rows);
 
         for (int i = 0; i < this.rows; i++) {
             this.data[i] /= v.data[i];
@@ -380,7 +397,7 @@ public class Vector {
     }
 
     public float scalar(Vector v) {
-        assert(this.rows == v.rows);
+        assert (this.rows == v.rows);
 
         float sum = 0;
         for (int i = 0; i < this.rows; i++) {
@@ -398,7 +415,7 @@ public class Vector {
     }
 
     public float distance(Vector v) {
-        assert(this.rows == v.rows);
+        assert (this.rows == v.rows);
 
         float sum = 0;
         for (int i = 0; i < this.rows; i++) {
@@ -409,7 +426,7 @@ public class Vector {
     }
 
     public Vector map(VectorFunction<Float, Float> fn) {
-        assert(fn != null);
+        assert (fn != null);
 
         for (int i = 0; i < this.rows; i++) {
             fn.apply(this.data[i], i, this);
@@ -418,7 +435,7 @@ public class Vector {
     }
 
     public Vector map(VectorFunction<Float, Float> fn, Vector other) {
-        assert(fn != null);
+        assert (fn != null);
 
         for (int i = 0; i < this.rows; i++) {
             fn.apply(this.data[i], i, other);
@@ -434,10 +451,10 @@ public class Vector {
 
     public Vector concat(Vector v) {
         Vector result = new Vector(this.rows + v.rows);
-        for(int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.rows; i++) {
             result.data[i] = this.data[i];
         }
-        for(int i = 0; i < v.rows; i++) {
+        for (int i = 0; i < v.rows; i++) {
             result.data[this.rows + i] = v.data[i];
         }
         return result;
@@ -453,19 +470,20 @@ public class Vector {
         for (int i = 0; i < this.rows; i++) {
             result.append(String.format("%.5f\t", this.data[i]));
         }
-        result.append(" |").append(System.lineSeparator());;
+        result.append(" |").append(System.lineSeparator());
+        ;
 
         return result.toString();
     }
 
     public JSONObject toJSON() {
-        JSONObject json = JSON.getFactory().newJSONObject();
+        JSONObject json = JSON.newJSONObject();
 
         if (this.rows == 0) {
             return json;
         }
 
-        JSONArray jsonData = JSON.getFactory().newJSONArray();
+        JSONArray jsonData = JSON.newJSONArray();
         for (int i = 0; i < this.rows; i++) {
             jsonData.setFloat(i, this.data[i]);
         }

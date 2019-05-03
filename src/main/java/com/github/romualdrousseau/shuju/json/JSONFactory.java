@@ -9,7 +9,7 @@ public interface JSONFactory {
 
     JSONArray loadJSONArray(String filePath);
 
-    void saveJSONObject(String filePath, JSONObject o);
+    void saveJSONObject(JSONObject o, String filePath);
 
-    void saveJSONArray(String filePath, JSONArray a);
+    void saveJSONArray(JSONArray a, String filePath);
 }

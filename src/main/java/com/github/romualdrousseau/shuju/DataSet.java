@@ -3,7 +3,7 @@ package com.github.romualdrousseau.shuju;
 import java.util.List;
 import java.util.ArrayList;
 
-import com.github.romualdrousseau.shuju.json.JSONFactory;
+import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Vector;
@@ -17,6 +17,30 @@ public class DataSet {
         this.rows = rows;
     }
 
+    public DataSet(JSONObject json) {
+        JSONArray jsonInputs = json.getJSONArray("inputs");
+        JSONArray jsonTargets = json.getJSONArray("targets");
+
+        ArrayList<DataRow> rows = new ArrayList<DataRow>();
+
+        for (int i = 0; i < jsonInputs.size(); i++) {
+            DataRow row = new DataRow();
+
+            // JSONArray jsonInput = jsonInputs.getJSONArray(i);
+            // for (int j = 0; j < jsonInput.size(); j++) {
+            // row.addFeature(new Vector(jsonInput.getJSONObject(j)));
+            // }
+            row.addFeature(new Vector(jsonInputs.getJSONArray(i)));
+
+            // row.setLabel(new Vector(jsonTargets.getJSONObject(i)));
+            row.setLabel(new Vector(jsonTargets.getJSONArray(i)));
+
+            rows.add(row);
+        }
+
+        this.rows = rows;
+    }
+
     public List<DataRow> rows() {
         return this.rows;
     }
@@ -26,9 +50,31 @@ public class DataSet {
         return this;
     }
 
+    public DataSet addRow(DataRow row, boolean replaceIfExists) {
+        int i = this.indexOf(row);
+        if (i == -1) {
+            this.rows.add(row);
+        } else if (replaceIfExists) {
+            this.rows.set(i, row);
+        }
+        return this;
+    }
+
     public DataSet shuffle() {
         java.util.Collections.shuffle(this.rows);
         return this;
+    }
+
+    public DataSet purgeConflicts() {
+        List<DataRow> temp = new ArrayList<DataRow>();
+        for (DataRow row : this.rows) {
+            if (!this.conflicts(row)) {
+                temp.add(row);
+            } else {
+                System.out.println(row);
+            }
+        }
+        return new DataSet(temp);
     }
 
     public DataSet subset(int rowStart, int rowEnd) {
@@ -55,13 +101,25 @@ public class DataSet {
 
     public int indexOf(DataRow row) {
         int i = 0;
-        while (i < this.rows.size() && this.rows.get(i).features().equals(row.features())) i++;
+        while (i < this.rows.size() && !this.rows.get(i).hasSameFeatures(row)) {
+            i++;
+        }
         return (i == this.rows.size()) ? -1 : i;
+    }
+
+    public boolean conflicts(DataRow other) {
+        boolean result = false;
+        for (DataRow row : this.rows) {
+            if (row != other) {
+                result |= row.conflicts(other);
+            }
+        }
+        return result;
     }
 
     public Vector[] featuresAsVectorArray() {
         Vector[] result = new Vector[this.rows.size()];
-        for(int i = 0; i < this.rows.size(); i++) {
+        for (int i = 0; i < this.rows.size(); i++) {
             result[i] = this.rows.get(i).featuresAsOneVector();
         }
         return result;
@@ -69,7 +127,7 @@ public class DataSet {
 
     public Vector[] labelsAsVectorArray() {
         Vector[] result = new Vector[this.rows.size()];
-        for(int i = 0; i < this.rows.size(); i++) {
+        for (int i = 0; i < this.rows.size(); i++) {
             result[i] = this.rows.get(i).label();
         }
         return result;
@@ -83,13 +141,13 @@ public class DataSet {
         return result;
     }
 
-    public JSONObject toJSON(JSONFactory jsonFactory) {
-        JSONArray jsonInputs = jsonFactory.newJSONArray();
-        JSONArray jsonTargets = jsonFactory.newJSONArray();
+    public JSONObject toJSON() {
+        JSONArray jsonInputs = JSON.newJSONArray();
+        JSONArray jsonTargets = JSON.newJSONArray();
         for (int i = 0; i < this.rows.size(); i++) {
             DataRow row = this.rows.get(i);
 
-            JSONArray jsonInput = jsonFactory.newJSONArray();
+            JSONArray jsonInput = JSON.newJSONArray();
             for (int j = 0; j < row.features().size(); j++) {
                 jsonInput.append(row.features().get(j).toJSON());
             }
@@ -98,33 +156,10 @@ public class DataSet {
             jsonTargets.append(row.label().toJSON());
         }
 
-        JSONObject json = jsonFactory.newJSONObject();
+        JSONObject json = JSON.newJSONObject();
         json.setJSONArray("inputs", jsonInputs);
         json.setJSONArray("targets", jsonTargets);
         return json;
-    }
-
-    public void fromJSON(JSONObject json) {
-        JSONArray jsonInputs = json.getJSONArray("inputs");
-        JSONArray jsonTargets = json.getJSONArray("targets");
-
-        ArrayList<DataRow> rows = new ArrayList<DataRow>();
-
-        for (int i = 0; i < jsonInputs.size(); i++) {
-            DataRow row = new DataRow();
-
-            JSONArray jsonInput = jsonInputs.getJSONArray(i);
-            for (int j = 0; j < jsonInput.size(); j++) {
-                row.addFeature(new Vector(jsonInputs.getJSONObject(j)));
-            }
-
-            JSONObject jsonTarget = jsonTargets.getJSONObject(i);
-            row.setLabel(new Vector(jsonTarget));
-
-            rows.add(row);
-        }
-
-        this.rows = rows;
     }
 
     private List<DataRow> rows;

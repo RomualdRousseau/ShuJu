@@ -1,6 +1,5 @@
 package com.github.romualdrousseau.shuju;
 
-import com.github.romualdrousseau.shuju.math.Scalar;
 import com.github.romualdrousseau.shuju.math.Vector;
 
 public class DataStatistics

@@ -1,7 +1,6 @@
 package com.github.romualdrousseau.shuju.ml.nn;
 
 import com.github.romualdrousseau.shuju.json.JSON;
-import com.github.romualdrousseau.shuju.json.JSONFactory;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
 import com.github.romualdrousseau.shuju.math.Matrix;
@@ -63,7 +62,7 @@ public class Layer {
     }
 
     public JSONObject toJSON() {
-        JSONObject json = JSON.getFactory().newJSONObject();
+        JSONObject json = JSON.newJSONObject();
         json.setJSONObject("weights", this.weights.toJSON());
         json.setJSONObject("biases", this.biases.toJSON());
         json.setFloat("bias", this.bias);

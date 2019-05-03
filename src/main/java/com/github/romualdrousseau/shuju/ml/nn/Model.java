@@ -1,6 +1,5 @@
 package com.github.romualdrousseau.shuju.ml.nn;
 
-import com.github.romualdrousseau.shuju.json.JSONFactory;
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 
@@ -30,7 +29,11 @@ public class Model {
     }
 
     public Layer model(Vector input) {
-        this.start.output = new Matrix(input);
+        return this.model(new Matrix(input));
+    }
+
+    public Layer model(Matrix input) {
+        this.start.output = input;
         for (Layer layer = this.start.next; layer != null; layer = layer.next) {
             Matrix net = Scalar.xw_plus_b(layer.prev.output, layer.weights.W, layer.biases.W);
             layer.output = layer.activation.apply(net);
@@ -51,7 +54,7 @@ public class Model {
     }
 
     public JSONArray toJSON() {
-        JSONArray json = JSON.getFactory().newJSONArray();
+        JSONArray json = JSON.newJSONArray();
         for (Layer layer = this.start.next; layer != null; layer = layer.next) {
             json.append(layer.toJSON());
         }

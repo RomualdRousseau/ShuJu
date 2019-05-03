@@ -1,6 +1,5 @@
 package com.github.romualdrousseau.shuju.ml.nn;
 
-import com.github.romualdrousseau.shuju.json.JSONFactory;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
 import com.github.romualdrousseau.shuju.math.Matrix;

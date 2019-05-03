@@ -1,6 +1,9 @@
 package com.github.romualdrousseau.shuju.nlp;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Vector;
@@ -8,10 +11,9 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 
 public class Ngrams {
-    private HashMap<String, Integer> ngrams = new HashMap<String, Integer>();
+    private ArrayList<String> ngrams = new ArrayList<String>();
     private int n;
     private int maxVectorSize = 0;
-    private int ngramsCount = 0;
 
     public Ngrams(int n, int maxVectorSize) {
         this.n = n;
@@ -24,23 +26,28 @@ public class Ngrams {
         JSONArray jsonNgrams = json.getJSONArray("ngrams");
         for (int i = 0; i < jsonNgrams.size(); i++) {
             String p = jsonNgrams.getString(i);
-            this.ngrams.put(p, i);
+            this.ngrams.add(p);
         }
-        this.ngramsCount = jsonNgrams.size();
+    }
+
+    public List<String> ngrams() {
+        return this.ngrams;
+    }
+
+    public int ordinal(String ngram) {
+        return this.ngrams.indexOf(ngram);
     }
 
     public void registerWord(String word) {
         for (int i = 0; i < word.length() - this.n + 1; i++) {
             String s = word.substring(i, i + this.n).toLowerCase();
-            Integer index = this.ngrams.get(s);
-            if (index != null) {
+            int index = this.ngrams.indexOf(s);
+            if (index >= 0) {
                 continue;
             }
 
-            index = this.ngramsCount;
-            this.ngrams.put(s, index);
-            this.ngramsCount++;
-            if (this.ngramsCount >= this.maxVectorSize) {
+            this.ngrams.add(s);
+            if (this.ngrams.size() >= this.maxVectorSize) {
                 throw new IndexOutOfBoundsException();
             }
         }
@@ -49,10 +56,14 @@ public class Ngrams {
     public Vector word2vec(String w) {
         Vector result = new Vector(this.maxVectorSize);
 
+        if(w == null) {
+            return result;
+        }
+
         for (int i = 0; i < w.length() - this.n + 1; i++) {
             String p = w.substring(i, i + this.n).toLowerCase();
-            Integer index = this.ngrams.get(p);
-            if (index != null && index < this.maxVectorSize) {
+            int index = this.ngrams.indexOf(p);
+            if (index >= 0 && index < this.maxVectorSize) {
                 result.set(index, 1.0f);
             }
         }
@@ -61,13 +72,12 @@ public class Ngrams {
     }
 
     public JSONObject toJSON() {
-        JSONArray jsonNgrams = JSON.getFactory().newJSONArray();
-        for (String ngram : this.ngrams.keySet()) {
-            int index = this.ngrams.get(ngram);
-            jsonNgrams.setString(index, ngram);
+        JSONArray jsonNgrams = JSON.newJSONArray();
+        for (String ngram : this.ngrams) {
+            jsonNgrams.append(ngram);
         }
 
-        JSONObject json = JSON.getFactory().newJSONObject();
+        JSONObject json = JSON.newJSONObject();
         json.setInt("n", this.n);
         json.setInt("maxVectorSize", this.maxVectorSize);
         json.setJSONArray("ngrams", jsonNgrams);

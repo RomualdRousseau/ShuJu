@@ -5,10 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FuzzyString {
-    public static float similiraty(String s1, String s2) {
-        return FuzzyString.JaroWinkler(s1, s2);
-    }
-
     public static float JaroWinkler(String s, String t) {
         int s_len = s.length();
         int t_len = t.length();

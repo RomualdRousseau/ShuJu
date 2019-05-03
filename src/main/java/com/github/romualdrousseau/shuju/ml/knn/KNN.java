@@ -1,7 +1,6 @@
 package com.github.romualdrousseau.shuju.ml.knn;
 
 import com.github.romualdrousseau.shuju.math.Matrix;
-import com.github.romualdrousseau.shuju.math.Scalar;
 import com.github.romualdrousseau.shuju.math.Vector;
 
 public class KNN {

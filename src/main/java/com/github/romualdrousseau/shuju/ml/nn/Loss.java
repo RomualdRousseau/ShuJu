@@ -1,6 +1,7 @@
 package com.github.romualdrousseau.shuju.ml.nn;
 
 import com.github.romualdrousseau.shuju.math.Scalar;
+import com.github.romualdrousseau.shuju.math.Vector;
 import com.github.romualdrousseau.shuju.math.Matrix;
 
 public class Loss {
@@ -11,6 +12,10 @@ public class Loss {
 
     public Loss(LossFunc lossFunc) {
         this.lossFunc = lossFunc;
+    }
+
+    public Loss loss(Layer output, Vector target) {
+        return this.loss(output, new Matrix(target));
     }
 
     public Loss loss(Layer output, Matrix target) {

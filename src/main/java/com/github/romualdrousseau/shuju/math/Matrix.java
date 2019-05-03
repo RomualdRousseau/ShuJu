@@ -1,7 +1,5 @@
 package com.github.romualdrousseau.shuju.math;
 
-import com.github.romualdrousseau.shuju.json.JSONFactory;
-
 import java.util.Arrays;
 
 import com.github.romualdrousseau.shuju.json.JSON;
@@ -83,7 +81,7 @@ public class Matrix {
         this.cols = v[0].rowCount();
         this.data = new float[this.rows][this.cols];
         for (int i = 0; i < this.rows; i++) {
-            this.data[i] = v[i].getFloats();
+            System.arraycopy(v[i].getFloats(), 0, this.data[i], 0, this.cols);
         }
     }
 
@@ -804,16 +802,16 @@ public class Matrix {
     }
 
     public JSONObject toJSON() {
-        JSONObject json = JSON.getFactory().newJSONObject();
+        JSONObject json = JSON.newJSONObject();
 
         if (this.rows == 0 || this.cols == 0) {
             return json;
         }
 
-        JSONArray jsonData = JSON.getFactory().newJSONArray();
+        JSONArray jsonData = JSON.newJSONArray();
         for (int i = 0; i < this.rows; i++) {
             float[] a = this.data[i];
-            JSONArray jsonRow = JSON.getFactory().newJSONArray();
+            JSONArray jsonRow = JSON.newJSONArray();
             for (int j = 0; j < this.cols; j++) {
                 jsonRow.setFloat(j, a[j]);
             }

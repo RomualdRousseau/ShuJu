@@ -22,7 +22,7 @@ public class StopWords {
     }
 
     public JSONArray toJSON() {
-        JSONArray json = JSON.getFactory().newJSONArray();
+        JSONArray json = JSON.newJSONArray();
         for (int i = 0; i < this.stopwords.length; i++) {
             String stopword = this.stopwords[i];
             json.setString(i, stopword);
