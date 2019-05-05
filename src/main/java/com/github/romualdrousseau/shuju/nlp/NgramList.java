@@ -1,28 +1,33 @@
 package com.github.romualdrousseau.shuju.nlp;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Vector;
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 
-public class Ngrams {
+public class NgramList implements BaseList {
     private ArrayList<String> ngrams = new ArrayList<String>();
     private int n;
-    private int maxVectorSize = 0;
+    private int vectorSize = 0;
 
-    public Ngrams(int n, int maxVectorSize) {
+    public NgramList(int n, int vectorSize) {
         this.n = n;
-        this.maxVectorSize = maxVectorSize;
+        this.vectorSize = vectorSize;
     }
 
-    public Ngrams(JSONObject json) {
+    public NgramList(int n, int vectorSize, String[] ngrams) {
+        this.n = n;
+        this.vectorSize = vectorSize;
+        this.ngrams.addAll(Arrays.asList(ngrams));
+    }
+
+    public NgramList(JSONObject json) {
         this.n = json.getInt("n");
-        this.maxVectorSize = json.getInt("maxVectorSize");
+        this.vectorSize = json.getInt("maxVectorSize");
         JSONArray jsonNgrams = json.getJSONArray("ngrams");
         for (int i = 0; i < jsonNgrams.size(); i++) {
             String p = jsonNgrams.getString(i);
@@ -30,31 +35,44 @@ public class Ngrams {
         }
     }
 
-    public List<String> ngrams() {
+    public List<String> values() {
         return this.ngrams;
     }
 
-    public int ordinal(String ngram) {
-        return this.ngrams.indexOf(ngram);
+    public int size() {
+        return this.ngrams.size();
     }
 
-    public void registerWord(String word) {
-        for (int i = 0; i < word.length() - this.n + 1; i++) {
-            String s = word.substring(i, i + this.n).toLowerCase();
+    public String get(int i) {
+        return this.ngrams.get(i);
+    }
+
+    public int ordinal(String w) {
+        return this.ngrams.indexOf(w);
+    }
+
+    public NgramList add(String w) {
+        for (int i = 0; i < w.length() - this.n + 1; i++) {
+            String s = w.substring(i, i + this.n).toLowerCase();
             int index = this.ngrams.indexOf(s);
             if (index >= 0) {
                 continue;
             }
 
             this.ngrams.add(s);
-            if (this.ngrams.size() >= this.maxVectorSize) {
+            if (this.ngrams.size() >= this.vectorSize) {
                 throw new IndexOutOfBoundsException();
             }
         }
+        return this;
+    }
+
+    public int getVectorSize() {
+        return this.vectorSize;
     }
 
     public Vector word2vec(String w) {
-        Vector result = new Vector(this.maxVectorSize);
+        Vector result = new Vector(this.vectorSize);
 
         if(w == null) {
             return result;
@@ -63,7 +81,7 @@ public class Ngrams {
         for (int i = 0; i < w.length() - this.n + 1; i++) {
             String p = w.substring(i, i + this.n).toLowerCase();
             int index = this.ngrams.indexOf(p);
-            if (index >= 0 && index < this.maxVectorSize) {
+            if (index >= 0 && index < this.vectorSize) {
                 result.set(index, 1.0f);
             }
         }
@@ -79,7 +97,7 @@ public class Ngrams {
 
         JSONObject json = JSON.newJSONObject();
         json.setInt("n", this.n);
-        json.setInt("maxVectorSize", this.maxVectorSize);
+        json.setInt("maxVectorSize", this.vectorSize);
         json.setJSONArray("ngrams", jsonNgrams);
         return json;
     }

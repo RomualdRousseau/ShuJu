@@ -13,12 +13,12 @@ import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
 
 import com.github.romualdrousseau.shuju.columns.NumericColumn;
-import com.github.romualdrousseau.shuju.columns.StringTypeColumn;
+import com.github.romualdrousseau.shuju.columns.StringColumn;
 import com.github.romualdrousseau.shuju.math.Vector;
 import com.github.romualdrousseau.shuju.transforms.*;
 import com.github.romualdrousseau.shuju.ml.knn.*;
 import com.github.romualdrousseau.shuju.ml.slr.*;
-import com.github.romualdrousseau.shuju.nlp.StringTypes;
+import com.github.romualdrousseau.shuju.nlp.StringList;
 import com.github.romualdrousseau.shuju.util.*;
 
 public class AppTest {
@@ -203,7 +203,7 @@ public class AppTest {
         NumericColumn c2 = new NumericColumn();
         NumericColumn c3 = new NumericColumn();
         NumericColumn c4 = new NumericColumn();
-        StringTypeColumn c5 = new StringTypeColumn(new StringTypes(new String[] { "I. setosa", "I. versicolor", "I. virginica" }));
+        StringColumn c5 = new StringColumn(new StringList(3, new String[] { "I. setosa", "I. versicolor", "I. virginica" }));
 
         List<String[]> rows = loadTable("/data/fisher's data.csv", "header");
         assert rows != null;

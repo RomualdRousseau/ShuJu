@@ -2,12 +2,12 @@ package com.github.romualdrousseau.shuju.columns;
 
 import com.github.romualdrousseau.shuju.IColumn;
 import com.github.romualdrousseau.shuju.math.Vector;
-import com.github.romualdrousseau.shuju.nlp.StringTypes;
+import com.github.romualdrousseau.shuju.nlp.StringList;
 
-public class StringTypeColumn implements IColumn<String> {
-    private StringTypes stringTypes;
+public class StringColumn implements IColumn<String> {
+    private StringList stringTypes;
 
-    public StringTypeColumn(StringTypes stringTypes) {
+    public StringColumn(StringList stringTypes) {
         this.stringTypes = stringTypes;
     }
 

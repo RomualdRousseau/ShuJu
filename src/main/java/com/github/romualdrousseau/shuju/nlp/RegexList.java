@@ -1,6 +1,7 @@
 package com.github.romualdrousseau.shuju.nlp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -11,22 +12,33 @@ import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Vector;
 
-public class EntityTypes {
-    private ArrayList<String> types = new ArrayList<String>();
+public class RegexList implements BaseList {
+    private ArrayList<String> regexes = new ArrayList<String>();
     private HashMap<String, String> patterns = new HashMap<String, String>();
-    private int maxVectorSize = 0;
+    private int vectorSize = 0;
 
-    public EntityTypes(int maxVectorSize) {
-        this.maxVectorSize = maxVectorSize;
+    public RegexList(int vectorSize) {
+        this.vectorSize = vectorSize;
     }
 
-    public EntityTypes(JSONObject json) {
-        this.maxVectorSize = json.getInt("maxVectorSize");
+    public RegexList(int vectorSize, String[] regexes) {
+        this.vectorSize = vectorSize;
+        this.regexes.addAll(Arrays.asList(regexes));
+    }
+
+    public RegexList(int vectorSize, String[] regexes, HashMap<String, String> patterns) {
+        this.vectorSize = vectorSize;
+        this.regexes.addAll(Arrays.asList(regexes));
+        this.patterns.putAll(patterns);
+    }
+
+    public RegexList(JSONObject json) {
+        this.vectorSize = json.getInt("maxVectorSize");
 
         JSONArray jsonTypes = json.getJSONArray("types");
         for(int i = 0; i < jsonTypes.size(); i++) {
             String s = jsonTypes.getString(i);
-            this.types.add(s);
+            this.regexes.add(s);
         }
 
         JSONArray jsonPatterns = json.getJSONArray("patterns");
@@ -38,26 +50,40 @@ public class EntityTypes {
         }
     }
 
-    public List<String> types() {
-        return this.types;
+    public List<String> values() {
+        return this.regexes;
     }
 
-    public int ordinal(String type) {
-        return this.types.indexOf(type);
+    public int size() {
+        return this.regexes.size();
     }
 
-    public void registerType(String type) {
-        assert this.types.indexOf(type) == -1;
-        this.types.add(type);
+    public String get(int i) {
+        return this.regexes.get(i);
     }
 
-    public void registerPattern(String pattern, String type) {
-        assert this.types.indexOf(type) > 0;
-        this.patterns.put(pattern, type);
+    public int ordinal(String w) {
+        return this.regexes.indexOf(w);
+    }
+
+    public RegexList add(String w) {
+        assert this.regexes.indexOf(w) == -1;
+        this.regexes.add(w);
+        return this;
+    }
+
+    public RegexList addPattern(String pattern, String regex) {
+        assert this.regexes.indexOf(regex) > 0;
+        this.patterns.put(pattern, regex);
+        return this;
+    }
+
+    public int getVectorSize() {
+        return this.vectorSize;
     }
 
     public Vector word2vec(String w) {
-        Vector result = new Vector(this.maxVectorSize);
+        Vector result = new Vector(this.vectorSize);
 
         if(w == null) {
             return result;
@@ -77,7 +103,7 @@ public class EntityTypes {
 
     public JSONObject toJSON() {
         JSONArray jsonTypes = JSON.newJSONArray();
-        for (String t : this.types) {
+        for (String t : this.regexes) {
             jsonTypes.append(t);
         }
 
@@ -91,7 +117,7 @@ public class EntityTypes {
         }
 
         JSONObject json = JSON.newJSONObject();
-        json.setInt("maxVectorSize", this.maxVectorSize);
+        json.setInt("maxVectorSize", this.vectorSize);
         json.setJSONArray("types", jsonTypes);
         json.setJSONArray("patterns", jsonPatterns);
         return json;

@@ -2,12 +2,12 @@ package com.github.romualdrousseau.shuju.columns;
 
 import com.github.romualdrousseau.shuju.IColumn;
 import com.github.romualdrousseau.shuju.math.Vector;
-import com.github.romualdrousseau.shuju.nlp.Ngrams;
+import com.github.romualdrousseau.shuju.nlp.NgramList;
 
 public class NgramColumn implements IColumn<String> {
-    private Ngrams ngrams;
+    private NgramList ngrams;
 
-    public NgramColumn(Ngrams ngrams) {
+    public NgramColumn(NgramList ngrams) {
         this.ngrams = ngrams;
     }
 

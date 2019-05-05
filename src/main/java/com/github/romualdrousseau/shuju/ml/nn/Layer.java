@@ -4,6 +4,7 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
 import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Vector;
 import com.github.romualdrousseau.shuju.ml.nn.activation.Linear;
 import com.github.romualdrousseau.shuju.ml.nn.initializer.GlorotUniformInitializer;
 
@@ -53,6 +54,10 @@ public class Layer {
 
     public Matrix detach() {
         return this.output;
+    }
+
+    public Vector detachAsVector() {
+        return this.output.toVector(0);
     }
 
     public void fromJSON(JSONObject json) {

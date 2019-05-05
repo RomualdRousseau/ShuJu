@@ -26,14 +26,12 @@ public class DataSet {
         for (int i = 0; i < jsonInputs.size(); i++) {
             DataRow row = new DataRow();
 
-            // JSONArray jsonInput = jsonInputs.getJSONArray(i);
-            // for (int j = 0; j < jsonInput.size(); j++) {
-            // row.addFeature(new Vector(jsonInput.getJSONObject(j)));
-            // }
-            row.addFeature(new Vector(jsonInputs.getJSONArray(i)));
+            JSONArray jsonInput = jsonInputs.getJSONArray(i);
+            for (int j = 0; j < jsonInput.size(); j++) {
+                row.addFeature(new Vector(jsonInput.getJSONObject(j)));
+            }
 
-            // row.setLabel(new Vector(jsonTargets.getJSONObject(i)));
-            row.setLabel(new Vector(jsonTargets.getJSONArray(i)));
+            row.setLabel(new Vector(jsonTargets.getJSONObject(i)));
 
             rows.add(row);
         }

@@ -2,12 +2,12 @@ package com.github.romualdrousseau.shuju.columns;
 
 import com.github.romualdrousseau.shuju.IColumn;
 import com.github.romualdrousseau.shuju.math.Vector;
-import com.github.romualdrousseau.shuju.nlp.Shingles;
+import com.github.romualdrousseau.shuju.nlp.ShingleList;
 
-public class ShinglesColumn implements IColumn<String> {
-    private Shingles shingles;
+public class ShingleColumn implements IColumn<String> {
+    private ShingleList shingles;
 
-    public ShinglesColumn(Shingles shingles) {
+    public ShingleColumn(ShingleList shingles) {
         this.shingles = shingles;
     }
 

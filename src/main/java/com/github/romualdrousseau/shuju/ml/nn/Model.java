@@ -22,10 +22,11 @@ public class Model {
         }
     }
 
-    public void add(Layer layer) {
+    public Model add(Layer layer) {
         layer.prev = this.end;
         this.end.next = layer;
         this.end = layer;
+        return this;
     }
 
     public Layer model(Vector input) {

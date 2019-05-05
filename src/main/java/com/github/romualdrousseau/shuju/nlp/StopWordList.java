@@ -3,15 +3,31 @@ package com.github.romualdrousseau.shuju.nlp;
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 
-public class StopWords {
+public class StopWordList  {
     private String[] stopwords;
 
-    public StopWords(JSONArray json) {
+    public StopWordList(String[] stopwords) {
+        this.stopwords = stopwords;
+    }
+
+    public StopWordList(JSONArray json) {
         this.stopwords = new String[json.size()];
         for (int i = 0; i < json.size(); i++) {
             String p = json.getString(i);
             this.stopwords[i] = p;
         }
+    }
+
+    public String[] values() {
+        return this.stopwords;
+    }
+
+    public int size() {
+        return this.stopwords.length;
+    }
+
+    public String get(int i) {
+        return this.stopwords[i];
     }
 
     public String removeStopWords(String s) {

@@ -2,12 +2,12 @@ package com.github.romualdrousseau.shuju.columns;
 
 import com.github.romualdrousseau.shuju.IColumn;
 import com.github.romualdrousseau.shuju.math.Vector;
-import com.github.romualdrousseau.shuju.nlp.EntityTypes;
+import com.github.romualdrousseau.shuju.nlp.RegexList;
 
-public class EntityTypeColumn implements IColumn<String> {
-    private EntityTypes entityTypes;
+public class RegexColumn implements IColumn<String> {
+    private RegexList entityTypes;
 
-    public EntityTypeColumn(EntityTypes entityTypes) {
+    public RegexColumn(RegexList entityTypes) {
         this.entityTypes = entityTypes;
     }
 
