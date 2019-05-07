@@ -30,8 +30,10 @@ public class DataSet {
             for (int j = 0; j < jsonInput.size(); j++) {
                 row.addFeature(new Vector(jsonInput.getJSONObject(j)));
             }
+            //row.addFeature(new Vector(jsonInputs.getJSONArray(i)));
 
             row.setLabel(new Vector(jsonTargets.getJSONObject(i)));
+            //row.setLabel(new Vector(jsonTargets.getJSONArray(i)));
 
             rows.add(row);
         }
@@ -51,8 +53,10 @@ public class DataSet {
     public DataSet addRow(DataRow row, boolean replaceIfExists) {
         int i = this.indexOf(row);
         if (i == -1) {
+            System.out.println("-- added a new row");
             this.rows.add(row);
-        } else if (replaceIfExists) {
+        } else if (replaceIfExists && !this.rows.get(i).hasSameLabel(row)) {
+            System.out.println("-- replaced a conflicted row");
             this.rows.set(i, row);
         }
         return this;
@@ -81,6 +85,11 @@ public class DataSet {
             temp.add(this.rows.get(i));
         }
         return new DataSet(temp);
+    }
+
+    public DataSet join(DataSet dataset) {
+        this.rows.addAll(dataset.rows);
+        return this;
     }
 
     public DataSet transform(ITransform transfomer, int partIndex, int colIndex) {

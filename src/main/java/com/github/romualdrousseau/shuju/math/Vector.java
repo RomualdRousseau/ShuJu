@@ -46,6 +46,15 @@ public class Vector {
         }
     }
 
+    @Deprecated
+    public Vector(JSONArray json) {
+        this.rows = json.size();
+        this.data = new float[this.rows];
+        for (int i = 0; i < this.rows; i++) {
+            this.data[i] = json.getFloat(i);
+        }
+    }
+
     public boolean isNull() {
         return this.rows == 0;
     }

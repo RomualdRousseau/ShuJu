@@ -64,7 +64,7 @@ public class Scalar {
     }
 
     public static float constrain(float x, float a, float b) {
-        return (x > a) ? a : ((x < b) ? b : x);
+        return (x < a) ? a : ((x > b) ? b : x);
     }
 
     public static float cond(float x, float p, float a, float b) {

@@ -43,16 +43,16 @@ public class DataRow {
         return result;
     }
 
-    public boolean hasSameLabels(DataRow other) {
+    public boolean hasSameLabel(DataRow other) {
         return this.label.equals(other.label);
     }
 
     public boolean conflicts(DataRow other) {
-        return this.hasSameFeatures(other) && !this.hasSameLabels(other);
+        return this.hasSameFeatures(other) && !this.hasSameLabel(other);
     }
 
     public boolean equals(DataRow other) {
-        return this.hasSameFeatures(other) && this.hasSameLabels(other);
+        return this.hasSameFeatures(other) && this.hasSameLabel(other);
     }
 
     public String toString() {
