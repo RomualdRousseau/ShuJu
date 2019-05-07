@@ -1,7 +1,13 @@
 package com.github.romualdrousseau.shuju.json;
 
+import com.github.romualdrousseau.shuju.json.processing.JSONProcessingFactory;
+
 public class JSON {
     private static JSONFactory Factory;
+
+    static {
+        JSON.Factory = new JSONProcessingFactory();
+    }
 
     public static void setFactory(JSONFactory factory) {
         JSON.Factory = factory;
