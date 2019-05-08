@@ -2,11 +2,8 @@ package com.github.romualdrousseau.shuju.json.processing;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.File;
 import java.io.IOException;
 

@@ -53,10 +53,10 @@ public class DataSet {
     public DataSet addRow(DataRow row, boolean replaceIfExists) {
         int i = this.indexOf(row);
         if (i == -1) {
-            System.out.println("-- added a new row");
+            //System.out.println("-- added a new row");
             this.rows.add(row);
         } else if (replaceIfExists && !this.rows.get(i).hasSameLabel(row)) {
-            System.out.println("-- replaced a conflicted row");
+            //System.out.println("-- replaced a conflicted row");
             this.rows.set(i, row);
         }
         return this;
@@ -73,7 +73,7 @@ public class DataSet {
             if (!this.conflicts(row)) {
                 temp.add(row);
             } else {
-                System.out.println(row);
+                //System.out.println(row);
             }
         }
         return new DataSet(temp);
