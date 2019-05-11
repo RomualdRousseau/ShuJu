@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
@@ -33,6 +35,30 @@ public class JSONSimpleFactory implements JSONFactory {
     public JSONObject loadJSONObject(String filePath) {
         try (BufferedReader reader = createReader(filePath)) {
             return new JSONSimpleObject((org.json.simple.JSONObject) new JSONParser().parse(reader));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONObject parseJSONObject(String data) {
+        try (Reader reader = new StringReader(data)) {
+            return new JSONSimpleObject((org.json.simple.JSONObject) new JSONParser().parse(reader));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONArray parseJSONArray(String data) {
+        try (Reader reader = new StringReader(data)) {
+            return new JSONSimpleArray((org.json.simple.JSONArray) new JSONParser().parse(reader));
         } catch (IOException e) {
             e.printStackTrace();
             return null;

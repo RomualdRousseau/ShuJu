@@ -29,6 +29,14 @@ public class JSON {
         return JSON.Factory.loadJSONArray(filePath);
     }
 
+    public static JSONObject parseJSONObject(String data) {
+        return JSON.Factory.parseJSONObject(data);
+    }
+
+    public static JSONArray parseJSONArray(String data) {
+        return JSON.Factory.parseJSONArray(data);
+    }
+
     public static void saveJSONObject(JSONObject o, String filePath) {
         JSON.Factory.saveJSONObject(o, filePath);
     }

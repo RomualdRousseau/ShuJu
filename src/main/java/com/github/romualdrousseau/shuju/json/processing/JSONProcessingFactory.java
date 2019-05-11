@@ -2,6 +2,7 @@ package com.github.romualdrousseau.shuju.json.processing;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.io.FileInputStream;
 import java.io.File;
@@ -39,6 +40,14 @@ public class JSONProcessingFactory implements JSONFactory {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public JSONObject parseJSONObject(String data) {
+        return new JSONProcessingObject(new processing.data.JSONObject(new StringReader(data)));
+    }
+
+    public JSONArray parseJSONArray(String data) {
+        return new JSONProcessingArray(new processing.data.JSONArray(new StringReader(data)));
     }
 
     public void saveJSONObject(JSONObject o, String filePath) {
