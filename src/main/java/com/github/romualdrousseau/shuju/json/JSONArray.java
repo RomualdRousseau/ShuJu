@@ -3,6 +3,8 @@ package com.github.romualdrousseau.shuju.json;
 public interface JSONArray {
     int size();
 
+    Object get(int i);
+
     int getInt(int s);
 
     void setInt(int i, int n);
@@ -32,4 +34,6 @@ public interface JSONArray {
     void append(JSONArray a);
 
     void append(JSONObject o);
+
+    void remove(int i);
 }

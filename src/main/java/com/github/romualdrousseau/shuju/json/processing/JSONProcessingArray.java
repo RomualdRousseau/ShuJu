@@ -14,6 +14,10 @@ public class JSONProcessingArray implements JSONArray {
         return this.ja.size();
     }
 
+    public Object get(int i) {
+        return this.ja.get(i);
+    }
+
     public int getInt(int i) {
         return this.ja.getInt(i);
     }
@@ -72,5 +76,9 @@ public class JSONProcessingArray implements JSONArray {
 
     public void append(JSONObject o) {
         this.ja.append(((JSONProcessingObject) o).jo);
+    }
+
+    public void remove(int i) {
+        this.ja.remove(i);
     }
 }

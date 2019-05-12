@@ -1,6 +1,12 @@
 package com.github.romualdrousseau.shuju.json;
 
+import java.util.Set;
+
 public interface JSONObject {
+    Set<String> keys();
+
+    Object get(String k);
+
     int getInt(String k);
 
     void setInt(String k, int n);

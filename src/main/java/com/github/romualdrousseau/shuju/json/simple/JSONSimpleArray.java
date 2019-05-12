@@ -14,49 +14,53 @@ public class JSONSimpleArray implements JSONArray {
         return this.ja.size();
     }
 
-    public int getInt(int k) {
-        return ((Long) this.ja.get(k)).intValue();
+    public Object get(int i) {
+        return this.ja.get(i);
+    }
+
+    public int getInt(int i) {
+        return ((Long) this.ja.get(i)).intValue();
     }
 
     @SuppressWarnings("unchecked")
-    public void setInt(int k, int n) {
-        this.ja.set(k, Long.valueOf(n));
+    public void setInt(int i, int n) {
+        this.ja.set(i, Long.valueOf(n));
     }
 
-    public float getFloat(int k) {
-        return ((Double) this.ja.get(k)).floatValue();
-    }
-
-    @SuppressWarnings("unchecked")
-    public void setFloat(int k, float f) {
-        this.ja.set(k, Double.valueOf(f));
-    }
-
-    public String getString(int k) {
-        return (String) this.ja.get(k);
+    public float getFloat(int i) {
+        return ((Double) this.ja.get(i)).floatValue();
     }
 
     @SuppressWarnings("unchecked")
-    public void setString(int k, String s) {
-        this.ja.set(k, s);
+    public void setFloat(int i, float f) {
+        this.ja.set(i, Double.valueOf(f));
     }
 
-    public JSONArray getJSONArray(int k) {
-        return new JSONSimpleArray((org.json.simple.JSONArray) this.ja.get(k));
-    }
-
-    @SuppressWarnings("unchecked")
-    public void setJSONArray(int k, JSONArray a) {
-        this.ja.set(k, ((JSONSimpleArray) a).ja);
-    }
-
-    public JSONObject getJSONObject(int k) {
-        return new JSONSimpleObject((org.json.simple.JSONObject) this.ja.get(k));
+    public String getString(int i) {
+        return (String) this.ja.get(i);
     }
 
     @SuppressWarnings("unchecked")
-    public void setJSONObject(int k, JSONObject o) {
-        this.ja.set(k, ((JSONSimpleObject) o).jo);
+    public void setString(int i, String s) {
+        this.ja.set(i, s);
+    }
+
+    public JSONArray getJSONArray(int i) {
+        return new JSONSimpleArray((org.json.simple.JSONArray) this.ja.get(i));
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setJSONArray(int i, JSONArray a) {
+        this.ja.set(i, ((JSONSimpleArray) a).ja);
+    }
+
+    public JSONObject getJSONObject(int i) {
+        return new JSONSimpleObject((org.json.simple.JSONObject) this.ja.get(i));
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setJSONObject(int i, JSONObject o) {
+        this.ja.set(i, ((JSONSimpleObject) o).jo);
     }
 
     @SuppressWarnings("unchecked")
@@ -82,5 +86,9 @@ public class JSONSimpleArray implements JSONArray {
     @SuppressWarnings("unchecked")
     public void append(JSONObject o) {
         this.ja.add(((JSONSimpleObject) o).jo);
+    }
+
+    public void remove(int i) {
+        this.ja.remove(i);
     }
 }

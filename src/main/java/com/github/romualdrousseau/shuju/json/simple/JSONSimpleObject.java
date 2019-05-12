@@ -1,5 +1,7 @@
 package com.github.romualdrousseau.shuju.json.simple;
 
+import java.util.Set;
+
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
@@ -8,6 +10,15 @@ public class JSONSimpleObject implements JSONObject {
 
     public JSONSimpleObject(org.json.simple.JSONObject jo) {
         this.jo = jo;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Set<String> keys() {
+        return this.jo.keySet();
+    }
+
+    public Object get(String k) {
+        return this.jo.get(k);
     }
 
     public int getInt(String k) {
