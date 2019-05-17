@@ -18,7 +18,28 @@ public class JSONProcessingObject implements JSONObject {
     }
 
     public Object get(String k) {
-        return this.jo.get(k);
+        Object o = this.jo.get(k);
+        if(o instanceof processing.data.JSONObject) {
+            return new JSONProcessingObject((processing.data.JSONObject) o);
+        } else if(o instanceof processing.data.JSONArray) {
+            return new JSONProcessingArray((processing.data.JSONArray) o);
+        } else {
+            return o;
+        }
+    }
+
+    public void set(String k, Object o) {
+        if (o instanceof JSONObject) {
+            this.jo.setJSONObject(k, (processing.data.JSONObject) o);
+        } else if (o instanceof JSONArray) {
+            this.jo.setJSONArray(k, (processing.data.JSONArray) o);
+        } else if (o instanceof Integer) {
+            this.jo.setInt(k, (Integer) o);
+        } else if (o instanceof Float) {
+            this.jo.setFloat(k, (Float) o);
+        } else {
+            this.jo.setString(k, o.toString());
+        }
     }
 
     public int getInt(String k) {
@@ -59,5 +80,10 @@ public class JSONProcessingObject implements JSONObject {
 
     public void setJSONObject(String k, JSONObject o) {
         this.jo.setJSONObject(k, ((JSONProcessingObject) o).jo);
+    }
+
+    @Override
+    public String toString() {
+        return this.jo.toString();
     }
 }

@@ -15,47 +15,68 @@ public class JSONProcessingArray implements JSONArray {
     }
 
     public Object get(int i) {
-        return this.ja.get(i);
+        Object o = this.ja.get(i);
+        if (o instanceof processing.data.JSONObject) {
+            return new JSONProcessingObject((processing.data.JSONObject) o);
+        } else if (o instanceof processing.data.JSONArray) {
+            return new JSONProcessingArray((processing.data.JSONArray) o);
+        } else {
+            return o;
+        }
+    }
+
+    public void set(int i, Object o) {
+        if (o instanceof JSONObject) {
+            this.ja.setJSONObject(i, (processing.data.JSONObject) o);
+        } else if (o instanceof JSONArray) {
+            this.ja.setJSONArray(i, (processing.data.JSONArray) o);
+        } else if (o instanceof Integer) {
+            this.ja.setInt(i, (Integer) o);
+        } else if (o instanceof Float) {
+            this.ja.setFloat(i, (Float) o);
+        } else {
+            this.ja.setString(i, o.toString());
+        }
     }
 
     public int getInt(int i) {
         return this.ja.getInt(i);
     }
 
-    public void setInt(int k, int n) {
-        this.ja.setInt(k, n);
+    public void setInt(int i, int n) {
+        this.ja.setInt(i, n);
     }
 
-    public float getFloat(int k) {
-        return this.ja.getFloat(k);
+    public float getFloat(int i) {
+        return this.ja.getFloat(i);
     }
 
-    public void setFloat(int k, float f) {
-        this.ja.setFloat(k, f);
+    public void setFloat(int i, float f) {
+        this.ja.setFloat(i, f);
     }
 
-    public String getString(int k) {
-        return this.ja.getString(k);
+    public String getString(int i) {
+        return this.ja.getString(i);
     }
 
-    public void setString(int k, String s) {
-        this.ja.setString(k, s);
+    public void setString(int i, String s) {
+        this.ja.setString(i, s);
     }
 
-    public JSONArray getJSONArray(int k) {
-        return new JSONProcessingArray(this.ja.getJSONArray(k));
+    public JSONArray getJSONArray(int i) {
+        return new JSONProcessingArray(this.ja.getJSONArray(i));
     }
 
-    public void setJSONArray(int k, JSONArray a) {
-        this.ja.setJSONArray(k, ((JSONProcessingArray) a).ja);
+    public void setJSONArray(int i, JSONArray a) {
+        this.ja.setJSONArray(i, ((JSONProcessingArray) a).ja);
     }
 
-    public JSONObject getJSONObject(int k) {
-        return new JSONProcessingObject(this.ja.getJSONObject(k));
+    public JSONObject getJSONObject(int i) {
+        return new JSONProcessingObject(this.ja.getJSONObject(i));
     }
 
-    public void setJSONObject(int k, JSONObject o) {
-        this.ja.setJSONObject(k, ((JSONProcessingObject) o).jo);
+    public void setJSONObject(int i, JSONObject o) {
+        this.ja.setJSONObject(i, ((JSONProcessingObject) o).jo);
     }
 
     public void append(int i) {
@@ -78,7 +99,26 @@ public class JSONProcessingArray implements JSONArray {
         this.ja.append(((JSONProcessingObject) o).jo);
     }
 
+    public void append(Object o) {
+        if (o instanceof JSONObject) {
+            this.ja.append((processing.data.JSONObject) o);
+        } else if (o instanceof JSONArray) {
+            this.ja.append((processing.data.JSONArray) o);
+        } else if (o instanceof Integer) {
+            this.ja.append((Integer) o);
+        } else if (o instanceof Float) {
+            this.ja.append((Float) o);
+        } else {
+            this.ja.append(o.toString());
+        }
+    }
+
     public void remove(int i) {
         this.ja.remove(i);
+    }
+
+    @Override
+    public String toString() {
+        return this.ja.toString();
     }
 }

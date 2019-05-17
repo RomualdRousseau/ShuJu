@@ -1,5 +1,11 @@
 package com.github.romualdrousseau.shuju.json;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
 import com.github.romualdrousseau.shuju.json.processing.JSONProcessingFactory;
 
 public class JSON {
@@ -43,5 +49,25 @@ public class JSON {
 
     public static void saveJSONArray(JSONArray a, String filePath) {
         JSON.Factory.saveJSONArray(a, filePath);
+    }
+
+    public static boolean checkIfJSONObject(String filePath) {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(new File(filePath)), StandardCharsets.UTF_8))) {
+
+            // consume the Unicode BOM (byte order marker) if present
+            reader.mark(1);
+            int c = reader.read();
+            // if not the BOM, back up to the beginning again
+            if (c != '\uFEFF') {
+                reader.reset();
+            }
+
+            c = reader.read();
+            return c == '{';
+
+        } catch (Exception x) {
+            throw new RuntimeException("Error opening " + filePath);
+        }
     }
 }

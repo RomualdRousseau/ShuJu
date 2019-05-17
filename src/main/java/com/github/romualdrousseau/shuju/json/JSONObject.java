@@ -7,6 +7,8 @@ public interface JSONObject {
 
     Object get(String k);
 
+    void set(String k, Object o);
+
     int getInt(String k);
 
     void setInt(String k, int n);
@@ -26,4 +28,6 @@ public interface JSONObject {
     JSONObject getJSONObject(String k);
 
     void setJSONObject(String k, JSONObject o);
+
+    String toString();
 }

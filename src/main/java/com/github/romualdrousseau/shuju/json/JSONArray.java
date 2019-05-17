@@ -5,6 +5,8 @@ public interface JSONArray {
 
     Object get(int i);
 
+    void set(int i, Object o);
+
     int getInt(int s);
 
     void setInt(int i, int n);
@@ -34,6 +36,8 @@ public interface JSONArray {
     void append(JSONArray a);
 
     void append(JSONObject o);
+
+    void append(Object o);
 
     void remove(int i);
 }
