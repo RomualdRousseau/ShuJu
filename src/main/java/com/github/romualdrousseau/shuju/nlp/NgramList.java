@@ -81,6 +81,7 @@ public class NgramList implements BaseList {
                 }
             }
         } else {
+            w = w.replaceAll("[\\s_]+", "").trim();
             for (int i = 0; i < w.length() - this.n + 1; i++) {
                 String s = w.substring(i, i + this.n).toLowerCase();
                 int index = this.ngrams.indexOf(s);
@@ -120,6 +121,7 @@ public class NgramList implements BaseList {
                 }
             }
         } else {
+            w = w.replaceAll("[\\s_]+", "").trim();
             for (int i = 0; i < w.length() - this.n + 1; i++) {
                 String p = w.substring(i, i + this.n).toLowerCase();
                 for (int j = 0; j < this.ngrams.size(); j++) {
