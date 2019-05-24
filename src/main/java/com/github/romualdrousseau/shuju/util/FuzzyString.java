@@ -9,8 +9,9 @@ public class FuzzyString {
         int s_len = s.length();
         int t_len = t.length();
 
-        if (s_len == 0 && t_len == 0)
-            return 1;
+        if (s_len == 0 && t_len == 0) {
+            return 1.0f;
+        }
 
         int match_distance = Integer.max(s_len, t_len) / 2 - 1;
 

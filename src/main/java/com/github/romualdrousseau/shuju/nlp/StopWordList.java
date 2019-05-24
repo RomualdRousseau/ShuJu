@@ -6,6 +6,10 @@ import com.github.romualdrousseau.shuju.json.JSONArray;
 public class StopWordList  {
     private String[] stopwords;
 
+    public StopWordList() {
+        this.stopwords = new String[] {};
+    }
+
     public StopWordList(String[] stopwords) {
         this.stopwords = stopwords;
     }
@@ -32,7 +36,7 @@ public class StopWordList  {
 
     public String removeStopWords(String s) {
         for (int i = 0; i < this.stopwords.length; i++) {
-            s = s.replaceAll(this.stopwords[i], "");
+            s = s.replaceAll(this.stopwords[i], " ");
         }
         return s;
     }

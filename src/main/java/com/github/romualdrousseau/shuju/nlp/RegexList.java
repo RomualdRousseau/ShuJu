@@ -92,7 +92,7 @@ public class RegexList implements BaseList {
         for (String pattern : this.patterns.keySet()) {
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(w);
-            if (m.find()) {
+            if (m.matches()) {
                 String t = this.patterns.get(pattern);
                 result.set(this.ordinal(t), 1.0f);
             }

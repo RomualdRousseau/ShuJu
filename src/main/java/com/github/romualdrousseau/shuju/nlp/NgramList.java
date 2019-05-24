@@ -6,11 +6,13 @@ import java.util.List;
 
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.util.FuzzyString;
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 
 public class NgramList implements BaseList {
     private ArrayList<String> ngrams = new ArrayList<String>();
+    private ArrayList<String> lexicon = new ArrayList<String>();
     private int n;
     private int vectorSize = 0;
 
@@ -25,6 +27,13 @@ public class NgramList implements BaseList {
         this.ngrams.addAll(Arrays.asList(ngrams));
     }
 
+    public NgramList(int n, int vectorSize, String[] ngrams, String[] lexicon) {
+        this.n = n;
+        this.vectorSize = vectorSize;
+        this.ngrams.addAll(Arrays.asList(ngrams));
+        this.lexicon.addAll(Arrays.asList(lexicon));
+    }
+
     public NgramList(JSONObject json) {
         this.n = json.getInt("n");
         this.vectorSize = json.getInt("maxVectorSize");
@@ -32,6 +41,11 @@ public class NgramList implements BaseList {
         for (int i = 0; i < jsonNgrams.size(); i++) {
             String p = jsonNgrams.getString(i);
             this.ngrams.add(p);
+        }
+        JSONArray jsonLexicon = json.getJSONArray("lexicon");
+        for (int i = 0; i < jsonLexicon.size(); i++) {
+            String p = jsonLexicon.getString(i);
+            this.lexicon.add(p);
         }
     }
 
@@ -52,16 +66,32 @@ public class NgramList implements BaseList {
     }
 
     public NgramList add(String w) {
-        for (int i = 0; i < w.length() - this.n + 1; i++) {
-            String s = w.substring(i, i + this.n).toLowerCase();
-            int index = this.ngrams.indexOf(s);
-            if (index >= 0) {
-                continue;
-            }
+        if (this.n == 0) {
+            String[] tokens = this.tokenize(w);
+            for (int i = 0; i < tokens.length; i++) {
+                String s = tokens[i];
+                int index = this.ngrams.indexOf(s);
+                if (index >= 0) {
+                    continue;
+                }
 
-            this.ngrams.add(s);
-            if (this.ngrams.size() >= this.vectorSize) {
-                throw new IndexOutOfBoundsException();
+                this.ngrams.add(s);
+                if (this.ngrams.size() >= this.vectorSize) {
+                    throw new IndexOutOfBoundsException();
+                }
+            }
+        } else {
+            for (int i = 0; i < w.length() - this.n + 1; i++) {
+                String s = w.substring(i, i + this.n).toLowerCase();
+                int index = this.ngrams.indexOf(s);
+                if (index >= 0) {
+                    continue;
+                }
+
+                this.ngrams.add(s);
+                if (this.ngrams.size() >= this.vectorSize) {
+                    throw new IndexOutOfBoundsException();
+                }
             }
         }
         return this;
@@ -74,15 +104,29 @@ public class NgramList implements BaseList {
     public Vector word2vec(String w) {
         Vector result = new Vector(this.vectorSize);
 
-        if(w == null) {
+        if (w == null) {
             return result;
         }
 
-        for (int i = 0; i < w.length() - this.n + 1; i++) {
-            String p = w.substring(i, i + this.n).toLowerCase();
-            int index = this.ngrams.indexOf(p);
-            if (index >= 0 && index < this.vectorSize) {
-                result.set(index, 1.0f);
+        if (this.n == 0) {
+            String[] tokens = this.tokenize(w);
+            for (int i = 0; i < tokens.length; i++) {
+                String p = tokens[i];
+                for (int j = 0; j < this.ngrams.size(); j++) {
+                    float f = FuzzyString.JaroWinkler(p, this.ngrams.get(j));
+                    if(f > 0.9f) {
+                        result.set(j, f);
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < w.length() - this.n + 1; i++) {
+                String p = w.substring(i, i + this.n).toLowerCase();
+                for (int j = 0; j < this.ngrams.size(); j++) {
+                    if(p.equals(this.ngrams.get(j))) {
+                        result.set(j, 1.0f);
+                    }
+                }
             }
         }
 
@@ -95,10 +139,38 @@ public class NgramList implements BaseList {
             jsonNgrams.append(ngram);
         }
 
+        JSONArray jsonLexicon = JSON.newJSONArray();
+        for (String lexem : this.lexicon) {
+            jsonLexicon.append(lexem);
+        }
+
         JSONObject json = JSON.newJSONObject();
         json.setInt("n", this.n);
         json.setInt("maxVectorSize", this.vectorSize);
         json.setJSONArray("ngrams", jsonNgrams);
+        json.setJSONArray("lexicon", jsonLexicon);
         return json;
+    }
+
+    private String[] tokenize(String s) {
+        if (this.lexicon.size() > 0) {
+            String slc = s.toLowerCase();
+            for (String lexem : this.lexicon) {
+                if (slc.contains(lexem)) {
+                    s = s.replaceAll("(?i)" + lexem, " " + lexem + " ");
+                }
+            }
+        }
+
+        s = s.replaceAll("[\\s_]+", " ").trim();
+
+        ArrayList<String> result = new ArrayList<String>();
+        for (String w : s.split(" ")) {
+            for (String ww : w.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")) {
+                result.add(ww.toLowerCase());
+            }
+        }
+
+        return result.toArray(new String[result.size()]);
     }
 }
