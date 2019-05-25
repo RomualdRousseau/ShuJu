@@ -101,9 +101,9 @@ public class JSONProcessingArray implements JSONArray {
 
     public void append(Object o) {
         if (o instanceof JSONObject) {
-            this.ja.append((processing.data.JSONObject) o);
+            this.ja.append(((JSONProcessingObject) o).jo);
         } else if (o instanceof JSONArray) {
-            this.ja.append((processing.data.JSONArray) o);
+            this.ja.append(((JSONProcessingArray) o).ja);
         } else if (o instanceof Integer) {
             this.ja.append((Integer) o);
         } else if (o instanceof Float) {
