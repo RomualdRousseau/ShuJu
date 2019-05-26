@@ -11,6 +11,7 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.util.StringUtility;
 
 public class RegexList implements BaseList {
     private ArrayList<String> regexes = new ArrayList<String>();
@@ -67,7 +68,12 @@ public class RegexList implements BaseList {
     }
 
     public RegexList add(String w) {
-        assert this.regexes.indexOf(w) == -1;
+        if(StringUtility.isEmpty(w)) {
+            return this;
+        }
+        if(this.regexes.indexOf(w) >= 0) {
+            return this;
+        }
         this.regexes.add(w);
         return this;
     }

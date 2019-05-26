@@ -89,6 +89,10 @@ public class NgramList implements BaseList {
     }
 
     public NgramList add(String w) {
+        if(StringUtility.isEmpty(w)) {
+            return this;
+        }
+
         String[] tokens = this.tokenizer.tokenize(w);
         for (int i = 0; i < tokens.length; i++) {
             String s = tokens[i];
@@ -102,6 +106,7 @@ public class NgramList implements BaseList {
                 throw new IndexOutOfBoundsException();
             }
         }
+
         return this;
     }
 

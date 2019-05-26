@@ -8,6 +8,7 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.util.StringUtility;
 
 public class StringList implements BaseList {
     private ArrayList<String> strings = new ArrayList<String>();
@@ -48,7 +49,12 @@ public class StringList implements BaseList {
     }
 
     public StringList add(String w) {
-        assert this.strings.indexOf(w) == -1;
+        if(StringUtility.isEmpty(w)) {
+            return this;
+        }
+        if(this.strings.indexOf(w) >= 0) {
+            return this;
+        }
         this.strings.add(w);
         return this;
     }
