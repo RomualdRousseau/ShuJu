@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 import com.github.romualdrousseau.shuju.json.processing.JSONProcessingFactory;
+import com.github.romualdrousseau.shuju.util.StringUtility;
 
 public class JSON {
     private static JSONFactory Factory;
@@ -59,7 +60,7 @@ public class JSON {
             reader.mark(1);
             int c = reader.read();
             // if not the BOM, back up to the beginning again
-            if (c != '\uFEFF') {
+            if (c != StringUtility.BOM_CHAR) {
                 reader.reset();
             }
 
