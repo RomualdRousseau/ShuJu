@@ -1,7 +1,7 @@
 package com.github.romualdrousseau.shuju;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
@@ -30,10 +30,8 @@ public class DataSet {
             for (int j = 0; j < jsonInput.size(); j++) {
                 row.addFeature(new Vector(jsonInput.getJSONObject(j)));
             }
-            //row.addFeature(new Vector(jsonInputs.getJSONArray(i)));
 
             row.setLabel(new Vector(jsonTargets.getJSONObject(i)));
-            //row.setLabel(new Vector(jsonTargets.getJSONArray(i)));
 
             rows.add(row);
         }
