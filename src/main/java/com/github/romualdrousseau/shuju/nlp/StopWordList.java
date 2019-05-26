@@ -2,7 +2,6 @@ package com.github.romualdrousseau.shuju.nlp;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
-import com.github.romualdrousseau.shuju.util.StringUtility;
 
 public class StopWordList  {
     private String[] stopwords;
@@ -19,9 +18,7 @@ public class StopWordList  {
         this.stopwords = new String[json.size()];
         for (int i = 0; i < json.size(); i++) {
             String p = json.getString(i);
-            if(!StringUtility.isEmpty(p)) {
-                this.stopwords[i] = p;
-            }
+            this.stopwords[i] = p;
         }
     }
 
