@@ -141,9 +141,7 @@ public class AppTest {
 
         slr.fit(training.featuresAsVectorArray(), training.labelsAsVectorArray());
 
-        DataRow test = new DataRow()
-                .addFeature(new Vector(1, 13.0f))
-                .setLabel(new Vector(1, 1.157f));
+        DataRow test = new DataRow().addFeature(new Vector(1, 13.0f)).setLabel(new Vector(1, 1.157f));
 
         Vector result = slr.predict(test.featuresAsOneVector());
 
@@ -203,7 +201,8 @@ public class AppTest {
         NumericColumn c2 = new NumericColumn();
         NumericColumn c3 = new NumericColumn();
         NumericColumn c4 = new NumericColumn();
-        StringColumn c5 = new StringColumn(new StringList(3, new String[] { "I. setosa", "I. versicolor", "I. virginica" }));
+        StringColumn c5 = new StringColumn(
+                new StringList(3, new String[] { "I. setosa", "I. versicolor", "I. virginica" }));
 
         List<String[]> rows = loadTable("/data/fisher's data.csv", "header");
         assert rows != null;
