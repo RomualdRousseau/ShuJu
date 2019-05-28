@@ -44,7 +44,7 @@ public class NgramList implements BaseList {
         for (int i = 0; i < jsonLexicon.size(); i++) {
             String word = jsonLexicon.getString(i);
             if (!StringUtility.isEmpty(word)) {
-                this.ngrams.add(word);
+                this.lexicon.add(word);
             }
         }
     }
@@ -116,7 +116,7 @@ public class NgramList implements BaseList {
 
     public Vector word2vec(String w) {
         Vector result = new Vector(this.vectorSize);
-        if (w == null) {
+        if (StringUtility.isEmpty(w)) {
             return result;
         } else {
             return this.tokenizer.word2vec(w, result);
@@ -140,5 +140,10 @@ public class NgramList implements BaseList {
         json.setJSONArray("ngrams", jsonNgrams);
         json.setJSONArray("lexicon", jsonLexicon);
         return json;
+    }
+
+    @Override
+    public String toString() {
+        return this.ngrams.toString();
     }
 }

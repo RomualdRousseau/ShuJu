@@ -128,4 +128,9 @@ public class RegexList implements BaseList {
         json.setJSONArray("patterns", jsonPatterns);
         return json;
     }
+
+    @Override
+    public String toString() {
+        return this.regexes.toString();
+    }
 }

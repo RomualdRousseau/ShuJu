@@ -36,7 +36,7 @@ public class StopWordList  {
 
     public String removeStopWords(String s) {
         for (int i = 0; i < this.stopwords.length; i++) {
-            s = s.replaceAll(this.stopwords[i], " ");
+            s = s.replaceAll("(?i)" + this.stopwords[i], " ");
         }
         return s;
     }
@@ -48,5 +48,10 @@ public class StopWordList  {
             json.setString(i, stopword);
         }
         return json;
+    }
+
+    @Override
+    public String toString() {
+        return this.stopwords.toString();
     }
 }

@@ -16,8 +16,8 @@ public class ShingleTokenizer implements ITokenizer {
         this.lexicon = lexicon;
     }
 
-    public String[] tokenize(String s) {
-        s = StringUtility.normalizeWhiteSpaces(s);
+    public String[] tokenize(String w) {
+        String s = StringUtility.normalizeWhiteSpaces(w);
 
         // Split using a lexicon of known words if any
         if (this.lexicon.size() > 0) {
@@ -34,9 +34,9 @@ public class ShingleTokenizer implements ITokenizer {
 
         // Split Camel notation words
         ArrayList<String> result = new ArrayList<String>();
-        for (String w : s.split(" ")) {
-            for (String ww : w.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])")) {
-                result.add(ww.toLowerCase());
+        for (String ss : s.split(" ")) {
+            for (String sss : ss.split("(?<!(^|[A-Z/]))(?=[A-Z/])|(?<!^)(?=[A-Z/][a-z/])")) {
+                result.add(sss.toLowerCase());
             }
         }
 
@@ -48,10 +48,8 @@ public class ShingleTokenizer implements ITokenizer {
         for (int i = 0; i < tokens.length; i++) {
             String token = tokens[i];
             for (int j = 0; j < this.shingles.size(); j++) {
-                float f = this.similarity(token, this.shingles.get(j));
-                // TODO: test this one
-                if (f > 0.8f) {
-                    outVector.set(j, f);
+                if (this.similarity(token, this.shingles.get(j)) > 0.95f) {
+                    outVector.set(j, 1.0f);
                 }
             }
         }

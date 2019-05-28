@@ -86,4 +86,9 @@ public class StringList implements BaseList {
         json.setJSONArray("types", jsonTypes);
         return json;
     }
+
+    @Override
+    public String toString() {
+        return this.strings.toString();
+    }
 }
