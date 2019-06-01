@@ -1,9 +1,7 @@
 package com.github.romualdrousseau.shuju.json;
 
-import java.util.Set;
-
 public interface JSONObject {
-    Set<String> keys();
+    Iterable<String> keys();
 
     Object get(String k);
 

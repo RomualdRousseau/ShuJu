@@ -6,14 +6,14 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-import com.github.romualdrousseau.shuju.json.processing.JSONProcessingFactory;
+import com.github.romualdrousseau.shuju.json.jackson.JSONJacksonFactory;
 import com.github.romualdrousseau.shuju.util.StringUtility;
 
 public class JSON {
     private static JSONFactory Factory;
 
     static {
-        JSON.Factory = new JSONProcessingFactory();
+        JSON.Factory = new JSONJacksonFactory();
     }
 
     public static void setFactory(JSONFactory factory) {
@@ -42,6 +42,14 @@ public class JSON {
 
     public static JSONArray parseJSONArray(String data) {
         return JSON.Factory.parseJSONArray(data);
+    }
+
+    public static JSONObject parseJSONObject(Object object) {
+        return JSON.Factory.parseJSONObject(object);
+    }
+
+    public static JSONArray parseJSONArray(Object object) {
+        return JSON.Factory.parseJSONArray(object);
     }
 
     public static void saveJSONObject(JSONObject o, String filePath) {

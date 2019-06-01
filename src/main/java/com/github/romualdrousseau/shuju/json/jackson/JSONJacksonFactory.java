@@ -1,32 +1,36 @@
-package com.github.romualdrousseau.shuju.json.processing;
+package com.github.romualdrousseau.shuju.json.jackson;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.io.FileInputStream;
 import java.io.File;
 import java.io.IOException;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONFactory;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
-public class JSONProcessingFactory implements JSONFactory {
-    public JSONProcessingFactory() {
+public class JSONJacksonFactory implements JSONFactory {
+    private ObjectMapper mapper;
+
+    public JSONJacksonFactory() {
+        this.mapper = new ObjectMapper();
     }
 
     public JSONArray newJSONArray() {
-        return new JSONProcessingArray(new processing.data.JSONArray());
+        return new JSONJacksonArray(this.mapper, this.mapper.createArrayNode());
     }
 
     public JSONObject newJSONObject() {
-        return new JSONProcessingObject(new processing.data.JSONObject());
+        return new JSONJacksonObject(this.mapper, this.mapper.createObjectNode());
     }
 
     public JSONObject loadJSONObject(String filePath) {
         try (BufferedReader reader = createReader(filePath)) {
-            return new JSONProcessingObject(new processing.data.JSONObject(reader));
+            return new JSONJacksonObject(this.mapper, this.mapper.readTree(reader));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -34,34 +38,50 @@ public class JSONProcessingFactory implements JSONFactory {
 
     public JSONArray loadJSONArray(String filePath) {
         try (BufferedReader reader = createReader(filePath)) {
-            return new JSONProcessingArray(new processing.data.JSONArray(reader));
+            return new JSONJacksonArray(this.mapper, this.mapper.readTree(reader));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public JSONObject parseJSONObject(String data) {
-        return new JSONProcessingObject(new processing.data.JSONObject(new StringReader(data)));
+        try {
+            return new JSONJacksonObject(this.mapper, this.mapper.readTree(data));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public JSONArray parseJSONArray(String data) {
-        return new JSONProcessingArray(new processing.data.JSONArray(new StringReader(data)));
+        try {
+            return new JSONJacksonArray(this.mapper, this.mapper.readTree(data));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public JSONObject parseJSONObject(Object object) {
-        return new JSONProcessingObject((processing.data.JSONObject) object);
+        return new JSONJacksonObject(this.mapper, (JsonNode) object);
     }
 
     public JSONArray parseJSONArray(Object object) {
-        return new JSONProcessingArray((processing.data.JSONArray) object);
+        return new JSONJacksonArray(this.mapper, (JsonNode) object);
     }
 
     public void saveJSONObject(JSONObject o, String filePath) {
-        ((JSONProcessingObject) o).jo.save(new File(filePath), null);
+        try {
+            mapper.writeValue(new File(filePath), ((JSONJacksonObject) o).objectNode);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void saveJSONArray(JSONArray a, String filePath) {
-        ((JSONProcessingArray) a).ja.save(new File(filePath), null);
+        try {
+            mapper.writeValue(new File(filePath), ((JSONJacksonArray) a).arrayNode);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private BufferedReader createReader(String filePath) throws IOException {

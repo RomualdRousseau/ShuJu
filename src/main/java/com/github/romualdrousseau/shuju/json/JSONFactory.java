@@ -13,6 +13,10 @@ public interface JSONFactory {
 
     JSONArray parseJSONArray(String data);
 
+    JSONObject parseJSONObject(Object object);
+
+    JSONArray parseJSONArray(Object object);
+
     void saveJSONObject(JSONObject o, String filePath);
 
     void saveJSONArray(JSONArray a, String filePath);

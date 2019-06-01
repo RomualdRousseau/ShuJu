@@ -1,7 +1,5 @@
 package com.github.romualdrousseau.shuju.json.processing;
 
-import java.util.Set;
-
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
@@ -13,7 +11,7 @@ public class JSONProcessingObject implements JSONObject {
     }
 
     @SuppressWarnings("unchecked")
-    public Set<String> keys() {
+    public Iterable<String> keys() {
         return this.jo.keys();
     }
 
