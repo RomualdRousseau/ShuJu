@@ -45,7 +45,7 @@ public class StopWordList  {
         JSONArray json = JSON.newJSONArray();
         for (int i = 0; i < this.stopwords.length; i++) {
             String stopword = this.stopwords[i];
-            json.setString(i, stopword);
+            json.append(stopword);
         }
         return json;
     }

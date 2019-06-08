@@ -813,9 +813,9 @@ public class Matrix {
             float[] a = this.data[i];
             JSONArray jsonRow = JSON.newJSONArray();
             for (int j = 0; j < this.cols; j++) {
-                jsonRow.setFloat(j, a[j]);
+                jsonRow.append(a[j]);
             }
-            jsonData.setJSONArray(i, jsonRow);
+            jsonData.append(jsonRow);
         }
 
         json.setInt("rows", this.rows);

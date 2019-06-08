@@ -485,7 +485,7 @@ public class Vector {
 
         JSONArray jsonData = JSON.newJSONArray();
         for (int i = 0; i < this.rows; i++) {
-            jsonData.setFloat(i, this.data[i]);
+            jsonData.append(this.data[i]);
         }
 
         json.setInt("rows", this.rows);
