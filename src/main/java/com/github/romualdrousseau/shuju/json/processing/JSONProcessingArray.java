@@ -11,7 +11,7 @@ public class JSONProcessingArray implements JSONArray {
     }
 
     public int size() {
-        return this.ja.size();
+        return (this.ja == null) ? 0 : this.ja.size();
     }
 
     public Object get(int i) {

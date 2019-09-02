@@ -16,7 +16,7 @@ public class JSONJacksonArray implements JSONArray {
     }
 
     public int size() {
-        return this.arrayNode.size();
+        return (this.arrayNode == null) ? 0 : this.arrayNode.size();
     }
 
     public Object get(int i) {
