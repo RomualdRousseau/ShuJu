@@ -29,7 +29,29 @@ class MemoryCell {
         return result;
     }
 
+    public static float[] IntToFloatArray(int a, int n) {
+        float[] result = new float[n];
+        for (int i = 0; i < n; i++) {
+            if ((a & (1 << i)) > 0) {
+                result[i] = 1.0f;
+            } else {
+                result[i] = 0.0f;
+            }
+        }
+        return result;
+    }
+
     public static int DoubleArrayToInt(double[] a, int n) {
+        int result = 0;
+        for (int i = 0; i < n; i++) {
+            if (a[i] >= 0.5) {
+                result |= (1 << i);
+            }
+        }
+        return result;
+    }
+
+    public static int FloatArrayToInt(float[] a, int n) {
         int result = 0;
         for (int i = 0; i < n; i++) {
             if (a[i] >= 0.5) {

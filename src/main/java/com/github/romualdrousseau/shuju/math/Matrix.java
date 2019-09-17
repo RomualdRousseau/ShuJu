@@ -366,7 +366,7 @@ public class Matrix {
         return this;
     }
 
-    public Matrix cond( float p, float a, float b) {
+    public Matrix cond(float p, float a, float b) {
         for (int i = 0; i < this.rows; i++) {
             float[] c = this.data[i];
             for (int j = 0; j < this.cols; j++) {
@@ -415,7 +415,7 @@ public class Matrix {
     }
 
     public Matrix add(final Matrix m) {
-        assert(this.rows == m.rows && this.cols == m.cols);
+        assert (this.rows == m.rows && this.cols == m.cols);
 
         for (int i = 0; i < this.rows; i++) {
             float[] a = this.data[i];
@@ -428,7 +428,7 @@ public class Matrix {
     }
 
     public Matrix sub(final Matrix m) {
-        assert(this.rows == m.rows && this.cols == m.cols);
+        assert (this.rows == m.rows && this.cols == m.cols);
 
         for (int i = 0; i < this.rows; i++) {
             float[] a = this.data[i];
@@ -451,7 +451,7 @@ public class Matrix {
     }
 
     public Matrix mult(final Matrix m) {
-        assert(this.rows == m.rows && this.cols == m.cols);
+        assert (this.rows == m.rows && this.cols == m.cols);
 
         for (int i = 0; i < this.rows; i++) {
             float[] a = this.data[i];
@@ -474,7 +474,7 @@ public class Matrix {
     }
 
     public Matrix div(final Matrix m) {
-        assert(this.rows == m.rows && this.cols == m.cols);
+        assert (this.rows == m.rows && this.cols == m.cols);
 
         for (int i = 0; i < this.rows; i++) {
             float[] a = this.data[i];
@@ -506,7 +506,7 @@ public class Matrix {
         return this;
     }
 
-    public Matrix sqrt(float n) {
+    public Matrix sqrt() {
         for (int i = 0; i < this.rows; i++) {
             float[] a = this.data[i];
             for (int j = 0; j < this.cols; j++) {
@@ -516,9 +516,29 @@ public class Matrix {
         return this;
     }
 
+    public Matrix exp() {
+        for (int i = 0; i < this.rows; i++) {
+            float[] a = this.data[i];
+            for (int j = 0; j < this.cols; j++) {
+                a[j] = Scalar.exp(a[j]);
+            }
+        }
+        return this;
+    }
+
+    public Matrix log() {
+        for (int i = 0; i < this.rows; i++) {
+            float[] a = this.data[i];
+            for (int j = 0; j < this.cols; j++) {
+                a[j] = Scalar.log(a[j]);
+            }
+        }
+        return this;
+    }
+
     public Matrix fma(final Matrix m1, final Matrix m2) {
-        assert(this.rows == m1.rows && this.cols == m2.cols);
-        assert(m1.cols == m2.rows);
+        assert (this.rows == m1.rows && this.cols == m2.cols);
+        assert (m1.cols == m2.rows);
 
         for (int i = 0; i < this.rows; i++) {
             float[] c = this.data[i];
@@ -539,8 +559,8 @@ public class Matrix {
         final int colsB = transposeB ? m2.rows : m2.cols;
         final int rowsB = transposeB ? m2.cols : m2.rows;
 
-        assert(this.rows == rowsA && this.cols == colsB);
-        assert(colsA == rowsB);
+        assert (this.rows == rowsA && this.cols == colsB);
+        assert (colsA == rowsB);
 
         if (transposeA && transposeB) {
             for (int i = 0; i < this.rows; i++) {
@@ -591,7 +611,7 @@ public class Matrix {
     }
 
     public Matrix fma(final Matrix m, float n) {
-        assert(this.rows == m.rows && this.cols == m.cols);
+        assert (this.rows == m.rows && this.cols == m.cols);
 
         for (int i = 0; i < this.rows; i++) {
             float[] a = this.data[i];
@@ -607,7 +627,7 @@ public class Matrix {
         final int cols = transpose ? m.rows : m.cols;
         final int rows = transpose ? m.cols : m.rows;
 
-        assert(this.rows == rows && this.cols == cols);
+        assert (this.rows == rows && this.cols == cols);
 
         if (transpose) {
             for (int i = 0; i < this.rows; i++) {
@@ -630,7 +650,7 @@ public class Matrix {
     }
 
     public Matrix map(MatrixFunction<Float, Float> fn) {
-        assert(fn != null);
+        assert (fn != null);
 
         for (int i = 0; i < this.rows; i++) {
             float[] a = this.data[i];
@@ -642,7 +662,7 @@ public class Matrix {
     }
 
     public Matrix map(MatrixFunction<Float, Float> fn, Matrix other) {
-        assert(fn != null);
+        assert (fn != null);
 
         for (int i = 0; i < this.rows; i++) {
             float[] a = this.data[i];
@@ -657,6 +677,21 @@ public class Matrix {
         Matrix result = new Matrix(this.rows, this.cols);
         for (int i = 0; i < result.rows; i++) {
             System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
+        }
+        return result;
+    }
+
+    public Matrix concat(Matrix m) {
+        assert (this.rows == m.rows);
+
+        Matrix result = new Matrix(this.rows, this.cols + m.cols);
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                result.data[i][j] = this.data[i][j];
+            }
+            for (int j = 0; j < m.cols; j++) {
+                result.data[i][this.cols + j] = m.data[i][j];
+            }
         }
         return result;
     }
@@ -700,7 +735,7 @@ public class Matrix {
     }
 
     public Matrix transform(final Matrix m) {
-        assert(this.cols == m.rows);
+        assert (this.cols == m.rows);
 
         Matrix result = new Matrix(this.rows, m.cols, 0.0f);
         for (int i = 0; i < result.rows; i++) {
@@ -722,7 +757,7 @@ public class Matrix {
         final int colsB = transposeB ? m.rows : m.cols;
         final int rowsB = transposeB ? m.cols : m.rows;
 
-        assert(colsA == rowsB);
+        assert (colsA == rowsB);
 
         Matrix result = new Matrix(rowsA, colsB, 0.0f);
         if (transposeA && transposeB) {
@@ -776,7 +811,7 @@ public class Matrix {
 
     public Vector toVector(int col) {
         Vector result = new Vector(this.rows);
-        for(int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.rows; i++) {
             result.set(i, this.data[i][col]);
         }
         return result;
