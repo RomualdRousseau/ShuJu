@@ -14,7 +14,7 @@ void setup() {
 
   spl = new SpriteSheetLibrary(this);
   QEnvironment env = new LineFollowerEnvImpl();
-  QMatrix mat = new QMatrixAnnImpl(env, 1, 1, 20);
+  QMatrix mat = new QMatrixNnImpl(env, 1, 1, 20);
   ql = new QLearner(env, 0.95, 0.2, mat);
   confidence = 0.05;
 }
