@@ -20,19 +20,19 @@ public class QMatrixNnImpl extends QMatrix {
         int numHiddens = (int) Math.ceil(numInputs * hiddenRatio);
         this.numOutputs = (int) Math.ceil(Math.log(numActions) * binaryRatio);
 
-        this.network = new Model();
-        this.network.add(new LayerBuilder()
+        this.model = new Model();
+        this.model.add(new LayerBuilder()
             .setInputUnits(numInputs)
             .setUnits(numHiddens)
             .setActivation(new Relu())
             .build());
-        this.network.add(new LayerBuilder()
+        this.model.add(new LayerBuilder()
             .setInputUnits(numHiddens)
             .setUnits(numOutputs + 1)
             .setActivation(new Tanh())
             .build());
 
-        this.optimizer = new OptimizerRMSPropBuilder().build(this.network);
+        this.optimizer = new OptimizerRMSPropBuilder().build(this.model);
 
         this.loss = new Loss(new Huber());
 
@@ -41,7 +41,7 @@ public class QMatrixNnImpl extends QMatrix {
 
     public void reset() {
         this.memoryMap.clear();
-        this.network.reset();
+        this.model.reset();
     }
 
     public void train(int s, int a, double v, double learnRate) {
@@ -53,7 +53,7 @@ public class QMatrixNnImpl extends QMatrix {
             Vector state = new Vector(MemoryCell.IntToFloatArray(memory.state, numInputs));
             Vector action = new Vector(MemoryCell.IntToFloatArray(memory.action, numOutputs + 1));
             action.set(numOutputs, (float) memory.reward);
-            this.loss.loss(this.network.model(state), action).backward();
+            this.loss.loss(this.model.model(state), action).backward();
         }
 
         this.optimizer.step();
@@ -61,13 +61,13 @@ public class QMatrixNnImpl extends QMatrix {
 
     public int predictAction(int s) {
         Vector a = new Vector(MemoryCell.IntToFloatArray(s, numInputs));
-        Vector b = this.network.model(a).detachAsVector();
+        Vector b = this.model.model(a).detachAsVector();
         return MemoryCell.FloatArrayToInt(b.getFloats(), numOutputs);
     }
 
     public double predictReward(int s) {
         Vector a = new Vector(MemoryCell.IntToFloatArray(s, numInputs));
-        Vector b = this.network.model(a).detachAsVector();
+        Vector b = this.model.model(a).detachAsVector();
         return b.get(numOutputs);
     }
 
@@ -75,7 +75,7 @@ public class QMatrixNnImpl extends QMatrix {
     private int numActions;
     private int numInputs;
     private int numOutputs;
-    private Model network;
+    private Model model;
     private Optimizer optimizer;
     private Loss loss;
     private MemoryMap memoryMap;

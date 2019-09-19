@@ -35,14 +35,24 @@ public class RectangleExtractor extends IShapeExtractor {
                 if (searchBitmap.get(bbox[0][0], bbox[0][1]) > 0 && searchBitmap.get(bbox[1][0], bbox[0][1]) > 0
                         && searchBitmap.get(bbox[1][0], bbox[1][1]) > 0
                         && searchBitmap.get(bbox[0][0], bbox[1][1]) > 0) {
-                    result.add(new SearchPoint[] {
+                    SearchPoint[] newSP = new SearchPoint[] {
                             new SearchPoint(bbox[0][0], bbox[0][1], searchBitmap.get(bbox[0][0], bbox[0][1])),
-                            new SearchPoint(bbox[1][0], bbox[1][1], searchBitmap.get(bbox[1][0], bbox[1][1])) });
+                            new SearchPoint(bbox[1][0], bbox[1][1], searchBitmap.get(bbox[1][0], bbox[1][1])) };
+
+                    boolean foundDuplicate = false;
+                    for (SearchPoint[] sp : result) {
+                        if (newSP[0].equals(sp[0]) && newSP[1].equals(sp[1])) {
+                            foundDuplicate = true;
+                        }
+                    }
+                    if (!foundDuplicate) {
+                        result.add(newSP);
+                    }
                 }
             }
         }
 
-        return result;
+        return removeOverlaps(result);
     }
 
     public SearchPoint[] extractBest(ISearchBitmap searchBitmap) {
@@ -105,6 +115,25 @@ public class RectangleExtractor extends IShapeExtractor {
         return a;
     }
 
+    private List<SearchPoint[]> removeOverlaps(List<SearchPoint[]> tablesWithOverlaps) {
+        ArrayList<SearchPoint[]> result = new ArrayList<SearchPoint[]>();
+
+        for (SearchPoint[] table1 : tablesWithOverlaps) {
+            for (SearchPoint[] table2 : tablesWithOverlaps) {
+                if (table1 != table2 && overlap(table1, table2)) {
+                    int a1 = area(table1);
+                    int a2 = area(table2);
+                    if (a2 > a1) {
+                        clipping(table2, table1);
+                    }
+                }
+            }
+            result.add(table1);
+        }
+
+        return result;
+    }
+
     private double distance(SearchPoint p1, SearchPoint p2) {
         int vx = p1.getX() - p2.getX();
         int vy = p1.getY() - p2.getY();
@@ -142,6 +171,30 @@ public class RectangleExtractor extends IShapeExtractor {
             }
         }
         return new int[][] { { minX, minY }, { maxX, maxY } };
+    }
+
+    private int area(SearchPoint[] s) {
+        return (s[1].getX() - s[0].getX()) * (s[1].getY() - s[0].getY());
+    }
+
+    private boolean overlap(SearchPoint[] s1, SearchPoint[] s2) {
+        return !(s2[1].getX() < s1[0].getX() || s2[0].getX() > s1[1].getX() || s2[1].getY() < s1[0].getY()
+                || s2[0].getY() > s1[1].getY());
+    }
+
+    private void clipping(SearchPoint[] s1, SearchPoint[] s2) {
+        if (s2[0].getX() < s1[0].getX()) {
+            s2[1] = new SearchPoint(s1[0].getX() - 1, s2[1].getY(), 0);
+        }
+        if (s2[1].getX() > s1[1].getX()) {
+            s2[0] = new SearchPoint(s1[1].getX() + 1, s2[0].getY(), 0);
+        }
+        if (s2[0].getY() < s1[0].getY()) {
+            s2[1] = new SearchPoint(s2[1].getX(), s1[0].getY() - 1, 0);
+        }
+        if (s2[1].getY() > s1[1].getY()) {
+            s2[0] = new SearchPoint(s2[0].getX(), s1[1].getY() + 1, 0);
+        }
     }
 
     private int R[][][] = { { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, { { 0, 0 }, { -1, 0 }, { -1, 1 }, { 0, 1 } },

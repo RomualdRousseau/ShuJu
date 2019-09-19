@@ -19,6 +19,10 @@ public class SearchPoint {
         return this.sad;
     }
 
+    public boolean equals(SearchPoint o) {
+        return this.x == o.x && this.y == o.y;
+    }
+
     private int x;
     private int y;
     private double sad;
