@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.romualdrousseau.shuju.json.JSON;
@@ -14,7 +13,7 @@ import com.github.romualdrousseau.shuju.math.Vector;
 import com.github.romualdrousseau.shuju.util.StringUtility;
 
 public class RegexList implements BaseList {
-    private ArrayList<String> regexes = new ArrayList<String>();
+    private ArrayList<String> types = new ArrayList<String>();
     private HashMap<String, String> patterns = new HashMap<String, String>();
     private int vectorSize = 0;
 
@@ -22,14 +21,14 @@ public class RegexList implements BaseList {
         this.vectorSize = vectorSize;
     }
 
-    public RegexList(int vectorSize, String[] regexes) {
+    public RegexList(int vectorSize, String[] types) {
         this.vectorSize = vectorSize;
-        this.regexes.addAll(Arrays.asList(regexes));
+        this.types.addAll(Arrays.asList(types));
     }
 
-    public RegexList(int vectorSize, String[] regexes, HashMap<String, String> patterns) {
+    public RegexList(int vectorSize, String[] types, HashMap<String, String> patterns) {
         this.vectorSize = vectorSize;
-        this.regexes.addAll(Arrays.asList(regexes));
+        this.types.addAll(Arrays.asList(types));
         this.patterns.putAll(patterns);
     }
 
@@ -39,7 +38,7 @@ public class RegexList implements BaseList {
         JSONArray jsonTypes = json.getJSONArray("types");
         for(int i = 0; i < jsonTypes.size(); i++) {
             String s = jsonTypes.getString(i);
-            this.regexes.add(s);
+            this.types.add(s);
         }
 
         JSONArray jsonPatterns = json.getJSONArray("patterns");
@@ -52,34 +51,34 @@ public class RegexList implements BaseList {
     }
 
     public List<String> values() {
-        return this.regexes;
+        return this.types;
     }
 
     public int size() {
-        return this.regexes.size();
+        return this.types.size();
     }
 
     public String get(int i) {
-        return this.regexes.get(i);
+        return this.types.get(i);
     }
 
     public int ordinal(String w) {
-        return this.regexes.indexOf(w);
+        return this.types.indexOf(w);
     }
 
     public RegexList add(String w) {
         if(StringUtility.isEmpty(w)) {
             return this;
         }
-        if(this.regexes.indexOf(w) >= 0) {
+        if(this.types.indexOf(w) >= 0) {
             return this;
         }
-        this.regexes.add(w);
+        this.types.add(w);
         return this;
     }
 
     public RegexList addPattern(String pattern, String regex) {
-        assert this.regexes.indexOf(regex) > 0;
+        assert this.types.indexOf(regex) > 0;
         this.patterns.put(pattern, regex);
         return this;
     }
@@ -88,17 +87,27 @@ public class RegexList implements BaseList {
         return this.vectorSize;
     }
 
+    public String anonymize(String w) {
+        if (StringUtility.isEmpty(w)) {
+            return "";
+        }
+
+        for (String pattern : this.patterns.keySet()) {
+            w = w.replaceAll(pattern, this.patterns.get(pattern));
+        }
+
+        return w;
+    }
+
     public Vector word2vec(String w) {
         Vector result = new Vector(this.vectorSize);
 
-        if(w == null) {
+        if (StringUtility.isEmpty(w)) {
             return result;
         }
 
         for (String pattern : this.patterns.keySet()) {
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(w);
-            if (m.matches()) {
+            if (Pattern.compile(pattern).matcher(w).find()) {
                 String t = this.patterns.get(pattern);
                 result.set(this.ordinal(t), 1.0f);
             }
@@ -109,7 +118,7 @@ public class RegexList implements BaseList {
 
     public JSONObject toJSON() {
         JSONArray jsonTypes = JSON.newJSONArray();
-        for (String t : this.regexes) {
+        for (String t : this.types) {
             jsonTypes.append(t);
         }
 
@@ -131,6 +140,6 @@ public class RegexList implements BaseList {
 
     @Override
     public String toString() {
-        return this.regexes.toString();
+        return this.types.toString();
     }
 }

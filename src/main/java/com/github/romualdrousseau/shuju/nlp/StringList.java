@@ -66,7 +66,7 @@ public class StringList implements BaseList {
     public Vector word2vec(String w) {
         Vector result = new Vector(this.vectorSize);
 
-        if(w == null) {
+        if (StringUtility.isEmpty(w)) {
             return result;
         }
 

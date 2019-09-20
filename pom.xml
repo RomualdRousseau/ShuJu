@@ -135,6 +135,7 @@
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
+                            <excludeGroupIds>org.processing</excludeGroupIds>
                         </configuration>
                     </execution>
                 </executions>
