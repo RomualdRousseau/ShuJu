@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.romualdrousseau.shuju.json.JSON;
@@ -88,15 +89,52 @@ public class RegexList implements BaseList {
     }
 
     public String anonymize(String w) {
+        String result = "";
+
         if (StringUtility.isEmpty(w)) {
-            return "";
+            return result;
         }
 
+        // int longestMatch = 0;
+        // for (String pattern : this.patterns.keySet()) {
+        //     Matcher m = Pattern.compile(pattern).matcher(w);
+        //     while (m.find()) {
+        //         String s = m.group(0);
+        //         if(s.length() > longestMatch) {
+        //             result = w.replace(s, this.patterns.get(pattern));
+        //             longestMatch = s.length();
+        //         }
+        //     }
+        // }
+
+        result = w;
         for (String pattern : this.patterns.keySet()) {
-            w = w.replaceAll(pattern, this.patterns.get(pattern));
+            result = result.replaceAll(pattern, this.patterns.get(pattern));
         }
 
-        return w;
+        return result;
+    }
+
+    public String find(String w) {
+        String result = null;
+
+        if (StringUtility.isEmpty(w)) {
+            return result;
+        }
+
+        int longestMatch = 0;
+        for (String pattern : this.patterns.keySet()) {
+            Matcher m = Pattern.compile(pattern).matcher(w);
+            while (m.find()) {
+                String s = m.group(0);
+                if(s.length() > longestMatch) {
+                    result = s;
+                    longestMatch = s.length();
+                }
+            }
+        }
+
+        return result;
     }
 
     public Vector word2vec(String w) {
