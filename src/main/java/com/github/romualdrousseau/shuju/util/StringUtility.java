@@ -76,4 +76,25 @@ public class StringUtility
     public static String removeExtension(String fileName) {
         return fileName.replaceFirst("[.][^.]+$", "");
     }
+
+    public static String ensureCamelStyle(String s) {
+        s = StringUtility.cleanToken(s.replaceAll("_", " "));
+        if (StringUtility.isEmpty(s)) {
+            return "";
+        }
+
+        // Replace space by the next letter upper case
+        boolean stillCamelToDo = true;
+        while (stillCamelToDo) {
+            int i = s.indexOf(" ");
+            if (i >= 0) {
+                s = s.substring(0, i) + Character.toUpperCase(s.charAt(i + 1)) + s.substring(i + 2);
+            } else {
+                stillCamelToDo = false;
+            }
+        }
+
+        // Ensure to start by a lower case
+        return Character.toLowerCase(s.charAt(0)) + s.substring(1);
+    }
 }
