@@ -1,10 +1,40 @@
+import com.github.romualdrousseau.shuju.columns.*;
+import com.github.romualdrousseau.shuju.cv.*;
+import com.github.romualdrousseau.shuju.*;
+import com.github.romualdrousseau.shuju.json.jackson.*;
+import com.github.romualdrousseau.shuju.json.processing.*;
+import com.github.romualdrousseau.shuju.ml.nn.activation.*;
+import com.github.romualdrousseau.shuju.ml.nn.*;
+import com.github.romualdrousseau.shuju.ml.nn.loss.*;
+import com.github.romualdrousseau.shuju.ml.nn.optimizer.*;
+import com.github.romualdrousseau.shuju.ml.nn.scheduler.*;
+import com.github.romualdrousseau.shuju.ml.slr.*;
+import com.github.romualdrousseau.shuju.nlp.*;
+import com.github.romualdrousseau.shuju.transforms.*;
+import com.github.romualdrousseau.shuju.genetic.*;
+import com.github.romualdrousseau.shuju.math.*;
+import com.github.romualdrousseau.shuju.ml.nn.optimizer.builder.*;
+import com.github.romualdrousseau.shuju.ml.qlearner.*;
+import com.github.romualdrousseau.shuju.util.*;
+import com.github.romualdrousseau.shuju.cv.templatematching.*;
+import com.github.romualdrousseau.shuju.json.*;
+import com.github.romualdrousseau.shuju.cv.templatematching.shapeextractor.*;
+import com.github.romualdrousseau.shuju.ml.nn.initializer.*;
+import com.github.romualdrousseau.shuju.ml.nn.normalizer.*;
+import com.github.romualdrousseau.shuju.nlp.impl.*;
+import com.github.romualdrousseau.shuju.ml.knn.*;
+import com.github.romualdrousseau.shuju.ml.kmean.*;
+
+final static int K = 3;
+
 Matrix[] data = new Matrix[100];
 Matrix[] labels = new Matrix[100];
 
-Classifier kmean = new Classifier();
+com.github.romualdrousseau.shuju.ml.kmean.KMean kmean = new com.github.romualdrousseau.shuju.ml.kmean.KMean(K);
 
 void setup() {
-  size(400, 400, P3D);
+  size(400, 400);
+  frameRate(1);
 
   for (int i = 0; i < 100; i++) {
     data[i] = new Matrix(new float[] { random(1), random(1) });
@@ -12,22 +42,20 @@ void setup() {
   }
 
   kmean.initializer(data);
-
-  frameRate(1);
 }
 
 void draw() {
   background(51);
 
-  for (int e = 0; e < 100; e++) {
+  // for (int e = 0; e < 100; e++) {
     kmean.fit(data, labels);
-  }
+  // }
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       Matrix point = new Matrix(new float[] {map(x, 0, width, 0, 1), map(y, 0, height, 0, 1)});
       Matrix label = kmean.predict(point);
-      float[] v = oneHot(label.argmax(0), K);
+      float[] v = new Vector(K).oneHot(label.argmax(0)).getFloats();
       float r = map(v[0], 0, 1, 128, 255);
       float g = map(v[1], 0, 1, 128, 255);
       float b = map(v[2], 0, 1, 128, 255);
@@ -42,7 +70,7 @@ void draw() {
     Matrix point = data[i];
     Matrix label = labels[i];
 
-    float[] v = oneHot(label.argmax(0), K);
+    float[] v = new Vector(K).oneHot(label.argmax(0)).getFloats();
     float r = map(v[0], 0, 1, 128, 255);
     float g = map(v[1], 0, 1, 128, 255);
     float b = map(v[2], 0, 1, 128, 255);
@@ -52,22 +80,10 @@ void draw() {
     float y = map(point.get(1, 0), 0, 1, 0, height);
     ellipse(x, y, 5, 5);
   }
-
-  for (int i = 0; i < K; i++) {
-    fill(255, 128);
-
-    float x = map(kmean.weights.get(0, i), 0, 1, 0, width);
-    float y = map(kmean.weights.get(1, i), 0, 1, 0, height);
-    ellipse(x, y, 10, 10);
-  }
-
-  //noLoop();
 }
 
 void keyPressed() {
-  if (keyCode == com.jogamp.newt.event.KeyEvent.VK_F1) {
     for (int i = 0; i < 100; i++) {
       data[i] = new Matrix(new float[] { random(1), random(1) });
     }
-  }
 }

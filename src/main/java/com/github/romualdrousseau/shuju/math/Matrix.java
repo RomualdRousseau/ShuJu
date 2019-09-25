@@ -725,10 +725,9 @@ public class Matrix {
     public Matrix transpose() {
         Matrix result = new Matrix(this.cols, this.rows);
         for (int i = 0; i < result.rows; i++) {
-            float[] a = this.data[i];
             float[] b = result.data[i];
             for (int j = 0; j < result.cols; j++) {
-                b[j] = a[i];
+                b[j] = this.data[j][i];
             }
         }
         return result;

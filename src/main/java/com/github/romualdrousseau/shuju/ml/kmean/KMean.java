@@ -1,23 +1,12 @@
 package com.github.romualdrousseau.shuju.ml.kmean;
 
 import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.MatrixFunction;
 import com.github.romualdrousseau.shuju.math.Vector;
 
 public class KMean {
-    private Matrix weights;
-    private int k = 3;
-
     public KMean(int k) {
         this.k = k;
-    }
-
-    public Matrix predict(Matrix data) {
-        return loss(this.weights, data).flatten().sqrt().mult(-1).exp();
-    }
-
-    public void fit(Matrix[] data, Matrix[] labels) {
-        expectation(data, labels);
-        maximation(data, labels);
     }
 
     public void initializer(Matrix[] data) {
@@ -28,9 +17,19 @@ public class KMean {
         }
     }
 
+    public Matrix predict(Matrix data) {
+        return this.weights.copy().map(MSE, data).flatten().sqrt().mult(-1).exp().transpose();
+    }
+
+    public void fit(Matrix[] data, Matrix[] labels) {
+        expectation(data, labels);
+        maximation(data, labels);
+    }
+
     private void expectation(Matrix[] data, Matrix[] labels) {
         for (int i = 0; i < data.length; i++) {
-            labels[i] = new Matrix(new Vector(this.k).oneHot(loss(this.weights, data[i]).flatten().argmin(0)));
+            labels[i] = new Matrix(
+                    new Vector(this.k).oneHot(this.weights.copy().map(MSE, data[i]).flatten().transpose().argmin(0)));
         }
     }
 
@@ -51,7 +50,13 @@ public class KMean {
         }
     }
 
-    private Matrix loss(Matrix a, Matrix b) {
-        return a.copy().sub(b).pow(2.0f);
-    }
+    private MatrixFunction<Float, Float> MSE = new MatrixFunction<Float, Float>() {
+        public Float apply(Float v, int row, int col, Matrix matrix) {
+            float a = v - matrix.get(row, 0);
+            return a * a;
+        }
+    };
+
+    private Matrix weights;
+    private int k = 3;
 }
