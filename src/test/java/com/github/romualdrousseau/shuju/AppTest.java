@@ -202,7 +202,7 @@ public class AppTest {
         NumericColumn c3 = new NumericColumn();
         NumericColumn c4 = new NumericColumn();
         StringColumn c5 = new StringColumn(
-                new StringList(3, new String[] { "I. setosa", "I. versicolor", "I. virginica" }));
+                new StringList(new String[] { "I. setosa", "I. versicolor", "I. virginica" }));
 
         List<String[]> rows = loadTable("/data/fisher's data.csv", "header");
         assert rows != null;

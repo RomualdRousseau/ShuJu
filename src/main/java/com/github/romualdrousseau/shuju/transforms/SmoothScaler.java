@@ -5,7 +5,7 @@ import com.github.romualdrousseau.shuju.math.Vector;
 
 public class SmoothScaler implements ITransform {
     public SmoothScaler(float coef) {
-        this.firstRow = false;
+        this.firstRow = true;
         this.coef = coef;
     }
 

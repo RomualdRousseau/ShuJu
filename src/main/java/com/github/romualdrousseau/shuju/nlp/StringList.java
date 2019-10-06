@@ -18,6 +18,11 @@ public class StringList implements BaseList {
         this.vectorSize = vectorSize;
     }
 
+    public StringList(String[] strings) {
+        this.vectorSize = strings.length;
+        this.strings.addAll(Arrays.asList(strings));
+    }
+
     public StringList(int vectorSize, String[] strings) {
         this.vectorSize = vectorSize;
         this.strings.addAll(Arrays.asList(strings));

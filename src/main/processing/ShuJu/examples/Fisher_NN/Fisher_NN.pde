@@ -2,7 +2,6 @@ import com.github.romualdrousseau.shuju.columns.*;
 import com.github.romualdrousseau.shuju.cv.*;
 import com.github.romualdrousseau.shuju.json.*;
 import com.github.romualdrousseau.shuju.math.*;
-import com.github.romualdrousseau.shuju.ml.ann.*;
 import com.github.romualdrousseau.shuju.ml.nn.activation.*;
 import com.github.romualdrousseau.shuju.ml.nn.initializer.*;
 import com.github.romualdrousseau.shuju.ml.nn.loss.*;
@@ -25,8 +24,8 @@ import com.github.romualdrousseau.shuju.json.jackson.*;
 import com.github.romualdrousseau.shuju.util.*;
 
 static final String[] flowerWords = {
-  "I. setosa", 
-  "I. versicolor", 
+  "I. setosa",
+  "I. versicolor",
   "I. virginica"
 };
 
@@ -48,14 +47,14 @@ FloatList timeLine2 = new FloatList();
 
 public void loadDataSet(String fileName) throws IOException {
   fisherSet = new ArrayList<Float[]>();
-  Table table = loadTable(fileName, "header");  
+  Table table = loadTable(fileName, "header");
   for (TableRow row : table.rows()) {
     Float[] dataRow = new Float[7];
     float[] label = categoricalFeature(row.getString(5), flowerWords);
     dataRow[0] = row.getFloat(1);
     dataRow[1] = row.getFloat(2);
     dataRow[2] = row.getFloat(3);
-    dataRow[3] = row.getFloat(4); 
+    dataRow[3] = row.getFloat(4);
     dataRow[4] = label[0];
     dataRow[5] = label[1];
     dataRow[6] = label[2];
@@ -69,7 +68,7 @@ public void loadDataSet(String fileName) throws IOException {
 
 void buildModel() {
   model = new Model();
-  
+
   model.add(new LayerBuilder()
     .setInputUnits(4)
     .setUnits(64)
@@ -77,7 +76,7 @@ void buildModel() {
     .setInitializer(new GlorotUniformInitializer())
     .setNormalizer(new BatchNormalizer())
     .build());
-    
+
   model.add(new LayerBuilder()
     .setInputUnits(64)
     .setUnits(3)
@@ -116,7 +115,7 @@ void buildTraingAndTestSets() {
   testInputs = new Matrix[test.size()];
   testTargets = new Matrix[test.size()];
   for (int i = 0; i < test.size(); i++) {
-    Float[] data = test.get(i); 
+    Float[] data = test.get(i);
     testInputs[i] = new Matrix(4, 1);
     testInputs[i].set(0, 0, data[0]);
     testInputs[i].set(1, 0, data[1]);
@@ -130,7 +129,7 @@ void buildTraingAndTestSets() {
 }
 
 void setup() {
-  size(800, 800); 
+  size(800, 800);
   textSize(16);
   colorMode(HSB, 360, 100, 100, 100);
 
@@ -171,7 +170,7 @@ void draw() {
   for (int i = 0; i < trainingInputs.length; i++) {
     float c = map(trainingTargets[i].argmax(0), 0, 3, 0, 360);
     stroke(c, 100, 100);
-    
+
     float x = map(trainingInputs[i].get(0, 0), 0, 1.0, 1, width / 2 - 1);
     float y = map(trainingInputs[i].get(1, 0), 0, 1.0, height / 2 - 1, 1);
     point(x, y);

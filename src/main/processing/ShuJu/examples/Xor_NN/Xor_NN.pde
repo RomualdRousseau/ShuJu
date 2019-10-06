@@ -2,7 +2,6 @@ import com.github.romualdrousseau.shuju.columns.*;
 import com.github.romualdrousseau.shuju.cv.*;
 import com.github.romualdrousseau.shuju.json.*;
 import com.github.romualdrousseau.shuju.math.*;
-import com.github.romualdrousseau.shuju.ml.ann.*;
 import com.github.romualdrousseau.shuju.ml.nn.activation.*;
 import com.github.romualdrousseau.shuju.ml.nn.initializer.*;
 import com.github.romualdrousseau.shuju.ml.nn.loss.*;
@@ -29,22 +28,22 @@ Optimizer optimizer;
 Loss loss;
 
 Matrix[] inputs = {
-  new Matrix(new float[] {0, 0}), 
-  new Matrix(new float[] {0, 1}), 
-  new Matrix(new float[] {1, 0}), 
+  new Matrix(new float[] {0, 0}),
+  new Matrix(new float[] {0, 1}),
+  new Matrix(new float[] {1, 0}),
   new Matrix(new float[] {1, 1})
 };
 
 Matrix[] targets = {
-  new Matrix(new float[] {0}), 
-  new Matrix(new float[] {1}), 
-  new Matrix(new float[] {1}), 
+  new Matrix(new float[] {0}),
+  new Matrix(new float[] {1}),
+  new Matrix(new float[] {1}),
   new Matrix(new float[] {0})
 };
 
 void setup() {
   size(400, 400, P2D);
-  
+
   model = new Model();
 
   model.add(new LayerBuilder()
@@ -58,9 +57,9 @@ void setup() {
     .setUnits(1)
     .setActivation(new Linear())
     .setInitializer(new GlorotUniformInitializer()).build());
-    
+
   optimizer = new OptimizerRMSPropBuilder().build(model);
-  
+
   loss = new Loss(new Huber());
 }
 
@@ -68,15 +67,15 @@ void draw() {
   final int r = 100;
   final int w = width / r;
   final int h = height / r;
-  
+
   for (int i = 0; i < 5; i++) {
-    
+
     optimizer.zeroGradients();
-  
+
     for(int j = 0; j < 4; j++) {
       loss.loss(model.model(inputs[j]), targets[j]).backward();
     }
-    
+
     optimizer.step();
   }
 
@@ -85,7 +84,7 @@ void draw() {
   for (int i = 0; i <= r; i++) {
     for (int j = 0; j <= r; j++) {
       Matrix input = new Matrix(new float[] {(float) i / (float) r, (float) j / (float) r});
-      fill(model.model(input).detachAsVector().get(0) * 255); 
+      fill(model.model(input).detachAsVector().get(0) * 255);
       rect(j * w, i * h, w, h);
     }
   }
