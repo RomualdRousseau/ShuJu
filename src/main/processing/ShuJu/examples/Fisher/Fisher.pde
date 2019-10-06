@@ -93,7 +93,6 @@ void setup() {
     // Test samples
     DataSet test = fisherSet.subset(110, 150);
 
-
     // classification
     KNN knn = new KNN(6);
     knn.fit(training.featuresAsVectorArray(), training.labelsAsVectorArray());
