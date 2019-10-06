@@ -47,13 +47,13 @@ public DataSet loadTrainingSet(String fileName) throws IOException {
 
   Table table = loadTable(fileName, "header");
   for (TableRow row : table.rows()) {
-    DataRow tr = new DataRow();
-    tr.addFeature(sepalLengthCol.valueOf(row.getFloat(1)))
+    result.addRow(new DataRow()
+      .addFeature(sepalLengthCol.valueOf(row.getFloat(1)))
       .addFeature(sepalWidthCol.valueOf(row.getFloat(2)))
       .addFeature(petalLengthCol.valueOf(row.getFloat(3)))
       .addFeature(petalWidthCol.valueOf(row.getFloat(4)))
-      .setLabel(flowerNameCol.valueOf(row.getString(5).replaceAll("\\u00a0", " ")));
-    result.addRow(tr);
+      .setLabel(flowerNameCol.valueOf(row.getString(5).replaceAll("\\u00a0|\\s", " ")))
+    );
   }
 
   return result;
@@ -106,7 +106,7 @@ void setup() {
         success++;
       }
 
-      double squaredError = (1.0 - result.get(bestLabel)) * (1.0 - result.get(bestLabel));
+      double squaredError = pow(result.distance(row.label()), 2);
       avgError += squaredError;
       absError = Math.max(absError, squaredError);
     }

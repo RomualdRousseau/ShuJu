@@ -1,8 +1,9 @@
-import java.util.List;
 import com.github.romualdrousseau.shuju.cv.EdgeFilter;
 import com.github.romualdrousseau.shuju.cv.SearchPoint;
 import com.github.romualdrousseau.shuju.cv.ISearchBitmap;
 import com.github.romualdrousseau.shuju.cv.templatematching.shapeextractor.RectangleExtractor;
+
+import java.util.List;
 
 PImage image;
 List<SearchPoint[]> shapes;
