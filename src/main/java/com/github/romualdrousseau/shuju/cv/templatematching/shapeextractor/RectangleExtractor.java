@@ -52,7 +52,11 @@ public class RectangleExtractor extends IShapeExtractor {
             }
         }
 
-        return removeOverlaps(result);
+        if(result.size() > 1) {
+            return mergeTables(removeOverlaps(result));
+        } else {
+            return result;
+        }
     }
 
     public SearchPoint[] extractBest(ISearchBitmap searchBitmap) {
@@ -130,6 +134,29 @@ public class RectangleExtractor extends IShapeExtractor {
             }
             result.add(table1);
         }
+
+        return result;
+    }
+
+    private List<SearchPoint[]> mergeTables(List<SearchPoint[]> tables) {
+        ArrayList<SearchPoint[]> result = new ArrayList<SearchPoint[]>();
+
+        SearchPoint[] prevTable = null;
+
+        for (SearchPoint[] table : tables) {
+            if (prevTable == null) {
+                prevTable = table;
+            } else if (overlap(prevTable, table)) {
+                if (area(table) > area(prevTable)) {
+                    prevTable = table;
+                }
+            } else {
+                result.add(prevTable);
+                prevTable = table;
+            }
+        }
+
+        result.add(prevTable);
 
         return result;
     }
