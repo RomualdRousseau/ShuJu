@@ -23,6 +23,10 @@ public class SearchPoint {
         return this.x == o.x && this.y == o.y;
     }
 
+    public static boolean isInRange(SearchPoint[] points, int x, int y) {
+        return points[0].getX() <= x && x <= points[1].getX() && points[0].getY() <= y && y <= points[1].getY();
+    }
+
     private int x;
     private int y;
     private double sad;
