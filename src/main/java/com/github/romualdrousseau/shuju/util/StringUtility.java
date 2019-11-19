@@ -63,17 +63,26 @@ public class StringUtility
 	}
 
 	public static boolean checkIfGoodEncoding(String s) {
+        if(s == null) {
+            return false;
+        }
 		return !Pattern.compile(StringUtility.WRONG_UNICODE).matcher(s).find();
 	}
 
-	public static String cleanToken(String token) {
-        token = StringUtility.normalizeWhiteSpaces(token);
-		token = StringUtility.singleWhiteSpaces(token);
-		token = StringUtility.trim(token, StringUtility.WHITE_SPACES + "\"");
-		return token;
+	public static String cleanToken(String s) {
+        if(s == null) {
+			return null;
+		}
+        s = StringUtility.normalizeWhiteSpaces(s);
+		s = StringUtility.singleWhiteSpaces(s);
+		s = StringUtility.trim(s, StringUtility.WHITE_SPACES + "\"");
+		return s;
     }
 
     public static String removeExtension(String fileName) {
+        if(fileName == null) {
+            return null;
+        }
         return fileName.replaceFirst("[.][^.]+$", "");
     }
 
