@@ -1,7 +1,7 @@
 package com.github.romualdrousseau.shuju.cv;
 
 public class Template {
-    public Template(int[][] data) {
+    public Template(float[][] data) {
         this.data = data;
     }
 
@@ -13,21 +13,21 @@ public class Template {
         return this.data.length;
     }
 
-    public int get(int x, int y) {
+    public float get(int x, int y) {
         return this.data[y][x];
     }
 
-    public int sobel(ISearchBitmap searchBitmap, int x, int y) {
+    public float sobel(ISearchBitmap searchBitmap, int x, int y) {
         int w = this.data[0].length / 2;
         int h = this.data.length / 2;
-        int acc = 0;
+        float acc = 0;
         for (int i = 0; i < this.data.length; i++) {
             for (int j = 0; j < this.data[0].length; j++) {
-                acc += this.data[i][j] * searchBitmap.get(x + j - w, y + i - h);
+                acc += this.data[i][j] * Float.valueOf(searchBitmap.get(x + j - w, y + i - h));
             }
         }
         return acc;
     }
 
-    private int[][] data;
+    private float[][] data;
 }

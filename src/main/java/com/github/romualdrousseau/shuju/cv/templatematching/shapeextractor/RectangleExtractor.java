@@ -10,6 +10,8 @@ import com.github.romualdrousseau.shuju.cv.templatematching.IShapeExtractor;
 import com.github.romualdrousseau.shuju.cv.templatematching.TemplateMatcher;
 
 public class RectangleExtractor extends IShapeExtractor {
+
+    @Override
     public List<SearchPoint[]> extractAll(ISearchBitmap searchBitmap) {
         ArrayList<SearchPoint[]> result = new ArrayList<SearchPoint[]>();
 
@@ -53,15 +55,16 @@ public class RectangleExtractor extends IShapeExtractor {
         }
 
         if(result.size() > 1) {
-            return mergeTables(removeOverlaps(result));
+            return SearchPoint.RemoveOverlaps(result);
         } else {
             return result;
         }
     }
 
+    @Override
     public SearchPoint[] extractBest(ISearchBitmap searchBitmap) {
         SearchPoint[] result = null;
-        int maxAera = 0;
+        int maxArea = 0;
 
         ArrayList<List<SearchPoint>> allCorners = new ArrayList<List<SearchPoint>>();
         allCorners.add(
@@ -86,8 +89,8 @@ public class RectangleExtractor extends IShapeExtractor {
                         && searchBitmap.get(bbox[1][0], bbox[1][1]) > 0
                         && searchBitmap.get(bbox[0][0], bbox[1][1]) > 0) {
                     int area = (bbox[1][0] - bbox[0][0]) * (bbox[1][1] - bbox[0][1]);
-                    if (area > maxAera) {
-                        maxAera = area;
+                    if (area > maxArea) {
+                        maxArea = area;
                         result = new SearchPoint[] {
                                 new SearchPoint(bbox[0][0], bbox[0][1], searchBitmap.get(bbox[0][0], bbox[0][1])),
                                 new SearchPoint(bbox[1][0], bbox[1][1], searchBitmap.get(bbox[1][0], bbox[1][1])) };
@@ -119,48 +122,6 @@ public class RectangleExtractor extends IShapeExtractor {
         return a;
     }
 
-    private List<SearchPoint[]> removeOverlaps(List<SearchPoint[]> tablesWithOverlaps) {
-        ArrayList<SearchPoint[]> result = new ArrayList<SearchPoint[]>();
-
-        for (SearchPoint[] table1 : tablesWithOverlaps) {
-            for (SearchPoint[] table2 : tablesWithOverlaps) {
-                if (table1 != table2 && overlap(table1, table2)) {
-                    int a1 = area(table1);
-                    int a2 = area(table2);
-                    if (a2 > a1) {
-                        clipping(table2, table1);
-                    }
-                }
-            }
-            result.add(table1);
-        }
-
-        return result;
-    }
-
-    private List<SearchPoint[]> mergeTables(List<SearchPoint[]> tables) {
-        ArrayList<SearchPoint[]> result = new ArrayList<SearchPoint[]>();
-
-        SearchPoint[] prevTable = null;
-
-        for (SearchPoint[] table : tables) {
-            if (prevTable == null) {
-                prevTable = table;
-            } else if (overlap(prevTable, table)) {
-                if (area(table) > area(prevTable)) {
-                    prevTable = table;
-                }
-            } else {
-                result.add(prevTable);
-                prevTable = table;
-            }
-        }
-
-        result.add(prevTable);
-
-        return result;
-    }
-
     private double distance(SearchPoint p1, SearchPoint p2) {
         int vx = p1.getX() - p2.getX();
         int vy = p1.getY() - p2.getY();
@@ -178,8 +139,9 @@ public class RectangleExtractor extends IShapeExtractor {
     private int count(SearchPoint[] points) {
         int count = 0;
         for (int k = 0; k < 4; k++) {
-            if (points[k] != null)
+            if (points[k] != null) {
                 count++;
+            }
         }
         return count;
     }
@@ -200,42 +162,18 @@ public class RectangleExtractor extends IShapeExtractor {
         return new int[][] { { minX, minY }, { maxX, maxY } };
     }
 
-    private int area(SearchPoint[] s) {
-        return (s[1].getX() - s[0].getX()) * (s[1].getY() - s[0].getY());
-    }
-
-    private boolean overlap(SearchPoint[] s1, SearchPoint[] s2) {
-        return !(s2[1].getX() < s1[0].getX() || s2[0].getX() > s1[1].getX() || s2[1].getY() < s1[0].getY()
-                || s2[0].getY() > s1[1].getY());
-    }
-
-    private void clipping(SearchPoint[] s1, SearchPoint[] s2) {
-        if (s2[0].getX() < s1[0].getX()) {
-            s2[1] = new SearchPoint(s1[0].getX() - 1, s2[1].getY(), 0);
-        }
-        if (s2[1].getX() > s1[1].getX()) {
-            s2[0] = new SearchPoint(s1[1].getX() + 1, s2[0].getY(), 0);
-        }
-        if (s2[0].getY() < s1[0].getY()) {
-            s2[1] = new SearchPoint(s2[1].getX(), s1[0].getY() - 1, 0);
-        }
-        if (s2[1].getY() > s1[1].getY()) {
-            s2[0] = new SearchPoint(s2[0].getX(), s1[1].getY() + 1, 0);
-        }
-    }
-
     private int R[][][] = { { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, { { 0, 0 }, { -1, 0 }, { -1, 1 }, { 0, 1 } },
             { { 0, 0 }, { -1, 0 }, { -1, -1 }, { 0, -1 } }, { { 0, 0 }, { 1, 0 }, { 1, -1 }, { 0, -1 } } };
 
     private TemplateMatcher cornerTopLeft = new TemplateMatcher(
-            new Template(new int[][] { { 0, 0, 0 }, { 0, 1, 1 }, { 0, 1, 1 } }));
+            new Template(new float[][] { { 0, 0, 0 }, { 0, 1, 1 }, { 0, 1, 1 } }));
 
     private TemplateMatcher cornerTopRight = new TemplateMatcher(
-            new Template(new int[][] { { 0, 0, 0 }, { 1, 1, 0 }, { 1, 1, 0 } }));
+            new Template(new float[][] { { 0, 0, 0 }, { 1, 1, 0 }, { 1, 1, 0 } }));
 
     private TemplateMatcher cornerBottomLeft = new TemplateMatcher(
-            new Template(new int[][] { { 0, 1, 1 }, { 0, 1, 1 }, { 0, 0, 0 } }));
+            new Template(new float[][] { { 0, 1, 1 }, { 0, 1, 1 }, { 0, 0, 0 } }));
 
     private TemplateMatcher cornerBottomRight = new TemplateMatcher(
-            new Template(new int[][] { { 1, 1, 0 }, { 1, 1, 0 }, { 0, 0, 0 } }));
+            new Template(new float[][] { { 1, 1, 0 }, { 1, 1, 0 }, { 0, 0, 0 } }));
 }

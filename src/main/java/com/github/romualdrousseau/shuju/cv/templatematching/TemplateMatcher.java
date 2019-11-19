@@ -17,8 +17,8 @@ public class TemplateMatcher {
 
         for (int i = y; i < y + h; i++) {
             for (int j = x; j < x + w; j++) {
-                double sad = SAD(searchBitmap, j, i);
-                double score = normalize(sad);
+                float sad = SAD(searchBitmap, j, i);
+                float score = normalize(sad);
                 if (score > threshold) {
                     result.add(new SearchPoint(j, i, sad));
                 }
@@ -31,8 +31,8 @@ public class TemplateMatcher {
     public SearchPoint matchFirst(ISearchBitmap searchBitmap, int x, int y, int w, int h, double threshold) {
         for (int i = y; i < y + h; i++) {
             for (int j = x; j < x + w; j++) {
-                double sad = SAD(searchBitmap, j, i);
-                double score = normalize(sad);
+                float sad = SAD(searchBitmap, j, i);
+                float score = normalize(sad);
                 if (score > threshold) {
                     return new SearchPoint(j, i, sad);
                 }
@@ -48,8 +48,8 @@ public class TemplateMatcher {
 
         for (int i = y; i < y + h; i++) {
             for (int j = x; j < x + w; j++) {
-                double sad = SAD(searchBitmap, j, i);
-                double score = normalize(sad);
+                float sad = SAD(searchBitmap, j, i);
+                float score = normalize(sad);
                 if (score > maxScore) {
                     maxScore = score;
                     result = new SearchPoint(j, i, sad);
@@ -60,19 +60,19 @@ public class TemplateMatcher {
         return result;
     }
 
-    private double normalize(double v) {
-        return 1.0 - v / (this.template.getWidth() * this.template.getHeight());
+    private float normalize(float v) {
+        return 1.0f - v / Float.valueOf(this.template.getWidth() * this.template.getHeight());
     }
 
-    private double SAD(ISearchBitmap searchBitmap, int x, int y) {
+    private float SAD(ISearchBitmap searchBitmap, int x, int y) {
         int hw = this.template.getWidth() / 2;
         int hh = this.template.getHeight() / 2;
-        double acc = 0.0;
+        float acc = 0.0f;
 
         for (int i = 0; i < this.template.getHeight(); i++) {
             for (int j = 0; j < this.template.getWidth(); j++) {
-                int searchPixel = searchBitmap.get(x + j - hw, y + i - hh);
-                int templatePixel = this.template.get(j, i);
+                float searchPixel = Float.valueOf(searchBitmap.get(x + j - hw, y + i - hh));
+                float templatePixel = this.template.get(j, i);
                 acc += Math.abs(searchPixel - templatePixel);
             }
         }
