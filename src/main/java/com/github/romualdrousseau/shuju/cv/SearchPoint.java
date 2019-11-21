@@ -26,41 +26,40 @@ public class SearchPoint {
         return this.x == o.x && this.y == o.y;
     }
 
-    public static boolean IsInRange(SearchPoint[] points, int x, int y) {
+    public static int GetArea(SearchPoint[] s) {
+        return (s[1].getX() - s[0].getX()) * (s[1].getY() - s[0].getY());
+    }
+
+    public static boolean IsOverlap(SearchPoint[] s1, SearchPoint[] s2) {
+        return !(s2[1].getX() < s1[0].getX() || s2[0].getX() > s1[1].getX() || s2[1].getY() < s1[0].getY()
+                || s2[0].getY() > s1[1].getY());
+    }
+
+    public static boolean IsInside(SearchPoint[] points, int x, int y) {
         return points[0].getX() <= x && x <= points[1].getX() && points[0].getY() <= y && y <= points[1].getY();
     }
 
     public static List<SearchPoint[]> RemoveOverlaps(List<SearchPoint[]> tablesWithOverlaps) {
         ArrayList<SearchPoint[]> result = new ArrayList<SearchPoint[]>();
 
-        ArrayList<SearchPoint[]> tmp = new ArrayList<SearchPoint[]>();
         for (SearchPoint[] table1 : tablesWithOverlaps) {
+            if (table1[1].getX() < table1[0].getX()) {
+                continue;
+            }
+
+            boolean isNotOverlaped = true;
             for (SearchPoint[] table2 : tablesWithOverlaps) {
-                if (table1 != table2 && overlap(table1, table2)) {
-                    int a1 = area(table1);
-                    int a2 = area(table2);
-                    if (a2 > a1) {
+                if (table1 != table2 && IsOverlap(table1, table2)) {
+                    if (GetArea(table2) > GetArea(table1)) {
                         clipping(table2, table1);
+                        isNotOverlaped &= !IsOverlap(table1, table2);
                     }
                 }
             }
-            tmp.add(table1);
-        }
-
-        SearchPoint[] prevTable = null;
-        for (SearchPoint[] table : tmp) {
-            if (prevTable == null) {
-                prevTable = table;
-            } else if (overlap(prevTable, table)) {
-                if (area(table) > area(prevTable)) {
-                    prevTable = table;
-                }
-            } else {
-                result.add(prevTable);
-                prevTable = table;
+            if(isNotOverlaped) {
+                result.add(table1);
             }
         }
-        result.add(prevTable);
 
         return result;
     }
@@ -149,15 +148,6 @@ public class SearchPoint {
         }
 
         return shapes;
-    }
-
-    private static int area(SearchPoint[] s) {
-        return (s[1].getX() - s[0].getX()) * (s[1].getY() - s[0].getY());
-    }
-
-    private static boolean overlap(SearchPoint[] s1, SearchPoint[] s2) {
-        return !(s2[1].getX() < s1[0].getX() || s2[0].getX() > s1[1].getX() || s2[1].getY() < s1[0].getY()
-                || s2[0].getY() > s1[1].getY());
     }
 
     private static void clipping(SearchPoint[] s1, SearchPoint[] s2) {

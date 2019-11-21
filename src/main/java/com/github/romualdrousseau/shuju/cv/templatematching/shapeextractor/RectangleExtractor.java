@@ -33,7 +33,7 @@ public class RectangleExtractor extends IShapeExtractor {
                     continue;
                 }
 
-                int[][] bbox = minmax(a);
+                int[][] bbox = minmax(phi, a);
                 if (searchBitmap.get(bbox[0][0], bbox[0][1]) > 0 && searchBitmap.get(bbox[1][0], bbox[0][1]) > 0
                         && searchBitmap.get(bbox[1][0], bbox[1][1]) > 0
                         && searchBitmap.get(bbox[0][0], bbox[1][1]) > 0) {
@@ -77,14 +77,14 @@ public class RectangleExtractor extends IShapeExtractor {
                 cornerBottomLeft.matchAll(searchBitmap, 0, 0, searchBitmap.getWidth(), searchBitmap.getHeight(), 0.8));
 
         // Simple version of Hought transformation with 4 pre-defined rotations
-        for (int i = 0; i < allCorners.size(); i++) {
-            for (SearchPoint corner : allCorners.get(i)) {
-                SearchPoint[] a = houghTransform(i, corner, allCorners);
+        for (int phi = 0; phi < allCorners.size(); phi++) {
+            for (SearchPoint corner : allCorners.get(phi)) {
+                SearchPoint[] a = houghTransform(phi, corner, allCorners);
                 if (count(a) < (a.length - 1)) {
                     continue;
                 }
 
-                int[][] bbox = minmax(a);
+                int[][] bbox = minmax(phi, a);
                 if (searchBitmap.get(bbox[0][0], bbox[0][1]) > 0 && searchBitmap.get(bbox[1][0], bbox[0][1]) > 0
                         && searchBitmap.get(bbox[1][0], bbox[1][1]) > 0
                         && searchBitmap.get(bbox[0][0], bbox[1][1]) > 0) {
@@ -103,37 +103,38 @@ public class RectangleExtractor extends IShapeExtractor {
     }
 
     private SearchPoint[] houghTransform(int phi, SearchPoint locus, List<List<SearchPoint>> points) {
-        SearchPoint[] a = { locus, null, null, null };
+        SearchPoint[] a = { null, null, null, null };
 
-        for (int j = 0; j < points.size(); j++)
+        a[phi] = locus;
+
+        for (int j = 0; j < points.size(); j++) {
             if (j != phi) {
                 for (SearchPoint point : points.get(j)) {
                     int[] g = gradient(locus, point);
-                    for (int k = 1; k < a.length; k++) {
-                        if (g[0] == R[phi][k][0] && g[1] == R[phi][k][1]) {
-                            if (a[k] == null || distance(point, locus) < distance(a[k], locus)) {
-                                a[k] = point;
-                            }
+                    if (g[0] == R[phi][j][0] && g[1] == R[phi][j][1]) {
+                        if (a[j] == null || distance(locus, point) < distance(locus, a[j])) {
+                            a[j] = point;
                         }
                     }
                 }
             }
+        }
 
         return a;
     }
 
-    private double distance(SearchPoint p1, SearchPoint p2) {
-        int vx = p1.getX() - p2.getX();
-        int vy = p1.getY() - p2.getY();
-        return Math.sqrt(vx * vx + vy * vy);
-    }
-
     private int[] gradient(SearchPoint p1, SearchPoint p2) {
         int vx = p2.getX() - p1.getX();
-        vx = (vx == 0) ? 0 : vx / Math.abs(vx);
+        vx = (vx == 0) ? 0 : ((vx > 0) ? 1 : -1);
         int vy = p2.getY() - p1.getY();
-        vy = (vy == 0) ? 0 : vy / Math.abs(vy);
+        vy = (vy == 0) ? 0 : ((vy > 0) ? 1 : -1);
         return new int[] { vx, vy };
+    }
+
+    private double distance(SearchPoint p1, SearchPoint p2) {
+        double vx = p1.getX() - p2.getX();
+        double vy = p1.getY() - p2.getY();
+        return Math.sqrt(vx * vx + vy * vy);
     }
 
     private int count(SearchPoint[] points) {
@@ -146,13 +147,13 @@ public class RectangleExtractor extends IShapeExtractor {
         return count;
     }
 
-    private int[][] minmax(SearchPoint[] points) {
-        int minX = points[0].getX();
-        int minY = points[0].getY();
-        int maxX = points[0].getX();
-        int maxY = points[0].getY();
-        for (int k = 1; k < 4; k++) {
-            if (points[k] != null) {
+    private int[][] minmax(int phi, SearchPoint[] points) {
+        int minX = points[phi].getX();
+        int minY = points[phi].getY();
+        int maxX = points[phi].getX();
+        int maxY = points[phi].getY();
+        for (int k = 0; k < 4; k++) {
+            if (k != phi && points[k] != null) {
                 minX = Math.min(minX, points[k].getX());
                 minY = Math.min(minY, points[k].getY());
                 maxX = Math.max(maxX, points[k].getX());
@@ -162,8 +163,8 @@ public class RectangleExtractor extends IShapeExtractor {
         return new int[][] { { minX, minY }, { maxX, maxY } };
     }
 
-    private int R[][][] = { { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, { { 0, 0 }, { -1, 0 }, { -1, 1 }, { 0, 1 } },
-            { { 0, 0 }, { -1, 0 }, { -1, -1 }, { 0, -1 } }, { { 0, 0 }, { 1, 0 }, { 1, -1 }, { 0, -1 } } };
+    private int R[][][] = { { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, { { -1, 0 }, { 0, 0 }, { 0, 1 }, { -1, 1 } },
+            { { -1, -1 }, { 0, -1 }, { 0, 0 }, { -1, 0 } }, { { 0, -1 }, { 1, -1 }, { 1, 0 }, { 0, 0 } } };
 
     private TemplateMatcher cornerTopLeft = new TemplateMatcher(
             new Template(new float[][] { { 0, 0, 0 }, { 0, 1, 1 }, { 0, 1, 1 } }));
