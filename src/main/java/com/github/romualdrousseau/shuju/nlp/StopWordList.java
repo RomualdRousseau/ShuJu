@@ -2,6 +2,7 @@ package com.github.romualdrousseau.shuju.nlp;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
+import com.github.romualdrousseau.shuju.util.StringUtility;
 
 public class StopWordList  {
     private String[] stopwords;
@@ -35,9 +36,14 @@ public class StopWordList  {
     }
 
     public String removeStopWords(String s) {
+        if (StringUtility.isEmpty(s)) {
+            return "";
+        }
+
         for (int i = 0; i < this.stopwords.length; i++) {
             s = s.replaceAll("(?i)" + this.stopwords[i], " ");
         }
+
         return s;
     }
 

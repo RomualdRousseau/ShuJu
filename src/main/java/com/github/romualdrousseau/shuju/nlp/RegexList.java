@@ -37,13 +37,13 @@ public class RegexList implements BaseList {
         this.vectorSize = json.getInt("maxVectorSize");
 
         JSONArray jsonTypes = json.getJSONArray("types");
-        for(int i = 0; i < jsonTypes.size(); i++) {
+        for (int i = 0; i < jsonTypes.size(); i++) {
             String s = jsonTypes.getString(i);
             this.types.add(s);
         }
 
         JSONArray jsonPatterns = json.getJSONArray("patterns");
-        for(int i = 0; i < jsonPatterns.size(); i++) {
+        for (int i = 0; i < jsonPatterns.size(); i++) {
             JSONObject entity = jsonPatterns.getJSONObject(i);
             String p = entity.getString("pattern");
             String t = entity.getString("type");
@@ -68,10 +68,10 @@ public class RegexList implements BaseList {
     }
 
     public RegexList add(String w) {
-        if(StringUtility.isEmpty(w)) {
+        if (StringUtility.isEmpty(w)) {
             return this;
         }
-        if(this.types.indexOf(w) >= 0) {
+        if (this.types.indexOf(w) >= 0) {
             return this;
         }
         this.types.add(w);
@@ -95,21 +95,10 @@ public class RegexList implements BaseList {
             return result;
         }
 
-        // int longestMatch = 0;
-        // for (String pattern : this.patterns.keySet()) {
-        //     Matcher m = Pattern.compile(pattern).matcher(w);
-        //     while (m.find()) {
-        //         String s = m.group(0);
-        //         if(s.length() > longestMatch) {
-        //             result = w.replace(s, this.patterns.get(pattern));
-        //             longestMatch = s.length();
-        //         }
-        //     }
-        // }
-
         result = w;
         for (String pattern : this.patterns.keySet()) {
-            result = result.replaceAll(pattern, this.patterns.get(pattern));
+            Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            result = p.matcher(result).replaceAll(this.patterns.get(pattern));
         }
 
         return result;
@@ -122,15 +111,11 @@ public class RegexList implements BaseList {
             return result;
         }
 
-        int longestMatch = 0;
         for (String pattern : this.patterns.keySet()) {
-            Matcher m = Pattern.compile(pattern).matcher(w);
-            while (m.find()) {
-                String s = m.group(0);
-                if(s.length() > longestMatch) {
-                    result = s;
-                    longestMatch = s.length();
-                }
+            Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            Matcher m = p.matcher(w);
+            if (m.find()) {
+                result = m.group(0);
             }
         }
 
@@ -145,9 +130,9 @@ public class RegexList implements BaseList {
         }
 
         for (String pattern : this.patterns.keySet()) {
-            if (Pattern.compile(pattern).matcher(w).find()) {
-                String t = this.patterns.get(pattern);
-                result.set(this.ordinal(t), 1.0f);
+            Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            if (p.matcher(w).find()) {
+                result.set(this.ordinal(this.patterns.get(pattern)), 1.0f);
             }
         }
 
@@ -163,7 +148,7 @@ public class RegexList implements BaseList {
         JSONArray jsonPatterns = JSON.newJSONArray();
         for (String p : this.patterns.keySet()) {
             String t = this.patterns.get(p);
-            JSONObject entity =  JSON.newJSONObject();
+            JSONObject entity = JSON.newJSONObject();
             entity.setString("pattern", p);
             entity.setString("type", t.toString());
             jsonPatterns.append(entity);
