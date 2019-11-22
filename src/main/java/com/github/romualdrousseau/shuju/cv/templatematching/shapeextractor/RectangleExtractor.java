@@ -33,28 +33,27 @@ public class RectangleExtractor extends IShapeExtractor {
                     continue;
                 }
 
-                int[][] bbox = minmax(phi, a);
-                if (searchBitmap.get(bbox[0][0], bbox[0][1]) > 0 && searchBitmap.get(bbox[1][0], bbox[0][1]) > 0
-                        && searchBitmap.get(bbox[1][0], bbox[1][1]) > 0
-                        && searchBitmap.get(bbox[0][0], bbox[1][1]) > 0) {
-                    SearchPoint[] newSP = new SearchPoint[] {
-                            new SearchPoint(bbox[0][0], bbox[0][1], searchBitmap.get(bbox[0][0], bbox[0][1])),
-                            new SearchPoint(bbox[1][0], bbox[1][1], searchBitmap.get(bbox[1][0], bbox[1][1])) };
+                SearchPoint[] bbox = minmax(phi, a);
+
+                if (searchBitmap.get(bbox[0].getX(), bbox[0].getY()) > 0
+                        && searchBitmap.get(bbox[1].getX(), bbox[0].getY()) > 0
+                        && searchBitmap.get(bbox[1].getX(), bbox[1].getY()) > 0
+                        && searchBitmap.get(bbox[0].getX(), bbox[1].getY()) > 0) {
 
                     boolean foundDuplicate = false;
                     for (SearchPoint[] sp : result) {
-                        if (newSP[0].equals(sp[0]) && newSP[1].equals(sp[1])) {
+                        if (bbox[0].equals(sp[0]) && bbox[1].equals(sp[1])) {
                             foundDuplicate = true;
                         }
                     }
                     if (!foundDuplicate) {
-                        result.add(newSP);
+                        result.add(bbox);
                     }
                 }
             }
         }
 
-        if(result.size() > 1) {
+        if (result.size() > 1) {
             return SearchPoint.RemoveOverlaps(result);
         } else {
             return result;
@@ -84,16 +83,17 @@ public class RectangleExtractor extends IShapeExtractor {
                     continue;
                 }
 
-                int[][] bbox = minmax(phi, a);
-                if (searchBitmap.get(bbox[0][0], bbox[0][1]) > 0 && searchBitmap.get(bbox[1][0], bbox[0][1]) > 0
-                        && searchBitmap.get(bbox[1][0], bbox[1][1]) > 0
-                        && searchBitmap.get(bbox[0][0], bbox[1][1]) > 0) {
-                    int area = (bbox[1][0] - bbox[0][0]) * (bbox[1][1] - bbox[0][1]);
+                SearchPoint[] bbox = minmax(phi, a);
+
+                if (searchBitmap.get(bbox[0].getX(), bbox[0].getY()) > 0
+                        && searchBitmap.get(bbox[1].getX(), bbox[0].getY()) > 0
+                        && searchBitmap.get(bbox[1].getX(), bbox[1].getY()) > 0
+                        && searchBitmap.get(bbox[0].getX(), bbox[1].getY()) > 0) {
+
+                    int area = SearchPoint.GetArea(bbox);
                     if (area > maxArea) {
                         maxArea = area;
-                        result = new SearchPoint[] {
-                                new SearchPoint(bbox[0][0], bbox[0][1], searchBitmap.get(bbox[0][0], bbox[0][1])),
-                                new SearchPoint(bbox[1][0], bbox[1][1], searchBitmap.get(bbox[1][0], bbox[1][1])) };
+                        result = bbox;
                     }
                 }
             }
@@ -147,7 +147,7 @@ public class RectangleExtractor extends IShapeExtractor {
         return count;
     }
 
-    private int[][] minmax(int phi, SearchPoint[] points) {
+    private SearchPoint[] minmax(int phi, SearchPoint[] points) {
         int minX = points[phi].getX();
         int minY = points[phi].getY();
         int maxX = points[phi].getX();
@@ -160,7 +160,7 @@ public class RectangleExtractor extends IShapeExtractor {
                 maxY = Math.max(maxY, points[k].getY());
             }
         }
-        return new int[][] { { minX, minY }, { maxX, maxY } };
+        return new SearchPoint[] { new SearchPoint(minX, minY), new SearchPoint(maxX, maxY) };
     }
 
     private int R[][][] = { { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, { { -1, 0 }, { 0, 0 }, { 0, 1 }, { -1, 1 } },

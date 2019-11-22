@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchPoint {
+
+    public SearchPoint(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.sad = 0;
+    }
+
     public SearchPoint(int x, int y, float sad) {
         this.x = x;
         this.y = y;
@@ -14,12 +21,24 @@ public class SearchPoint {
         return this.x;
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
     public int getY() {
         return this.y;
     }
 
+    public void setY(int y) {
+        this.y = y;
+    }
+
     public float getSAD() {
         return this.sad;
+    }
+
+    public void setSAD(int sad) {
+        this.sad = sad;
     }
 
     public boolean equals(SearchPoint o) {
@@ -72,10 +91,8 @@ public class SearchPoint {
                 for (SearchPoint[] shape2 : shapes)
                     if (shape1 != shape2 && shape2[0] != null && shape2[1] != null) {
                         if (shape1[0].getY() == shape2[0].getY() && shape1[1].getY() == shape2[1].getY()) {
-                            shape1[0] = new SearchPoint(Math.min(shape1[0].getX(), shape2[0].getX()), shape1[0].getY(),
-                                    shape1[0].getSAD());
-                            shape1[1] = new SearchPoint(Math.max(shape1[1].getX(), shape2[1].getX()), shape1[1].getY(),
-                                    shape1[1].getSAD());
+                            shape1[0].setX(Math.min(shape1[0].getX(), shape2[0].getX()));
+                            shape1[1].setX(Math.max(shape1[1].getX(), shape2[1].getX()));
                             shape2[0] = null;
                             shape2[1] = null;
                         }
@@ -93,10 +110,8 @@ public class SearchPoint {
                 for (SearchPoint[] shape2 : shapes)
                     if (shape1 != shape2 && shape2[0] != null && shape2[1] != null) {
                         if (shape1[0].getX() == shape2[0].getX() && shape1[1].getX() == shape2[1].getX()) {
-                            shape1[0] = new SearchPoint(shape1[0].getX(), Math.min(shape1[0].getY(), shape2[0].getY()),
-                                    shape1[0].getSAD());
-                            shape1[1] = new SearchPoint(shape1[1].getX(), Math.max(shape1[1].getY(), shape2[1].getY()),
-                                    shape1[1].getSAD());
+                            shape1[0].setY(Math.min(shape1[0].getY(), shape2[0].getY()));
+                            shape1[1].setY(Math.max(shape1[1].getY(), shape2[1].getY()));
                             shape2[0] = null;
                             shape2[1] = null;
                         }
@@ -109,16 +124,16 @@ public class SearchPoint {
     public static List<SearchPoint[]> TrimInX(List<SearchPoint[]> shapes, ISearchBitmap bitmap) {
         for (SearchPoint[] shape : shapes) {
             for (int i = shape[0].getX(); i <= shape[1].getX(); i++) {
-                if (columnIsEmpty(shape, i, bitmap)) {
-                    shape[0] = new SearchPoint(i + 1, shape[0].getY(), shape[0].getSAD());
+                if (SearchPoint.columnIsEmpty(shape, i, bitmap)) {
+                    shape[0].setX(i + 1);
                 } else {
                     break;
                 }
             }
 
             for (int i = shape[1].getX(); i >= shape[0].getX(); i--) {
-                if (columnIsEmpty(shape, i, bitmap)) {
-                    shape[1] = new SearchPoint(i - 1, shape[1].getY(), shape[1].getSAD());
+                if (SearchPoint.columnIsEmpty(shape, i, bitmap)) {
+                    shape[1].setX(i - 1);
                 } else {
                     break;
                 }
@@ -132,7 +147,7 @@ public class SearchPoint {
         for (SearchPoint[] shape : shapes) {
             for (int i = shape[0].getY(); i <= shape[1].getY(); i++) {
                 if (rowIsEmpty(shape, i, bitmap)) {
-                    shape[0] = new SearchPoint(shape[0].getX(), i + 1, shape[0].getSAD());
+                    shape[0].setY(i + 1);
                 } else {
                     break;
                 }
@@ -140,7 +155,7 @@ public class SearchPoint {
 
             for (int i = shape[1].getY(); i >= shape[0].getY(); i--) {
                 if (rowIsEmpty(shape, i, bitmap)) {
-                    shape[1] = new SearchPoint(shape[1].getX(), i - 1, shape[1].getSAD());
+                    shape[1].setY(i - 1);
                 } else {
                     break;
                 }
@@ -152,16 +167,16 @@ public class SearchPoint {
 
     private static void clipping(SearchPoint[] s1, SearchPoint[] s2) {
         if (s2[0].getX() < s1[0].getX()) {
-            s2[1] = new SearchPoint(s1[0].getX() - 1, s2[1].getY(), 0);
+            s2[1].setX(s1[0].getX() - 1);
         }
         if (s2[1].getX() > s1[1].getX()) {
-            s2[0] = new SearchPoint(s1[1].getX() + 1, s2[0].getY(), 0);
+            s2[0].setX(s1[1].getX() + 1);
         }
         if (s2[0].getY() < s1[0].getY()) {
-            s2[1] = new SearchPoint(s2[1].getX(), s1[0].getY() - 1, 0);
+            s2[1].setY(s1[0].getY() - 1);
         }
         if (s2[1].getY() > s1[1].getY()) {
-            s2[0] = new SearchPoint(s2[0].getX(), s1[1].getY() + 1, 0);
+            s2[0].setY(s1[1].getY() + 1);
         }
     }
 

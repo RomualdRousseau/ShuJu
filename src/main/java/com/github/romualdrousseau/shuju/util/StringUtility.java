@@ -15,7 +15,11 @@ public class StringUtility
     public static final char BOM_CHAR = '\uFEFF';
 
     public static boolean isEmpty(String s) {
-        return s == null || StringUtility.trim(s, StringUtility.WHITE_SPACES).equals("");
+        return s == null || StringUtility.trim(s).equals("");
+    }
+
+    public static boolean isFastEmpty(String s) {
+        return s == null || s.trim().equals("");
     }
 
 	public static String trim(String s) {
