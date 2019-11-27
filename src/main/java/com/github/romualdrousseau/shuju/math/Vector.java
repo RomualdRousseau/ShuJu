@@ -10,6 +10,8 @@ public class Vector {
     private int rows;
     private float[] data;
 
+    public static final Vector Null = new Vector(0);
+
     public Vector(int rows) {
         this.rows = rows;
         this.data = new float[this.rows];

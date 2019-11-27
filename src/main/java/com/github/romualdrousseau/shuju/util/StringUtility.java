@@ -19,7 +19,7 @@ public class StringUtility
     }
 
     public static boolean isFastEmpty(String s) {
-        return s == null || s.trim().equals("");
+        return s == null || s.trim().isEmpty();
     }
 
 	public static String trim(String s) {
