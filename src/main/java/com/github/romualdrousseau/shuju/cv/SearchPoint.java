@@ -165,6 +165,50 @@ public class SearchPoint {
         return shapes;
     }
 
+    public static List<SearchPoint[]> ExpandInX(List<SearchPoint[]> shapes, ISearchBitmap bitmap) {
+        for (SearchPoint[] shape : shapes) {
+            for (int i = shape[0].getX() - 1; i > 0; i--) {
+                if (!SearchPoint.columnIsEmpty(shape, i, bitmap)) {
+                    shape[0].setX(i - 1);
+                } else {
+                    break;
+                }
+            }
+
+            for (int i = shape[1].getX() + 1; i < bitmap.getWidth(); i++) {
+                if (!SearchPoint.columnIsEmpty(shape, i, bitmap)) {
+                    shape[1].setX(i + 1);
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return shapes;
+    }
+
+    public static List<SearchPoint[]> ExpandInY(List<SearchPoint[]> shapes, ISearchBitmap bitmap) {
+        for (SearchPoint[] shape : shapes) {
+            for (int i = shape[0].getY() - 1; i > 0; i--) {
+                if (!SearchPoint.rowIsEmpty(shape, i, bitmap)) {
+                    shape[0].setY(i - 1);
+                } else {
+                    break;
+                }
+            }
+
+            for (int i = shape[1].getY() + 1; i < bitmap.getHeight(); i++) {
+                if (!SearchPoint.rowIsEmpty(shape, i, bitmap)) {
+                    shape[1].setY(i + 1);
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return shapes;
+    }
+
     private static void clipping(SearchPoint[] s1, SearchPoint[] s2) {
         if (s2[0].getX() < s1[0].getX()) {
             s2[1].setX(s1[0].getX() - 1);
