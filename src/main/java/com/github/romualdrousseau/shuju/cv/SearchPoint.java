@@ -175,7 +175,7 @@ public class SearchPoint {
                 }
             }
 
-            for (int i = shape[1].getX() + 1; i < bitmap.getWidth(); i++) {
+            for (int i = shape[1].getX(); i < bitmap.getWidth(); i++) {
                 if (!SearchPoint.columnIsEmpty(shape, i, bitmap)) {
                     shape[1].setX(i + 1);
                 } else {
@@ -197,7 +197,7 @@ public class SearchPoint {
                 }
             }
 
-            for (int i = shape[1].getY() + 1; i < bitmap.getHeight(); i++) {
+            for (int i = shape[1].getY(); i < bitmap.getHeight(); i++) {
                 if (!SearchPoint.rowIsEmpty(shape, i, bitmap)) {
                     shape[1].setY(i + 1);
                 } else {
