@@ -10,16 +10,31 @@ public class DataSummary {
     public Vector avg;
 
     public DataSummary(DataSet dataset, int part, int col) {
+        this.dataset = dataset;
+        this.part = part;
+        this.col = col;
         this.calculateStatistics(dataset, part, col);
+    }
+
+    public DataSet getDataSet() {
+        return this.dataset;
+    }
+
+    public int getPart() {
+        return this.part;
+    }
+
+    public int getColumn() {
+        return this.col;
     }
 
     public String toString() {
         String result = "\n=== Summary ===\n";
         result += String.format("Count: %d\n", this.count);
-        result += String.format("Min:   %f\n", this.min);
-        result += String.format("Max:   %f\n", this.max);
-        result += String.format("Sum:   %f\n", this.sum);
-        result += String.format("Avg:   %f\n", this.avg);
+        result += String.format("Min:   %s\n", this.min);
+        result += String.format("Max:   %s\n", this.max);
+        result += String.format("Sum:   %s\n", this.sum);
+        result += String.format("Avg:   %s\n", this.avg);
         return result;
     }
 
@@ -46,4 +61,8 @@ public class DataSummary {
         }
         this.avg = this.sum.copy().div((float) this.count);
     }
+
+    private DataSet dataset;
+    private int part;
+    private int col;
 }

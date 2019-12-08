@@ -8,6 +8,8 @@ import com.github.romualdrousseau.shuju.math.Vector;
 public class DataRow {
     public final static int FEATURES = 0;
     public final static int LABELS = 1;
+    public final static int X = 0;
+    public final static int y = 1;
 
     public List<Vector> features() {
         return this.features;

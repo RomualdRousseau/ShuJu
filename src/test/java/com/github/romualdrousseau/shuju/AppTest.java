@@ -42,7 +42,7 @@ public class AppTest {
         final DataSet fisherset = loadFisherSet();
 
         final DataSummary summary = new DataSummary(fisherset, DataRow.FEATURES, 0);
-        Vector var = DataStatistics.var(fisherset, DataRow.FEATURES, 0, summary);
+        Vector var = DataStatistics.var(summary);
         Vector stdev = var.copy().sqrt();
 
         assertEquals("Count", 150, summary.count);
@@ -59,7 +59,7 @@ public class AppTest {
         final DataSet fisherset = loadFisherSet();
 
         final DataSummary summary = new DataSummary(fisherset, DataRow.FEATURES, 1);
-        Vector var = DataStatistics.var(fisherset, DataRow.FEATURES, 1, summary);
+        Vector var = DataStatistics.var(summary);
         Vector stdev = var.copy().sqrt();
 
         assertEquals("Count", 150, summary.count);
@@ -76,7 +76,7 @@ public class AppTest {
         final DataSet fisherset = loadFisherSet();
 
         final DataSummary summary = new DataSummary(fisherset, DataRow.FEATURES, 2);
-        Vector var = DataStatistics.var(fisherset, DataRow.FEATURES, 2, summary);
+        Vector var = DataStatistics.var(summary);
         Vector stdev = var.copy().sqrt();
 
         assertEquals("Count", 150, summary.count);
@@ -93,7 +93,7 @@ public class AppTest {
         final DataSet fisherset = loadFisherSet();
 
         final DataSummary summary = new DataSummary(fisherset, DataRow.FEATURES, 3);
-        Vector var = DataStatistics.var(fisherset, DataRow.FEATURES, 3, summary);
+        Vector var = DataStatistics.var(summary);
         Vector stdev = var.copy().sqrt();
 
         assertEquals("Count", 150, summary.count);
@@ -109,7 +109,8 @@ public class AppTest {
     public void testLengthCovariance() {
         final DataSet fisherset = loadFisherSet();
 
-        Vector cov = DataStatistics.cov(fisherset, DataRow.FEATURES, 0, 2);
+        Vector cov = DataStatistics.cov(new DataSummary(fisherset, DataRow.FEATURES, 0),
+                new DataSummary(fisherset, DataRow.FEATURES, 2));
 
         assertEquals("Cov", 1.274, cov.get(0), 0.001);
     }
@@ -118,7 +119,8 @@ public class AppTest {
     public void testWidthCovariance() {
         final DataSet fisherset = loadFisherSet();
 
-        Vector cov = DataStatistics.cov(fisherset, DataRow.FEATURES, 1, 3);
+        Vector cov = DataStatistics.cov(new DataSummary(fisherset, DataRow.FEATURES, 1),
+                new DataSummary(fisherset, DataRow.FEATURES, 3));
 
         assertEquals("Cov", -0.121, cov.get(0), 0.001);
     }
@@ -127,7 +129,8 @@ public class AppTest {
     public void testLengthCorellation() {
         final DataSet fisherset = loadFisherSet();
 
-        Vector corr = DataStatistics.corr(fisherset, DataRow.FEATURES, 0, 2);
+        Vector corr = DataStatistics.corr(new DataSummary(fisherset, DataRow.FEATURES, 0),
+                new DataSummary(fisherset, DataRow.FEATURES, 2));
 
         assertEquals("Corr", 0.872, corr.get(0), 0.001);
     }

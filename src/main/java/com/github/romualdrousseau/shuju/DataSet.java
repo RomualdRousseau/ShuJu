@@ -2,11 +2,14 @@ package com.github.romualdrousseau.shuju;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
+import com.github.romualdrousseau.shuju.math.Scalar;
 import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.VectorFunction;
 
 public class DataSet {
     public DataSet() {
@@ -82,6 +85,18 @@ public class DataSet {
         return this;
     }
 
+    public DataSet filter(Predicate<DataRow> predicate) {
+        DataSet result = new DataSet();
+
+        for (DataRow row : this.rows) {
+            if (predicate.test(row)) {
+                result.addRow(row);
+            }
+        }
+
+        return result;
+    }
+
     public DataSet transform(ITransform transfomer, int partIndex, int colIndex) {
         int rowIndex = 0;
         if (partIndex == DataRow.LABELS) {
@@ -127,6 +142,26 @@ public class DataSet {
         for (int i = 0; i < this.rows.size(); i++) {
             result[i] = this.rows.get(i).label();
         }
+        return result;
+    }
+
+    public static DataSet makeBlobs(int rows, int features, int centers) {
+        DataSet result = new DataSet();
+        final int p = rows / centers;
+
+        for (int i = 0; i < centers; i++) {
+            final Vector c = new Vector(features).randomize(10);
+            for (int k = 0; k < p; k++) {
+                Vector X = c.copy().map(new VectorFunction<Float, Float>() {
+                    public Float apply(Float v, int row, Vector vector) {
+                        return v + Scalar.randomGaussian();
+                    }
+                });
+                Vector y = new Vector(centers).oneHot(i);
+                result.addRow(new DataRow().addFeature(X).setLabel(y));
+            }
+        }
+
         return result;
     }
 

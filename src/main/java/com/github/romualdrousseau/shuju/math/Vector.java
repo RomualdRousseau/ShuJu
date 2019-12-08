@@ -431,7 +431,7 @@ public class Vector {
         assert (fn != null);
 
         for (int i = 0; i < this.rows; i++) {
-            fn.apply(this.data[i], i, this);
+            this.data[i] = fn.apply(this.data[i], i, this);
         }
         return this;
     }
@@ -440,7 +440,7 @@ public class Vector {
         assert (fn != null);
 
         for (int i = 0; i < this.rows; i++) {
-            fn.apply(this.data[i], i, other);
+            this.data[i] = fn.apply(this.data[i], i, other);
         }
         return this;
     }
