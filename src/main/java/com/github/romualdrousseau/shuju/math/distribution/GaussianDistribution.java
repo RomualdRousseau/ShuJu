@@ -2,14 +2,14 @@ package com.github.romualdrousseau.shuju.math.distribution;
 
 import com.github.romualdrousseau.shuju.math.DistributionFunction;
 
-public class GaussianDistribution implements DistributionFunction<Float> {
+public class GaussianDistribution implements DistributionFunction {
 
     public GaussianDistribution(float mu, float sigma) {
         this.mu = mu;
         this.sigma = sigma;
     }
 
-    public Float get(Float x) {
+    public float get(float x) {
         final float c = (float) Math.sqrt(2.0 * Math.PI);
         float a = 1.0f / (this.sigma * c);
         float b = (x - this.mu) / this.sigma;

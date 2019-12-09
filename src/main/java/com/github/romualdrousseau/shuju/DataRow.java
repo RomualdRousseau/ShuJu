@@ -16,11 +16,15 @@ public class DataRow {
     }
 
     public Vector featuresAsOneVector() {
-        Vector result = new Vector(0);
-        for(int i = 0; i < this.features.size(); i++) {
-            result = result.concat(this.features.get(i));
+        if (this.features.size() == 1) {
+            return this.features.get(0);
+        } else {
+            Vector result = new Vector(0);
+            for (int i = 0; i < this.features.size(); i++) {
+                result = result.concat(this.features.get(i));
+            }
+            return result;
         }
-        return result;
     }
 
     public DataRow addFeature(Vector feature) {
@@ -39,7 +43,7 @@ public class DataRow {
 
     public boolean hasSameFeatures(DataRow other) {
         boolean result = this.features.size() == other.features.size();
-        for(int i = 0; i < this.features.size() && result; i++) {
+        for (int i = 0; i < this.features.size() && result; i++) {
             result &= this.features.get(i).equals(other.features.get(i));
         }
         return result;

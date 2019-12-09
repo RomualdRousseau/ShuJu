@@ -681,6 +681,19 @@ public class Matrix {
         return result;
     }
 
+    public Matrix concat(Vector v) {
+        assert (this.rows == v.rowCount());
+
+        Matrix result = new Matrix(this.rows, this.cols + 1);
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                result.data[i][j] = this.data[i][j];
+            }
+            result.data[i][this.cols] = v.get(i);
+        }
+        return result;
+    }
+
     public Matrix concat(Matrix m) {
         assert (this.rows == m.rows);
 
