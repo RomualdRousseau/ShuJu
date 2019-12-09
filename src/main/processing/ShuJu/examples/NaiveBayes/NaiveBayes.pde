@@ -27,73 +27,64 @@ import com.github.romualdrousseau.shuju.ml.naivebayes.*;
 import com.github.romualdrousseau.shuju.ml.nn.scheduler.*;
 import com.github.romualdrousseau.shuju.ml.slr.*;
 
-Model model;
-Optimizer optimizer;
-Loss loss;
+DataSet dataset;
+PImage domain;
 
-Matrix[] inputs = {
-  new Matrix(new float[] {0, 0}),
-  new Matrix(new float[] {0, 1}),
-  new Matrix(new float[] {1, 0}),
-  new Matrix(new float[] {1, 1})
-};
+int getClassColor(Vector y) {
+  switch(y.argmax()) {
+  case 0:
+    return color(255, 0, 0);
+  case 1:
+    return color(0, 255, 0);
+  case 2:
+    return color(0, 0, 255);
+  case 3:
+    return color(255, 255, 0);
+  case 4:
+    return color(0, 255, 255);
+  case 5:
+    return color(255, 0, 255);
+  default:
+    return color(51, 51, 51);
+  }
+}
 
-Matrix[] targets = {
-  new Matrix(new float[] {0}),
-  new Matrix(new float[] {1}),
-  new Matrix(new float[] {1}),
-  new Matrix(new float[] {0})
-};
+void demo() {
+  dataset = DataSet.makeBlobs(1000, 2, 5);
+
+  com.github.romualdrousseau.shuju.ml.naivebayes.NaiveBayes nbc = new com.github.romualdrousseau.shuju.ml.naivebayes.NaiveBayes();
+  nbc.fit(dataset.featuresAsVectorArray(), dataset.labelsAsVectorArray());
+
+  domain = new PImage(width, height);
+  domain.loadPixels();
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      Vector yt = nbc.predict(new Vector(new float[]{ map(x, 0, width, -10, 10), map(y, 0, height, -10, 10) }));
+      domain.pixels[y * width + x] = getClassColor(yt);
+    }
+  }
+  domain.updatePixels();
+}
 
 void setup() {
-  size(400, 400, P2D);
-
-  model = new Model();
-
-  model.add(new LayerBuilder()
-    .setInputUnits(2)
-    .setUnits(4)
-    .setActivation(new Tanh())
-    .setInitializer(new GlorotUniformInitializer()).build());
-
-  model.add(new LayerBuilder()
-    .setInputUnits(4)
-    .setUnits(1)
-    .setActivation(new Linear())
-    .setInitializer(new GlorotUniformInitializer()).build());
-
-  optimizer = new OptimizerRMSPropBuilder().build(model);
-
-  loss = new Loss(new Huber());
+  size(800, 800);
+  demo();
 }
 
 void draw() {
-  final int r = 100;
-  final int w = width / r;
-  final int h = height / r;
+  background(51);
 
-  for (int i = 0; i < 5; i++) {
-
-    optimizer.zeroGradients();
-
-    for(int j = 0; j < 4; j++) {
-      loss.loss(model.model(inputs[j]), targets[j]).backward();
-    }
-
-    optimizer.step();
+  for (DataRow row : dataset.rows()) {
+    fill(getClassColor(row.label()));
+    float x = map(row.features().get(0).get(0), -10, 10, 0, width);
+    float y = map(row.features().get(0).get(1), -10, 10, 0, height);
+    circle(x, y, 10);
   }
 
-  background(0);
-  noStroke();
-  for (int i = 0; i <= r; i++) {
-    for (int j = 0; j <= r; j++) {
-      Matrix input = new Matrix(new float[] {(float) i / (float) r, (float) j / (float) r});
-      fill(model.model(input).detachAsVector().get(0) * 255);
-      rect(j * w, i * h, w, h);
-    }
-  }
+  tint(255, 126);
+  image(domain, 0, 0);
 }
 
 void keyPressed() {
-  model.reset();
+  demo();
 }

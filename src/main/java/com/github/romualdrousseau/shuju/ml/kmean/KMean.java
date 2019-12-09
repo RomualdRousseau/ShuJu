@@ -7,41 +7,46 @@ import com.github.romualdrousseau.shuju.math.Vector;
 public class KMean {
     public KMean(int k) {
         this.k = k;
+        this.initialized = false;
     }
 
-    public void initializer(Matrix[] data) {
-        this.weights = new Matrix(data[0].rowCount(), 0);
+    public void fit(final Vector[] inputs, final Vector[] targets) {
+        if (!this.initialized) {
+            this.initializer(inputs);
+            this.initialized = true;
+        }
+        this.expectation(inputs, targets);
+        this.maximation(inputs, targets);
+    }
+
+    public Vector predict(final Vector input) {
+        return this.weights.copy().map(MSE, new Matrix(input)).flatten().sqrt().mult(-1).exp().transpose().toVector(0);
+    }
+
+    private void initializer(Vector[] inputs) {
+        this.weights = new Matrix(inputs[0].rowCount(), 0);
         for (int j = 0; j < this.k; j++) {
-            int n = (int) Math.floor(Math.random() * data.length);
-            this.weights = this.weights.concat(data[n]);
+            int n = (int) Math.floor(Math.random() * inputs.length);
+            this.weights = this.weights.concat(inputs[n]);
         }
     }
 
-    public Matrix predict(Matrix data) {
-        return this.weights.copy().map(MSE, data).flatten().sqrt().mult(-1).exp().transpose();
-    }
-
-    public void fit(Matrix[] data, Matrix[] labels) {
-        expectation(data, labels);
-        maximation(data, labels);
-    }
-
-    private void expectation(Matrix[] data, Matrix[] labels) {
-        for (int i = 0; i < data.length; i++) {
-            labels[i] = new Matrix(
-                    new Vector(this.k).oneHot(this.weights.copy().map(MSE, data[i]).flatten().transpose().argmin(0)));
+    private void expectation(Vector[] inputs, Vector[] labels) {
+        for (int i = 0; i < inputs.length; i++) {
+            labels[i] = new Vector(this.k)
+                    .oneHot(this.weights.copy().map(MSE, new Matrix(inputs[i])).flatten().transpose().argmin(0));
         }
     }
 
-    private void maximation(Matrix[] data, Matrix[] labels) {
+    private void maximation(Vector[] inputs, Vector[] labels) {
         this.weights = new Matrix(this.weights.rowCount(), 0);
 
         for (int j = 0; j < this.k; j++) {
-            Matrix sum = new Matrix(this.weights.rowCount(), 1, 0);
+            Vector sum = new Vector(this.weights.rowCount());
             float count = 0;
-            for (int i = 0; i < data.length; i++) {
-                if (labels[i].argmax(0) == j) {
-                    sum.add(data[i]);
+            for (int i = 0; i < inputs.length; i++) {
+                if (labels[i].argmax() == j) {
+                    sum.add(inputs[i]);
                     count++;
                 }
             }
@@ -59,4 +64,5 @@ public class KMean {
 
     private Matrix weights;
     private int k = 3;
+    private boolean initialized;
 }

@@ -5,6 +5,7 @@ import com.github.romualdrousseau.shuju.math.Vector;
 
 public class SLR {
     public void fit(final Vector[] inputs, final Vector[] targets) {
+        assert (inputs.length == targets.length);
         Matrix m1 = new Matrix(inputs);
         Matrix m2 = new Matrix(targets);
         Matrix m3 = m1.cov(m2).div(m1.var());

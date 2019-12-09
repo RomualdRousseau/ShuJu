@@ -9,6 +9,7 @@ public class KNN {
     }
 
     public void fit(final Vector[] inputs, final Vector[] targets) {
+        assert (inputs.length == targets.length);
         this.inputs = inputs;
         this.targets = targets;
     }

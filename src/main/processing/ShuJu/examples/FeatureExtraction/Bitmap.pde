@@ -1,4 +1,4 @@
-class Bitmap extends ISearchBitmap
+class Bitmap implements ISearchBitmap
 {
   public Bitmap(PImage image) {
     this.image = image;
@@ -28,6 +28,10 @@ class Bitmap extends ISearchBitmap
       else {
           this.image.pixels[y * this.image.width + x] = 0xFFFFFFFF;
       }
+  }
+
+  public ISearchBitmap clone() {
+    return new Bitmap(this.image);
   }
 
   private PImage image;
