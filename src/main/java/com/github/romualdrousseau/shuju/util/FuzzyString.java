@@ -5,6 +5,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FuzzyString {
+    public static float Hamming(String s, String t) {
+        if(s.length() != t.length()) {
+            return 0.0f;
+        }
+
+        if (s.length() == 0) {
+            return 0.0f;
+        }
+
+        int n = 0;
+        for(int i = 0; i < s.length(); i++) {
+            if(s.charAt(i) == t.charAt(i)) {
+                n++;
+            }
+        }
+        return Float.valueOf(n) / Float.valueOf(s.length());
+    }
     public static float JaroWinkler(String s, String t) {
         int s_len = s.length();
         int t_len = t.length();
