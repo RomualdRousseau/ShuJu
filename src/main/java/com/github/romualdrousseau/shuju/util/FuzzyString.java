@@ -20,7 +20,7 @@ public class FuzzyString {
                 n++;
             }
         }
-        return Float.valueOf(n) / Float.valueOf(s.length());
+        return (float) Math.exp(n - s.length());
     }
     public static float JaroWinkler(String s, String t) {
         int s_len = s.length();

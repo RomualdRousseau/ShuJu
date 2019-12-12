@@ -89,7 +89,7 @@ public class Vector {
     public float sparsity() {
         int count = 0;
         for (int i = 0; i < this.rows; i++) {
-            count += (this.data[i] == 0.0) ? 1 : 0;
+            count += (this.data[i] == 0.0f) ? 1 : 0;
         }
         return (float) count / (float) this.rows;
     }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,9 +15,6 @@ import com.github.romualdrousseau.shuju.math.Vector;
 import com.github.romualdrousseau.shuju.util.StringUtility;
 
 public class RegexList implements BaseList {
-    private ArrayList<String> types = new ArrayList<String>();
-    private HashMap<String, String> patterns = new HashMap<String, String>();
-    private int vectorSize = 0;
 
     public RegexList(int vectorSize) {
         this.vectorSize = vectorSize;
@@ -31,6 +29,11 @@ public class RegexList implements BaseList {
         this.vectorSize = vectorSize;
         this.types.addAll(Arrays.asList(types));
         this.patterns.putAll(patterns);
+
+        for (String regex : this.patterns.keySet()) {
+            Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            this.compiledPatterns.put(regex, p);
+        }
     }
 
     public RegexList(JSONObject json) {
@@ -45,9 +48,14 @@ public class RegexList implements BaseList {
         JSONArray jsonPatterns = json.getJSONArray("patterns");
         for (int i = 0; i < jsonPatterns.size(); i++) {
             JSONObject entity = jsonPatterns.getJSONObject(i);
-            String p = entity.getString("pattern");
-            String t = entity.getString("type");
-            this.patterns.put(p, t);
+            String regex = entity.getString("pattern");
+            String type = entity.getString("type");
+            this.patterns.put(regex, type);
+        }
+
+        for (String regex : this.patterns.keySet()) {
+            Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            this.compiledPatterns.put(regex, p);
         }
     }
 
@@ -78,9 +86,11 @@ public class RegexList implements BaseList {
         return this;
     }
 
-    public RegexList addPattern(String pattern, String regex) {
-        assert this.types.indexOf(regex) > 0;
-        this.patterns.put(pattern, regex);
+    public RegexList addPattern(String regex, String type) {
+        assert this.types.indexOf(type) > 0;
+        this.patterns.put(regex, type);
+        Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        this.compiledPatterns.put(regex, p);
         return this;
     }
 
@@ -96,9 +106,9 @@ public class RegexList implements BaseList {
         }
 
         result = w;
-        for (String pattern : this.patterns.keySet()) {
-            Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-            result = p.matcher(result).replaceAll(this.patterns.get(pattern));
+        for (Entry<String, Pattern> pattern : this.compiledPatterns.entrySet()) {
+            Matcher m = pattern.getValue().matcher(w);
+            result = m.replaceAll(this.patterns.get(pattern.getKey()));
         }
 
         return result;
@@ -111,9 +121,8 @@ public class RegexList implements BaseList {
             return result;
         }
 
-        for (String pattern : this.patterns.keySet()) {
-            Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-            Matcher m = p.matcher(w);
+        for (Entry<String, Pattern> pattern : this.compiledPatterns.entrySet()) {
+            Matcher m = pattern.getValue().matcher(w);
             if (m.find()) {
                 result = m.group(0);
             }
@@ -129,10 +138,10 @@ public class RegexList implements BaseList {
             return result;
         }
 
-        for (String pattern : this.patterns.keySet()) {
-            Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-            if (p.matcher(w).find()) {
-                result.set(this.ordinal(this.patterns.get(pattern)), 1.0f);
+        for (Entry<String, Pattern> pattern : this.compiledPatterns.entrySet()) {
+            Matcher m = pattern.getValue().matcher(w);
+            if (m.find()) {
+                result.set(this.ordinal(this.patterns.get(pattern.getKey())), 1.0f);
             }
         }
 
@@ -165,4 +174,9 @@ public class RegexList implements BaseList {
     public String toString() {
         return this.types.toString();
     }
+
+    private ArrayList<String> types = new ArrayList<String>();
+    private HashMap<String, String> patterns = new HashMap<String, String>();
+    private HashMap<String, Pattern> compiledPatterns = new HashMap<String, Pattern>();
+    private int vectorSize = 0;
 }
