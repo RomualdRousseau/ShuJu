@@ -14,6 +14,8 @@ import static org.hamcrest.Matchers.*;
 
 import com.github.romualdrousseau.shuju.columns.NumericColumn;
 import com.github.romualdrousseau.shuju.columns.StringColumn;
+import com.github.romualdrousseau.shuju.math.Linalg;
+import com.github.romualdrousseau.shuju.math.Matrix;
 import com.github.romualdrousseau.shuju.math.Vector;
 import com.github.romualdrousseau.shuju.transforms.*;
 import com.github.romualdrousseau.shuju.ml.knn.*;
@@ -22,6 +24,44 @@ import com.github.romualdrousseau.shuju.nlp.StringList;
 import com.github.romualdrousseau.shuju.util.*;
 
 public class AppTest {
+    @Test
+    public void testMinorAndDet() {
+        Matrix M1 = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
+        Matrix M2 = new Matrix(new float[][] { { 5, 6 }, { 8, 1 } });
+        assertTrue(M1.minor(0, 0).equals(M2));
+        assertEquals(M1.det(), 25, 0);
+    }
+
+    @Test
+    public void testInverseMatrix() {
+        Matrix M1 = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
+        Matrix M2 = new Matrix(new float[][] { { -1.72f, 0.2f, 0.52f }, { 1.52f, -0.2f, -0.32f }, { -0.12f, 0.2f, -0.08f } });
+        Matrix M3 = M1.inv();
+        assertTrue(M3.equals(M2, 1e-2f));
+        assertTrue(M1.cof().transpose().mult(1.0f / M1.det()).equals(M3, 1e-2f));
+        assertTrue(M1.adj().mult(1.0f / M1.det()).equals(M3, 1e-2f));
+        assertTrue(Linalg.Solve(M1, new Matrix(3, 3).identity()).equals(M3, 1e-2f));
+    }
+
+    @Test
+    public void testLinalgSolve() {
+        Matrix M1 = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
+        Matrix M2 = new Matrix(new float[] { 3, 5, 6 });
+        Matrix M3 = Linalg.Solve(M1, M2);
+        assertTrue(M1.transform(M3).equals(M2, 1e-2f));
+    }
+
+    @Test
+    public void testLinalgQR() {
+        Matrix M = new Matrix(new float[][] { { 12, -51, 4 }, { 6, 167, -68 }, { -4, 24, -41 }, { -5, 25, -42 } });
+        Matrix[] tmp = Linalg.QR(M);
+        Matrix R = tmp[0];
+        Matrix Q = tmp[1];
+        assertTrue(R.isUpper(1e-2f));
+        assertTrue(Q.transpose().equals(Q.inv(), 1e-2f));
+        assertTrue(Q.transform(R).equals(M, 1e-2f));
+    }
+
     @Test
     public void testFuzzyString() {
         assertThat(FuzzyString.Jaccard("MATERIAL CODE", "MATERIAL CODE"), is(greaterThanOrEqualTo(0.8f)));
