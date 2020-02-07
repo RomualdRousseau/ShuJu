@@ -76,6 +76,18 @@ public class Matrix {
         }
     }
 
+    public Matrix(Vector v, int cols) {
+        this.rows = v.rowCount() / cols;
+        this.cols = cols;
+        this.data = new float[this.rows][this.cols];
+        int vi = 0;
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                this.data[i][j] = v.get(vi++);
+            }
+        }
+    }
+
     public Matrix(Vector[] v) {
         this.rows = v.length;
         this.cols = v[0].rowCount();
@@ -143,6 +155,73 @@ public class Matrix {
             result &= Arrays.equals(a, b);
         }
         return result;
+    }
+
+    public boolean equals(final Matrix m, final float e) {
+        boolean result = this.rows == m.rows && this.cols == m.cols;
+        for (int i = 0; i < this.rows && result; i++) {
+            float[] a = this.data[i];
+            float[] b = m.data[i];
+            for (int j = 0; j < this.cols; j++) {
+                result &= Math.abs(a[j] - b[j]) < e;
+            }
+        }
+        return result;
+    }
+
+    public boolean isUpper(final float e) {
+        assert(this.cols <= this.rows);
+
+        for (int i = 0; i < this.cols; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                if (j < i && Math.abs(this.data[i][j]) >= e) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean isLower(final float e) {
+        assert(this.cols <= this.rows);
+
+        for (int i = 0; i < this.cols; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                if (j > i && Math.abs(this.data[i][j]) >= e) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean isDiagonal(final float e) {
+        assert(this.cols <= this.rows);
+
+        for (int i = 0; i < this.cols; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                if (j != i && Math.abs(this.data[i][j]) >= e) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public float det() {
+        assert (this.rows == this.cols);
+
+        if (this.rows == 2) {
+            return this.data[0][0] * this.data[1][1] - this.data[0][1] * this.data[1][0];
+        } else {
+            float sum = 0.0f;
+            float a = 1.0f;
+            for (int j = 0; j < this.cols; j++) {
+                sum += a * this.data[0][j] * this.minor(0, j).det();
+                a *= -1.0f;
+            }
+            return sum;
+        }
     }
 
     public float sparsity() {
@@ -713,11 +792,7 @@ public class Matrix {
         Matrix result = new Matrix(this.rows, this.rows);
         if (this.rows == this.cols) {
             for (int i = 0; i < this.rows; i++) {
-                float[] a = this.data[i];
-                float[] b = result.data[i];
-                for (int j = 0; j < this.cols; j++) {
-                    b[j] = a[j];
-                }
+                System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
             }
         } else if (diagonal) {
             for (int i = 0; i < this.rows; i++) {
@@ -821,6 +896,84 @@ public class Matrix {
         return result;
     }
 
+    public Matrix minor(int y, int x) {
+        Matrix result = new Matrix(this.rows - 1, this.cols - 1);
+        for (int i = 0; i < result.rows; i++) {
+            for (int j = 0; j < result.cols; j++) {
+                if (i < y) {
+                    if (j < x) {
+                        result.data[i][j] = this.data[i][j];
+                    } else {
+                        result.data[i][j] = this.data[i][j + 1];
+                    }
+                } else {
+                    if (j < x) {
+                        result.data[i][j] = this.data[i + 1][j];
+                    } else {
+                        result.data[i][j] = this.data[i + 1][j + 1];
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public Matrix cof() {
+        Matrix result = new Matrix(this.rows, this.cols);
+        float b = 1.0f;
+        for (int i = 0; i < result.rows; i++) {
+            float a = b;
+            for (int j = 0; j < result.cols; j++) {
+                result.data[i][j] = a * this.minor(i, j).det();
+                a *= -1.0;
+            }
+            b *= -1.0;
+        }
+        return result;
+    }
+
+    public Matrix adj() {
+        Matrix result = new Matrix(this.cols, this.rows);
+        float b = 1.0f;
+        for (int i = 0; i < result.rows; i++) {
+            float a = b;
+            for (int j = 0; j < result.cols; j++) {
+                result.data[i][j] = a * this.minor(j, i).det();
+                a *= -1.0;
+            }
+            b *= -1.0;
+        }
+        return result;
+    }
+
+    public Matrix inv() {
+        final float d = this.det();
+        assert (d != 0.0f);
+
+        Matrix result = new Matrix(this.rows, this.cols);
+        float b = 1.0f / d;
+        for (int i = 0; i < result.rows; i++) {
+            float a = b;
+            for (int j = 0; j < result.cols; j++) {
+                result.data[i][j] = a * this.minor(j, i).det();
+                a *= -1.0f;
+            }
+            b *= -1.0f;
+        }
+        return result;
+    }
+
+    public Vector toVector() {
+        Vector result = new Vector(this.rows * this.cols);
+        int vi = 0;
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                result.set(vi++, this.data[i][j]);
+            }
+        }
+        return result;
+    }
+
     public Vector toVector(int col) {
         Vector result = new Vector(this.rows);
         for (int i = 0; i < this.rows; i++) {
@@ -839,9 +992,9 @@ public class Matrix {
             float[] a = this.data[i];
             result.append("| ");
             for (int j = 0; j < this.cols - 1; j++) {
-                result.append(String.format("%.5f\t", a[j]));
+                result.append(String.format("%.2f\t", a[j]));
             }
-            result.append(String.format("%.5f", a[this.cols - 1]));
+            result.append(String.format("%.2f", a[this.cols - 1]));
             result.append(" |").append(System.lineSeparator());
         }
 
