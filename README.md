@@ -2,11 +2,34 @@
 
 This project aims to collect and implement various statistics and machine learning algorithms. So far, the following algorithms have been implemented:
 
-	* Artificial Neural Network (back propagation)
+    * Math library
+        * Scalar
+        * Vector
+        * Natrix
+        * Linear Algebra algorithms (QR, HouseGHolder, Linear Solve)
+	* Artificial Neural Network
+        * Full connected multiple layers
+        * Gradient descent back propagation
+        * Activation functions (LeakyRelu, Linaer, Relu, Sigmoid, Softmax, Tanh)
+        * Loss function (Huber, MeanSquare, SoftmaxCrossEntropy)
+        * Initializers (Glorot, He, Lecun)
+        * Normalizers (Batch, L2)
+        * Optimizers (Adam, RMSProp, Sgd)
+        * SChedulers (Exponential)
+    * Kmean
 	* K-Nearest Neighbor
+    * Naive Bayes
 	* Simple Linear Regression
-	* Decision Tree
-	* DataSet management with transformation framework such as normalization, standardization ...
+    * NLP
+        * Tokenizers (ngram, shingle)
+        * Word to vect ()
+    * CV
+        * Image convolution filter
+        * Shape extractors (rectangle by hough transformation)
+    * Genetic
+        * Pool with selection
+        * Mutation interface
+    * DataSet management with transformation framework such as normalization, standardization ...
 
 ## Project Documentation
 https://romualdrousseau.github.io/ShuJu/
