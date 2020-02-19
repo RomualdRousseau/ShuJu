@@ -51,6 +51,7 @@ public class AppTest {
         assertTrue(M1.transform(M3).equals(M2, 1e-2f));
     }
 
+
     @Test
     public void testLinalgQR() {
         Matrix M = new Matrix(new float[][] { { 12, -51, 4 }, { 6, 167, -68 }, { -4, 24, -41 }, { -5, 25, -42 } });
@@ -60,6 +61,27 @@ public class AppTest {
         assertTrue(R.isUpper(1e-2f));
         assertTrue(Q.transpose().equals(Q.inv(), 1e-2f));
         assertTrue(Q.transform(R).equals(M, 1e-2f));
+    }
+
+    @Test
+    public void testLinalgCholesky() {
+        Matrix M = new Matrix(new float[][] { { 6, 3, 4, 8 }, { 3, 6, 5, 1 }, { 4, 5, 10, 7 }, { 8, 1, 7, 25 } });
+        Matrix L = Linalg.Cholesky(M);
+        Matrix U = L.transpose();
+        assertTrue(L.isLower(1e-2f));
+        assertTrue(U.isUpper(1e-2f));
+        assertTrue(L.transform(U).equals(M, 1e-2f));
+    }
+
+    @Test
+    public void testLinalgLU() {
+        Matrix M = new Matrix(new float[][] { { 7, 3, -1, 2 }, { 3, 8, 1, -4 }, { -1, 1, 4, -1 }, { 2, -4, -1, 6 } });
+        Matrix[] tmp = Linalg.LU(M);
+        Matrix L = tmp[0];
+        Matrix U = tmp[1];
+        assertTrue(L.isLower(1e-2f));
+        assertTrue(U.isUpper(1e-2f));
+        assertTrue(L.transform(U).equals(M, 1e-2f));
     }
 
     @Test

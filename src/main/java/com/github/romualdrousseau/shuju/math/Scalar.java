@@ -11,6 +11,10 @@ public class Scalar {
         Scalar.randomGenerator = new Random(System.currentTimeMillis());
     }
 
+    public static float sign(float x) {
+        return x >= 0 ? 1.0f : -1.0f;
+    }
+
     public static float abs(float x) {
         return (float) Math.abs(x);
     }
