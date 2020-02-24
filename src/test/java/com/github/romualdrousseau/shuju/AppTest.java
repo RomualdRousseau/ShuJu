@@ -56,8 +56,8 @@ public class AppTest {
     public void testLinalgQR() {
         Matrix M = new Matrix(new float[][] { { 12, -51, 4 }, { 6, 167, -68 }, { -4, 24, -41 }, { -5, 25, -42 } });
         Matrix[] tmp = Linalg.QR(M);
-        Matrix R = tmp[0];
-        Matrix Q = tmp[1];
+        Matrix Q = tmp[0];
+        Matrix R = tmp[1];
         assertTrue(R.isUpper(1e-2f));
         assertTrue(Q.transpose().equals(Q.inv(), 1e-2f));
         assertTrue(Q.transform(R).equals(M, 1e-2f));
@@ -82,6 +82,16 @@ public class AppTest {
         assertTrue(L.isLower(1e-2f));
         assertTrue(U.isUpper(1e-2f));
         assertTrue(L.transform(U).equals(M, 1e-2f));
+    }
+
+    @Test
+    public void testLinalgEig() {
+        // Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
+        Matrix M = new Matrix(new float[][] { { 1.25f, 0.18f, 0.18f }, { 0.18f, 0.97f, 0.07f }, { 0.18f, 0.07f, 0.91f } });
+        Matrix[] tmp = Linalg.Eig(M);
+        System.out.println(tmp[0]);
+        System.out.println(tmp[1]);
+        assertTrue(true);
     }
 
     @Test

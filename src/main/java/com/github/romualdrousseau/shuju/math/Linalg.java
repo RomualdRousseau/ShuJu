@@ -3,6 +3,8 @@ package com.github.romualdrousseau.shuju.math;
 public class Linalg {
 
     public static Matrix Solve(Matrix m, Matrix y) {
+        assert (m.isSquared());
+
         Matrix result = new Matrix(y.rowCount(), y.colCount());
 
         Matrix q = m.concat(y);
@@ -75,13 +77,11 @@ public class Linalg {
             Q = Q.transform(tmp, false, true);
         }
 
-        return new Matrix[] { R, Q };
+        return new Matrix[] { Q, R };
     }
 
     public static Matrix Cholesky(Matrix m) {
-        if(!m.equals(m.transpose())) {
-            throw new IllegalArgumentException("M must be symetric.");
-        }
+        assert (m.equals(m.transpose()));
 
         Matrix result = m.copy().zero();
 
@@ -97,7 +97,7 @@ public class Linalg {
 
                 float a = m_ik - sum;
 
-                if(i == k) {
+                if (i == k) {
                     r_data[i][k] = Scalar.sqrt(a);
                 } else {
                     r_data[i][k] = 1.0f / r_data[k][k] * a;
@@ -116,18 +116,18 @@ public class Linalg {
         float[][] M_data = m.getFloats();
         float[][] L_data = L.getFloats();
         float[][] U_data = U.getFloats();
-        for(int j = 0; j < n; j++) {
-            for(int i = 0; i <= j; i++) {
+        for (int j = 0; j < n; j++) {
+            for (int i = 0; i <= j; i++) {
                 float s1 = 0.0f;
-                for(int k = 0; k < i; k++) {
+                for (int k = 0; k < i; k++) {
                     s1 += U_data[k][j] * L_data[i][k];
                 }
                 U_data[i][j] = M_data[i][j] - s1;
             }
 
-            for(int i = j; i < n; i++) {
+            for (int i = j; i < n; i++) {
                 float s2 = 0.0f;
-                for(int k = 0; k < j; k++) {
+                for (int k = 0; k < j; k++) {
                     s2 += U_data[k][j] * L_data[i][k];
                 }
                 L_data[i][j] = (M_data[i][j] - s2) / U_data[j][j];
@@ -135,5 +135,16 @@ public class Linalg {
         }
 
         return new Matrix[] { L, U };
+    }
+
+    public static Matrix[] Eig(Matrix m) {
+        Matrix values = m;
+        Matrix vectors = m.copy().identity();
+        while (!values.isDiagonal(1e-2f)) {
+            Matrix[] tmp = Linalg.QR(values);
+            vectors = vectors.transform(tmp[0]);
+            values = tmp[1].transform(tmp[0]);
+        }
+        return new Matrix[] { values, vectors };
     }
 }

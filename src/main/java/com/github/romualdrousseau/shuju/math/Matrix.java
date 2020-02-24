@@ -140,9 +140,7 @@ public class Matrix {
     }
 
     public Matrix set(int row, Vector v) {
-        if (this.cols != v.rowCount()) {
-            throw new IllegalArgumentException("column of A must match cardinality of B.");
-        }
+        assert (this.cols == v.rowCount());
         this.data[row] = v.getFloats();
         return this;
     }
@@ -206,6 +204,10 @@ public class Matrix {
             }
         }
         return true;
+    }
+
+    public boolean isSquared() {
+        return this.rows == this.cols;
     }
 
     public float det() {
