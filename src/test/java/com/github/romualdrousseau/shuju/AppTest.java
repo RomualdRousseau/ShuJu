@@ -35,7 +35,8 @@ public class AppTest {
     @Test
     public void testInverseMatrix() {
         Matrix M1 = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
-        Matrix M2 = new Matrix(new float[][] { { -1.72f, 0.2f, 0.52f }, { 1.52f, -0.2f, -0.32f }, { -0.12f, 0.2f, -0.08f } });
+        Matrix M2 = new Matrix(
+                new float[][] { { -1.72f, 0.2f, 0.52f }, { 1.52f, -0.2f, -0.32f }, { -0.12f, 0.2f, -0.08f } });
         Matrix M3 = M1.inv();
         assertTrue(M3.equals(M2, 1e-2f));
         assertTrue(M1.cof().transpose().mult(1.0f / M1.det()).equals(M3, 1e-2f));
@@ -50,7 +51,6 @@ public class AppTest {
         Matrix M3 = Linalg.Solve(M1, M2);
         assertTrue(M1.transform(M3).equals(M2, 1e-2f));
     }
-
 
     @Test
     public void testLinalgQR() {
@@ -86,12 +86,13 @@ public class AppTest {
 
     @Test
     public void testLinalgEig() {
-        // Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
-        Matrix M = new Matrix(new float[][] { { 1.25f, 0.18f, 0.18f }, { 0.18f, 0.97f, 0.07f }, { 0.18f, 0.07f, 0.91f } });
-        Matrix[] tmp = Linalg.Eig(M);
-        System.out.println(tmp[0]);
-        System.out.println(tmp[1]);
-        assertTrue(true);
+        Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
+        Matrix[] tmp = Linalg.Eig(M, 1e-4f);
+        for (int i = 0; i < tmp[0].rowCount(); i++) {
+            float l = tmp[0].get(i, i);
+            Vector v = tmp[1].toVector(i);
+            assertTrue(v.transform(M).equals(v.mult(l), 1e-1f));
+        }
     }
 
     @Test

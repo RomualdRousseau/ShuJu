@@ -7,8 +7,8 @@ import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
 public class Vector {
-    private int rows;
-    private float[] data;
+    protected int rows;
+    protected float[] data;
 
     public static final Vector Null = new Vector(0);
 
@@ -80,6 +80,16 @@ public class Vector {
 
     public boolean equals(final Vector v) {
         return this.rows == v.rows && Arrays.equals(this.data, v.data);
+    }
+
+    public boolean equals(final Vector v, final float e) {
+        boolean result = this.rows == v.rows;
+        for (int i = 0; i < this.rows && result; i++) {
+            float a = this.data[i];
+            float b = v.data[i];
+            result &= Math.abs(a - b) < e;
+        }
+        return result;
     }
 
     public float isSimilar(final Vector v) {
@@ -462,6 +472,22 @@ public class Vector {
         return result;
     }
 
+    public Vector transform(Matrix m) {
+        assert (this.rows == m.cols);
+
+        Vector result = new Vector(m.rows, 0.0f);
+        for (int i = 0; i < result.rows; i++) {
+            float c = 0.0f;
+            for (int k = 0; k < m.colCount(); k++) {
+                float a = m.data[i][k];
+                float b = this.data[k];
+                c += a * b;
+            }
+            result.data[i] = c;
+        }
+        return result;
+    }
+
     public String toString() {
         if (this.rows == 0) {
             return "||";
@@ -470,7 +496,7 @@ public class Vector {
         StringBuilder result = new StringBuilder();
         result.append("| ");
         for (int i = 0; i < this.rows; i++) {
-            result.append(String.format("%.5f\t", this.data[i]));
+            result.append(String.format("%.2f\t", this.data[i]));
         }
         result.append(" |").append(System.lineSeparator());
         ;

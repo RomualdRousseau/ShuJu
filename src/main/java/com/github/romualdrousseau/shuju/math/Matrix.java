@@ -7,9 +7,9 @@ import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
 public class Matrix {
-    private int rows;
-    private int cols;
-    private float[][] data;
+    protected int rows;
+    protected int cols;
+    protected float[][] data;
 
     public Matrix(int rows, int cols) {
         this.rows = rows;
@@ -68,32 +68,32 @@ public class Matrix {
     }
 
     public Matrix(Vector v) {
-        this.rows = v.rowCount();
+        this.rows = v.rows;
         this.cols = 1;
         this.data = new float[this.rows][this.cols];
         for (int i = 0; i < this.rows; i++) {
-            this.data[i][0] = v.get(i);
+            this.data[i][0] = v.data[i];
         }
     }
 
     public Matrix(Vector v, int cols) {
-        this.rows = v.rowCount() / cols;
+        this.rows = v.rows / cols;
         this.cols = cols;
         this.data = new float[this.rows][this.cols];
         int vi = 0;
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.cols; j++) {
-                this.data[i][j] = v.get(vi++);
+                this.data[i][j] = v.data[vi++];
             }
         }
     }
 
     public Matrix(Vector[] v) {
         this.rows = v.length;
-        this.cols = v[0].rowCount();
+        this.cols = v[0].rows;
         this.data = new float[this.rows][this.cols];
         for (int i = 0; i < this.rows; i++) {
-            System.arraycopy(v[i].getFloats(), 0, this.data[i], 0, this.cols);
+            System.arraycopy(v[i].data, 0, this.data[i], 0, this.cols);
         }
     }
 
@@ -140,8 +140,8 @@ public class Matrix {
     }
 
     public Matrix set(int row, Vector v) {
-        assert (this.cols == v.rowCount());
-        this.data[row] = v.getFloats();
+        assert (this.cols == v.rows);
+        this.data[row] = v.data;
         return this;
     }
 
@@ -160,7 +160,7 @@ public class Matrix {
         for (int i = 0; i < this.rows && result; i++) {
             float[] a = this.data[i];
             float[] b = m.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.cols && result; j++) {
                 result &= Math.abs(a[j] - b[j]) < e;
             }
         }
@@ -168,8 +168,9 @@ public class Matrix {
     }
 
     public boolean isUpper(final float e) {
-        assert(this.cols <= this.rows);
-
+        if (this.cols > this.rows) {
+            return false;
+        }
         for (int i = 0; i < this.cols; i++) {
             for (int j = 0; j < this.cols; j++) {
                 if (j < i && Math.abs(this.data[i][j]) >= e) {
@@ -181,8 +182,9 @@ public class Matrix {
     }
 
     public boolean isLower(final float e) {
-        assert(this.cols <= this.rows);
-
+        if (this.cols > this.rows) {
+            return false;
+        }
         for (int i = 0; i < this.cols; i++) {
             for (int j = 0; j < this.cols; j++) {
                 if (j > i && Math.abs(this.data[i][j]) >= e) {
@@ -194,8 +196,9 @@ public class Matrix {
     }
 
     public boolean isDiagonal(final float e) {
-        assert(this.cols <= this.rows);
-
+        if (this.cols > this.rows) {
+            return false;
+        }
         for (int i = 0; i < this.cols; i++) {
             for (int j = 0; j < this.cols; j++) {
                 if (j != i && Math.abs(this.data[i][j]) >= e) {
@@ -208,6 +211,20 @@ public class Matrix {
 
     public boolean isSquared() {
         return this.rows == this.cols;
+    }
+
+    public boolean isSymetric() {
+        if (this.rows != this.cols) {
+            return false;
+        }
+        for (int i = 0; i < this.cols; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                if (this.data[i][j] != this.data[j][i]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public float det() {
@@ -757,20 +774,28 @@ public class Matrix {
     public Matrix copy() {
         Matrix result = new Matrix(this.rows, this.cols);
         for (int i = 0; i < result.rows; i++) {
-            System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
+            System.arraycopy(this.data[i], 0, result.data[i], 0, result.cols);
+        }
+        return result;
+    }
+
+    public Matrix copy(int y, int x) {
+        Matrix result = new Matrix(this.rows - y, this.cols - x);
+        for (int i = y; i < this.rows; i++) {
+            System.arraycopy(this.data[i], x, result.data[i - y], 0, result.rows);
         }
         return result;
     }
 
     public Matrix concat(Vector v) {
-        assert (this.rows == v.rowCount());
+        assert (this.rows == v.rows);
 
         Matrix result = new Matrix(this.rows, this.cols + 1);
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.cols; j++) {
                 result.data[i][j] = this.data[i][j];
             }
-            result.data[i][this.cols] = v.get(i);
+            result.data[i][this.cols] = v.data[i];
         }
         return result;
     }
@@ -970,7 +995,7 @@ public class Matrix {
         int vi = 0;
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.cols; j++) {
-                result.set(vi++, this.data[i][j]);
+                result.data[vi++] = this.data[i][j];
             }
         }
         return result;
@@ -979,7 +1004,7 @@ public class Matrix {
     public Vector toVector(int col) {
         Vector result = new Vector(this.rows);
         for (int i = 0; i < this.rows; i++) {
-            result.set(i, this.data[i][col]);
+            result.data[i] = this.data[i][col];
         }
         return result;
     }
