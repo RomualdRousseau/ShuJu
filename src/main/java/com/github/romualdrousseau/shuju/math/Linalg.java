@@ -25,6 +25,29 @@ public class Linalg {
         return result;
     }
 
+    public static Matrix Sort(Matrix m) {
+        assert (m.isSquared());
+        Matrix result = new Matrix(m.rows, m.rows).identity();
+        for (int j = 0; j < m.rows; j++) {
+            int row = j;
+            float max = m.data[j][j];
+            for (int i = j + 1; i < m.rows; i++) {
+                if (Scalar.abs(m.data[i][i]) > max) {
+                    max = m.data[i][i];
+                    row = i;
+                }
+            }
+            if (j != row) {
+                for (int k = 0; k < m.cols; k++) {
+                    float tmp = result.data[j][k];
+                    result.data[j][k] = result.data[row][k];
+                    result.data[row][k] = tmp;
+                }
+            }
+        }
+        return result;
+    }
+
     public static Matrix GaussianElimination(Matrix m, boolean lower) {
         Matrix q = m.copy();
 
