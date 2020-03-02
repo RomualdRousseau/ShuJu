@@ -20,21 +20,21 @@ public class KMean {
     }
 
     public Vector predict(final Vector input) {
-        return this.weights.copy().map(MSE, new Matrix(input)).flatten().sqrt().mult(-1).exp().transpose().toVector(0);
+        return this.weights.copy().map(MSE, new Matrix(input, false)).flatten(0).get(0).sqrt().mul(-1.0f).exp();
     }
 
     private void initializer(Vector[] inputs) {
         this.weights = new Matrix(inputs[0].rowCount(), 0);
         for (int j = 0; j < this.k; j++) {
             int n = (int) Math.floor(Math.random() * inputs.length);
-            this.weights = this.weights.concat(inputs[n]);
+            this.weights = this.weights.concat(inputs[n], 1);
         }
     }
 
     private void expectation(Vector[] inputs, Vector[] labels) {
         for (int i = 0; i < inputs.length; i++) {
             labels[i] = new Vector(this.k)
-                    .oneHot(this.weights.copy().map(MSE, new Matrix(inputs[i])).flatten().transpose().argmin(0));
+                    .oneHot(this.weights.copy().map(MSE, new Matrix(inputs[i], false)).flatten(0).argmin(0, 1));
         }
     }
 
@@ -51,7 +51,7 @@ public class KMean {
                 }
             }
 
-            this.weights = this.weights.concat(sum.div(count));
+            this.weights = this.weights.concat(sum.div(count), 1);
         }
     }
 

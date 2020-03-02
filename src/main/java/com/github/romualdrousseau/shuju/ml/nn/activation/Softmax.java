@@ -7,7 +7,7 @@ import com.github.romualdrousseau.shuju.ml.nn.ActivationFunc;
 
 public class Softmax implements ActivationFunc {
     public Matrix apply(Matrix input) {
-      final float c = -input.get(input.argmax(0), 0);
+      final float c = -input.get(input.argmax(0, 0), 0);
 
       float temp = 0.0f;
       for (int k = 0; k < input.rowCount(); k++) {

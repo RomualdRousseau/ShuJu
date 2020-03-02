@@ -34,7 +34,7 @@ public class KNN {
             }
         }
 
-        return results.flatten().get(0).l2Norm();
+        return results.flatten(0).get(0).l2Norm();
     }
 
     private int k;

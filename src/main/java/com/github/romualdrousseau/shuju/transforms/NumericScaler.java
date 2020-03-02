@@ -11,7 +11,7 @@ public class NumericScaler implements ITransform {
     }
 
     public void apply(Vector feature, int rowIndex, int colIndex) {
-        feature.sub(this.min).mult(this.ratio);
+        feature.sub(this.min).mul(this.ratio);
     }
 
     private Vector min;

@@ -29,7 +29,7 @@ public class AppTest {
         Matrix M1 = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
         Matrix M2 = new Matrix(new float[][] { { 5, 6 }, { 8, 1 } });
         assertTrue(M1.minor(0, 0).equals(M2));
-        assertEquals(M1.det(), 25, 0);
+        assertEquals(25, M1.det(), 0);
     }
 
     @Test
@@ -39,17 +39,33 @@ public class AppTest {
                 new float[][] { { -1.72f, 0.2f, 0.52f }, { 1.52f, -0.2f, -0.32f }, { -0.12f, 0.2f, -0.08f } });
         Matrix M3 = M1.inv();
         assertTrue(M3.equals(M2, 1e-2f));
-        assertTrue(M1.cof().transpose().mult(1.0f / M1.det()).equals(M3, 1e-2f));
-        assertTrue(M1.adj().mult(1.0f / M1.det()).equals(M3, 1e-2f));
+        assertTrue(M1.cof().transpose().mul(1.0f / M1.det()).equals(M3, 1e-2f));
+        assertTrue(M1.adj().mul(1.0f / M1.det()).equals(M3, 1e-2f));
         assertTrue(Linalg.Solve(M1, new Matrix(3, 3).identity()).equals(M3, 1e-2f));
+    }
+
+    @Test
+    public void testLinalgUpper() {
+        Matrix M = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
+        Matrix U = Linalg.GaussianElimination(M, false);
+        assertTrue(U.isUpper(1e-2f));
+        assertTrue(Linalg.SolveTriangular(U, false).equals(new Matrix(3, 3).identity(), 1e-2f));
+    }
+
+    @Test
+    public void testLinalgLower() {
+        Matrix M = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
+        Matrix L = Linalg.GaussianElimination(M, true);
+        assertTrue(L.isLower(1e-2f));
+        assertTrue(Linalg.SolveTriangular(L, true).equals(new Matrix(3, 3).identity(), 1e-2f));
     }
 
     @Test
     public void testLinalgSolve() {
         Matrix M1 = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
-        Matrix M2 = new Matrix(new float[] { 3, 5, 6 });
+        Matrix M2 = new Matrix(new float[] { 3, 5, 6 }, false);
         Matrix M3 = Linalg.Solve(M1, M2);
-        assertTrue(M1.transform(M3).equals(M2, 1e-2f));
+        assertTrue(M1.matmul(M3).equals(M2, 1e-2f));
     }
 
     @Test
@@ -60,7 +76,7 @@ public class AppTest {
         Matrix R = tmp[1];
         assertTrue(R.isUpper(1e-2f));
         assertTrue(Q.transpose().equals(Q.inv(), 1e-2f));
-        assertTrue(Q.transform(R).equals(M, 1e-2f));
+        assertTrue(Q.matmul(R).equals(M, 1e-2f));
     }
 
     @Test
@@ -70,7 +86,7 @@ public class AppTest {
         Matrix U = L.transpose();
         assertTrue(L.isLower(1e-2f));
         assertTrue(U.isUpper(1e-2f));
-        assertTrue(L.transform(U).equals(M, 1e-2f));
+        assertTrue(L.matmul(U).equals(M, 1e-2f));
     }
 
     @Test
@@ -81,17 +97,19 @@ public class AppTest {
         Matrix U = tmp[1];
         assertTrue(L.isLower(1e-2f));
         assertTrue(U.isUpper(1e-2f));
-        assertTrue(L.transform(U).equals(M, 1e-2f));
+        assertTrue(L.matmul(U).equals(M, 1e-2f));
     }
 
     @Test
     public void testLinalgEig() {
         Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
         Matrix[] tmp = Linalg.Eig(M, 1e-4f);
+        Matrix P = Linalg.Pivot(tmp[0]);
         for (int i = 0; i < tmp[0].rowCount(); i++) {
-            float l = tmp[0].get(i, i);
-            Vector v = tmp[1].toVector(i);
-            assertTrue(v.transform(M).equals(v.mult(l), 1e-1f));
+            int k = P.argmax(i, 1);
+            float l = tmp[0].get(k, k);
+            Vector v = tmp[1].toVector(k, false);
+            assertEquals(1.0f, v.transform(M).isSimilar(v.mul(l)), 1e-2f);
         }
     }
 

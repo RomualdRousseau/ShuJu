@@ -30,70 +30,168 @@ public class Matrix {
     }
 
     public Matrix(float[] v) {
-        this.rows = v.length;
-        this.cols = 1;
-        this.data = new float[this.rows][this.cols];
-        for (int i = 0; i < this.rows; i++) {
-            this.data[i][0] = v[i];
+        this(v, true);
+    }
+
+    public Matrix(float[] v, boolean rowvar) {
+        if (rowvar) {
+            this.rows = 1;
+            this.cols = v.length;
+            this.data = new float[this.rows][this.cols];
+            System.arraycopy(v, 0, this.data[0], 0, this.cols);
+        } else {
+            this.rows = v.length;
+            this.cols = 1;
+            this.data = new float[this.rows][this.cols];
+            for (int i = 0; i < this.rows; i++) {
+                this.data[i][0] = v[i];
+            }
         }
     }
 
     public Matrix(float[][] v) {
-        this.rows = v.length;
-        this.cols = v[0].length;
-        this.data = v;
-        for (int i = 0; i < this.rows; i++) {
-            System.arraycopy(v[i], 0, this.data[i], 0, this.cols);
+        this(v, true);
+    }
+
+    public Matrix(float[][] v, boolean rowvar) {
+        if (rowvar) {
+            this.rows = v.length;
+            this.cols = v[0].length;
+            this.data = new float[this.rows][this.cols];
+            for (int i = 0; i < this.rows; i++) {
+                System.arraycopy(v[i], 0, this.data[i], 0, this.cols);
+            }
+        } else {
+            this.rows = v[0].length;
+            this.cols = v.length;
+            this.data = new float[this.rows][this.cols];
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; j < this.cols; j++) {
+                    this.data[i][j] = v[j][i];
+                }
+            }
         }
     }
 
     public Matrix(Float[] v) {
-        this.rows = v.length;
-        this.cols = 1;
-        this.data = new float[this.rows][this.cols];
-        for (int i = 0; i < this.rows; i++) {
-            this.data[i][0] = v[i];
+        this(v, true);
+    }
+
+    public Matrix(Float[] v, boolean rowvar) {
+        if (rowvar) {
+            this.rows = 1;
+            this.cols = v.length;
+            this.data = new float[this.rows][this.cols];
+            for (int j = 0; j < this.cols; j++) {
+                this.data[0][j] = v[j];
+            }
+        } else {
+            this.rows = v.length;
+            this.cols = 1;
+            this.data = new float[this.rows][this.cols];
+            for (int i = 0; i < this.rows; i++) {
+                this.data[i][0] = v[i];
+            }
         }
     }
 
     public Matrix(Float[][] v) {
-        this.rows = v.length;
-        this.cols = v[0].length;
-        this.data = new float[this.rows][this.cols];
-        for (int i = 0; i < this.rows; i++) {
-            for (int j = 0; j < this.cols; j++) {
-                this.data[i][j] = v[i][j];
+        this(v, true);
+    }
+
+    public Matrix(Float[][] v, boolean rowvar) {
+        if (rowvar) {
+            this.rows = v.length;
+            this.cols = v[0].length;
+            this.data = new float[this.rows][this.cols];
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; j < this.cols; j++) {
+                    this.data[i][j] = v[i][j];
+                }
+            }
+        } else {
+            this.rows = v[0].length;
+            this.cols = v.length;
+            this.data = new float[this.rows][this.cols];
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; j < this.cols; j++) {
+                    this.data[i][j] = v[j][i];
+                }
             }
         }
     }
 
     public Matrix(Vector v) {
-        this.rows = v.rows;
-        this.cols = 1;
-        this.data = new float[this.rows][this.cols];
-        for (int i = 0; i < this.rows; i++) {
-            this.data[i][0] = v.data[i];
-        }
+        this(v, true);
     }
 
-    public Matrix(Vector v, int cols) {
-        this.rows = v.rows / cols;
-        this.cols = cols;
-        this.data = new float[this.rows][this.cols];
-        int vi = 0;
-        for (int i = 0; i < this.rows; i++) {
+    public Matrix(Vector v, boolean rowvar) {
+        if (rowvar) {
+            this.rows = 1;
+            this.cols = v.rows;
+            this.data = new float[this.rows][this.cols];
             for (int j = 0; j < this.cols; j++) {
-                this.data[i][j] = v.data[vi++];
+                this.data[0][j] = v.data[j];
+            }
+        } else {
+            this.rows = v.rows;
+            this.cols = 1;
+            this.data = new float[this.rows][this.cols];
+            for (int i = 0; i < this.rows; i++) {
+                this.data[i][0] = v.data[i];
             }
         }
     }
 
     public Matrix(Vector[] v) {
-        this.rows = v.length;
-        this.cols = v[0].rows;
-        this.data = new float[this.rows][this.cols];
-        for (int i = 0; i < this.rows; i++) {
-            System.arraycopy(v[i].data, 0, this.data[i], 0, this.cols);
+        this(v, true);
+    }
+
+    public Matrix(Vector[] v, boolean rowvar) {
+        if (rowvar) {
+            this.rows = v.length;
+            this.cols = v[0].rows;
+            this.data = new float[this.rows][this.cols];
+            for (int i = 0; i < this.rows; i++) {
+                System.arraycopy(v[i].data, 0, this.data[i], 0, this.cols);
+            }
+        } else {
+            this.rows = v[0].rows;
+            this.cols = v.length;
+            this.data = new float[this.rows][this.cols];
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; i < this.cols; j++) {
+                    this.data[i][j] = v[j].data[i];
+                }
+            }
+        }
+    }
+
+    public Matrix(Vector v, int stride) {
+        this(v, stride, true);
+    }
+
+    public Matrix(Vector v, int stride, boolean rowvar) {
+        if (rowvar) {
+            this.rows = v.rows / stride;
+            this.cols = stride;
+            this.data = new float[this.rows][this.cols];
+            int vi = 0;
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; j < this.cols; j++) {
+                    this.data[i][j] = v.data[vi++];
+                }
+            }
+        } else {
+            this.rows = stride;
+            this.cols = v.rows / stride;
+            this.data = new float[this.rows][this.cols];
+            int vi = 0;
+            for (int j = 0; j < this.cols; j++) {
+                for (int i = 0; i < this.rows; i++) {
+                    this.data[i][j] = v.data[vi++];
+                }
+            }
         }
     }
 
@@ -141,7 +239,7 @@ public class Matrix {
 
     public Matrix set(int row, Vector v) {
         assert (this.cols == v.rows);
-        this.data[row] = v.data;
+        System.arraycopy(v.data, 0, this.data[row], 0, this.cols);
         return this;
     }
 
@@ -213,13 +311,13 @@ public class Matrix {
         return this.rows == this.cols;
     }
 
-    public boolean isSymetric() {
-        if (this.rows != this.cols) {
+    public boolean isSymetric(float e) {
+        if (!this.isSquared()) {
             return false;
         }
         for (int i = 0; i < this.cols; i++) {
             for (int j = 0; j < this.cols; j++) {
-                if (this.data[i][j] != this.data[j][i]) {
+                if (Math.abs(this.data[i][j] - this.data[j][i]) >= e) {
                     return false;
                 }
             }
@@ -227,9 +325,12 @@ public class Matrix {
         return true;
     }
 
-    public float det() {
-        assert (this.rows == this.cols);
+    public boolean isOrthogonal(float e) {
+        return this.isSquared() && this.transpose().equals(this.inv(), e);
+    }
 
+    public float det() {
+        assert (this.isSquared());
         if (this.rows == 2) {
             return this.data[0][0] * this.data[1][1] - this.data[0][1] * this.data[1][0];
         } else {
@@ -254,148 +355,382 @@ public class Matrix {
         return (float) count / (float) (this.rows * this.cols);
     }
 
-    public int argmin(int col) {
-        int result = 0;
-        float minValue = this.data[0][col];
-        for (int i = 1; i < this.rows; i++) {
-            if (this.data[i][col] < minValue) {
-                minValue = this.data[i][col];
-                result = i;
+    public int argmin(int idx, int axis) {
+        if (axis == 0) {
+            int result = 0;
+            float minValue = this.data[0][idx];
+            for (int i = 1; i < this.rows; i++) {
+                if (this.data[i][idx] < minValue) {
+                    minValue = this.data[i][idx];
+                    result = i;
+                }
+            }
+            return result;
+        } else {
+            int result = 0;
+            float minValue = this.data[idx][0];
+            for (int i = 1; i < this.cols; i++) {
+                if (this.data[idx][i] < minValue) {
+                    minValue = this.data[idx][i];
+                    result = i;
+                }
+            }
+            return result;
+        }
+    }
+
+    public Matrix argmin(int axis) {
+        if (axis == 0) {
+            Matrix result = new Matrix(1, this.cols);
+            for (int i = 0; i < this.cols; i++) {
+                result.data[0][i] = this.argmin(i, 0);
+            }
+            return result;
+        } else {
+            Matrix result = new Matrix(this.rows, 1);
+            for (int i = 0; i < this.rows; i++) {
+                result.data[i][0] = this.argmin(i, 1);
+            }
+            return result;
+        }
+    }
+
+    public int argmax(int idx, int axis) {
+        if (axis == 0) {
+            int result = 0;
+            float maxValue = this.data[0][idx];
+            for (int i = 1; i < this.rows; i++) {
+                if (this.data[i][idx] > maxValue) {
+                    maxValue = this.data[i][idx];
+                    result = i;
+                }
+            }
+            return result;
+        } else {
+            int result = 0;
+            float maxValue = this.data[idx][0];
+            for (int i = 1; i < this.cols; i++) {
+                if (this.data[idx][i] > maxValue) {
+                    maxValue = this.data[idx][i];
+                    result = i;
+                }
+            }
+            return result;
+        }
+    }
+
+    public Matrix argmax(int axis) {
+        if (axis == 0) {
+            Matrix result = new Matrix(1, this.cols);
+            for (int i = 0; i < this.cols; i++) {
+                result.data[0][i] = this.argmax(i, 0);
+            }
+            return result;
+        } else {
+            Matrix result = new Matrix(this.rows, 1);
+            for (int i = 0; i < this.rows; i++) {
+                result.data[i][0] = this.argmax(i, 1);
+            }
+            return result;
+        }
+    }
+
+    public float avg(int idx, int axis) {
+        if (axis == 0) {
+            float sum = 0.0f;
+            for (int i = 0; i < this.rows; i++) {
+                sum += this.data[i][idx];
+            }
+            return sum / (float) this.rows;
+        } else {
+            float sum = 0.0f;
+            for (int i = 0; i < this.cols; i++) {
+                sum += this.data[idx][i];
+            }
+            return sum / (float) this.cols;
+        }
+    }
+
+    public Matrix avg(int axis) {
+        if (axis == 0) {
+            Matrix result = new Matrix(1, this.cols);
+            for (int i = 0; i < this.cols; i++) {
+                result.data[0][i] = this.avg(i, 0);
+            }
+            return result;
+        } else {
+            Matrix result = new Matrix(this.rows, 1);
+            for (int i = 0; i < this.rows; i++) {
+                result.data[i][0] = this.avg(i, 1);
+            }
+            return result;
+        }
+    }
+
+    public float var(int idx, int axis) {
+        if (axis == 0) {
+            float avg = this.avg(idx, 0);
+            float var = 0.0f;
+            for (int i = 0; i < this.rows; i++) {
+                float tmp = this.data[i][idx] - avg;
+                var += tmp * tmp;
+            }
+            return var / (float) (this.rows - 1);
+        } else {
+            float avg = this.avg(idx, 1);
+            float var = 0.0f;
+            for (int i = 0; i < this.cols; i++) {
+                float tmp = this.data[idx][i] - avg;
+                var += tmp * tmp;
+            }
+            return var / (float) (this.cols - 1);
+        }
+    }
+
+    public Matrix var(int axis) {
+        if (axis == 0) {
+            Matrix result = new Matrix(1, this.cols);
+            for (int i = 0; i < this.cols; i++) {
+                result.data[0][i] = this.var(i, 0);
+            }
+            return result;
+        } else {
+            Matrix result = new Matrix(this.rows, 1);
+            for (int i = 0; i < this.rows; i++) {
+                result.data[i][0] = this.var(i, 1);
+            }
+            return result;
+        }
+    }
+
+    public float cov(int idx1, int idx2, int axis) {
+        if (axis == 0) {
+            float avg1 = this.avg(idx1, 0);
+            float avg2 = this.avg(idx2, 0);
+            float cov = 0.0f;
+            for (int i = 0; i < this.rows; i++) {
+                float tmp1 = this.data[i][idx1] - avg1;
+                float tmp2 = this.data[i][idx2] - avg2;
+                cov += tmp1 * tmp2;
+            }
+            return cov / (float) (this.rows - 1);
+        } else {
+            float avg1 = this.avg(idx1, 1);
+            float avg2 = this.avg(idx2, 1);
+            float cov = 0.0f;
+            for (int i = 0; i < this.cols; i++) {
+                float tmp1 = this.data[idx1][i] - avg1;
+                float tmp2 = this.data[idx2][i] - avg2;
+                cov += tmp1 * tmp2;
+            }
+            return cov / (float) (this.cols - 1);
+        }
+    }
+
+    public Matrix cov(int axis) {
+        if (axis == 0) {
+            Matrix result = new Matrix(this.cols, this.cols);
+            for (int i = 0; i < this.cols; i++) {
+                for (int j = 0; j < this.cols; j++) {
+                    result.data[i][j] = this.cov(i, j, 0);
+                }
+            }
+            return result;
+        } else {
+            Matrix result = new Matrix(this.rows, this.rows);
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; j < this.rows; j++) {
+                    result.data[i][j] = this.cov(i, j, 1);
+                }
+            }
+            return result;
+        }
+    }
+
+    public float cov(Matrix m, int idx, int axis) {
+        return this.cov(m, idx, idx, axis);
+    }
+
+    public float cov(Matrix m, int idx1, int idx2, int axis) {
+        if (axis == 0) {
+            assert (this.rows == m.rows);
+            float avg1 = this.avg(idx1, 0);
+            float avg2 = m.avg(idx2, 0);
+            float cov = 0.0f;
+            for (int i = 0; i < this.rows; i++) {
+                float tmp1 = this.data[i][idx1] - avg1;
+                float tmp2 = m.data[i][idx2] - avg2;
+                cov += tmp1 * tmp2;
+            }
+            return cov / (float) (this.rows - 1);
+        } else {
+            assert (this.cols == m.cols);
+            float avg1 = this.avg(idx1, 1);
+            float avg2 = m.avg(idx2, 1);
+            float cov = 0.0f;
+            for (int i = 0; i < this.cols; i++) {
+                float tmp1 = this.data[idx1][i] - avg1;
+                float tmp2 = m.data[idx2][i] - avg2;
+                cov += tmp1 * tmp2;
+            }
+            return cov / (float) (this.cols - 1);
+        }
+    }
+
+    public Matrix cov(Matrix m, int axis, boolean full) {
+        if (full) {
+            if (axis == 0) {
+                Matrix result = new Matrix(this.cols, this.cols);
+                for (int i = 0; i < this.cols; i++) {
+                    for (int j = 0; j < this.cols; j++) {
+                        result.data[i][j] = this.cov(m, i, j, 0);
+                    }
+                }
+                return result;
+            } else {
+                Matrix result = new Matrix(this.rows, this.rows);
+                for (int i = 0; i < this.rows; i++) {
+                    for (int j = 0; j < this.rows; j++) {
+                        result.data[i][j] = this.cov(m, i, j, 1);
+                    }
+                }
+                return result;
+            }
+        } else {
+            if (axis == 0) {
+                Matrix result = new Matrix(1, this.cols);
+                for (int i = 0; i < this.cols; i++) {
+                    result.data[0][i] = this.cov(m, i, 0);
+                }
+                return result;
+            } else {
+                Matrix result = new Matrix(this.rows, 1);
+                for (int i = 0; i < this.rows; i++) {
+                    result.data[i][0] = this.cov(m, i, 1);
+                }
+                return result;
             }
         }
-        return result;
     }
 
-    public int argmax(int col) {
-        int result = 0;
-        float maxValue = this.data[0][col];
-        for (int i = 1; i < this.rows; i++) {
-            if (this.data[i][col] > maxValue) {
-                maxValue = this.data[i][col];
-                result = i;
+    public float min(int idx, int axis) {
+        if (axis == 0) {
+            float minValue = this.data[0][idx];
+            for (int i = 1; i < this.rows; i++) {
+                if (this.data[i][idx] < minValue) {
+                    minValue = this.data[i][idx];
+                }
             }
-        }
-        return result;
-    }
-
-    public float avg(int col) {
-        float sum = 0.0f;
-        for (int i = 0; i < this.rows; i++) {
-            sum += this.data[i][col];
-        }
-        return sum / (float) this.rows;
-    }
-
-    public Matrix avg() {
-        Matrix result = new Matrix(this.cols, 1);
-        for (int i = 0; i < this.cols; i++) {
-            result.data[i][0] = this.avg(i);
-        }
-        return result;
-    }
-
-    public float var(int col) {
-        float avg = this.avg(col);
-        float var = 0.0f;
-        for (int i = 0; i < this.rows; i++) {
-            float tmp = this.data[i][col] - avg;
-            var += tmp * tmp;
-        }
-        return var / (float) (this.rows - 1);
-    }
-
-    public Matrix var() {
-        Matrix result = new Matrix(this.cols, 1);
-        for (int i = 0; i < this.cols; i++) {
-            result.data[i][0] = this.var(i);
-        }
-        return result;
-    }
-
-    public float cov(int col1, int col2) {
-        float avg1 = this.avg(col1);
-        float avg2 = this.avg(col2);
-        float cov = 0.0f;
-        for (int i = 0; i < this.rows; i++) {
-            float tmp1 = this.data[i][col1] - avg1;
-            float tmp2 = this.data[i][col2] - avg2;
-            cov += tmp1 * tmp2;
-        }
-        return cov / (float) (this.rows - 1);
-    }
-
-    public float cov(Matrix m, int col) {
-        assert (this.rows == m.rows);
-
-        float avg1 = this.avg(col);
-        float avg2 = m.avg(col);
-        float cov = 0.0f;
-        for (int i = 0; i < this.rows; i++) {
-            float tmp1 = this.data[i][col] - avg1;
-            float tmp2 = m.data[i][col] - avg2;
-            cov += tmp1 * tmp2;
-        }
-        return cov / (float) (this.rows - 1);
-    }
-
-    public Matrix cov(Matrix m) {
-        Matrix result = new Matrix(this.cols, 1);
-        for (int i = 0; i < this.cols; i++) {
-            result.data[i][0] = this.cov(m, i);
-        }
-        return result;
-    }
-
-    public float min(int col) {
-        float minValue = this.data[0][col];
-        for (int i = 1; i < this.rows; i++) {
-            if (this.data[i][col] < minValue) {
-                minValue = this.data[i][col];
+            return minValue;
+        } else {
+            float minValue = this.data[idx][0];
+            for (int i = 1; i < this.cols; i++) {
+                if (this.data[idx][i] < minValue) {
+                    minValue = this.data[idx][i];
+                }
             }
+            return minValue;
         }
-        return minValue;
     }
 
-    public Matrix min() {
-        Matrix result = new Matrix(this.cols, 1);
-        for (int i = 0; i < this.cols; i++) {
-            result.data[i][0] = this.min(i);
-        }
-        return result;
-    }
-
-    public float max(int col) {
-        float maxValue = this.data[0][col];
-        for (int i = 1; i < this.rows; i++) {
-            if (this.data[i][col] > maxValue) {
-                maxValue = this.data[i][col];
+    public Matrix min(int axis) {
+        if (axis == 0) {
+            Matrix result = new Matrix(1, this.cols);
+            for (int i = 0; i < this.cols; i++) {
+                result.data[0][i] = this.min(i, 0);
             }
+            return result;
+        } else {
+            Matrix result = new Matrix(this.rows, 1);
+            for (int i = 0; i < this.rows; i++) {
+                result.data[i][0] = this.min(i, 1);
+            }
+            return result;
         }
-        return maxValue;
     }
 
-    public Matrix max() {
-        Matrix result = new Matrix(this.cols, 1);
-        for (int i = 0; i < this.cols; i++) {
-            result.data[i][0] = this.max(i);
+    public float max(int idx, int axis) {
+        if (axis == 0) {
+            float maxValue = this.data[0][idx];
+            for (int i = 1; i < this.rows; i++) {
+                if (this.data[i][idx] > maxValue) {
+                    maxValue = this.data[i][idx];
+                }
+            }
+            return maxValue;
+        } else {
+            float maxValue = this.data[idx][0];
+            for (int i = 1; i < this.cols; i++) {
+                if (this.data[idx][i] > maxValue) {
+                    maxValue = this.data[idx][i];
+                }
+            }
+            return maxValue;
         }
-        return result;
     }
 
-    public float flatten(int col) {
-        float sum = 0.0f;
-        for (int i = 0; i < this.rows; i++) {
-            sum += this.data[i][col];
+    public Matrix max(int axis) {
+        if (axis == 0) {
+            Matrix result = new Matrix(1, this.cols);
+            for (int i = 0; i < this.cols; i++) {
+                result.data[0][i] = this.max(i, 0);
+            }
+            return result;
+        } else {
+            Matrix result = new Matrix(this.rows, 1);
+            for (int i = 0; i < this.rows; i++) {
+                result.data[i][0] = this.max(i, 1);
+            }
+            return result;
         }
-        return sum;
     }
 
-    public Matrix flatten() {
-        Matrix sum = new Matrix(1, this.cols);
-        for (int i = 0; i < this.cols; i++) {
-            sum.set(0, i, this.flatten(i));
+    public float flatten(int idx, int axis) {
+        if (axis == 0) {
+            float sum = 0.0f;
+            for (int i = 0; i < this.rows; i++) {
+                sum += this.data[i][idx];
+            }
+            return sum;
+        } else {
+            float sum = 0.0f;
+            for (int i = 0; i < this.cols; i++) {
+                sum += this.data[idx][i];
+            }
+            return sum;
         }
-        return sum;
+    }
+
+    public Matrix flatten(int axis) {
+        if (axis == 0) {
+            Matrix result = new Matrix(1, this.cols);
+            for (int i = 0; i < this.cols; i++) {
+                result.data[0][i] = this.flatten(i, 0);
+            }
+            return result;
+        } else {
+            Matrix result = new Matrix(this.rows, 1);
+            for (int i = 0; i < this.rows; i++) {
+                result.data[i][0] = this.flatten(i, 1);
+            }
+            return result;
+        }
+    }
+
+    public Matrix diagonal(int axis) {
+        if (axis == 0) {
+            Matrix result = new Matrix(1, this.cols);
+            for (int i = 0; i < this.cols; i++) {
+                result.data[0][i] = this.data[i][i];
+            }
+            return result;
+        } else {
+            Matrix result = new Matrix(this.rows, 1);
+            for (int i = 0; i < this.rows; i++) {
+                result.data[i][0] = this.data[i][i];
+            }
+            return result;
+        }
     }
 
     public Matrix zero() {
@@ -538,7 +873,7 @@ public class Matrix {
         return this;
     }
 
-    public Matrix mult(float n) {
+    public Matrix mul(float n) {
         for (int i = 0; i < this.rows; i++) {
             float[] a = this.data[i];
             for (int j = 0; j < this.cols; j++) {
@@ -548,7 +883,7 @@ public class Matrix {
         return this;
     }
 
-    public Matrix mult(final Matrix m) {
+    public Matrix mul(final Matrix m) {
         assert (this.rows == m.rows && this.cols == m.cols);
 
         for (int i = 0; i < this.rows; i++) {
@@ -573,7 +908,6 @@ public class Matrix {
 
     public Matrix div(final Matrix m) {
         assert (this.rows == m.rows && this.cols == m.cols);
-
         for (int i = 0; i < this.rows; i++) {
             float[] a = this.data[i];
             float[] b = m.data[i];
@@ -772,69 +1106,61 @@ public class Matrix {
     }
 
     public Matrix copy() {
-        Matrix result = new Matrix(this.rows, this.cols);
-        for (int i = 0; i < result.rows; i++) {
-            System.arraycopy(this.data[i], 0, result.data[i], 0, result.cols);
+        return this.copy(0, 0);
+    }
+
+    public Matrix copy(int a, int b) {
+        return this.copy(a, b, this.rows - a, this.cols - b);
+    }
+
+    public Matrix copy(int a, int b, int h, int w) {
+        Matrix result = new Matrix(h, w);
+        for (int i = 0; i < h; i++) {
+            System.arraycopy(this.data[a + i], b, result.data[i], 0, w);
         }
         return result;
     }
 
-    public Matrix copy(int y, int x) {
-        Matrix result = new Matrix(this.rows - y, this.cols - x);
-        for (int i = y; i < this.rows; i++) {
-            System.arraycopy(this.data[i], x, result.data[i - y], 0, result.rows);
-        }
-        return result;
-    }
-
-    public Matrix concat(Vector v) {
-        assert (this.rows == v.rows);
-
-        Matrix result = new Matrix(this.rows, this.cols + 1);
-        for (int i = 0; i < this.rows; i++) {
-            for (int j = 0; j < this.cols; j++) {
-                result.data[i][j] = this.data[i][j];
-            }
-            result.data[i][this.cols] = v.data[i];
-        }
-        return result;
-    }
-
-    public Matrix concat(Matrix m) {
-        assert (this.rows == m.rows);
-
-        Matrix result = new Matrix(this.rows, this.cols + m.cols);
-        for (int i = 0; i < this.rows; i++) {
-            for (int j = 0; j < this.cols; j++) {
-                result.data[i][j] = this.data[i][j];
-            }
-            for (int j = 0; j < m.cols; j++) {
-                result.data[i][this.cols + j] = m.data[i][j];
-            }
-        }
-        return result;
-    }
-
-    public Matrix squarify(boolean diagonal) {
-        Matrix result = new Matrix(this.rows, this.rows);
-        if (this.rows == this.cols) {
+    public Matrix concat(Vector v, int axis) {
+        if (axis == 0) {
+            assert (this.cols == v.rows);
+            Matrix result = new Matrix(this.rows + 1, this.cols);
             for (int i = 0; i < this.rows; i++) {
                 System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
             }
-        } else if (diagonal) {
-            for (int i = 0; i < this.rows; i++) {
-                result.data[i][i] = this.data[i][0];
-            }
+            System.arraycopy(v.data, 0, result.data[this.rows], 0, this.cols);
+            return result;
         } else {
+            assert (this.rows == v.rows);
+            Matrix result = new Matrix(this.rows, this.cols + 1);
             for (int i = 0; i < this.rows; i++) {
-                float[] a = this.data[i];
-                float[] b = result.data[i];
-                for (int j = 0; j < this.rows; j++) {
-                    b[j] = a[0];
-                }
+                System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
+                result.data[i][this.cols] = v.data[i];
             }
+            return result;
         }
-        return result;
+    }
+
+    public Matrix concat(Matrix m, int axis) {
+        if (axis == 0) {
+            assert (this.cols == m.cols);
+            Matrix result = new Matrix(this.rows + m.rows, this.cols);
+            for (int i = 0; i < this.rows; i++) {
+                System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
+            }
+            for (int i = 0; i < m.rows; i++) {
+                System.arraycopy(m.data[i], 0, result.data[this.rows + i], 0, this.cols);
+            }
+            return result;
+        } else {
+            assert (this.rows == m.rows);
+            Matrix result = new Matrix(this.rows, this.cols + m.cols);
+            for (int i = 0; i < this.rows; i++) {
+                System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
+                System.arraycopy(m.data[i], 0, result.data[i], this.cols, m.cols);
+            }
+            return result;
+        }
     }
 
     public Matrix transpose() {
@@ -848,9 +1174,8 @@ public class Matrix {
         return result;
     }
 
-    public Matrix transform(final Matrix m) {
+    public Matrix matmul(final Matrix m) {
         assert (this.cols == m.rows);
-
         Matrix result = new Matrix(this.rows, m.cols, 0.0f);
         for (int i = 0; i < result.rows; i++) {
             float[] c = result.data[i];
@@ -865,7 +1190,7 @@ public class Matrix {
         return result;
     }
 
-    public Matrix transform(final Matrix m, boolean transposeA, boolean transposeB) {
+    public Matrix matmul(final Matrix m, boolean transposeA, boolean transposeB) {
         final int colsA = transposeA ? this.rows : this.cols;
         final int rowsA = transposeA ? this.cols : this.rows;
         final int colsB = transposeB ? m.rows : m.cols;
@@ -923,18 +1248,18 @@ public class Matrix {
         return result;
     }
 
-    public Matrix minor(int y, int x) {
+    public Matrix minor(int a, int b) {
         Matrix result = new Matrix(this.rows - 1, this.cols - 1);
         for (int i = 0; i < result.rows; i++) {
             for (int j = 0; j < result.cols; j++) {
-                if (i < y) {
-                    if (j < x) {
+                if (i < a) {
+                    if (j < b) {
                         result.data[i][j] = this.data[i][j];
                     } else {
                         result.data[i][j] = this.data[i][j + 1];
                     }
                 } else {
-                    if (j < x) {
+                    if (j < b) {
                         result.data[i][j] = this.data[i + 1][j];
                     } else {
                         result.data[i][j] = this.data[i + 1][j + 1];
@@ -990,23 +1315,46 @@ public class Matrix {
         return result;
     }
 
-    public Vector toVector() {
-        Vector result = new Vector(this.rows * this.cols);
-        int vi = 0;
-        for (int i = 0; i < this.rows; i++) {
-            for (int j = 0; j < this.cols; j++) {
-                result.data[vi++] = this.data[i][j];
-            }
-        }
-        return result;
+    public Vector toVector(int idx) {
+        return this.toVector(idx, true);
     }
 
-    public Vector toVector(int col) {
-        Vector result = new Vector(this.rows);
-        for (int i = 0; i < this.rows; i++) {
-            result.data[i] = this.data[i][col];
+    public Vector toVector(int idx, boolean rowvar) {
+        if(rowvar) {
+            return this.get(idx);
+        } else {
+            Vector result = new Vector(this.rows);
+            for (int i = 0; i < this.rows; i++) {
+                result.data[i] = this.data[i][idx];
+            }
+            return result;
         }
-        return result;
+    }
+
+    public Vector toVector() {
+        return this.toVector(true);
+    }
+
+    public Vector toVector(boolean rowvar) {
+        if(rowvar) {
+            Vector result = new Vector(this.rows * this.cols);
+            int vi = 0;
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; j < this.cols; j++) {
+                    result.data[vi++] = this.data[i][j];
+                }
+            }
+            return result;
+        } else {
+            Vector result = new Vector(this.rows * this.cols);
+            int vi = 0;
+            for (int j = 0; j < this.cols; j++) {
+                for (int i = 0; i < this.rows; i++) {
+                    result.data[vi++] = this.data[i][j];
+                }
+            }
+            return result;
+        }
     }
 
     public String toString() {

@@ -76,10 +76,10 @@ public class Scalar {
     }
 
     public static Matrix xw_plus_b(Matrix input, Matrix weights, Matrix bias) {
-        return weights.transform(input).add(bias);
+        return weights.matmul(input).add(bias);
     }
 
     public static Matrix a_mul_b(Matrix a, Matrix b) {
-        return (a.colCount() == b.colCount()) ? b.mult(a) : b.transform(a);
+        return (a.colCount() == b.colCount()) ? b.mul(a) : b.matmul(a);
     }
 }

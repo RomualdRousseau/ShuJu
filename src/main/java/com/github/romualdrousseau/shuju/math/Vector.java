@@ -355,14 +355,14 @@ public class Vector {
         return this;
     }
 
-    public Vector mult(float k) {
+    public Vector mul(float k) {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] *= k;
         }
         return this;
     }
 
-    public Vector mult(final Vector v) {
+    public Vector mul(final Vector v) {
         assert (this.rows == v.rows);
 
         for (int i = 0; i < this.rows; i++) {
@@ -397,6 +397,13 @@ public class Vector {
     public Vector pow(float n) {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = Scalar.pow(this.data[i], n);
+        }
+        return this;
+    }
+
+    public Vector exp() {
+        for (int i = 0; i < this.rows; i++) {
+            this.data[i] = Scalar.exp(this.data[i]);
         }
         return this;
     }

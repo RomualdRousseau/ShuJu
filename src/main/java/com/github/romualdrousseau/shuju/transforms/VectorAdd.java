@@ -21,7 +21,7 @@ public class VectorAdd implements ITransform {
     public void apply(Vector feature, int rowIndex, int colIndex) {
         Vector otherFeature = (this.part == DataRow.LABELS) ? this.other.rows().get(rowIndex).label()
                 : this.other.rows().get(rowIndex).features().get(colIndex);
-        feature.add(otherFeature.copy().mult(this.a));
+        feature.add(otherFeature.copy().mul(this.a));
     }
 
     private DataSet other;

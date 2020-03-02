@@ -28,8 +28,8 @@ public class OptimizerAdam extends Optimizer {
             }
         };
 
-        p.M.mult(this.b1).fma(p.G, 1.0f - this.b1);
-        p.V.mult(this.b2).fma(p.G.copy().pow(2.0f), 1.0f - this.b2);
+        p.M.mul(this.b1).fma(p.G, 1.0f - this.b1);
+        p.V.mul(this.b2).fma(p.G.copy().pow(2.0f), 1.0f - this.b2);
 
         return p.M.copy().map(fn, p.V);
     }

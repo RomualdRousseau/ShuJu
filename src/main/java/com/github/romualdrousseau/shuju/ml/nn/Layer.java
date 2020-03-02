@@ -57,7 +57,7 @@ public class Layer {
     }
 
     public Vector detachAsVector() {
-        return this.output.toVector(0);
+        return this.output.toVector(0, false);
     }
 
     public void fromJSON(JSONObject json) {

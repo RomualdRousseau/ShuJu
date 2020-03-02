@@ -15,7 +15,7 @@ public class Loss {
     }
 
     public Loss loss(Layer output, Vector target) {
-        return this.loss(output, new Matrix(target));
+        return this.loss(output, new Matrix(target, false));
     }
 
     public Loss loss(Layer output, Matrix target) {
@@ -35,7 +35,7 @@ public class Loss {
             error = Scalar.a_mul_b(error, layer.activation.derivate(layer.output));
             layer.weights.G.fma(error, layer.prev.output, false, true);
             layer.biases.G.fma(error, layer.prev.bias);
-            error = layer.weights.W.transform(error, true, false);
+            error = layer.weights.W.matmul(error, true, false);
         }
         return this;
     }

@@ -55,10 +55,10 @@ public class DataStatistics {
             Vector temp2 = feature2.copy().sub(summary2.avg);
 
             if (firstRow) {
-                cov = temp1.mult(temp2);
+                cov = temp1.mul(temp2);
                 firstRow = false;
             } else {
-                cov.add(temp1.mult(temp2));
+                cov.add(temp1.mul(temp2));
             }
         }
         return cov.div((float) (summary1.count - 1));
@@ -68,6 +68,6 @@ public class DataStatistics {
         Vector cov = DataStatistics.cov(summary1, summary2);
         Vector var1 = DataStatistics.var(summary1);
         Vector var2 = DataStatistics.var(summary2);
-        return cov.div(var1.mult(var2).sqrt());
+        return cov.div(var1.mul(var2).sqrt());
     }
 }

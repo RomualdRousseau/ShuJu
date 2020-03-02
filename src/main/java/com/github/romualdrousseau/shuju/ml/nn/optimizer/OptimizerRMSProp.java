@@ -26,7 +26,7 @@ public class OptimizerRMSProp extends Optimizer {
             }
         };
 
-        p.V.mult(this.b).fma(p.G.copy().pow(2.0f), 1.0f - this.b);
+        p.V.mul(this.b).fma(p.G.copy().pow(2.0f), 1.0f - this.b);
 
         return p.G.copy().map(fn, p.V);
     }

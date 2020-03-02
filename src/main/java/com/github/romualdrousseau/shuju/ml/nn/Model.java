@@ -30,7 +30,7 @@ public class Model {
     }
 
     public Layer model(Vector input) {
-        return this.model(new Matrix(input));
+        return this.model(new Matrix(input, false));
     }
 
     public Layer model(Matrix input) {

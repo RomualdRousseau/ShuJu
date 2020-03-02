@@ -14,7 +14,7 @@ public class SmoothScaler implements ITransform {
             this.lastValue = feature;
             firstRow = false;
         } else {
-            this.lastValue = feature.mult(this.coef).add(this.lastValue.mult(1.0f - this.coef));
+            this.lastValue = feature.mul(this.coef).add(this.lastValue.mul(1.0f - this.coef));
         }
     }
 
