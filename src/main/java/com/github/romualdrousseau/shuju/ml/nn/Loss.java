@@ -1,6 +1,5 @@
 package com.github.romualdrousseau.shuju.ml.nn;
 
-import com.github.romualdrousseau.shuju.math.Scalar;
 import com.github.romualdrousseau.shuju.math.Vector;
 import com.github.romualdrousseau.shuju.math.Matrix;
 
@@ -32,10 +31,9 @@ public class Loss {
     public Loss backward() {
         Matrix error = this.rate;
         for (Layer layer = this.output; layer.prev != null; layer = layer.prev) {
-            error = Scalar.a_mul_b(error, layer.activation.derivate(layer.output));
-            layer.weights.G.fma(error, layer.prev.output, false, true);
-            layer.biases.G.fma(error, layer.prev.bias);
-            error = layer.weights.W.matmul(error, true, false);
+            if (!layer.frozen) {
+                error = layer.callBackward(error);
+            }
         }
         return this;
     }

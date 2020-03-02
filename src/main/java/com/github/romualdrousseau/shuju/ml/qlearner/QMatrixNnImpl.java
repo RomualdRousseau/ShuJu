@@ -5,6 +5,7 @@ import com.github.romualdrousseau.shuju.ml.nn.*;
 import com.github.romualdrousseau.shuju.ml.nn.loss.*;
 import com.github.romualdrousseau.shuju.ml.nn.optimizer.builder.*;
 import com.github.romualdrousseau.shuju.ml.nn.activation.*;
+import com.github.romualdrousseau.shuju.ml.nn.layer.DenseBuilder;
 
 public class QMatrixNnImpl extends QMatrix {
     public QMatrixNnImpl(QEnvironment env) {
@@ -21,12 +22,12 @@ public class QMatrixNnImpl extends QMatrix {
         this.numOutputs = (int) Math.ceil(Math.log(numActions) * binaryRatio);
 
         this.model = new Model();
-        this.model.add(new LayerBuilder()
+        this.model.add(new DenseBuilder()
             .setInputUnits(numInputs)
             .setUnits(numHiddens)
             .setActivation(new Relu())
             .build());
-        this.model.add(new LayerBuilder()
+        this.model.add(new DenseBuilder()
             .setInputUnits(numHiddens)
             .setUnits(numOutputs + 1)
             .setActivation(new Tanh())

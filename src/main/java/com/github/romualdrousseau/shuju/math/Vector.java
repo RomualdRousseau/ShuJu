@@ -92,7 +92,11 @@ public class Vector {
         return result;
     }
 
-    public float isSimilar(final Vector v) {
+    public boolean isSimilar(final Vector v, final float e) {
+        return Scalar.abs(this.similarity(v) - 1.0f) < e;
+    }
+
+    public float similarity(final Vector v) {
         return this.scalar(v) / (v.norm() * this.norm());
     }
 

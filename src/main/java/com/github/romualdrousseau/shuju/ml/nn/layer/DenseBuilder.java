@@ -1,9 +1,13 @@
-package com.github.romualdrousseau.shuju.ml.nn;
+package com.github.romualdrousseau.shuju.ml.nn.layer;
 
+import com.github.romualdrousseau.shuju.ml.nn.ActivationFunc;
+import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
+import com.github.romualdrousseau.shuju.ml.nn.Layer;
+import com.github.romualdrousseau.shuju.ml.nn.NormalizerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.activation.Linear;
 import com.github.romualdrousseau.shuju.ml.nn.initializer.GlorotUniformInitializer;
 
-public class LayerBuilder {
+public class DenseBuilder {
     private int inputUnits;
     private int units;
     private float bias;
@@ -11,7 +15,7 @@ public class LayerBuilder {
     private InitializerFunc initializer;
     private NormalizerFunc normalizer;
 
-    public LayerBuilder() {
+    public DenseBuilder() {
         this.inputUnits = 0;
         this.units = 0;
         this.bias = 1.0f;
@@ -21,35 +25,35 @@ public class LayerBuilder {
     }
 
     public Layer build() {
-        return new Layer(this.inputUnits, this.units, this.bias, this.activation, this.initializer, this.normalizer);
+        return new Dense(this.inputUnits, this.units, this.bias, this.activation, this.initializer, this.normalizer);
     }
 
-    public LayerBuilder setBias(float bias) {
+    public DenseBuilder setBias(float bias) {
         this.bias = bias;
         return this;
     }
 
-    public LayerBuilder setInputUnits(int inputUnits) {
+    public DenseBuilder setInputUnits(int inputUnits) {
         this.inputUnits = inputUnits;
         return this;
     }
 
-    public LayerBuilder setUnits(int units) {
+    public DenseBuilder setUnits(int units) {
         this.units = units;
         return this;
     }
 
-    public LayerBuilder setActivation(ActivationFunc activation) {
+    public DenseBuilder setActivation(ActivationFunc activation) {
         this.activation = activation;
         return this;
     }
 
-    public LayerBuilder setInitializer(InitializerFunc initializer) {
+    public DenseBuilder setInitializer(InitializerFunc initializer) {
         this.initializer = initializer;
         return this;
     }
 
-    public LayerBuilder setNormalizer(NormalizerFunc normalizer) {
+    public DenseBuilder setNormalizer(NormalizerFunc normalizer) {
         this.normalizer = normalizer;
         return this;
     }

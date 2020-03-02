@@ -3,8 +3,8 @@ package com.github.romualdrousseau.shuju.ml.nn;
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 
-import com.github.romualdrousseau.shuju.math.Scalar;
 import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.ml.nn.layer.DenseBuilder;
 import com.github.romualdrousseau.shuju.math.Matrix;
 
 public class Model {
@@ -12,13 +12,13 @@ public class Model {
     protected Layer end;
 
     public Model() {
-        this.start = new LayerBuilder().build();
+        this.start = new DenseBuilder().build();
         this.end = this.start;
     }
 
     public void reset() {
         for (Layer layer = this.start.next; layer != null; layer = layer.next) {
-            layer.reset();
+            layer.reset(false);
         }
     }
 
@@ -36,8 +36,7 @@ public class Model {
     public Layer model(Matrix input) {
         this.start.output = input;
         for (Layer layer = this.start.next; layer != null; layer = layer.next) {
-            Matrix net = Scalar.xw_plus_b(layer.prev.output, layer.weights.W, layer.biases.W);
-            layer.output = layer.activation.apply(net);
+            layer.callForward();
         }
         return this.end;
     }

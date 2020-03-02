@@ -329,6 +329,32 @@ public class Matrix {
         return this.isSquared() && this.transpose().equals(this.inv(), e);
     }
 
+    public Matrix reshape(int newRows, int newCols, int axis) {
+        assert (this.rows * this.cols == newRows * newCols);
+
+        Matrix result = new Matrix(newRows, newCols);
+
+        if(axis == 0) {
+            for(int k = 0; k < this.rows * this.cols; k++) {
+                int i1 = k % this.rows;
+                int j1 = k / this.rows;
+                int i2 = k % result.rows;
+                int j2 = k / result.rows;
+                result.data[i2][j2] = this.data[i1][j1];
+            }
+        } else {
+            for(int k = 0; k < this.rows * this.cols; k++) {
+                int i1 = k / this.cols;
+                int j1 = k % this.cols;
+                int i2 = k / result.cols;
+                int j2 = k % result.cols;
+                result.data[i2][j2] = this.data[i1][j1];
+            }
+        }
+
+        return result;
+    }
+
     public float det() {
         assert (this.isSquared());
         if (this.rows == 2) {

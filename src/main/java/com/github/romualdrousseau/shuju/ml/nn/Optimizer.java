@@ -22,24 +22,21 @@ public abstract class Optimizer {
         this.learningRate = this.learningRate0;
         this.epoch = 1;
         for (Layer layer = this.model.start.next; layer != null; layer = layer.next) {
-            layer.weights.M.zero();
-            layer.weights.V.zero();
-            layer.biases.M.zero();
-            layer.biases.V.zero();
+            layer.reset(true);
         }
     }
 
     public void zeroGradients() {
         for (Layer layer = this.model.start.next; layer != null; layer = layer.next) {
-            layer.weights.G.zero();
-            layer.biases.G.zero();
+            layer.resetGradients(this);
         }
     }
 
     public void step() {
         for (Layer layer = this.model.start.next; layer != null; layer = layer.next) {
-            layer.adjustGradients(layer.weights, this.computeGradients(layer.weights));
-            layer.adjustGradients(layer.biases, this.computeGradients(layer.biases));
+            if(!layer.frozen) {
+                layer.adjustGradients(this);
+            }
         }
 
         this.epoch++;

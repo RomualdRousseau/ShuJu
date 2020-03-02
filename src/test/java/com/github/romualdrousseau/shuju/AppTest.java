@@ -109,8 +109,15 @@ public class AppTest {
             int k = P.argmax(i, 1);
             float l = tmp[0].get(k, k);
             Vector v = tmp[1].toVector(k, false);
-            assertEquals(1.0f, v.transform(M).isSimilar(v.mul(l)), 1e-2f);
+            assertTrue(v.transform(M).isSimilar(v.mul(l), 1e-2f));
         }
+    }
+
+    @Test
+    public void testReshape() {
+        Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
+        assertTrue(M.reshape(1, 16, 1).transpose().equals(M.reshape(16, 1, 0)));
+        assertTrue(M.reshape(2, 8, 1).transpose().equals(M.reshape(8, 2, 0)));
     }
 
     @Test
