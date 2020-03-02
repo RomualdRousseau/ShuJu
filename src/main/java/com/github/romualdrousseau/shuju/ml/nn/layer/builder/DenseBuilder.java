@@ -1,36 +1,31 @@
-package com.github.romualdrousseau.shuju.ml.nn.layer;
+package com.github.romualdrousseau.shuju.ml.nn.layer.builder;
 
 import com.github.romualdrousseau.shuju.ml.nn.ActivationFunc;
 import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
-import com.github.romualdrousseau.shuju.ml.nn.Layer;
+import com.github.romualdrousseau.shuju.ml.nn.LayerBuilder;
 import com.github.romualdrousseau.shuju.ml.nn.NormalizerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.activation.Linear;
 import com.github.romualdrousseau.shuju.ml.nn.initializer.GlorotUniformInitializer;
+import com.github.romualdrousseau.shuju.ml.nn.layer.Dense;
 
-public class DenseBuilder {
+public class DenseBuilder extends LayerBuilder<Dense> {
     private int inputUnits;
     private int units;
-    private float bias;
     private ActivationFunc activation;
     private InitializerFunc initializer;
     private NormalizerFunc normalizer;
 
     public DenseBuilder() {
+        super();
         this.inputUnits = 0;
         this.units = 0;
-        this.bias = 1.0f;
         this.activation = new Linear();
         this.initializer = new GlorotUniformInitializer();
         this.normalizer = null;
     }
 
-    public Layer build() {
+    public Dense build() {
         return new Dense(this.inputUnits, this.units, this.bias, this.activation, this.initializer, this.normalizer);
-    }
-
-    public DenseBuilder setBias(float bias) {
-        this.bias = bias;
-        return this;
     }
 
     public DenseBuilder setInputUnits(int inputUnits) {

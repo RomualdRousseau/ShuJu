@@ -28,6 +28,10 @@ public class Loss {
         return this.value;
     }
 
+    public Vector getValueAsVector() {
+        return this.value.toVector(0, false);
+    }
+
     public Loss backward() {
         Matrix error = this.rate;
         for (Layer layer = this.output; layer.prev != null; layer = layer.prev) {

@@ -7,25 +7,27 @@ import com.github.romualdrousseau.shuju.math.*;
 import com.github.romualdrousseau.shuju.ml.nn.activation.*;
 import com.github.romualdrousseau.shuju.ml.nn.initializer.*;
 import com.github.romualdrousseau.shuju.ml.nn.loss.*;
-import com.github.romualdrousseau.shuju.ml.nn.normalizer.*;
-import com.github.romualdrousseau.shuju.ml.nn.optimizer.*;
-import com.github.romualdrousseau.shuju.ml.qlearner.*;
-import com.github.romualdrousseau.shuju.nlp.impl.*;
-import com.github.romualdrousseau.shuju.transforms.*;
-import com.github.romualdrousseau.shuju.math.distribution.*;
-import com.github.romualdrousseau.shuju.ml.kmean.*;
-import com.github.romualdrousseau.shuju.ml.nn.*;
 import com.github.romualdrousseau.shuju.ml.nn.optimizer.builder.*;
-import com.github.romualdrousseau.shuju.nlp.*;
+import com.github.romualdrousseau.shuju.ml.nn.*;
+import com.github.romualdrousseau.shuju.ml.qlearner.*;
 import com.github.romualdrousseau.shuju.util.*;
+import com.github.romualdrousseau.shuju.nlp.*;
 import com.github.romualdrousseau.shuju.cv.templatematching.*;
 import com.github.romualdrousseau.shuju.genetic.*;
+import com.github.romualdrousseau.shuju.math.distribution.*;
+import com.github.romualdrousseau.shuju.ml.kmean.*;
 import com.github.romualdrousseau.shuju.cv.templatematching.shapeextractor.*;
 import com.github.romualdrousseau.shuju.json.*;
-import com.github.romualdrousseau.shuju.ml.knn.*;
-import com.github.romualdrousseau.shuju.ml.naivebayes.*;
+import com.github.romualdrousseau.shuju.ml.nn.layer.builder.*;
+import com.github.romualdrousseau.shuju.ml.nn.optimizer.*;
 import com.github.romualdrousseau.shuju.ml.nn.scheduler.*;
 import com.github.romualdrousseau.shuju.ml.slr.*;
+import com.github.romualdrousseau.shuju.transforms.*;
+import com.github.romualdrousseau.shuju.ml.knn.*;
+import com.github.romualdrousseau.shuju.ml.nn.layer.*;
+import com.github.romualdrousseau.shuju.ml.naivebayes.*;
+import com.github.romualdrousseau.shuju.ml.nn.normalizer.*;
+import com.github.romualdrousseau.shuju.nlp.impl.*;
 
 static final String[] flowerWords = {
   "I. setosa",
@@ -37,10 +39,10 @@ final int iterationCount = 100;
 final int timeStepX = 10;
 
 ArrayList<Float[]> fisherSet;
-Matrix[] trainingInputs;
-Matrix[] trainingTargets;
-Matrix[] testInputs;
-Matrix[] testTargets;
+Vector[] trainingInputs;
+Vector[] trainingTargets;
+Vector[] testInputs;
+Vector[] testTargets;
 Model model;
 Optimizer optimizer;
 Loss loss;
@@ -73,7 +75,7 @@ public void loadDataSet(String fileName) throws IOException {
 void buildModel() {
   model = new Model();
 
-  model.add(new LayerBuilder()
+  model.add(new DenseBuilder()
     .setInputUnits(4)
     .setUnits(64)
     .setActivation(new Relu())
@@ -81,7 +83,7 @@ void buildModel() {
     .setNormalizer(new BatchNormalizer())
     .build());
 
-  model.add(new LayerBuilder()
+  model.add(new DenseBuilder()
     .setInputUnits(64)
     .setUnits(3)
     .setActivation(new Softmax())
@@ -100,35 +102,35 @@ void buildTraingAndTestSets() {
   ArrayList<Float[]> test = subset(fisherSet, p, fisherSet.size());
 
   // Training to Matrix
-  trainingInputs = new Matrix[training.size()];
-  trainingTargets = new Matrix[training.size()];
+  trainingInputs = new Vector[training.size()];
+  trainingTargets = new Vector[training.size()];
   for (int i = 0; i < training.size(); i++) {
     Float[] data = training.get(i);
-    trainingInputs[i] = new Matrix(4, 1);
-    trainingInputs[i].set(0, 0, data[0]);
-    trainingInputs[i].set(1, 0, data[1]);
-    trainingInputs[i].set(2, 0, data[2]);
-    trainingInputs[i].set(3, 0, data[3]);
-    trainingTargets[i] = new Matrix(3, 1);
-    trainingTargets[i].set(0, 0, data[4]);
-    trainingTargets[i].set(1, 0, data[5]);
-    trainingTargets[i].set(2, 0, data[6]);
+    trainingInputs[i] = new Vector(4);
+    trainingInputs[i].set(0, data[0]);
+    trainingInputs[i].set(1, data[1]);
+    trainingInputs[i].set(2, data[2]);
+    trainingInputs[i].set(3, data[3]);
+    trainingTargets[i] = new Vector(3);
+    trainingTargets[i].set(0, data[4]);
+    trainingTargets[i].set(1, data[5]);
+    trainingTargets[i].set(2, data[6]);
   }
 
   // Test to Matrix
-  testInputs = new Matrix[test.size()];
-  testTargets = new Matrix[test.size()];
+  testInputs = new Vector[test.size()];
+  testTargets = new Vector[test.size()];
   for (int i = 0; i < test.size(); i++) {
     Float[] data = test.get(i);
-    testInputs[i] = new Matrix(4, 1);
-    testInputs[i].set(0, 0, data[0]);
-    testInputs[i].set(1, 0, data[1]);
-    testInputs[i].set(2, 0, data[2]);
-    testInputs[i].set(3, 0, data[3]);
-    testTargets[i] = new Matrix(3, 1);
-    testTargets[i].set(0, 0, data[4]);
-    testTargets[i].set(1, 0, data[5]);
-    testTargets[i].set(2, 0, data[6]);
+    testInputs[i] = new Vector(4);
+    testInputs[i].set(0, data[0]);
+    testInputs[i].set(1, data[1]);
+    testInputs[i].set(2, data[2]);
+    testInputs[i].set(3, data[3]);
+    testTargets[i] = new Vector(3);
+    testTargets[i].set(0, data[4]);
+    testTargets[i].set(1, data[5]);
+    testTargets[i].set(2, data[6]);
   }
 }
 
@@ -161,7 +163,7 @@ void draw() {
     }
     optimizer.step();
     epochs++;
-    error += loss.getValue().flatten(0);
+    error += loss.getValueAsVector().flatten();
   }
   error /= iterationCount;
 
@@ -172,37 +174,37 @@ void draw() {
 
   strokeWeight(4);
   for (int i = 0; i < trainingInputs.length; i++) {
-    float c = map(trainingTargets[i].argmax(0), 0, 3, 0, 360);
+    float c = map(trainingTargets[i].argmax(), 0, 3, 0, 360);
     stroke(c, 100, 100);
 
-    float x = map(trainingInputs[i].get(0, 0), 0, 1.0, 1, width / 2 - 1);
-    float y = map(trainingInputs[i].get(1, 0), 0, 1.0, height / 2 - 1, 1);
+    float x = map(trainingInputs[i].get(0), 0, 1.0, 1, width / 2 - 1);
+    float y = map(trainingInputs[i].get(1), 0, 1.0, height / 2 - 1, 1);
     point(x, y);
 
-    x = map(trainingInputs[i].get(0, 0), 0, 1.0, width / 2 + 1, width - 1);
-    y = map(trainingInputs[i].get(2, 0), 0, 1.0, height / 2 - 1, 1);
+    x = map(trainingInputs[i].get(0), 0, 1.0, width / 2 + 1, width - 1);
+    y = map(trainingInputs[i].get(2), 0, 1.0, height / 2 - 1, 1);
     point(x, y);
 
-    x = map(trainingInputs[i].get(1, 0), 0, 1.0, width / 2 + 1, width);
-    y = map(trainingInputs[i].get(3, 0), 0, 1.0, height - 1, height / 2 + 1);
+    x = map(trainingInputs[i].get(1), 0, 1.0, width / 2 + 1, width);
+    y = map(trainingInputs[i].get(3), 0, 1.0, height - 1, height / 2 + 1);
     point(x, y);
 
-    x = map(trainingInputs[i].get(2, 0), 0, 1.0, 1, width / 2 - 1);
-    y = map(trainingInputs[i].get(3, 0), 0, 1.0, height - 1, height / 2 + 1);
+    x = map(trainingInputs[i].get(2), 0, 1.0, 1, width / 2 - 1);
+    y = map(trainingInputs[i].get(3), 0, 1.0, height - 1, height / 2 + 1);
     point(x, y);
   }
 
   int success = 0;
   for (int i = 0; i < testInputs.length; i++) {
-    Matrix r = new Matrix(model.model(testInputs[i]).detachAsVector());
-    int i1 = r.argmax(0);
-    int i2 = testTargets[i].argmax(0);
+    Vector r = model.model(testInputs[i]).detachAsVector();
+    int i1 = r.argmax();
+    int i2 = testTargets[i].argmax();
     if (i1 == i2) {
       success++;
     }
 
-    float x = map(testInputs[i].get(0, 0), 0, 1.0, 1, width / 2 - 1);
-    float y = map(testInputs[i].get(1, 0), 0, 1.0, height / 2 - 1, 1);
+    float x = map(testInputs[i].get(0), 0, 1.0, 1, width / 2 - 1);
+    float y = map(testInputs[i].get(1), 0, 1.0, height / 2 - 1, 1);
     float c = map(i2, 0, 3, 0, 360);
     strokeWeight(8);
     stroke(c, 100, 100);
@@ -214,8 +216,8 @@ void draw() {
       point(x, y);
     }
 
-    x = map(testInputs[i].get(0, 0), 0, 1.0, width / 2 + 1, width - 1);
-    y = map(testInputs[i].get(2, 0), 0, 1.0, height / 2 - 1, 1);
+    x = map(testInputs[i].get(0), 0, 1.0, width / 2 + 1, width - 1);
+    y = map(testInputs[i].get(2), 0, 1.0, height / 2 - 1, 1);
     c = map(i2, 0, 3, 0, 360);
     strokeWeight(8);
     stroke(c, 100, 100);
@@ -227,8 +229,8 @@ void draw() {
       point(x, y);
     }
 
-    x = map(testInputs[i].get(1, 0), 0, 1.0, width / 2 + 1, width - 1);
-    y = map(testInputs[i].get(3, 0), 0, 1.0, height - 1, height / 2 + 1);
+    x = map(testInputs[i].get(1), 0, 1.0, width / 2 + 1, width - 1);
+    y = map(testInputs[i].get(3), 0, 1.0, height - 1, height / 2 + 1);
     c = map(i2, 0, 3, 0, 360);
     strokeWeight(8);
     stroke(c, 100, 100);
@@ -240,8 +242,8 @@ void draw() {
       point(x, y);
     }
 
-    x = map(testInputs[i].get(2, 0), 0, 1.0, 1, width / 2 - 1);
-    y = map(testInputs[i].get(3, 0), 0, 1.0, height - 1, height / 2 + 1);
+    x = map(testInputs[i].get(2), 0, 1.0, 1, width / 2 - 1);
+    y = map(testInputs[i].get(3), 0, 1.0, height - 1, height / 2 + 1);
     c = map(i2, 0, 3, 0, 360);
     strokeWeight(8);
     stroke(c, 100, 100);

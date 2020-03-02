@@ -4,7 +4,7 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 
 import com.github.romualdrousseau.shuju.math.Vector;
-import com.github.romualdrousseau.shuju.ml.nn.layer.DenseBuilder;
+import com.github.romualdrousseau.shuju.ml.nn.layer.builder.DenseBuilder;
 import com.github.romualdrousseau.shuju.math.Matrix;
 
 public class Model {

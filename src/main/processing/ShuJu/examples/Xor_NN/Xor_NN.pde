@@ -7,42 +7,44 @@ import com.github.romualdrousseau.shuju.math.*;
 import com.github.romualdrousseau.shuju.ml.nn.activation.*;
 import com.github.romualdrousseau.shuju.ml.nn.initializer.*;
 import com.github.romualdrousseau.shuju.ml.nn.loss.*;
-import com.github.romualdrousseau.shuju.ml.nn.normalizer.*;
-import com.github.romualdrousseau.shuju.ml.nn.optimizer.*;
-import com.github.romualdrousseau.shuju.ml.qlearner.*;
-import com.github.romualdrousseau.shuju.nlp.impl.*;
-import com.github.romualdrousseau.shuju.transforms.*;
-import com.github.romualdrousseau.shuju.math.distribution.*;
-import com.github.romualdrousseau.shuju.ml.kmean.*;
-import com.github.romualdrousseau.shuju.ml.nn.*;
 import com.github.romualdrousseau.shuju.ml.nn.optimizer.builder.*;
-import com.github.romualdrousseau.shuju.nlp.*;
+import com.github.romualdrousseau.shuju.ml.nn.*;
+import com.github.romualdrousseau.shuju.ml.qlearner.*;
 import com.github.romualdrousseau.shuju.util.*;
+import com.github.romualdrousseau.shuju.nlp.*;
 import com.github.romualdrousseau.shuju.cv.templatematching.*;
 import com.github.romualdrousseau.shuju.genetic.*;
+import com.github.romualdrousseau.shuju.math.distribution.*;
+import com.github.romualdrousseau.shuju.ml.kmean.*;
 import com.github.romualdrousseau.shuju.cv.templatematching.shapeextractor.*;
 import com.github.romualdrousseau.shuju.json.*;
-import com.github.romualdrousseau.shuju.ml.knn.*;
-import com.github.romualdrousseau.shuju.ml.naivebayes.*;
+import com.github.romualdrousseau.shuju.ml.nn.layer.builder.*;
+import com.github.romualdrousseau.shuju.ml.nn.optimizer.*;
 import com.github.romualdrousseau.shuju.ml.nn.scheduler.*;
 import com.github.romualdrousseau.shuju.ml.slr.*;
+import com.github.romualdrousseau.shuju.transforms.*;
+import com.github.romualdrousseau.shuju.ml.knn.*;
+import com.github.romualdrousseau.shuju.ml.nn.layer.*;
+import com.github.romualdrousseau.shuju.ml.naivebayes.*;
+import com.github.romualdrousseau.shuju.ml.nn.normalizer.*;
+import com.github.romualdrousseau.shuju.nlp.impl.*;
 
 Model model;
 Optimizer optimizer;
 Loss loss;
 
-Matrix[] inputs = {
-  new Matrix(new float[] {0, 0}),
-  new Matrix(new float[] {0, 1}),
-  new Matrix(new float[] {1, 0}),
-  new Matrix(new float[] {1, 1})
+Vector[] inputs = {
+  new Vector(new float[] {0, 0}),
+  new Vector(new float[] {0, 1}),
+  new Vector(new float[] {1, 0}),
+  new Vector(new float[] {1, 1})
 };
 
-Matrix[] targets = {
-  new Matrix(new float[] {0}),
-  new Matrix(new float[] {1}),
-  new Matrix(new float[] {1}),
-  new Matrix(new float[] {0})
+Vector[] targets = {
+  new Vector(new float[] {0}),
+  new Vector(new float[] {1}),
+  new Vector(new float[] {1}),
+  new Vector(new float[] {0})
 };
 
 void setup() {
@@ -50,13 +52,13 @@ void setup() {
 
   model = new Model();
 
-  model.add(new LayerBuilder()
+  model.add(new DenseBuilder()
     .setInputUnits(2)
     .setUnits(4)
     .setActivation(new Tanh())
     .setInitializer(new GlorotUniformInitializer()).build());
 
-  model.add(new LayerBuilder()
+  model.add(new DenseBuilder()
     .setInputUnits(4)
     .setUnits(1)
     .setActivation(new Linear())
@@ -87,7 +89,7 @@ void draw() {
   noStroke();
   for (int i = 0; i <= r; i++) {
     for (int j = 0; j <= r; j++) {
-      Matrix input = new Matrix(new float[] {(float) i / (float) r, (float) j / (float) r});
+      Vector input = new Vector(new float[] {(float) i / (float) r, (float) j / (float) r});
       fill(model.model(input).detachAsVector().get(0) * 255);
       rect(j * w, i * h, w, h);
     }

@@ -5,7 +5,7 @@ import com.github.romualdrousseau.shuju.ml.nn.*;
 import com.github.romualdrousseau.shuju.ml.nn.loss.*;
 import com.github.romualdrousseau.shuju.ml.nn.optimizer.builder.*;
 import com.github.romualdrousseau.shuju.ml.nn.activation.*;
-import com.github.romualdrousseau.shuju.ml.nn.layer.DenseBuilder;
+import com.github.romualdrousseau.shuju.ml.nn.layer.builder.DenseBuilder;
 
 public class QMatrixNnImpl extends QMatrix {
     public QMatrixNnImpl(QEnvironment env) {

@@ -23,7 +23,7 @@ class Brain_ {
   }
 
   Matrix predict(PVector point) {
-    Matrix input = new Matrix(new float[] { point.x, point.y });
+    Vector input = new Vector(new float[] { point.x, point.y });
     return this.model.model(input).detach();
   }
 
@@ -42,19 +42,19 @@ class Brain_ {
       for (int i = 0; i < Map2D.points.size(); i++) {
         PVector point = Map2D.points.get(i);
 
-        Matrix input = new Matrix(new float[] { point.x, point.y });
-        Matrix target = new Matrix(new Vector(2).oneHot(int(point.z)));
+        Vector input = new Vector(new float[] { point.x, point.y });
+        Vector target = new Vector(2).oneHot(int(point.z));
 
         Layer output = this.model.model(input);
         Loss loss = this.criterion.loss(output, target);
         
-        if(output.detachAsVector().argmax() != target.argmax(0)) {
+        if(output.detachAsVector().argmax() != target.argmax()) {
           loss.backward();
         } else {
           sumAccu++;
         }
 
-        sumMean += loss.getValue().flatten(0);
+        sumMean += loss.getValueAsVector().flatten();
 
         if (Float.isNaN(sumMean)) {
           sumMean = 0.0;
@@ -74,21 +74,21 @@ class Brain_ {
   void buildModelSoftmax() {
     this.model = new Model();
     
-    this.model.add(new LayerBuilder()
+    this.model.add(new DenseBuilder()
       .setInputUnits(2)
       .setUnits(BRAIN_HIDDEN_NEURONS)
       .setActivation(new LeakyRelu())
       .setNormalizer(new BatchNormalizer())
       .build());
       
-    this.model.add(new LayerBuilder()
+    this.model.add(new DenseBuilder()
       .setInputUnits(BRAIN_HIDDEN_NEURONS)
       .setUnits(BRAIN_HIDDEN_NEURONS)
       .setActivation(new LeakyRelu())
       .setNormalizer(new BatchNormalizer())
       .build());
       
-    this.model.add(new LayerBuilder()
+    this.model.add(new DenseBuilder()
       .setInputUnits(BRAIN_HIDDEN_NEURONS)
       .setUnits(2)
       .setActivation(new Softmax())
@@ -102,13 +102,13 @@ class Brain_ {
   void buildModelMSE() {
     this.model = new Model();
     
-    this.model.add(new LayerBuilder()
+    this.model.add(new DenseBuilder()
       .setInputUnits(2)
       .setUnits(BRAIN_HIDDEN_NEURONS)
       .setActivation(new Tanh())
       .build());
       
-    this.model.add(new LayerBuilder()
+    this.model.add(new DenseBuilder()
       .setInputUnits(BRAIN_HIDDEN_NEURONS)
       .setUnits(2)
       .setActivation(new Linear())
@@ -125,13 +125,13 @@ class Brain_ {
   void buildModelHuber() {
     this.model = new Model();
     
-    this.model.add(new LayerBuilder()
+    this.model.add(new DenseBuilder()
       .setInputUnits(2)
       .setUnits(BRAIN_HIDDEN_NEURONS)
       .setActivation(new Relu())
       .build());
       
-    this.model.add(new LayerBuilder()
+    this.model.add(new DenseBuilder()
       .setInputUnits(BRAIN_HIDDEN_NEURONS)
       .setUnits(2)
       .setActivation(new Linear())

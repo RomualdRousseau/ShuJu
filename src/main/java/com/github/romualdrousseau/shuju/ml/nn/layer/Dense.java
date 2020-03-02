@@ -15,7 +15,7 @@ import com.github.romualdrousseau.shuju.ml.nn.initializer.GlorotUniformInitializ
 
 public class Dense extends Layer {
 
-    protected Dense(int inputUnits, int units, float bias, ActivationFunc activation, InitializerFunc initializer,
+    public Dense(int inputUnits, int units, float bias, ActivationFunc activation, InitializerFunc initializer,
             NormalizerFunc normalizer) {
         super(bias);
 

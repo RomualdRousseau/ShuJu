@@ -29,10 +29,6 @@ public class Matrix {
         }
     }
 
-    public Matrix(float[] v) {
-        this(v, true);
-    }
-
     public Matrix(float[] v, boolean rowvar) {
         if (rowvar) {
             this.rows = 1;
@@ -71,10 +67,6 @@ public class Matrix {
                 }
             }
         }
-    }
-
-    public Matrix(Float[] v) {
-        this(v, true);
     }
 
     public Matrix(Float[] v, boolean rowvar) {
@@ -119,10 +111,6 @@ public class Matrix {
                 }
             }
         }
-    }
-
-    public Matrix(Vector v) {
-        this(v, true);
     }
 
     public Matrix(Vector v, boolean rowvar) {
@@ -1341,9 +1329,9 @@ public class Matrix {
         return result;
     }
 
-    public Vector toVector(int idx) {
-        return this.toVector(idx, true);
-    }
+    // public Vector toVector(int idx) {
+    //     return this.toVector(idx, true);
+    // }
 
     public Vector toVector(int idx, boolean rowvar) {
         if(rowvar) {
@@ -1352,32 +1340,6 @@ public class Matrix {
             Vector result = new Vector(this.rows);
             for (int i = 0; i < this.rows; i++) {
                 result.data[i] = this.data[i][idx];
-            }
-            return result;
-        }
-    }
-
-    public Vector toVector() {
-        return this.toVector(true);
-    }
-
-    public Vector toVector(boolean rowvar) {
-        if(rowvar) {
-            Vector result = new Vector(this.rows * this.cols);
-            int vi = 0;
-            for (int i = 0; i < this.rows; i++) {
-                for (int j = 0; j < this.cols; j++) {
-                    result.data[vi++] = this.data[i][j];
-                }
-            }
-            return result;
-        } else {
-            Vector result = new Vector(this.rows * this.cols);
-            int vi = 0;
-            for (int j = 0; j < this.cols; j++) {
-                for (int i = 0; i < this.rows; i++) {
-                    result.data[vi++] = this.data[i][j];
-                }
             }
             return result;
         }
