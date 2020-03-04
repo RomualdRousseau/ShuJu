@@ -139,15 +139,6 @@ public class AppTest {
         }
     }
 
-    // @Test
-    // public void testLinalgEig2() {
-    //     Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
-    //     Matrix[] tmp = Linalg.Hessenberg(M);
-    //     Linalg.QRHess(tmp[0], tmp[1]);
-    //     System.out.println(tmp[0]);
-    //     System.out.println(tmp[1]);
-    // }
-
     @Test
     public void testFuzzyString() {
         assertThat(FuzzyString.Jaccard("MATERIAL CODE", "MATERIAL CODE"), is(greaterThanOrEqualTo(0.8f)));

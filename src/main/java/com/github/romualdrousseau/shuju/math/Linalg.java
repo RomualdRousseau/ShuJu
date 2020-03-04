@@ -227,97 +227,43 @@ public class Linalg {
         Matrix values = h[0];
         Matrix vectors = h[1];
         int its = 0;
-        do {
-            float mu = WilkinsonShift(
-                    values.data[values.rows - 2][values.cols - 2],
-                    values.data[values.rows - 2][values.cols - 1],
-                    values.data[values.rows - 1][values.cols - 2],
-                    values.data[values.rows - 1][values.cols - 1]);
-            Matrix shift = values.copy().identity().mul(mu);
-            Matrix[] tmp = Linalg.QR(values.sub(shift));
-            vectors = vectors.matmul(tmp[0]);
-            values = tmp[1].matmul(tmp[0]).add(shift);
-            its++;
-            if(++its > 1000000L) {
-                 throw new RuntimeException("too much iteration");
-            }
-        } while (Scalar.abs(values.data[values.rows - 1][values.cols - 2]) >= e);
+        for(int p = values.rows - 1; p >= 1; p-- ) {
+            do {
+                float shift = WilkinsonShift(
+                        values.data[p - 1][p - 1],
+                        values.data[p - 1][p],
+                        values.data[p][p - 1],
+                        values.data[p][p]);
+
+                for(int k = 0; k < p; k++) {
+                    QRStep(k, k + 1, p + 1, values, vectors, shift);
+                }
+
+                its++;
+                if(++its > 1000000L) {
+                    throw new RuntimeException("too much iteration");
+                }
+            } while (Scalar.abs(values.data[p][p - 1]) >= e);
+        }
         return new Matrix[] { values, vectors };
     }
 
-    public static void QRHess(Matrix A, Matrix Q) {
-        int n = A.rows;
-
-        float norm = 0.0f;
-        for(int x = 0; x < n; x++) {
-            for(int y = 0; y < Scalar.min(x + 2, n); y++) {
-                norm += A.data[y][x] * A.data[y][x];
-            }
-        }
-        norm = Scalar.sqrt(norm) / (float) n;
-
-        if (norm == 0.0f) {
-            return;
-        }
-
-        int n0 = 0;
-        int n1 = n;
-
-        float eps = Scalar.EPSILON / (100 * n);
-        int maxits = 100000;
-
-        int its = 0;
-        // int totalits = 0;
-
-        while (true) {
-            int k = n0;
-
-            while (k + 1 < n1) {
-                float s = Scalar.abs(A.data[k][k] + A.data[k + 1][k + 1]);
-                if (s < eps * norm) {
-                    s = norm;
-                }
-                if (Scalar.abs(A.data[k + 1][k]) < eps * s) {
-                    break;
-                }
-                k += 1;
-            }
-
-            if (k + 1 < n1) {
-                A.data[k + 1][k] = 0.0f;
-                n0 = k + 1;
-
-                its = 0;
-
-                if (n0 + 1 >= n1) {
-                    n0 = 0;
-                    n1 = k + 1;
-                    if (n1 < 2) {
-                        return;
-                    }
-                }
-            } else {
-                float shift = WilkinsonShift(A.data[n1 - 2][n1 - 2], A.data[n1 - 2][n1 - 1], A.data[n1 - 1][n1 - 2], A.data[n1 - 1][n1 - 1]);
-                Linalg.QRStep(n0, n1, A, Q, shift);
-
-                its++;
-                // totalits++;
-
-                if (its > maxits) {
-                    throw new RuntimeException("qr: failed to converge after " + its + " steps");
-                }
-            }
-        }
+    public static Matrix PCA(Matrix m, int n, float e) {
+        Matrix cov = m.cov(0);
+        Matrix[] eig = Linalg.Eig(cov, e);
+        Matrix sort = Linalg.Sort(eig[0]);
+        return eig[1].matmul(sort).copy(0, 0, cov.rowCount(), n);
     }
 
-    private static void QRStep(int n0, int n1, Matrix A, Matrix Q, float shift) {
-        int n = A.rows;
+    private static float WilkinsonShift(float a, float b, float c, float d) {
+        float s = (a - d) * 0.5f;
+        return d + s - Scalar.sign(s) * Scalar.sqrt(s * s + 4 * b * c) * 0.5f;
+    }
 
+    private static void QRStep(int n0, int n1, int n, Matrix A, Matrix Q, float shift) {
         float c = A.data[n0][n0] - shift;
-        float s = A.data[n0 + 1][n0];
-
+        float s = A.data[n0][n0 + 1];
         float v = Scalar.sqrt(c * c + s * s);
-
         if (v == 0.0f) {
             v = 1.0f;
             c = 1.0f;
@@ -327,68 +273,25 @@ public class Linalg {
             s /= v;
         }
 
-        for (int k = n0; k < n; k++) {
-            float x = A.data[n0][k];
-            float y = A.data[n0 + 1][k];
-            A.data[n0][k] = c * x + s * y;
-            A.data[n0 + 1][k] = c * y - s * x;
+        for (int j = Math.max(n0 - 1, 0); j < n; j++) {
+            float a = A.data[n0][j];
+            float b = A.data[n1][j];
+            A.data[n0][j] = c * a + s * b;
+            A.data[n1][j] = c * b - s * a;
         }
 
-        for (int k = 0; k < Scalar.min(n1, n0 + 3); k++) {
-            float x = A.data[k][n0];
-            float y = A.data[k][n0 + 1];
-            A.data[k][n0] = c * x + s * y;
-            A.data[k][n0 + 1] = c * y - s * x;
+        for (int j = 0; j < Math.min(n1 + 2, n); j++) {
+            float a = A.data[j][n0];
+            float b = A.data[j][n1];
+            A.data[j][n0] = c * a + s * b;
+            A.data[j][n1] = c * b - s * a;
         }
 
-        for (int k = 0; k < n; k++) {
-            float x = Q.data[k][n0];
-            float y = Q.data[k][n0 + 1];
-            Q.data[k][n0] = c * x + s * y;
-            Q.data[k][n0 + 1] = c * y - s * x;
+        for (int j = 0; j < n; j++) {
+            float a = Q.data[j][n0];
+            float b = Q.data[j][n1];
+            Q.data[j][n0] = c * a + s * b;
+            Q.data[j][n1] = c * b - s* a;
         }
-
-        for (int j = n0; j < n1 - 2; j++) {
-
-            c = A.data[j + 1][j] - shift;
-            s = A.data[j + 2][j];
-
-            v = Scalar.sqrt(c * c + s * s);
-
-            if (v == 0.0f) {
-                v = 1.0f;
-                c = 1.0f;
-                s = 0.0f;
-            } else {
-                c /= v;
-                s /= v;
-            }
-
-            for (int k = j + 1; k < n; k++) {
-                float x = A.data[j + 1][k];
-                float y = A.data[j + 2][k];
-                A.data[j + 1][k] = c * x + s * y;
-                A.data[j + 2][k] = c * y - s * x;
-            }
-
-            for (int k = 0; k < Scalar.min(n1, j + 4); k++) {
-                float x = A.data[k][j + 1];
-                float y = A.data[k][j + 2];
-                A.data[k][j + 1] = c * x + s * y;
-                A.data[k][j + 2] = c * y - s * x;
-            }
-
-            for (int k = 0; k < n; k++) {
-                float x = Q.data[k][j + 1];
-                float y = Q.data[k][j + 2];
-                Q.data[k][j + 1] = c * x + s * y;
-                Q.data[k][j + 2] = c * y - s * x;
-            }
-        }
-    }
-
-    private static float WilkinsonShift(float a, float b, float c, float d) {
-        float s = (a - d) * 0.5f;
-        return d + s - Scalar.sign(s) * Scalar.sqrt(s * s + 4 * b * c) * 0.5f;
     }
 }
