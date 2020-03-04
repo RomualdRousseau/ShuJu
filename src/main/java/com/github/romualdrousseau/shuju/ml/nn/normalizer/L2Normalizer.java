@@ -5,6 +5,6 @@ import com.github.romualdrousseau.shuju.ml.nn.NormalizerFunc;
 
 public class L2Normalizer implements NormalizerFunc {
     public void apply(Matrix matrix) {
-        matrix.l2Norm();
+        matrix.l2Norm(0);
     }
 }

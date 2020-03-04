@@ -275,9 +275,9 @@ public class Vector {
         return this;
     }
 
-    public Vector cond(float p, float a, float b) {
+    public Vector if_lt_then(float p, float a, float b) {
         for (int j = 0; j < this.rows; j++) {
-            this.data[j] = Scalar.cond(this.data[j], p, a, b);
+            this.data[j] = Scalar.if_lt_then(this.data[j], p, a, b);
         }
         return this;
     }

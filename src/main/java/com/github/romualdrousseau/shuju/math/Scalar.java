@@ -71,7 +71,7 @@ public class Scalar {
         return (x < a) ? a : ((x > b) ? b : x);
     }
 
-    public static float cond(float x, float p, float a, float b) {
+    public static float if_lt_then(float x, float p, float a, float b) {
         return (x < p) ? a : b;
     }
 

@@ -5,6 +5,6 @@ import com.github.romualdrousseau.shuju.ml.nn.NormalizerFunc;
 
 public class BatchNormalizer implements NormalizerFunc {
     public void apply(Matrix matrix) {
-        matrix.batchNorm(1.0f, 0.0f);
+        matrix.batchNorm(1.0f, 0.0f, 0);
     }
 }

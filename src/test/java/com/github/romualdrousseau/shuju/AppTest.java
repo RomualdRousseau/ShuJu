@@ -25,47 +25,83 @@ import com.github.romualdrousseau.shuju.util.*;
 
 public class AppTest {
     @Test
-    public void testMinorAndDet() {
+    public void testMatrixMinor() {
         Matrix M1 = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
         Matrix M2 = new Matrix(new float[][] { { 5, 6 }, { 8, 1 } });
-        assertTrue(M1.minor(0, 0).equals(M2));
-        assertEquals(25, M1.det(), 0);
+        assertTrue("M1.minor(0, 0) = M2", M1.minor(0, 0).equals(M2));
     }
 
     @Test
-    public void testInverseMatrix() {
+    public void testMatrixDet() {
+        Matrix M = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
+        assertEquals("Det(M)", 25, M.det(), 0);
+    }
+
+    @Test
+    public void testMatrixInverse() {
         Matrix M1 = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
-        Matrix M2 = new Matrix(
-                new float[][] { { -1.72f, 0.2f, 0.52f }, { 1.52f, -0.2f, -0.32f }, { -0.12f, 0.2f, -0.08f } });
+        Matrix M2 = new Matrix(new float[][] { { -1.72f, 0.2f, 0.52f }, { 1.52f, -0.2f, -0.32f }, { -0.12f, 0.2f, -0.08f } });
         Matrix M3 = M1.inv();
-        assertTrue(M3.equals(M2, 1e-2f));
-        assertTrue(M1.cof().transpose().mul(1.0f / M1.det()).equals(M3, 1e-2f));
-        assertTrue(M1.adj().mul(1.0f / M1.det()).equals(M3, 1e-2f));
-        assertTrue(Linalg.Solve(M1, new Matrix(3, 3).identity()).equals(M3, 1e-2f));
+        assertTrue("Inv(M1) = M2", M3.equals(M2, 1e-2f));
+        assertTrue("Inv(M1) = Cof(M1)* / Det(m1)", M1.cof().transpose().mul(1.0f / M1.det()).equals(M3, 1e-2f));
+        assertTrue("Inv(M1) = Adj(M1) / Det(m1)", M1.adj().mul(1.0f / M1.det()).equals(M3, 1e-2f));
+    }
+
+    @Test
+    public void testMatrixReshape() {
+        Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
+        assertTrue("M.reshape(1, 16, 1)* = M.reshape(16, 1, 0)", M.reshape(1, 16, 1).transpose().equals(M.reshape(16, 1, 0)));
+        assertTrue("M.reshape(2, 8, 1)* = M.reshape(8, 2, 0)", M.reshape(2, 8, 1).transpose().equals(M.reshape(8, 2, 0)));
     }
 
     @Test
     public void testLinalgUpper() {
         Matrix M = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
+        Matrix I = new Matrix(3, 3).identity();
         Matrix U = Linalg.GaussianElimination(M, false);
-        assertTrue(U.isUpper(1e-2f));
-        assertTrue(Linalg.SolveTriangular(U, false).equals(new Matrix(3, 3).identity(), 1e-2f));
+        assertTrue("U is upper", U.isUpper(0, 1e-2f));
+        assertTrue("SolveUpperTriangular(U) = I", Linalg.SolveTriangular(U, false).equals(I, 1e-2f));
     }
 
     @Test
     public void testLinalgLower() {
         Matrix M = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
         Matrix L = Linalg.GaussianElimination(M, true);
-        assertTrue(L.isLower(1e-2f));
-        assertTrue(Linalg.SolveTriangular(L, true).equals(new Matrix(3, 3).identity(), 1e-2f));
+        assertTrue("L is lower", L.isLower(0, 1e-2f));
+        assertTrue("SolveLowerTriangular(L) = I", Linalg.SolveTriangular(L, true).equals(new Matrix(3, 3).identity(), 1e-2f));
     }
 
     @Test
     public void testLinalgSolve() {
         Matrix M1 = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
         Matrix M2 = new Matrix(new float[] { 3, 5, 6 }, false);
-        Matrix M3 = Linalg.Solve(M1, M2);
-        assertTrue(M1.matmul(M3).equals(M2, 1e-2f));
+        Matrix I = new Matrix(3, 3).identity();
+        assertTrue("Solve(M1, I) = Inv(M1)", Linalg.Solve(M1, I).equals(M1.inv(), 1e-2f));
+        assertTrue("M1@Solve(M1, M2) = M2", M1.matmul(Linalg.Solve(M1, M2)).equals(M2, 1e-2f));
+    }
+
+    @Test
+    public void testLinalgLU() {
+        Matrix M = new Matrix(new float[][] { { 3, 8, 1, -4 }, { 7, 3, -1, 2 }, { -1, 1, 4, -1 }, { 2, -4, -1, 6 } });
+        Matrix I = new Matrix(4, 4).identity();
+        Matrix P = Linalg.Pivot(M);
+        Matrix[] tmp = Linalg.LU(P.matmul(M));
+        Matrix L = tmp[0];
+        Matrix U = tmp[1];
+        assertTrue("P is permutation i.e. P*@P = I", P.transpose().matmul(P).equals(I));
+        assertTrue("L is lower", L.isLower(0, 1e-2f));
+        assertTrue("U is upper", U.isUpper(0, 1e-2f));
+        assertTrue("P*@L@U = M", P.transpose().matmul(L.matmul(U)).equals(M, 1e-2f));
+    }
+
+    @Test
+    public void testLinalgCholesky() {
+        Matrix M = new Matrix(new float[][] { { 6, 3, 4, 8 }, { 3, 6, 5, 1 }, { 4, 5, 10, 7 }, { 8, 1, 7, 25 } });
+        Matrix L = Linalg.Cholesky(M);
+        Matrix U = L.transpose();
+        assertTrue("L is lower", L.isLower(0, 1e-2f));
+        assertTrue("U is upper", U.isUpper(0, 1e-2f));
+        assertTrue("L@U = M", L.matmul(U).equals(M, 1e-2f));
     }
 
     @Test
@@ -74,51 +110,43 @@ public class AppTest {
         Matrix[] tmp = Linalg.QR(M);
         Matrix Q = tmp[0];
         Matrix R = tmp[1];
-        assertTrue(R.isUpper(1e-2f));
-        assertTrue(Q.transpose().equals(Q.inv(), 1e-2f));
-        assertTrue(Q.matmul(R).equals(M, 1e-2f));
+        assertTrue("R is upper", R.isUpper(0, 1e-2f));
+        assertTrue("Q is orthogonal", Q.isOrthogonal(1e-2f));
+        assertTrue("Q@R = M", Q.matmul(R).equals(M, 1e-2f));
     }
 
     @Test
-    public void testLinalgCholesky() {
-        Matrix M = new Matrix(new float[][] { { 6, 3, 4, 8 }, { 3, 6, 5, 1 }, { 4, 5, 10, 7 }, { 8, 1, 7, 25 } });
-        Matrix L = Linalg.Cholesky(M);
-        Matrix U = L.transpose();
-        assertTrue(L.isLower(1e-2f));
-        assertTrue(U.isUpper(1e-2f));
-        assertTrue(L.matmul(U).equals(M, 1e-2f));
-    }
-
-    @Test
-    public void testLinalgLU() {
-        Matrix M = new Matrix(new float[][] { { 7, 3, -1, 2 }, { 3, 8, 1, -4 }, { -1, 1, 4, -1 }, { 2, -4, -1, 6 } });
-        Matrix[] tmp = Linalg.LU(M);
-        Matrix L = tmp[0];
-        Matrix U = tmp[1];
-        assertTrue(L.isLower(1e-2f));
-        assertTrue(U.isUpper(1e-2f));
-        assertTrue(L.matmul(U).equals(M, 1e-2f));
+    public void testLinalgHessenberg() {
+        // Matrix M = new Matrix(new float[][] { { 3, -1, 2 }, { 2, 5, -5 }, { -2, -3, 7 } });
+        Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
+        Matrix[] tmp = Linalg.Hessenberg(M);
+        assertTrue("H is square", tmp[0].isSquared());
+        assertTrue("H is hessenger upper right form", tmp[0].isUpper(1, 1e-2f));
+        assertTrue("Q is orthogonal", tmp[1].isOrthogonal(1e-2f));
+        assertTrue("M = QAQ*", tmp[1].matmul(tmp[0]).matmul(tmp[1].transpose()).equals(M, 1e-2f));
     }
 
     @Test
     public void testLinalgEig() {
         Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
         Matrix[] tmp = Linalg.Eig(M, 1e-4f);
-        Matrix P = Linalg.Pivot(tmp[0]);
+        Matrix P = Linalg.Sort(tmp[0]);
         for (int i = 0; i < tmp[0].rowCount(); i++) {
             int k = P.argmax(i, 1);
             float l = tmp[0].get(k, k);
             Vector v = tmp[1].toVector(k, false);
-            assertTrue(v.transform(M).isSimilar(v.mul(l), 1e-2f));
+            assertTrue("M@v[" + i + "] = lv[" + i + "]", v.transform(M).isSimilar(v.mul(l), 1e-2f));
         }
     }
 
-    @Test
-    public void testReshape() {
-        Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
-        assertTrue(M.reshape(1, 16, 1).transpose().equals(M.reshape(16, 1, 0)));
-        assertTrue(M.reshape(2, 8, 1).transpose().equals(M.reshape(8, 2, 0)));
-    }
+    // @Test
+    // public void testLinalgEig2() {
+    //     Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
+    //     Matrix[] tmp = Linalg.Hessenberg(M);
+    //     Linalg.QRHess(tmp[0], tmp[1]);
+    //     System.out.println(tmp[0]);
+    //     System.out.println(tmp[1]);
+    // }
 
     @Test
     public void testFuzzyString() {
