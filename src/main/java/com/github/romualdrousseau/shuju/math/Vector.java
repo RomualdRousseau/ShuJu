@@ -93,11 +93,15 @@ public class Vector {
     }
 
     public boolean isSimilar(final Vector v, final float e) {
-        return Scalar.abs(this.similarity(v) - 1.0f) < e;
+        return 1.0f -  Scalar.abs(this.similarity(v)) < e;
     }
 
     public float similarity(final Vector v) {
-        return this.scalar(v) / (v.norm() * this.norm());
+        if(this.sparsity() == 1.0f || v.sparsity() == 1.0f) {
+            return 0.0f;
+        } else {
+            return this.scalar(v) / (this.norm() * v.norm());
+        }
     }
 
     public float sparsity() {
@@ -106,6 +110,13 @@ public class Vector {
             count += (this.data[i] == 0.0f) ? 1 : 0;
         }
         return (float) count / (float) this.rows;
+    }
+
+    public Vector chop(final float e) {
+        for (int i = 0; i < this.rows; i++) {
+            this.data[i] = (Scalar.abs(this.data[i]) < e) ? 0.0f : this.data[i];
+        }
+        return this;
     }
 
     public float avg() {
@@ -507,7 +518,7 @@ public class Vector {
         StringBuilder result = new StringBuilder();
         result.append("| ");
         for (int i = 0; i < this.rows; i++) {
-            result.append(String.format("%.2f\t", this.data[i]));
+            result.append(String.format("%.3f\t", this.data[i]));
         }
         result.append(" |").append(System.lineSeparator());
         ;

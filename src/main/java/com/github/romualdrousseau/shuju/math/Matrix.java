@@ -830,7 +830,7 @@ public class Matrix {
         for (int i = 0; i < this.rows; i++) {
             final float[] a = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                a[j] = Scalar.abs(a[j]) < e ? 0.0f : a[j];
+                a[j] = (Scalar.abs(a[j]) < e) ? 0.0f : a[j];
             }
         }
         return this;
@@ -1524,10 +1524,9 @@ public class Matrix {
         for (int i = 0; i < this.rows; i++) {
             final float[] a = this.data[i];
             result.append("| ");
-            for (int j = 0; j < this.cols - 1; j++) {
-                result.append(String.format("%.2f\t\t", a[j]));
+            for (int j = 0; j < this.cols; j++) {
+                result.append(String.format("%.3f\t", a[j]));
             }
-            result.append(String.format("%.2f", a[this.cols - 1]));
             result.append(" |").append(System.lineSeparator());
         }
 

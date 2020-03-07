@@ -119,6 +119,7 @@ public class AppTest {
     public void testLinalgHessenberg() {
         // Matrix M = new Matrix(new float[][] { { 3, -1, 2 }, { 2, 5, -5 }, { -2, -3, 7 } });
         Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
+        // Matrix M = new Matrix(new float[][] { { -3.05f, 1.62f, -4.94f, -5.17f }, { -3.72f, 2.18f, -6.11f, -6.32f }, { 13.24f, -7.23f, 21.51f, 22.44f }, { 7.01f, -3.43f, 11.23f, 11.86f } });
         Matrix[] tmp = Linalg.Hessenberg(M);
         assertTrue("H is square", tmp[0].isSquared());
         assertTrue("H is hessenger upper right form", tmp[0].isUpper(1, 1e-2f));
@@ -128,14 +129,15 @@ public class AppTest {
 
     @Test
     public void testLinalgEig() {
-        Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
-        Matrix[] tmp = Linalg.Eig(M, 1e-4f);
+        // Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
+        Matrix M = new Matrix(new float[][] { { -3.05f, 1.62f, -4.94f, -5.17f }, { -3.72f, 2.18f, -6.11f, -6.32f }, { 13.24f, -7.23f, 21.51f, 22.44f }, { 7.01f, -3.43f, 11.23f, 11.86f } });
+        Matrix[] tmp = Linalg.Eig(M, 1e-6f);
         Matrix P = Linalg.Sort(tmp[0]);
         for (int i = 0; i < tmp[0].rowCount(); i++) {
             int k = P.argmax(i, 1);
             float l = tmp[0].get(k, k);
             Vector v = tmp[1].toVector(k, false);
-            assertTrue("M@v[" + i + "] = lv[" + i + "]", v.transform(M).isSimilar(v.mul(l), 1e-2f));
+            assertTrue("M@v[" + i + "] = lv[" + i + "]", v.transform(M).isSimilar(v.copy().mul(l), 1e-2f));
         }
     }
 

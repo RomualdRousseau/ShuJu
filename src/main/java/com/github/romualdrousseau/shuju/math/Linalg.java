@@ -2,9 +2,9 @@ package com.github.romualdrousseau.shuju.math;
 
 public class Linalg {
 
-    public static Matrix Pivot(Matrix m) {
+    public static Matrix Pivot(final Matrix m) {
         assert (m.isSquared());
-        Matrix result = new Matrix(m.rows, m.rows).identity();
+        final Matrix result = new Matrix(m.rows, m.rows).identity();
         for (int j = 0; j < m.rows; j++) {
             int row = j;
             float max = m.data[j][j];
@@ -16,7 +16,7 @@ public class Linalg {
             }
             if (j != row) {
                 for (int k = 0; k < m.cols; k++) {
-                    float tmp = result.data[j][k];
+                    final float tmp = result.data[j][k];
                     result.data[j][k] = result.data[row][k];
                     result.data[row][k] = tmp;
                 }
@@ -25,9 +25,9 @@ public class Linalg {
         return result;
     }
 
-    public static Matrix Sort(Matrix m) {
+    public static Matrix Sort(final Matrix m) {
         assert (m.isSquared());
-        Matrix result = new Matrix(m.rows, m.rows).identity();
+        final Matrix result = new Matrix(m.rows, m.rows).identity();
         for (int j = 0; j < m.rows; j++) {
             int row = j;
             float max = m.data[j][j];
@@ -39,7 +39,7 @@ public class Linalg {
             }
             if (j != row) {
                 for (int k = 0; k < m.cols; k++) {
-                    float tmp = result.data[j][k];
+                    final float tmp = result.data[j][k];
                     result.data[j][k] = result.data[row][k];
                     result.data[row][k] = tmp;
                 }
@@ -48,17 +48,17 @@ public class Linalg {
         return result;
     }
 
-    public static Matrix GaussianElimination(Matrix m, boolean lower) {
-        Matrix q = m.copy();
+    public static Matrix GaussianElimination(final Matrix m, final boolean lower) {
+        final Matrix q = m.copy();
 
         if (lower) {
             for (int k = q.data.length - 1; k >= 0; k--) {
-                float a = 1.0f / q.data[k][k];
+                final float a = 1.0f / q.data[k][k];
                 for (int j = 0; j < q.data[k].length; j++) {
                     q.data[k][j] *= a;
                 }
                 for (int i = k - 1; i >= 0; i--) {
-                    float b = q.data[i][k];
+                    final float b = q.data[i][k];
                     for (int j = 0; j < q.data[i].length; j++) {
                         q.data[i][j] -= b * q.data[k][j];
                     }
@@ -66,12 +66,12 @@ public class Linalg {
             }
         } else {
             for (int k = 0; k < q.data.length; k++) {
-                float a = 1.0f / q.data[k][k];
+                final float a = 1.0f / q.data[k][k];
                 for (int j = 0; j < q.data[k].length; j++) {
                     q.data[k][j] *= a;
                 }
                 for (int i = k + 1; i < q.data.length; i++) {
-                    float b = q.data[i][k];
+                    final float b = q.data[i][k];
                     for (int j = 0; j < q.data[i].length; j++) {
                         q.data[i][j] -= b * q.data[k][j];
                     }
@@ -82,13 +82,13 @@ public class Linalg {
         return q;
     }
 
-    public static Matrix SolveTriangular(Matrix m, boolean lower) {
-        Matrix q = m.copy();
+    public static Matrix SolveTriangular(final Matrix m, final boolean lower) {
+        final Matrix q = m.copy();
 
         if (lower) {
             for (int k = 1; k < q.data.length; k++) {
                 for (int i = k - 1; i >= 0; i--) {
-                    float a = q.data[k][i];
+                    final float a = q.data[k][i];
                     for (int j = 0; j < q.data[k].length; j++) {
                         q.data[k][j] -= a * q.data[i][j];
                     }
@@ -97,7 +97,7 @@ public class Linalg {
         } else {
             for (int k = q.data.length - 2; k >= 0; k--) {
                 for (int i = k + 1; i < q.data.length; i++) {
-                    float a = q.data[k][i];
+                    final float a = q.data[k][i];
                     for (int j = 0; j < q.data[k].length; j++) {
                         q.data[k][j] -= a * q.data[i][j];
                     }
@@ -108,7 +108,7 @@ public class Linalg {
         return q;
     }
 
-    public static Matrix Solve(Matrix m, Matrix y) {
+    public static Matrix Solve(final Matrix m, final Matrix y) {
         assert (m.isSquared());
         Matrix q = m.concat(y, 1);
         q = Linalg.GaussianElimination(q, false);
@@ -116,48 +116,48 @@ public class Linalg {
         return q.copy(0, m.cols, y.rows, y.cols);
     }
 
-    public static Vector Reflector(Matrix m) {
-        Vector x = m.toVector(0, false);
-        float x_0 = x.data[0];
-        float u_0 = x_0 - x.norm() * Scalar.sign(x_0);
-        Vector u = x.copy().set(0, u_0);
-        Vector v = u.l2Norm();
+    public static Vector Reflector(final Matrix m) {
+        final Vector x = m.toVector(0, false);
+        final float x_0 = x.data[0];
+        final float u_0 = x_0 - x.norm() * Scalar.sign(x_0);
+        final Vector u = x.copy().set(0, u_0);
+        final Vector v = u.l2Norm();
         return v;
     }
 
-    public static Matrix HouseHolder(Matrix m, int rows) {
-        Vector v = Linalg.Reflector(m);
-        Matrix result = new Matrix(rows, rows).identity();
+    public static Matrix HouseHolder(final Matrix m, final int rows) {
+        final Vector v = Linalg.Reflector(m);
+        final Matrix result = new Matrix(rows, rows).identity();
         for (int i = 0; i < v.rows; i++) {
             for (int j = 0; j < v.rows; j++) {
-                float a = -2 * v.data[v.rows - 1 - i] * v.data[v.rows - 1 - j];
+                final float a = -2 * v.data[v.rows - 1 - i] * v.data[v.rows - 1 - j];
                 result.data[rows - 1 - i][rows - 1 - j] += a;
             }
         }
         return result;
     }
 
-    public static Matrix[] Hessenberg(Matrix m) {
-        Matrix[] q = new Matrix[m.rows - 2];
+    public static Matrix[] Hessenberg(final Matrix m) {
+        final Matrix[] q = new Matrix[m.rows - 2];
 
-        Matrix values = m;
-        for (int k = 0; k < m.rows - 2; k++) {
-            q[k] = Linalg.HouseHolder(values.copy(k + 1, k), values.rows);
-            values = q[k].matmul(values).matmul(q[k].transpose());
+        Matrix H = m;
+        for (int k = 0; k <= m.rows - 3; k++) {
+            q[k] = Linalg.HouseHolder(H.copy(k + 1, k), H.rows);
+            H = q[k].matmul(H).matmul(q[k].transpose());
         }
 
-        Matrix vectors = m.copy().identity();
+        Matrix V = new Matrix(m.rows, m.cols).identity();
         for (int k = m.rows - 3; k >= 0; k--) {
-            vectors = q[k].matmul(vectors);
+            V = q[k].matmul(V);
         }
 
-        return new Matrix[] { values, vectors };
+        return new Matrix[] { H, V };
     }
 
-    public static Matrix[] LU(Matrix m) {
-        int n = m.rows;
-        Matrix L = new Matrix(n, n).identity();
-        Matrix U = new Matrix(n, n);
+    public static Matrix[] LU(final Matrix m) {
+        final int n = m.rows;
+        final Matrix L = new Matrix(n, n).identity();
+        final Matrix U = new Matrix(n, n);
 
         for (int j = 0; j < n; j++) {
             for (int i = 0; i <= j; i++) {
@@ -180,7 +180,7 @@ public class Linalg {
         return new Matrix[] { L, U };
     }
 
-    public static Matrix[] QR(Matrix m) {
+    public static Matrix[] QR(final Matrix m) {
         Matrix tmp = Linalg.HouseHolder(m, m.rows);
         Matrix R = tmp.matmul(m);
         Matrix Q = tmp.transpose();
@@ -194,22 +194,22 @@ public class Linalg {
         return new Matrix[] { Q, R };
     }
 
-    public static Matrix Cholesky(Matrix m) {
+    public static Matrix Cholesky(final Matrix m) {
         assert (m.isSymetric(Scalar.EPSILON));
 
-        Matrix result = new Matrix(m.rows, m.cols, 0.0f);
+        final Matrix result = new Matrix(m.rows, m.cols, 0.0f);
 
-        float[][] r_data = result.data;
+        final float[][] r_data = result.data;
         for (int i = 0; i < r_data.length; i++) {
             for (int k = 0; k <= i; k++) {
-                float m_ik = m.get(i, k);
+                final float m_ik = m.get(i, k);
 
                 float sum = 0.0f;
                 for (int j = 0; j < k; j++) {
                     sum += r_data[i][j] * r_data[k][j];
                 }
 
-                float a = m_ik - sum;
+                final float a = m_ik - sum;
 
                 if (i == k) {
                     r_data[i][k] = Scalar.sqrt(a);
@@ -222,50 +222,64 @@ public class Linalg {
         return result;
     }
 
-    public static Matrix[] Eig(Matrix m, float e) {
-        Matrix[] h = Linalg.Hessenberg(m);
-        Matrix values = h[0];
-        Matrix vectors = h[1];
+    public static Matrix[] Eig(final Matrix m, final float e) {
+        final Matrix[] h = Linalg.Hessenberg(m);
+        final Matrix H = h[0];
+        final Matrix Q = h[1];
         int its = 0;
-        for(int p = values.rows - 1; p >= 1; p-- ) {
+        for (int p = H.rows - 1; p >= 1; p--) {
             do {
-                float shift = WilkinsonShift(
-                        values.data[p - 1][p - 1],
-                        values.data[p - 1][p],
-                        values.data[p][p - 1],
-                        values.data[p][p]);
+                float shift;
+                if ((its % 11) == 10) {
+                    shift = H.data[p][p];
+                } else {
+                    shift = Linalg.WilkinsonShift(
+                            H.data[p - 1][p - 1], H.data[p - 1][p],
+                            H.data[p][p - 1], H.data[p][p]);
+                }
 
-                for(int k = 0; k < p; k++) {
-                    QRStep(k, k + 1, p + 1, values, vectors, shift);
+                for (int k = 0; k < p; k++) {
+                    Linalg.QRStep(k, k + 1, p + 1, H, Q, shift);
                 }
 
                 its++;
-                if(++its > 1000000L) {
+                if (++its > 100000) {
                     throw new RuntimeException("too much iteration");
                 }
-            } while (Scalar.abs(values.data[p][p - 1]) >= e);
+            } while (Scalar.abs(H.data[p][p - 1]) >= e);
         }
-        return new Matrix[] { values, vectors };
+        return new Matrix[] { H, Q.matmul(Linalg.RightEigFromShur(H, e)) };
     }
 
-    public static Matrix PCA(Matrix m, int n, float e) {
-        Matrix cov = m.cov(0);
-        Matrix[] eig = Linalg.Eig(cov, e);
-        Matrix sort = Linalg.Sort(eig[0]);
-        return eig[1].matmul(sort).copy(0, 0, cov.rowCount(), n);
+    public static Matrix[] Svd(final Matrix m, final float e) {
+        return Linalg.Eig(m.matmul(m.transpose()), e);
     }
 
-    private static float WilkinsonShift(float a, float b, float c, float d) {
-        float s = (a - d) * 0.5f;
-        return d + s - Scalar.sign(s) * Scalar.sqrt(s * s + 4 * b * c) * 0.5f;
+    public static Matrix PCA(final Matrix m, final int n, final float e) {
+        final Matrix cov = m.cov(0);
+        final Matrix[] eig = Linalg.Eig(cov, e);
+        final Matrix sort = Linalg.Sort(eig[0]);
+        return eig[1].matmul(sort).copy(0, 0, eig[1].rowCount(), n);
     }
 
-    private static void QRStep(int n0, int n1, int n, Matrix A, Matrix Q, float shift) {
+    private static float WilkinsonShift(final float a, final float b, final float c, final float d) {
+        final float s = (a - d) * 0.5f;
+        final float ss = Scalar.abs(s) + Scalar.sqrt(s * s + Scalar.abs(b * c));
+        if (ss == 0.0f) {
+            return d;
+        } else {
+            return d - Scalar.sign(s) * b * c / ss;
+        }
+        // final float s = (a - d) * 0.5f;
+        // return d + s * 0.5f - Scalar.sign(s) * Scalar.sqrt(s * s + c * c);
+    }
+
+    private static void QRStep(final int n0, final int n1, final int n, final Matrix A, final Matrix Q,
+            final float shift) {
         float c = A.data[n0][n0] - shift;
-        float s = A.data[n0][n0 + 1];
-        float v = Scalar.sqrt(c * c + s * s);
+        float s = A.data[n1][n0];
+        final float v = Scalar.sqrt(c * c + s * s);
         if (v == 0.0f) {
-            v = 1.0f;
             c = 1.0f;
             s = 0.0f;
         } else {
@@ -273,25 +287,72 @@ public class Linalg {
             s /= v;
         }
 
-        for (int j = Math.max(n0 - 1, 0); j < n; j++) {
-            float a = A.data[n0][j];
-            float b = A.data[n1][j];
+        for (int j = Math.max(n1 - 2, 0); j < n; j++) {
+            final float a = A.data[n0][j];
+            final float b = A.data[n1][j];
             A.data[n0][j] = c * a + s * b;
             A.data[n1][j] = c * b - s * a;
         }
 
         for (int j = 0; j < Math.min(n1 + 2, n); j++) {
-            float a = A.data[j][n0];
-            float b = A.data[j][n1];
+            final float a = A.data[j][n0];
+            final float b = A.data[j][n1];
             A.data[j][n0] = c * a + s * b;
             A.data[j][n1] = c * b - s * a;
         }
 
         for (int j = 0; j < n; j++) {
-            float a = Q.data[j][n0];
-            float b = Q.data[j][n1];
+            final float a = Q.data[j][n0];
+            final float b = Q.data[j][n1];
             Q.data[j][n0] = c * a + s * b;
-            Q.data[j][n1] = c * b - s* a;
+            Q.data[j][n1] = c * b - s * a;
         }
+    }
+
+    private static Matrix RightEigFromShur(final Matrix H, final float e) {
+        final Matrix Y = new Matrix(H.rows, H.cols);
+        final int n = Y.rows - 1;
+        final float smallnum = (n / e) * Float.MIN_VALUE;
+        final float bignum = (e / n) * Float.MAX_VALUE;
+
+        for (int k = n; k >= 0; k--) {
+            for (int i = 0; i <= k - 1; i++) {
+                Y.data[i][k] = -H.data[i][k];
+            }
+            Y.data[k][k] = 1.0f;
+            for (int i = k + 1; i <= n; i++) {
+                Y.data[i][k] = 0.0f;
+            }
+
+            final float dmin = Scalar.max(e * Scalar.abs(H.data[k][k]), smallnum);
+
+            for (int j = k - 1; j >= 0; j--) {
+                float d = H.data[j][j] - H.data[k][k];
+                if (Scalar.abs(d) < dmin) {
+                    d = dmin;
+                }
+                if ((Scalar.abs(Y.data[j][k]) / bignum) >= Scalar.abs(d)) {
+                    final float s = Scalar.abs(d) / Scalar.abs(Y.data[j][k]);
+                    for (int i = 0; i <= k; i++) {
+                        Y.data[i][k] *= s;
+                    }
+                }
+                Y.data[j][k] /= d;
+                for (int i = 0; i <= j - 1; i++) {
+                    Y.data[i][k] -= Y.data[j][k] * H.data[i][j];
+                }
+            }
+
+            for (int i = 0; i <= k; i++) {
+                float sum = 0.0f;
+                for (int j = 0; j <= k; j++) {
+                    sum = Y.data[j][k] * Y.data[j][k];
+                }
+                final float norm = 1.0f / Scalar.sqrt(sum);
+                Y.data[i][k] *= norm;
+            }
+        }
+
+        return Y;
     }
 }
