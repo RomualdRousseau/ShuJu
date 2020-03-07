@@ -224,8 +224,8 @@ public class Linalg {
 
     public static Matrix[] Eig(final Matrix m, final float e) {
         final Matrix[] h = Linalg.Hessenberg(m);
-        final Matrix H = h[0];
-        final Matrix Q = h[1];
+        Matrix H = h[0];
+        Matrix Q = h[1];
         int its = 0;
         for (int p = H.rows - 1; p >= 1; p--) {
             do {
@@ -248,7 +248,8 @@ public class Linalg {
                 }
             } while (Scalar.abs(H.data[p][p - 1]) >= e);
         }
-        return new Matrix[] { H, Q.matmul(Linalg.RightEigFromShur(H, e)) };
+        Q = Q.matmul(Linalg.EigensValuesAndVectorsFromShur(H, e));
+        return new Matrix[] { H, Q };
     }
 
     public static Matrix[] Svd(final Matrix m, final float e) {
@@ -270,8 +271,6 @@ public class Linalg {
         } else {
             return d - Scalar.sign(s) * b * c / ss;
         }
-        // final float s = (a - d) * 0.5f;
-        // return d + s * 0.5f - Scalar.sign(s) * Scalar.sqrt(s * s + c * c);
     }
 
     private static void QRStep(final int n0, final int n1, final int n, final Matrix A, final Matrix Q,
@@ -309,7 +308,7 @@ public class Linalg {
         }
     }
 
-    private static Matrix RightEigFromShur(final Matrix H, final float e) {
+    private static Matrix EigensValuesAndVectorsFromShur(final Matrix H, final float e) {
         final Matrix Y = new Matrix(H.rows, H.cols);
         final int n = Y.rows - 1;
         final float smallnum = (n / e) * Float.MIN_VALUE;
@@ -350,6 +349,14 @@ public class Linalg {
                 }
                 final float norm = 1.0f / Scalar.sqrt(sum);
                 Y.data[i][k] *= norm;
+            }
+        }
+
+        for (int i = 0; i < H.rows; i++) {
+            for (int j = 0; j < H.cols; j++) {
+                if (j != i) {
+                    H.data[i][j] = 0.0f;
+                }
             }
         }
 

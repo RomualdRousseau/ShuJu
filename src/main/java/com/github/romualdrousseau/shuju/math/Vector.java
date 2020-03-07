@@ -494,18 +494,28 @@ public class Vector {
         return result;
     }
 
-    public Vector transform(Matrix m) {
-        assert (this.rows == m.cols);
-
-        Vector result = new Vector(m.rows, 0.0f);
+    public Matrix dot(Vector v) {
+        assert (this.rows == v.rows);
+        Matrix result = new Matrix(this.rows, this.rows, 0.0f);
         for (int i = 0; i < result.rows; i++) {
-            float c = 0.0f;
-            for (int k = 0; k < m.colCount(); k++) {
-                float a = m.data[i][k];
-                float b = this.data[k];
-                c += a * b;
+            for (int j = 0; j < result.cols; j++) {
+                result.data[i][j] = this.data[i] * v.data[j];
             }
-            result.data[i] = c;
+        }
+        return result;
+    }
+
+    public Matrix dot(Matrix m) {
+        assert (this.rows == m.rows);
+        Matrix result = new Matrix(this.rows, this.rows, 0.0f);
+        for (int i = 0; i < result.rows; i++) {
+            for (int j = 0; j < result.cols; j++) {
+                float c = 0.0f;
+                for(int k = 0; k < m.rows; k++) {
+                    c+= this.data[i] * m.data[k][j];
+                }
+                result.data[i][j] = c;
+            }
         }
         return result;
     }

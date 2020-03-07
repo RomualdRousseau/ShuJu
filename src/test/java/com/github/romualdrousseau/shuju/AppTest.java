@@ -42,9 +42,9 @@ public class AppTest {
         Matrix M1 = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
         Matrix M2 = new Matrix(new float[][] { { -1.72f, 0.2f, 0.52f }, { 1.52f, -0.2f, -0.32f }, { -0.12f, 0.2f, -0.08f } });
         Matrix M3 = M1.inv();
-        assertTrue("Inv(M1) = M2", M3.equals(M2, 1e-2f));
-        assertTrue("Inv(M1) = Cof(M1)* / Det(m1)", M1.cof().transpose().mul(1.0f / M1.det()).equals(M3, 1e-2f));
-        assertTrue("Inv(M1) = Adj(M1) / Det(m1)", M1.adj().mul(1.0f / M1.det()).equals(M3, 1e-2f));
+        assertTrue("M1- = M2", M3.equals(M2, 1e-2f));
+        assertTrue("M1- = Cof(M1)* / Det(m1)", M1.cof().transpose().mul(1.0f / M1.det()).equals(M3, 1e-2f));
+        assertTrue("M1- = Adj(M1) / Det(m1)", M1.adj().mul(1.0f / M1.det()).equals(M3, 1e-2f));
     }
 
     @Test
@@ -76,7 +76,7 @@ public class AppTest {
         Matrix M1 = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
         Matrix M2 = new Matrix(new float[] { 3, 5, 6 }, false);
         Matrix I = new Matrix(3, 3).identity();
-        assertTrue("Solve(M1, I) = Inv(M1)", Linalg.Solve(M1, I).equals(M1.inv(), 1e-2f));
+        assertTrue("Solve(M1, I) = M1-", Linalg.Solve(M1, I).equals(M1.inv(), 1e-2f));
         assertTrue("M1@Solve(M1, M2) = M2", M1.matmul(Linalg.Solve(M1, M2)).equals(M2, 1e-2f));
     }
 
@@ -124,7 +124,7 @@ public class AppTest {
         assertTrue("H is square", tmp[0].isSquared());
         assertTrue("H is hessenger upper right form", tmp[0].isUpper(1, 1e-2f));
         assertTrue("Q is orthogonal", tmp[1].isOrthogonal(1e-2f));
-        assertTrue("M = QAQ*", tmp[1].matmul(tmp[0]).matmul(tmp[1].transpose()).equals(M, 1e-2f));
+        assertTrue("M = Q@A@Q*", tmp[1].matmul(tmp[0]).matmul(tmp[1].transpose()).equals(M, 1e-2f));
     }
 
     @Test
@@ -132,13 +132,12 @@ public class AppTest {
         // Matrix M = new Matrix(new float[][] { { 52, 30, 49, 28 }, { 30, 50, 8, 44 }, { 49, 8, 46, 16 }, { 28, 44, 16, 22 } });
         Matrix M = new Matrix(new float[][] { { -3.05f, 1.62f, -4.94f, -5.17f }, { -3.72f, 2.18f, -6.11f, -6.32f }, { 13.24f, -7.23f, 21.51f, 22.44f }, { 7.01f, -3.43f, 11.23f, 11.86f } });
         Matrix[] tmp = Linalg.Eig(M, 1e-6f);
-        Matrix P = Linalg.Sort(tmp[0]);
         for (int i = 0; i < tmp[0].rowCount(); i++) {
-            int k = P.argmax(i, 1);
-            float l = tmp[0].get(k, k);
-            Vector v = tmp[1].toVector(k, false);
-            assertTrue("M@v[" + i + "] = lv[" + i + "]", v.transform(M).isSimilar(v.copy().mul(l), 1e-2f));
+            float l = tmp[0].get(i, i);
+            Vector v = tmp[1].toVector(i, false);
+            assertTrue("M@v[" + i + "] = lv[" + i + "]", M.matmul(v).isSimilar(v.copy().mul(l), 1e-2f));
         }
+        assertTrue("M = Q@H@Q-", tmp[1].matmul(tmp[0]).matmul(tmp[1].inv()).equals(M, 1e-2f));
     }
 
     @Test

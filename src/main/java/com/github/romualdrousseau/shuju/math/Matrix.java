@@ -1335,6 +1335,21 @@ public class Matrix {
         return result;
     }
 
+    public Vector matmul(Vector v) {
+        assert (v.rows == this.cols);
+        Vector result = new Vector(v.rows, 0.0f);
+        for (int i = 0; i < result.rows; i++) {
+            float c = 0.0f;
+            for (int k = 0; k < this.cols; k++) {
+                float a = this.data[i][k];
+                float b = v.data[k];
+                c += a * b;
+            }
+            result.data[i] = c;
+        }
+        return result;
+    }
+
     public Matrix matmul(final Matrix m) {
         assert (this.cols == m.rows);
         final Matrix result = new Matrix(this.rows, m.cols, 0.0f);
