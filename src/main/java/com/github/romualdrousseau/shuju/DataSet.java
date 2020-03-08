@@ -145,20 +145,39 @@ public class DataSet {
         return result;
     }
 
-    public static DataSet makeBlobs(int rows, int features, int centers) {
+    public static DataSet makeBlobs(int rows, int features, int labels) {
         DataSet result = new DataSet();
-        final int p = rows / centers;
-
-        for (int i = 0; i < centers; i++) {
+        final int p = rows / labels;
+        for (int i = 0; i < labels; i++) {
             final Vector c = new Vector(features).randomize(10);
             for (int k = 0; k < p; k++) {
-                Vector X = c.copy().map(new VectorFunction<Float, Float>() {
+                Vector x = c.copy().map(new VectorFunction<Float, Float>() {
                     public Float apply(Float v, int row, Vector vector) {
                         return v + Scalar.randomGaussian();
                     }
                 });
-                Vector y = new Vector(centers).oneHot(i);
-                result.addRow(new DataRow().addFeature(X).setLabel(y));
+                Vector y = new Vector(labels).oneHot(i);
+                result.addRow(new DataRow().addFeature(x).setLabel(y));
+            }
+        }
+
+        return result;
+    }
+
+    public static DataSet makeCircles(int rows, int features, int labels) {
+        DataSet result = new DataSet();
+        final int p = rows / labels;
+        final Vector c = new Vector(features).zero();
+        for (int i = 0; i < labels; i++) {
+            final float l = 15.0f * i / (float) labels;
+            for (int k = 0; k < p; k++) {
+                Vector x = c.copy().randomize().l2Norm().mul(l).map(new VectorFunction<Float, Float>() {
+                    public Float apply(Float v, int row, Vector vector) {
+                        return v + Scalar.randomGaussian();
+                    }
+                });
+                Vector y = new Vector(labels).oneHot(i);
+                result.addRow(new DataRow().addFeature(x).setLabel(y));
             }
         }
 

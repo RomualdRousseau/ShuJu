@@ -63,6 +63,11 @@ public class Scalar {
         return (x > 0.0f) ? 1.0f : ((x < 0.0f) ? -1.0f : 0.0f);
     }
 
+    public static float map(float t, float start1, float stop1, float start2, float stop2) {
+        final float m = (stop2 - start2) / (stop1 - start1);
+        return m * (t - start1) + start2;
+    }
+
     public static float unlerp(float a, float b, float v) {
         return (v - a) / (b - a);
     }

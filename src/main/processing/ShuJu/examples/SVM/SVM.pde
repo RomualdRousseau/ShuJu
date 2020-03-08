@@ -35,20 +35,7 @@ final int[] classColors = {
   color(255, 255, 255)
 };
 
-final Vector[] inputs = {
-  new Vector(new float[] {0, 0}), 
-  new Vector(new float[] {0, 1}), 
-  new Vector(new float[] {1, 0}), 
-  new Vector(new float[] {1, 1})
-};
-
-final Vector[] targets = {
-  new Vector(new float[] {0}), 
-  new Vector(new float[] {1}), 
-  new Vector(new float[] {1}), 
-  new Vector(new float[] {0})
-};
-
+DataSet dataset;
 Model model;
 Optimizer optimizer;
 Loss loss;
@@ -61,31 +48,36 @@ int lerpColor3(int c1, int c2, int c3, float amt) {
   }
 }
 
-void buildModel() {
+Vector kernel(Vector v) {
+  float g = 0.5;
+  float z = exp(-pow(v.norm(), 2) / 2 * pow(g, 2));
+  return new Vector(new float[] { v.get(0), v.get(1), z });
+}
+
+void buildModelSVM() {
   model = new Model();
 
   model.add(new DenseBuilder()
-    .setInputUnits(2)
-    .setUnits(4)
-    .setActivation(new Tanh())
-    .setInitializer(new GlorotUniformInitializer()).build());
-
-  model.add(new DenseBuilder()
-    .setInputUnits(4)
+    .setInputUnits(3)
     .setUnits(1)
     .setActivation(new Linear())
-    .setInitializer(new GlorotUniformInitializer()).build());
+    .setInitializer(new GlorotUniformInitializer())
+    .build());
 
-  optimizer = new OptimizerRMSPropBuilder().build(model);
+  optimizer = new OptimizerSgdBuilder()
+    .setMomentum(0)
+    .build(model);
 
-  loss = new Loss(new Huber());
+  loss = new Loss(new Hinge());
 }
 
-void trainModel() {
-  for (int i = 0; i < 100; i++) {
+void trainModelSVM() {
+  for (int i = 0; i < 1000; i++) {
     optimizer.zeroGradients();
-    for (int j = 0; j < 4; j++) {
-      loss.loss(model.model(inputs[j]), targets[j]).backward();
+    for (DataRow row : dataset.rows()) {
+      Vector input = row.features().get(0).copy().map(-10, 10, -1, 1);
+      Vector target = new Vector(new float[] { row.label().argmax() * 2 - 1 });
+      loss.loss(model.model(kernel(input)), target).backward();
     }
     optimizer.step();
   }
@@ -93,23 +85,24 @@ void trainModel() {
 
 void setup() {
   size(400, 400, P2D);
-  buildModel();
+  dataset = DataSet.makeCircles(100, 2, 2);
+  buildModelSVM();
 }
 
 void draw() {
   final int r = 100;
   final int w = width / r;
   final int h = height / r;
-  
-  trainModel();
+
+  trainModelSVM();
 
   background(51);
 
   noStroke();
   for (int i = 0; i <= r; i++) {
     for (int j = 0; j <= r; j++) {
-      Vector input = new Vector(new float[] { j, i }).map(0, r, 0, 1);
-      float amt = model.model(input).detachAsVector().get(0);
+      Vector input = new Vector(new float[] { j, i }).map(0, r, -1, 1);
+      float amt = model.model(kernel(input)).detachAsVector().map(-1, 1, 0, 1).get(0);
       fill(lerpColor3(classColors[0], classColors[2], classColors[1], amt));
       rect(j * w, i * w, w, h);
     }
@@ -120,20 +113,34 @@ void draw() {
   for (int k = 0; k < 10; k++) {
     for (int i = 0; i <= r; i++) {
       for (int j = 0; j <= r; j++) {
-        Vector input = new Vector(new float[] { j, i }).map(0, r, 0, 1);
-        float amt = model.model(input).detachAsVector().map(0, 1, 0, 100).get(0);
+        Vector input = new Vector(new float[] { j, i }).map(0, r, -1, 1);
+        float amt = model.model(kernel(input)).detachAsVector().map(-1, 1, 0, 100).get(0);
         if (abs(amt - k * 10) < 0.5) {
           rect(j * w, i * w, w, h);
         }
       }
     }
   }
+
+  stroke(0);
+  fill(0, 64);
+  for (DataRow row : dataset.rows()) {
+    float x = map(row.features().get(0).get(0), -10, 10, 0, width);
+    float y = map(row.features().get(0).get(1), -10, 10, 0, height);
+    if (row.label().argmax() == 0) {
+      circle(x, y, 8);
+    } else {
+      triangle(x, y -4, x + 4, y + 4, x - 4, y + 4);
+    }
+  }
 }
 
 void keyPressed() {
   model.reset();
+  dataset = DataSet.makeCircles(100, 2, 2);
 }
 
 void mousePressed() {
   model.reset();
+  dataset = DataSet.makeCircles(100, 2, 2);
 }

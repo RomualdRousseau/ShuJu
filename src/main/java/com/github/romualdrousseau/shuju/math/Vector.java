@@ -432,7 +432,6 @@ public class Vector {
 
     public float scalar(Vector v) {
         assert (this.rows == v.rows);
-
         float sum = 0;
         for (int i = 0; i < this.rows; i++) {
             sum += this.data[i] * v.data[i];
@@ -450,7 +449,6 @@ public class Vector {
 
     public float distance(Vector v) {
         assert (this.rows == v.rows);
-
         float sum = 0;
         for (int i = 0; i < this.rows; i++) {
             float a = this.data[i] - v.data[i];
@@ -459,9 +457,16 @@ public class Vector {
         return Scalar.sqrt(sum);
     }
 
+    public Vector map(float start1, float stop1, float start2, float stop2) {
+        final float m = (stop2 - start2) / (stop1 - start1);
+        for (int i = 0; i < this.rows; i++) {
+            this.data[i] = m * (this.data[i] - start1) + start2;
+        }
+        return this;
+    }
+
     public Vector map(VectorFunction<Float, Float> fn) {
         assert (fn != null);
-
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = fn.apply(this.data[i], i, this);
         }

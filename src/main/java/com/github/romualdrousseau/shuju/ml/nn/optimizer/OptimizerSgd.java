@@ -10,8 +10,12 @@ public class OptimizerSgd extends Optimizer {
     private float momemtum;
 
     public OptimizerSgd(Model model, float learningRate, LearningRateScheduler scheduler) {
+        this(model, learningRate, scheduler, 0.9f);
+      }
+
+    public OptimizerSgd(Model model, float learningRate, LearningRateScheduler scheduler, float momentum) {
       super(model, learningRate, scheduler);
-      this.momemtum = 0.9f;
+      this.momemtum = momentum;
     }
 
     public Matrix computeGradients(Parameters p) {

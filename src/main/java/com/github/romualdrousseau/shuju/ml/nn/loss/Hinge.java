@@ -8,8 +8,8 @@ public class Hinge implements LossFunc {
 
     public Matrix apply(Matrix output, Matrix target) {
         final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
-            public final Float apply(Float y, int row, int col, Matrix output) {
-                float a = y * output.get(row, col);
+            public final Float apply(Float y, int row, int col, Matrix target) {
+                float a = y * target.get(row, col);
                 if(a >= 1.0f) {
                     return 0.0f;
                 } else {
@@ -17,17 +17,17 @@ public class Hinge implements LossFunc {
                 }
             }
         };
-        return target.copy().map(fn, output);
+        return output.copy().map(fn, target);
     }
 
     public Matrix derivate(Matrix output, Matrix target) {
         final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
             public final Float apply(Float y, int row, int col, Matrix target) {
-                float a = y * output.get(row, col);
+                float a = y * target.get(row, col);
                 if(a >= 1.0f) {
                     return 0.0f;
                 } else {
-                    return -a;
+                    return -target.get(row, col);
                 }
             }
         };
