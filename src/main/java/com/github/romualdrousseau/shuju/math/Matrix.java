@@ -906,6 +906,26 @@ public class Matrix {
         return this;
     }
 
+    public Matrix conv(final Matrix f) {
+        final int orow = f.rows - 1;
+        final int ocol = f.cols - 1;
+        Matrix result = new Matrix(this.rows - orow, this.cols - ocol);
+        for(int i = 0; i < this.rows - orow; i++) {
+            for(int j = 0; j < this.cols - ocol; j++) {
+                float acc = 0.0f;
+                for(int y = 0; y < f.rows; y++) {
+                    final float[] a = f.data[y];
+                    final float[] b = this.data[i + y];
+                    for(int x = 0; x < f.cols; x++) {
+                        acc += a[x] * b[j + x];
+                    }
+                }
+                result.data[i][j] = acc;
+            }
+        }
+        return result;
+    }
+
     public Matrix add(final float n) {
         for (int i = 0; i < this.rows; i++) {
             final float[] a = this.data[i];

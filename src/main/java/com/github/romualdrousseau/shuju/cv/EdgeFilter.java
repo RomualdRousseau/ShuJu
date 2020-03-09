@@ -1,7 +1,8 @@
 package com.github.romualdrousseau.shuju.cv;
 
-public class EdgeFilter {
+public class EdgeFilter extends Filter {
     public EdgeFilter() {
+        super(null);
     }
 
     public void apply(ISearchBitmap sourceBitmap, ISearchBitmap destBitmap, double threshold) {

@@ -1,8 +1,14 @@
 package com.github.romualdrousseau.shuju.cv;
 
+import com.github.romualdrousseau.shuju.math.Matrix;
+
 public class Template {
     public Template(float[][] data) {
         this.data = data;
+    }
+
+    public Template(Matrix data) {
+        this.data = data.getFloats();
     }
 
     public int getWidth() {
@@ -18,12 +24,12 @@ public class Template {
     }
 
     public float sobel(ISearchBitmap searchBitmap, int x, int y) {
-        int w = this.data[0].length / 2;
-        int h = this.data.length / 2;
+        int w = (this.data[0].length - 1) / 2;
+        int h = (this.data.length - 1) / 2;
         float acc = 0;
         for (int i = 0; i < this.data.length; i++) {
             for (int j = 0; j < this.data[0].length; j++) {
-                acc += this.data[i][j] * Float.valueOf(searchBitmap.get(x + j - w, y + i - h));
+                acc += this.data[i][j] * Float.valueOf(searchBitmap.get(x - w + j, y - h + i));
             }
         }
         return acc;
