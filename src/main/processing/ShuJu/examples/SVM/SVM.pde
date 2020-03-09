@@ -71,7 +71,7 @@ void buildModelSVM() {
   loss = new Loss(new Hinge());
 }
 
-void trainModelSVM() {
+void fitModel() {
   for (int i = 0; i < 1000; i++) {
     optimizer.zeroGradients();
     for (DataRow row : dataset.rows()) {
@@ -83,6 +83,17 @@ void trainModelSVM() {
   }
 }
 
+float[][] predictModel(int r) {
+  float[][] result = new float[r + 1][r + 1];
+  for (int i = 0; i <= r; i++) {
+    for (int j = 0; j <= r; j++) {
+      Vector input = new Vector(new float[] { j, i }).map(0, r, -1, 1);
+      result[i][j] = model.model(kernel(input)).detachAsVector().map(-1, 1, 0, 1).get(0);
+    }
+  }
+  return result;
+}
+
 void setup() {
   size(400, 400, P2D);
   dataset = DataSet.makeCircles(100, 2, 2);
@@ -90,32 +101,31 @@ void setup() {
 }
 
 void draw() {
-  final int r = 100;
+  fitModel();
+  final float[][] svmMap = predictModel(100);
+  
+  final int r = svmMap.length - 1;
   final int w = width / r;
   final int h = height / r;
-
-  trainModelSVM();
 
   background(51);
 
   noStroke();
   for (int i = 0; i <= r; i++) {
     for (int j = 0; j <= r; j++) {
-      Vector input = new Vector(new float[] { j, i }).map(0, r, -1, 1);
-      float amt = model.model(kernel(input)).detachAsVector().map(-1, 1, 0, 1).get(0);
+      float amt = svmMap[i][j];
       fill(lerpColor3(classColors[0], classColors[2], classColors[1], amt));
       rect(j * w, i * w, w, h);
     }
   }
 
-  stroke(255);
-  fill(0, 64);
+  stroke(255, 128);
+  fill(255, 64);
   for (int k = 0; k < 10; k++) {
     for (int i = 0; i <= r; i++) {
       for (int j = 0; j <= r; j++) {
-        Vector input = new Vector(new float[] { j, i }).map(0, r, -1, 1);
-        float amt = model.model(kernel(input)).detachAsVector().map(-1, 1, 0, 100).get(0);
-        if (abs(amt - k * 10) < 0.5) {
+        float amt = svmMap[i][j] * 10;
+        if (abs(amt - k) < 0.025) {
           rect(j * w, i * w, w, h);
         }
       }
@@ -137,7 +147,7 @@ void draw() {
 
 void keyPressed() {
   model.reset();
-  dataset = DataSet.makeCircles(100, 2, 2);
+  dataset = DataSet.makeBlobs(100, 2, 2);
 }
 
 void mousePressed() {

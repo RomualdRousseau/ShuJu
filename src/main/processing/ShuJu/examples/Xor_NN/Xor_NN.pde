@@ -61,7 +61,7 @@ int lerpColor3(int c1, int c2, int c3, float amt) {
   }
 }
 
-void buildModel() {
+void buildModelXOR() {
   model = new Model();
 
   model.add(new DenseBuilder()
@@ -81,7 +81,7 @@ void buildModel() {
   loss = new Loss(new Huber());
 }
 
-void trainModel() {
+void fitModel() {
   for (int i = 0; i < 100; i++) {
     optimizer.zeroGradients();
     for (int j = 0; j < 4; j++) {
@@ -91,39 +91,49 @@ void trainModel() {
   }
 }
 
+float[][] predictModel(int r) {
+  float[][] result = new float[r + 1][r + 1];
+  for (int i = 0; i <= r; i++) {
+    for (int j = 0; j <= r; j++) {
+      Vector input = new Vector(new float[] { j, i }).map(0, r, 0, 1);
+      result[i][j] = model.model(input).detachAsVector().get(0);
+    }
+  }
+  return result;
+}
+
 void setup() {
   size(400, 400, P2D);
-  buildModel();
+  buildModelXOR();
 }
 
 void draw() {
-  final int r = 100;
+  fitModel();
+  final float[][] xorMap = predictModel(100);
+  
+  final int r = xorMap.length - 1;
   final int w = width / r;
   final int h = height / r;
   
-  trainModel();
-
   background(51);
 
   noStroke();
   for (int i = 0; i <= r; i++) {
     for (int j = 0; j <= r; j++) {
-      Vector input = new Vector(new float[] { j, i }).map(0, r, 0, 1);
-      float amt = model.model(input).detachAsVector().get(0);
+      float amt = xorMap[i][j];
       fill(lerpColor3(classColors[0], classColors[2], classColors[1], amt));
       rect(j * w, i * w, w, h);
     }
   }
 
-  stroke(255);
-  fill(0, 64);
+  stroke(255, 128);
+  fill(255, 64);
   for (int k = 0; k < 10; k++) {
     for (int i = 0; i <= r; i++) {
       for (int j = 0; j <= r; j++) {
-        Vector input = new Vector(new float[] { j, i }).map(0, r, 0, 1);
-        float amt = model.model(input).detachAsVector().map(0, 1, 0, 100).get(0);
-        if (abs(amt - k * 10) < 0.5) {
-          rect(j * w, i * w, w, h);
+        float amt = xorMap[i][j] * 10;
+        if (abs(amt - k) < 0.025) {
+          rect(j * w, i * h, w, h);
         }
       }
     }

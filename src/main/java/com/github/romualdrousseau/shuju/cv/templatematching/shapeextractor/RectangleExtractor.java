@@ -39,20 +39,12 @@ public class RectangleExtractor extends IShapeExtractor {
                         && searchBitmap.get(bbox[1].getX(), bbox[0].getY()) > 0
                         && searchBitmap.get(bbox[1].getX(), bbox[1].getY()) > 0
                         && searchBitmap.get(bbox[0].getX(), bbox[1].getY()) > 0) {
-
-                    boolean foundDuplicate = false;
-                    for (SearchPoint[] sp : result) {
-                        if (bbox[0].equals(sp[0]) && bbox[1].equals(sp[1])) {
-                            foundDuplicate = true;
-                        }
-                    }
-                    if (!foundDuplicate) {
+                    if(SearchPoint.isValid(bbox) && !SearchPoint.IsDuplicate(bbox, result)) {
                         result.add(bbox);
                     }
                 }
             }
         }
-
         if (result.size() > 1) {
             return SearchPoint.RemoveOverlaps(result);
         } else {
@@ -89,7 +81,6 @@ public class RectangleExtractor extends IShapeExtractor {
                         && searchBitmap.get(bbox[1].getX(), bbox[0].getY()) > 0
                         && searchBitmap.get(bbox[1].getX(), bbox[1].getY()) > 0
                         && searchBitmap.get(bbox[0].getX(), bbox[1].getY()) > 0) {
-
                     int area = SearchPoint.GetArea(bbox);
                     if (area > maxArea) {
                         maxArea = area;
@@ -98,7 +89,6 @@ public class RectangleExtractor extends IShapeExtractor {
                 }
             }
         }
-
         return result;
     }
 
@@ -163,8 +153,8 @@ public class RectangleExtractor extends IShapeExtractor {
         return new SearchPoint[] { new SearchPoint(minX, minY), new SearchPoint(maxX, maxY) };
     }
 
-    private int R[][][] = { { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, { { -1, 0 }, { 0, 0 }, { 0, 1 }, { -1, 1 } },
-            { { -1, -1 }, { 0, -1 }, { 0, 0 }, { -1, 0 } }, { { 0, -1 }, { 1, -1 }, { 1, 0 }, { 0, 0 } } };
+    private int R[][][] = { { { 0, 0 }, { 1, 0 }, { 2, 2 }, { 0, 1 } }, { { -1, 0 }, { 0, 0 }, { 0, 1 }, { -2, 2 } },
+            { { -2, -2 }, { 0, -1 }, { 0, 0 }, { -1, 0 } }, { { 0, -1 }, { 2, -2 }, { 1, 0 }, { 0, 0 } } };
 
     private TemplateMatcher cornerTopLeft = new TemplateMatcher(
             new Template(new float[][] { { 0, 0, 0 }, { 0, 1, 1 }, { 0, 1, 1 } }));

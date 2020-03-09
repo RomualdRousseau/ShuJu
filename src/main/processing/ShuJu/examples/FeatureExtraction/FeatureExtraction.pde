@@ -37,23 +37,28 @@ SearchPoint[] bestShape;
 
 void setup() {
   size(500, 500);
-  image = loadImage("data/image.png");
 
+  image = loadImage("data/image.png");
   PImage temp = createImage(image.width, image.height, RGB);
   new EdgeFilter().apply(new Bitmap(image), new Bitmap(temp), 1.0);
+  Bitmap searchBitmap = new Bitmap(temp);
 
-  shapes = new RectangleExtractor().extractAll(new Bitmap(temp));
-  bestShape = new RectangleExtractor().extractBest(new Bitmap(temp));
+  shapes = new RectangleExtractor().extractAll(searchBitmap);
+  bestShape = new RectangleExtractor().extractBest(searchBitmap);
 }
 
 void draw() {
   background(image);
 
   noFill();
-  strokeWeight(4);
+  strokeWeight(1);
 
   stroke(255, 0, 0);
-  for(SearchPoint[] shape: shapes) {
+  ArrayList<SearchPoint[]> tablesWithOverlaps = new ArrayList<SearchPoint[]>();
+  tablesWithOverlaps.addAll(shapes);
+  tablesWithOverlaps.add(new SearchPoint[] { new SearchPoint(mouseX - 25, mouseY - 25), new SearchPoint(mouseX + 25, mouseY + 25) });
+  List<SearchPoint[]> rects = SearchPoint.RemoveOverlaps(tablesWithOverlaps);
+  for (SearchPoint[] shape : rects) {
     rect(shape[0].getX(), shape[0].getY(), shape[1].getX() - shape[0].getX(), shape[1].getY() - shape[0].getY());
   }
 
