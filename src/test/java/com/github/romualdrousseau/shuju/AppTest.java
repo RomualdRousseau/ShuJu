@@ -55,6 +55,38 @@ public class AppTest {
     }
 
     @Test
+    public void testMatrixConv() {
+        Matrix M = new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 90, 0, 75 }, { 0, 9, 0, 95 } });
+        Matrix F = new Matrix(new float[][] { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } });
+        Matrix R = new Matrix(new float[][] { { 29, -192 }, { -35, -22 } });
+        assertTrue("Conv(M, F) = R", M.conv(F).equals(R));
+    }
+
+    @Test
+    public void testMatrixPoolMax() {
+        Matrix M = new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 90, 0, 75 }, { 0, 9, 0, 95 } });
+        Matrix R = new Matrix(new float[][] { { 80, 31 }, { 90, 95 } });
+        assertTrue("PoolMax(M, 2) = R", M.poolmax(2).equals(R));
+    }
+
+    @Test
+    public void testMatrixPoolMin() {
+        Matrix M = new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 90, 0, 75 }, { 0, 9, 0, 95 } });
+        Matrix R = new Matrix(new float[][] { { 0, 0 }, { 0, 0 } });
+        assertTrue("PoolMin(M, 2) = R", M.poolmin(2).equals(R));
+    }
+
+    @Test
+    public void testMatrixDeflating() {
+        Matrix M = new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 90, 0, 75 }, { 0, 9, 0, 95 } });
+        Matrix E = new Matrix(new float[][] { { 1, 1 }, { 1, 1 } });
+        Matrix R1 = new Matrix(new float[][] { { 0, 0, 0, 0 }, { 0, 1, 1, 0 }, { 0, 1, 0, 0 }, { 0, 0, 0, 1 } });
+        Matrix R2 = new Matrix(new float[][] { { 1, 0, 1, 0 }, { 1, 0, 0, 0 }, { 0, 0, 1, 0 }, { 1, 0, 1, 0 } });
+        assertTrue("deflating(M, 2) = R1", M.poolmax(2).deflating(M, E, 2).equals(R1));
+        assertTrue("deflating(M, 2) = R2", M.poolmin(2).deflating(M, E, 2).equals(R2));
+    }
+
+    @Test
     public void testLinalgUpper() {
         Matrix M = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
         Matrix I = new Matrix(3, 3).identity();

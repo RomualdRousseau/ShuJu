@@ -4,7 +4,7 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 
 import com.github.romualdrousseau.shuju.math.Vector;
-import com.github.romualdrousseau.shuju.ml.nn.layer.builder.DenseBuilder;
+import com.github.romualdrousseau.shuju.ml.nn.layer.Empty;
 import com.github.romualdrousseau.shuju.math.Matrix;
 
 public class Model {
@@ -12,7 +12,7 @@ public class Model {
     protected Layer end;
 
     public Model() {
-        this.start = new DenseBuilder().build();
+        this.start = new Empty(1.0f);
         this.end = this.start;
     }
 
@@ -36,7 +36,7 @@ public class Model {
     public Layer model(Matrix input) {
         this.start.output = input;
         for (Layer layer = this.start.next; layer != null; layer = layer.next) {
-            layer.callForward();
+            layer.output = layer.callForward(layer.prev.output);
         }
         return this.end;
     }

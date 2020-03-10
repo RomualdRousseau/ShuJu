@@ -35,13 +35,13 @@ public abstract class Layer {
 
     public abstract void reset(boolean parametersOnly);
 
-    public abstract void resetGradients(Optimizer optimizer);
+    public abstract Matrix callForward(Matrix input);
 
-    public abstract void adjustGradients(Optimizer optimizer);
-
-    public abstract void callForward();
+    public abstract void startBackward(Optimizer optimizer);
 
     public abstract Matrix callBackward(Matrix error);
+
+    public abstract void completeBackward(Optimizer optimizer);
 
     public abstract void fromJSON(JSONObject json);
 

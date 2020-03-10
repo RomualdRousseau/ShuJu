@@ -28,14 +28,14 @@ public abstract class Optimizer {
 
     public void zeroGradients() {
         for (Layer layer = this.model.start.next; layer != null; layer = layer.next) {
-            layer.resetGradients(this);
+            layer.startBackward(this);
         }
     }
 
     public void step() {
         for (Layer layer = this.model.start.next; layer != null; layer = layer.next) {
             if(!layer.frozen) {
-                layer.adjustGradients(this);
+                layer.completeBackward(this);
             }
         }
 

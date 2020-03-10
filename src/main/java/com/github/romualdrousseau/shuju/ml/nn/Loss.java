@@ -4,10 +4,6 @@ import com.github.romualdrousseau.shuju.math.Vector;
 import com.github.romualdrousseau.shuju.math.Matrix;
 
 public class Loss {
-    private LossFunc lossFunc;
-    private Matrix value;
-    private Matrix rate;
-    private Layer output;
 
     public Loss(LossFunc lossFunc) {
         this.lossFunc = lossFunc;
@@ -41,4 +37,9 @@ public class Loss {
         }
         return this;
     }
+
+    private LossFunc lossFunc;
+    private Matrix value;
+    private Matrix rate;
+    private Layer output;
 }

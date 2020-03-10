@@ -14,13 +14,7 @@ public class Linalg {
                     row = i;
                 }
             }
-            if (j != row) {
-                for (int k = 0; k < m.cols; k++) {
-                    final float tmp = result.data[j][k];
-                    result.data[j][k] = result.data[row][k];
-                    result.data[row][k] = tmp;
-                }
-            }
+            result.swap(j, row, 0);
         }
         return result;
     }
@@ -37,13 +31,7 @@ public class Linalg {
                     row = i;
                 }
             }
-            if (j != row) {
-                for (int k = 0; k < m.cols; k++) {
-                    final float tmp = result.data[j][k];
-                    result.data[j][k] = result.data[row][k];
-                    result.data[row][k] = tmp;
-                }
-            }
+            result.swap(j, row, 0);
         }
         return result;
     }

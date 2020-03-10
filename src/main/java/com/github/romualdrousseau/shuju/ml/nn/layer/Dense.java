@@ -42,26 +42,28 @@ public class Dense extends Layer {
         }
     }
 
-    public void resetGradients(Optimizer optimizer) {
+    public Matrix callForward(Matrix input) {
+        Matrix net = Scalar.xw_plus_b(input, this.weights.W, this.biases.W);
+        return this.activation.apply(net);
+    }
+
+    public void startBackward(Optimizer optimizer) {
         this.weights.G.zero();
         this.biases.G.zero();
     }
 
-    public void adjustGradients(Optimizer optimizer) {
+    public Matrix callBackward(Matrix d_L_d_out) {
+        final Matrix last_input = this.prev.output;
+        final float last_bias = this.prev.bias;
+        final Matrix d_L_d_t = Scalar.a_mul_b(d_L_d_out, this.activation.derivate(this.output));
+        this.weights.G.fma(d_L_d_t, last_input, false, true);
+        this.biases.G.fma(d_L_d_t, last_bias);
+        return this.weights.W.matmul(d_L_d_t, true, false);
+    }
+
+    public void completeBackward(Optimizer optimizer) {
         this.adjustParameters(this.weights, optimizer.computeGradients(this.weights));
         this.adjustParameters(this.biases, optimizer.computeGradients(this.biases));
-    }
-
-    public void callForward() {
-        Matrix net = Scalar.xw_plus_b(this.prev.output, this.weights.W, this.biases.W);
-        this.output = this.activation.apply(net);
-    }
-
-    public Matrix callBackward(Matrix error) {
-        error = Scalar.a_mul_b(error, this.activation.derivate(this.output));
-        this.weights.G.fma(error, this.prev.output, false, true);
-        this.biases.G.fma(error, this.prev.bias);
-        return this.weights.W.matmul(error, true, false);
     }
 
     public void fromJSON(JSONObject json) {

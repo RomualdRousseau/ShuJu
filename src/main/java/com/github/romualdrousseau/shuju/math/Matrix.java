@@ -272,7 +272,7 @@ public class Matrix {
 
     public boolean isUpper(final int offset, final float e) {
         int n = Math.min(this.rows, this.cols);
-        assert(offset >= 0 && offset < n);
+        assert (offset >= 0 && offset < n);
         for (int i = 0; i < n - offset; i++) {
             for (int j = 0; j < n - offset; j++) {
                 if (j < i && Math.abs(this.data[i + offset][j]) >= e) {
@@ -285,7 +285,7 @@ public class Matrix {
 
     public boolean isLower(final int offset, final float e) {
         int n = Math.min(this.rows, this.cols);
-        assert(offset >= 0 && offset < n);
+        assert (offset >= 0 && offset < n);
         for (int i = 0; i < n - offset; i++) {
             for (int j = 0; j < n - offset; j++) {
                 if (j > i && Math.abs(this.data[i][j + offset]) >= e) {
@@ -298,8 +298,8 @@ public class Matrix {
 
     public boolean isDiagonal(final int offset, final float e) {
         int n = Math.min(this.rows, this.cols);
-        if(offset >= 0) {
-            assert(offset < n);
+        if (offset >= 0) {
+            assert (offset < n);
             for (int i = 0; i < n - offset; i++) {
                 for (int j = 0; j < n - offset; j++) {
                     if (j != i && Math.abs(this.data[i + offset][j]) >= e) {
@@ -308,7 +308,7 @@ public class Matrix {
                 }
             }
         } else {
-            assert(offset > -n);
+            assert (offset > -n);
             for (int i = 0; i < n + offset; i++) {
                 for (int j = 0; j < n + offset; j++) {
                     if (j != i && Math.abs(this.data[i][j - offset]) >= e) {
@@ -336,34 +336,6 @@ public class Matrix {
 
     public boolean isOrthogonal(final float e) {
         return this.isSquared() && this.transpose().equals(this.inv(), e);
-    }
-
-    public Matrix reshape(final int newRows, final int axis) {
-        return this.reshape(newRows, this.rows * this.cols / newRows, axis);
-    }
-
-    public Matrix reshape(final int newRows, final int newCols, final int axis) {
-        assert (newRows > 0 && newCols > 0);
-        assert (this.rows * this.cols == newRows * newCols);
-        final Matrix result = new Matrix(newRows, newCols);
-        if (axis == 0) {
-            for (int k = 0; k < this.rows * this.cols; k++) {
-                final int i1 = k % this.rows;
-                final int j1 = k / this.rows;
-                final int i2 = k % result.rows;
-                final int j2 = k / result.rows;
-                result.data[i2][j2] = this.data[i1][j1];
-            }
-        } else {
-            for (int k = 0; k < this.rows * this.cols; k++) {
-                final int i1 = k / this.cols;
-                final int j1 = k % this.cols;
-                final int i2 = k / result.cols;
-                final int j2 = k % result.cols;
-                result.data[i2][j2] = this.data[i1][j1];
-            }
-        }
-        return result;
     }
 
     public float det() {
@@ -754,22 +726,6 @@ public class Matrix {
         }
     }
 
-    public Matrix diagonal(final int axis) {
-        if (axis == 0) {
-            final Matrix result = new Matrix(1, this.cols);
-            for (int i = 0; i < this.cols; i++) {
-                result.data[0][i] = this.data[i][i];
-            }
-            return result;
-        } else {
-            final Matrix result = new Matrix(this.rows, 1);
-            for (int i = 0; i < this.rows; i++) {
-                result.data[i][0] = this.data[i][i];
-            }
-            return result;
-        }
-    }
-
     public Matrix zero() {
         for (int i = 0; i < this.rows; i++) {
             final float[] a = this.data[i];
@@ -795,6 +751,30 @@ public class Matrix {
             final float[] a = this.data[i];
             for (int j = 0; j < this.cols; j++) {
                 a[j] = (i == j) ? 1.0f : 0.0f;
+            }
+        }
+        return this;
+    }
+
+    public Matrix swap(final int idx1, final int idx2, final int axis) {
+        if (idx1 == idx2) {
+            return this;
+        }
+        else if(axis == 0) {
+            assert(idx1 >= 0 && idx1 < this.rows);
+            assert(idx2 >= 0 && idx2 < this.rows);
+            for (int i = 0; i < this.cols; i++) {
+                final float tmp = this.data[idx1][i];
+                this.data[idx1][i] = this.data[idx2][i];
+                this.data[idx2][i] = tmp;
+            }
+        } else {
+            assert(idx1 >= 0 && idx1 < this.cols);
+            assert(idx2 >= 0 && idx2 < this.cols);
+            for (int j = 0; j < this.rows; j++) {
+                final float tmp = this.data[j][idx1];
+                this.data[j][idx1] = this.data[j][idx2];
+                this.data[j][idx2] = tmp;
             }
         }
         return this;
@@ -904,26 +884,6 @@ public class Matrix {
             }
         }
         return this;
-    }
-
-    public Matrix conv(final Matrix f) {
-        final int orow = f.rows - 1;
-        final int ocol = f.cols - 1;
-        Matrix result = new Matrix(this.rows - orow, this.cols - ocol);
-        for(int i = 0; i < this.rows - orow; i++) {
-            for(int j = 0; j < this.cols - ocol; j++) {
-                float acc = 0.0f;
-                for(int y = 0; y < f.rows; y++) {
-                    final float[] a = f.data[y];
-                    final float[] b = this.data[i + y];
-                    for(int x = 0; x < f.cols; x++) {
-                        acc += a[x] * b[j + x];
-                    }
-                }
-                result.data[i][j] = acc;
-            }
-        }
-        return result;
     }
 
     public Matrix add(final float n) {
@@ -1264,6 +1224,126 @@ public class Matrix {
         return this;
     }
 
+    public Matrix pad(int padding, float value) {
+        assert(padding > 0);
+        Matrix result = new Matrix(this.rows + 2 * padding, this.cols + 2 * padding, value);
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                result.data[padding + i][padding + j] = this.data[i][j];
+            }
+        }
+        return result;
+    }
+
+    public Matrix reshape(final int newRows, final int axis) {
+        return this.reshape(newRows, this.rows * this.cols / newRows, axis);
+    }
+
+    public Matrix reshape(final int newRows, final int newCols, final int axis) {
+        assert (newRows > 0 && newCols > 0);
+        assert (this.rows * this.cols == newRows * newCols);
+        if(newRows == this.rows || newCols == this.cols) {
+            return this.copy();
+        }
+        final Matrix result = new Matrix(newRows, newCols);
+        if (axis == 0) {
+            for (int k = 0; k < this.rows * this.cols; k++) {
+                final int i1 = k % this.rows;
+                final int j1 = k / this.rows;
+                final int i2 = k % result.rows;
+                final int j2 = k / result.rows;
+                result.data[i2][j2] = this.data[i1][j1];
+            }
+        } else {
+            for (int k = 0; k < this.rows * this.cols; k++) {
+                final int i1 = k / this.cols;
+                final int j1 = k % this.cols;
+                final int i2 = k / result.cols;
+                final int j2 = k % result.cols;
+                result.data[i2][j2] = this.data[i1][j1];
+            }
+        }
+        return result;
+    }
+
+    public Matrix conv(final Matrix f) {
+        final int orow = f.rows - 1;
+        final int ocol = f.cols - 1;
+        Matrix result = new Matrix(this.rows - orow, this.cols - ocol);
+        for (int i = 0; i < this.rows - orow; i++) {
+            for (int j = 0; j < this.cols - ocol; j++) {
+                float acc = 0.0f;
+                for (int y = 0; y < f.rows; y++) {
+                    final float[] a = f.data[y];
+                    final float[] b = this.data[i + y];
+                    for (int x = 0; x < f.cols; x++) {
+                        acc += a[x] * b[j + x];
+                    }
+                }
+                result.data[i][j] = acc;
+            }
+        }
+        return result;
+    }
+
+    public Matrix deflating(Matrix input, Matrix error, int size) {
+        Matrix result  = new Matrix(this.rows * size, this.cols * size);
+        for(int i = 0; i < result.rows; i++) {
+            for(int j = 0; j < result.cols; j++) {
+                int oi = i / size;
+                int oj = j / size;
+                if(input.data[i][j] == this.data[oi][oj]) {
+                    result.data[i][j] = error.data[oi][oj];
+                }
+            }
+        }
+        return result;
+    }
+
+    public Matrix poolmax(final int size) {
+        assert (size > 0);
+        if (size == 1) {
+            return this.copy();
+        } else {
+            Matrix result = new Matrix(this.rows / size, this.cols / size);
+            for (int i = 0; i < result.rows; i++) {
+                for (int j = 0; j < result.cols; j++) {
+                    float max = this.data[i * size][j * size];
+                    for (int y = 0; y < size; y++) {
+                        final float[] b = this.data[i * size + y];
+                        for (int x = 0; x < size; x++) {
+                            max = Scalar.max(b[j * size + x], max);
+                        }
+                    }
+                    result.data[i][j] = max;
+                }
+            }
+            return result;
+        }
+    }
+
+    public Matrix poolmin(final int size) {
+        assert (size > 0);
+        if (size == 1) {
+            return this.copy();
+        } else {
+            Matrix result = new Matrix(this.rows / size, this.cols / size);
+            for (int i = 0; i < result.rows; i++) {
+                for (int j = 0; j < result.cols; j++) {
+                    float min = this.data[i * size][j * size];
+                    for (int y = 0; y < size; y++) {
+                        final float[] b = this.data[i * size + y];
+                        for (int x = 0; x < size; x++) {
+                            min = Scalar.min(b[j * size + x], min);
+                        }
+                    }
+                    result.data[i][j] = min;
+                }
+            }
+            return result;
+        }
+    }
+
     public Matrix map(final MatrixFunction<Float, Float> fn) {
         assert (fn != null);
         for (int i = 0; i < this.rows; i++) {
@@ -1295,11 +1375,49 @@ public class Matrix {
     }
 
     public Matrix copy(final int a, final int b, final int h, final int w) {
+        assert (a >= 0 && a < this.rows);
+        assert (b >= 0 && b < this.cols);
+        assert ((a + h) >= 0 && (a + h) <= this.rows);
+        assert ((b + w) >= 0 && (b + w) <= this.cols);
         final Matrix result = new Matrix(h, w);
         for (int i = 0; i < h; i++) {
             System.arraycopy(this.data[a + i], b, result.data[i], 0, w);
         }
         return result;
+    }
+
+    public Matrix extract(int idx, final int axis) {
+        if (axis == 0) {
+            assert (idx >= 0 && idx < this.rows);
+            final Matrix result = new Matrix(1, this.cols);
+            for (int i = 0; i < this.cols; i++) {
+                result.data[0][i] = this.data[idx][i];
+            }
+            return result;
+        } else {
+            assert (idx >= 0 && idx < this.cols);
+            final Matrix result = new Matrix(this.rows, 1);
+            for (int i = 0; i < this.rows; i++) {
+                result.data[i][0] = this.data[i][idx];
+            }
+            return result;
+        }
+    }
+
+    public Matrix diagonal(final int axis) {
+        if (axis == 0) {
+            final Matrix result = new Matrix(1, this.cols);
+            for (int i = 0; i < this.cols; i++) {
+                result.data[0][i] = this.data[i][i];
+            }
+            return result;
+        } else {
+            final Matrix result = new Matrix(this.rows, 1);
+            for (int i = 0; i < this.rows; i++) {
+                result.data[i][0] = this.data[i][i];
+            }
+            return result;
+        }
     }
 
     public Matrix concat(final Vector v, final int axis) {
