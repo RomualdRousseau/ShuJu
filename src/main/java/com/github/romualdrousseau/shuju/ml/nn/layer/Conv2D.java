@@ -17,7 +17,6 @@ public class Conv2D extends Layer {
         assert (inputChannels == 1) : "Multiple input channels not supported";
 
         this.inputUnits = inputUnits;
-        this.inputChannels = inputChannels;
         this.units = this.inputUnits - filters + 1;
         this.channels = channels;
         this.initializer = initializer;
@@ -116,7 +115,6 @@ public class Conv2D extends Layer {
     }
 
     private int inputUnits;
-    private int inputChannels;
     private int units;
     private int channels;
     private InitializerFunc initializer;
