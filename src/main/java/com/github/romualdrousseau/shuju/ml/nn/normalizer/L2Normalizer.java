@@ -4,7 +4,11 @@ import com.github.romualdrousseau.shuju.math.Matrix;
 import com.github.romualdrousseau.shuju.ml.nn.NormalizerFunc;
 
 public class L2Normalizer implements NormalizerFunc {
-    public void apply(Matrix matrix) {
-        matrix.l2Norm(0);
+    public Matrix apply(Matrix x) {
+        return x.l2Norm(0);
+    }
+
+    public Matrix derivate(Matrix y) {
+        return y;
     }
 }

@@ -10,8 +10,8 @@ import com.github.romualdrousseau.shuju.ml.nn.Parameters;
 
 public class Conv2D extends Layer {
 
-    public Conv2D(int inputUnits, int inputChannels, int filters, int channels, float bias,
-            InitializerFunc initializer) {
+    public Conv2D(final int inputUnits, final int inputChannels, final int filters, final int channels,
+            final float bias, final InitializerFunc initializer) {
         super(bias);
 
         assert (inputChannels == 1) : "Multiple input channels not supported";
@@ -29,7 +29,7 @@ public class Conv2D extends Layer {
         this.reset(false);
     }
 
-    public void reset(boolean parametersOnly) {
+    public void reset(final boolean parametersOnly) {
         if (parametersOnly) {
             for (int i = 0; i < this.channels; i++) {
                 this.filters[i].M.zero();
@@ -44,61 +44,63 @@ public class Conv2D extends Layer {
         }
     }
 
-    public Matrix callForward(Matrix input) {
-        Matrix output = new Matrix(this.units * this.units, 0);
-        Matrix tmpInput = input.reshape(this.inputUnits, this.inputUnits, 1);
+    public Matrix callForward(final Matrix input) {
+        Matrix output = new Matrix(this.units * this.units, this.channels);
+        final Matrix oneInput = input.reshape(this.inputUnits, this.inputUnits, 1);
         for (int j = 0; j < this.channels; j++) {
-            Matrix tmpOutput = tmpInput.conv(this.filters[j].W);
-            output = output.concat(tmpOutput.reshape(this.units * this.units, 1, 1), 1);
+            final Matrix oneOutput = oneInput.conv(this.filters[j].W).reshape(this.units * this.units, 1, 1);
+            output = output.replace(j, oneOutput, 1);
         }
         return output;
     }
 
-    public void startBackward(Optimizer optimizer) {
+    public void startBackward(final Optimizer optimizer) {
         for (int i = 0; i < this.channels; i++) {
             this.filters[i].G.zero();
         }
     }
 
-    public Matrix callBackward(Matrix error) {
-        Matrix lastInput = this.prev.output;
-        Matrix deflatedError = error.reshape(this.units * this.units, this.channels, 0);
+    public Matrix callBackward(Matrix d_L_d_out) {
+        final Matrix lastInput = this.lastInput;
+        final Matrix deflatedError = d_L_d_out.reshape(this.units * this.units, this.channels, 0);
 
-        error = new Matrix(this.inputUnits * this.inputUnits, 0);
+        d_L_d_out = new Matrix(this.inputUnits * this.inputUnits, 0);
 
-        Matrix tmpInput = lastInput.reshape(this.inputUnits, this.inputUnits, 1);
-        Matrix tmpError2 = new Matrix(this.inputUnits, this.inputUnits);
+        final Matrix tmpInput = lastInput.reshape(this.inputUnits, this.inputUnits, 1);
+        final Matrix tmpError2 = new Matrix(this.inputUnits, this.inputUnits);
         for (int k = 0; k < this.channels; k++) {
+
             Matrix tmpError = deflatedError.extract(k, 1).reshape(this.units, this.units, 1);
+
             for (int i = 0; i < tmpError.rowCount(); i++) {
                 for (int j = 0; j < tmpError.colCount(); j++) {
-                    Matrix tmpRegion = tmpInput.copy(i, j, this.filters[k].G.rowCount(), this.filters[k].G.colCount());
-                    Matrix d_L_d_t = tmpRegion.mul(tmpError.get(i, j));
+                    final Matrix tmpRegion = tmpInput.copy(i, j, this.filters[k].G.rowCount(), this.filters[k].G.colCount());
+                    final Matrix d_L_d_t = tmpRegion.mul(tmpError.get(i, j));
                     this.filters[k].G.add(d_L_d_t);
                 }
             }
 
-            Matrix W_ = this.filters[k].W.copy();
-            for(int i = 0; i < W_.rowCount() / 2; i++) {
+            final Matrix W_ = this.filters[k].W.copy();
+            for (int i = 0; i < W_.rowCount() / 2; i++) {
                 W_.swap(i, W_.rowCount() - i - 1, 0);
             }
-            int pad = W_.rowCount() - 1;
+            final int pad = W_.rowCount() - 1;
             tmpError = tmpError.pad(pad, 0.0f).conv(W_);
             tmpError2.add(tmpError);
         }
 
-        error = error.concat(tmpError2.reshape(this.inputUnits * this.inputUnits, 1, 1), 1);
+        d_L_d_out = d_L_d_out.concat(tmpError2.reshape(this.inputUnits * this.inputUnits, 1, 1), 1);
 
-        return error;
+        return d_L_d_out;
     }
 
-    public void completeBackward(Optimizer optimizer) {
+    public void completeBackward(final Optimizer optimizer) {
         for (int i = 0; i < this.channels; i++) {
             this.filters[i].W.sub(optimizer.computeGradients(this.filters[i]));
         }
     }
 
-    public void fromJSON(JSONObject json) {
+    public void fromJSON(final JSONObject json) {
         for (int i = 0; i < this.channels; i++) {
             this.filters[i].fromJSON(json.getJSONObject("filters_" + i));
         }
@@ -106,7 +108,7 @@ public class Conv2D extends Layer {
     }
 
     public JSONObject toJSON() {
-        JSONObject json = JSON.newJSONObject();
+        final JSONObject json = JSON.newJSONObject();
         for (int i = 0; i < this.channels; i++) {
             json.setJSONObject("filters_" + i, this.filters[i].toJSON());
         }
@@ -114,10 +116,9 @@ public class Conv2D extends Layer {
         return json;
     }
 
-    private int inputUnits;
-    private int units;
-    private int channels;
-    private InitializerFunc initializer;
-    private Parameters[] filters;
-
+    private final int inputUnits;
+    private final int units;
+    private final int channels;
+    private final InitializerFunc initializer;
+    private final Parameters[] filters;
 }

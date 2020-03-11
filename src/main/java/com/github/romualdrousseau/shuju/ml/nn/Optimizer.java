@@ -1,5 +1,7 @@
 package com.github.romualdrousseau.shuju.ml.nn;
 
+import java.util.function.Consumer;
+
 import com.github.romualdrousseau.shuju.math.Matrix;
 
 public abstract class Optimizer {
@@ -21,23 +23,35 @@ public abstract class Optimizer {
     public void reset() {
         this.learningRate = this.learningRate0;
         this.epoch = 1;
-        for (Layer layer = this.model.start.next; layer != null; layer = layer.next) {
-            layer.reset(true);
-        }
+        this.model.reset();
     }
 
     public void zeroGradients() {
-        for (Layer layer = this.model.start.next; layer != null; layer = layer.next) {
-            layer.startBackward(this);
-        }
+        Optimizer me = this;
+        this.model.visit(new Consumer<Layer>() {
+            public void accept(Layer layer) {
+                layer.startBackward(me);
+            }
+        });
+    }
+
+    public Loss minimize(Loss loss) {
+        this.model.visitBackward(new Consumer<Layer>() {
+            Matrix error = loss.getRate();
+            public void accept(Layer layer) {
+                error = layer.callBackward(error);
+            }
+        });
+        return loss;
     }
 
     public void step() {
-        for (Layer layer = this.model.start.next; layer != null; layer = layer.next) {
-            if(!layer.frozen) {
-                layer.completeBackward(this);
+        Optimizer me = this;
+        this.model.visit(new Consumer<Layer>() {
+            public void accept(Layer layer) {
+                layer.completeBackward(me);
             }
-        }
+        });
 
         this.epoch++;
 

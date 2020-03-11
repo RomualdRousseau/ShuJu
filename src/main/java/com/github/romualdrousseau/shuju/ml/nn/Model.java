@@ -1,31 +1,27 @@
 package com.github.romualdrousseau.shuju.ml.nn;
 
+import java.util.LinkedList;
+import java.util.function.Consumer;
+
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 
 import com.github.romualdrousseau.shuju.math.Vector;
-import com.github.romualdrousseau.shuju.ml.nn.layer.Empty;
 import com.github.romualdrousseau.shuju.math.Matrix;
 
 public class Model {
-    protected Layer start;
-    protected Layer end;
-
     public Model() {
-        this.start = new Empty(1.0f);
-        this.end = this.start;
     }
 
     public void reset() {
-        for (Layer layer = this.start.next; layer != null; layer = layer.next) {
+        for(Layer layer : this.layers) {
             layer.reset(false);
         }
     }
 
     public Model add(Layer layer) {
-        layer.prev = this.end;
-        this.end.next = layer;
-        this.end = layer;
+        layer.model = this;
+        this.layers.add(layer);
         return this;
     }
 
@@ -34,30 +30,39 @@ public class Model {
     }
 
     public Layer model(Matrix input) {
-        this.start.output = input;
-        for (Layer layer = this.start.next; layer != null; layer = layer.next) {
-            layer.output = layer.callForward(layer.prev.output);
+        for(Layer layer : this.layers) {
+            layer.lastInput = input;
+            layer.output = layer.callForward(input);
+            input = layer.output;
         }
-        return this.end;
+        return this.layers.getLast();
+    }
+
+    public void visit(Consumer<Layer> visitFunc) {
+        this.layers.iterator().forEachRemaining(visitFunc);
+    }
+
+    public void visitBackward(Consumer<Layer> visitFunc) {
+        this.layers.descendingIterator().forEachRemaining(visitFunc);
     }
 
     public void fromJSON(JSONArray json) {
-        int i = json.size();
-        for (Layer layer = this.start.next; layer != null; layer = layer.next, i--)
-            ;
-        if (i != 0) {
+        if (json.size() != this.layers.size()) {
             throw new IllegalArgumentException("model must match the model layout.");
         }
-        for (Layer layer = this.start.next; layer != null; layer = layer.next, i++) {
-            layer.fromJSON(json.getJSONObject(i));
+        int i = 0;
+        for(Layer layer : this.layers) {
+            layer.fromJSON(json.getJSONObject(i++));
         }
     }
 
     public JSONArray toJSON() {
         JSONArray json = JSON.newJSONArray();
-        for (Layer layer = this.start.next; layer != null; layer = layer.next) {
+        for(Layer layer : this.layers) {
             json.append(layer.toJSON());
         }
         return json;
     }
+
+    private LinkedList<Layer> layers = new LinkedList<Layer>();
 }

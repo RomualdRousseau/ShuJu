@@ -1420,6 +1420,34 @@ public class Matrix {
         }
     }
 
+    public Matrix replace(final int idx, final Vector v, final int axis) {
+        if (axis == 0) {
+            assert (this.cols == v.rows);
+            System.arraycopy(v.data, 0, this.data[idx], 0, this.cols);
+            return this;
+        } else {
+            assert (this.rows == v.rows);
+            for (int i = 0; i < this.rows; i++) {
+                this.data[i][idx] = v.data[i];
+            }
+            return this;
+        }
+    }
+
+    public Matrix replace(final int idx, final Matrix m, final int axis) {
+        if (axis == 0) {
+            assert (this.cols == m.cols);
+            System.arraycopy(m.data[0], 0, this.data[idx], 0, this.cols);
+            return this;
+        } else {
+            assert (this.rows == m.rows);
+            for (int i = 0; i < this.rows; i++) {
+                this.data[i][idx] = m.data[i][0];
+            }
+            return this;
+        }
+    }
+
     public Matrix concat(final Vector v, final int axis) {
         if (axis == 0) {
             assert (this.cols == v.rows);

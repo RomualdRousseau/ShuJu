@@ -16,8 +16,11 @@ public class Loss {
     public Loss loss(Layer output, Matrix target) {
         this.value = this.lossFunc.apply(output.output, target);
         this.rate = this.lossFunc.derivate(output.output, target);
-        this.output = output;
         return this;
+    }
+
+    public Matrix getRate() {
+        return this.rate;
     }
 
     public Matrix getValue() {
@@ -28,18 +31,7 @@ public class Loss {
         return this.value.toVector(0, false);
     }
 
-    public Loss backward() {
-        Matrix error = this.rate;
-        for (Layer layer = this.output; layer.prev != null; layer = layer.prev) {
-            if (!layer.frozen) {
-                error = layer.callBackward(error);
-            }
-        }
-        return this;
-    }
-
     private LossFunc lossFunc;
     private Matrix value;
     private Matrix rate;
-    private Layer output;
 }

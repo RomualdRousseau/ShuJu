@@ -30,22 +30,22 @@ import com.github.romualdrousseau.shuju.ml.nn.normalizer.*;
 import com.github.romualdrousseau.shuju.nlp.impl.*;
 
 final int[] classColors = {
-  color(255, 185, 185), 
-  color(185, 185, 255), 
+  color(255, 185, 185),
+  color(185, 185, 255),
   color(255, 255, 255)
 };
 
 final Vector[] inputs = {
-  new Vector(new float[] {0, 0}), 
-  new Vector(new float[] {0, 1}), 
-  new Vector(new float[] {1, 0}), 
+  new Vector(new float[] {0, 0}),
+  new Vector(new float[] {0, 1}),
+  new Vector(new float[] {1, 0}),
   new Vector(new float[] {1, 1})
 };
 
 final Vector[] targets = {
-  new Vector(new float[] {0}), 
-  new Vector(new float[] {1}), 
-  new Vector(new float[] {1}), 
+  new Vector(new float[] {0}),
+  new Vector(new float[] {1}),
+  new Vector(new float[] {1}),
   new Vector(new float[] {0})
 };
 
@@ -67,13 +67,15 @@ void buildModelXOR() {
   model.add(new DenseBuilder()
     .setInputUnits(2)
     .setUnits(4)
-    .setActivation(new Tanh())
     .setInitializer(new GlorotUniformInitializer()).build());
+
+  model.add(new ActivationBuilder()
+    .setActivation(new Tanh())
+    .build());
 
   model.add(new DenseBuilder()
     .setInputUnits(4)
     .setUnits(1)
-    .setActivation(new Linear())
     .setInitializer(new GlorotUniformInitializer()).build());
 
   optimizer = new OptimizerRMSPropBuilder().build(model);
@@ -85,7 +87,7 @@ void fitModel() {
   for (int i = 0; i < 100; i++) {
     optimizer.zeroGradients();
     for (int j = 0; j < 4; j++) {
-      loss.loss(model.model(inputs[j]), targets[j]).backward();
+        optimizer.minimize(loss.loss(model.model(inputs[j]), targets[j]));
     }
     optimizer.step();
   }
@@ -110,11 +112,11 @@ void setup() {
 void draw() {
   fitModel();
   final float[][] xorMap = predictModel(100);
-  
+
   final int r = xorMap.length - 1;
   final int w = width / r;
   final int h = height / r;
-  
+
   background(51);
 
   noStroke();

@@ -10,11 +10,10 @@ public class MaxPooling2DBuilder extends LayerBuilder<MaxPooling2D> {
         this.inputUnits = 0;
         this.inputChannels = 8;
         this.size = 2;
-        this.channels = 8;
     }
 
     public MaxPooling2D build() {
-        return new MaxPooling2D(this.inputUnits, this.inputChannels, this.size, this.channels, this.bias);
+        return new MaxPooling2D(this.inputUnits, this.inputChannels, this.size);
     }
 
     public MaxPooling2DBuilder setBias(float bias) {
@@ -37,14 +36,8 @@ public class MaxPooling2DBuilder extends LayerBuilder<MaxPooling2D> {
         return this;
     }
 
-    public MaxPooling2DBuilder setChannels(int channels) {
-        this.channels = channels;
-        return this;
-    }
-
     private int inputUnits;
     private int inputChannels;
     private int size;
-    private int channels;
 }
 

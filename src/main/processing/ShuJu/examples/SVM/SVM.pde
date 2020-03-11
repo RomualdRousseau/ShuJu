@@ -30,8 +30,8 @@ import com.github.romualdrousseau.shuju.ml.nn.normalizer.*;
 import com.github.romualdrousseau.shuju.nlp.impl.*;
 
 final int[] classColors = {
-  color(255, 185, 185), 
-  color(185, 185, 255), 
+  color(255, 185, 185),
+  color(185, 185, 255),
   color(255, 255, 255)
 };
 
@@ -60,7 +60,6 @@ void buildModelSVM() {
   model.add(new DenseBuilder()
     .setInputUnits(3)
     .setUnits(1)
-    .setActivation(new Linear())
     .setInitializer(new GlorotUniformInitializer())
     .build());
 
@@ -77,7 +76,7 @@ void fitModel() {
     for (DataRow row : dataset.rows()) {
       Vector input = row.features().get(0).copy().map(-10, 10, -1, 1);
       Vector target = new Vector(new float[] { row.label().argmax() * 2 - 1 });
-      loss.loss(model.model(kernel(input)), target).backward();
+      optimizer.minimize(loss.loss(model.model(kernel(input)), target));
     }
     optimizer.step();
   }
@@ -103,7 +102,7 @@ void setup() {
 void draw() {
   fitModel();
   final float[][] svmMap = predictModel(100);
-  
+
   final int r = svmMap.length - 1;
   final int w = width / r;
   final int h = height / r;

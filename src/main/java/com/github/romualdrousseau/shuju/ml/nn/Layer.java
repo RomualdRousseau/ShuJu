@@ -7,22 +7,22 @@ import com.github.romualdrousseau.shuju.math.Vector;
 
 public abstract class Layer {
 
-    public boolean frozen;
+    public Model model;
 
+    public Matrix lastInput;
     public float bias;
     public Matrix output;
 
-    public Layer prev;
-    public Layer next;
+    public boolean frozen;
+    public boolean training;
 
     protected Layer(float bias) {
         this.frozen = false;
+        this.training = false;
 
-        this.bias = bias;
+        this.lastInput = null;
+        this.bias = 1.0f;
         this.output = null;
-
-        this.prev = null;
-        this.next = null;
     }
 
     public Matrix detach() {

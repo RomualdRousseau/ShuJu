@@ -5,7 +5,7 @@ class Brain_ {
   float accuracy;
   float mean;
   boolean dataChanged;
-  
+
   Brain_() {
     this.accuracy = 0.0;
     this.mean = 1.0;
@@ -47,9 +47,9 @@ class Brain_ {
 
         Layer output = this.model.model(input);
         Loss loss = this.criterion.loss(output, target);
-        
-        if(output.detachAsVector().argmax() != target.argmax()) {
-          loss.backward();
+
+        if (output.detachAsVector().argmax() != target.argmax()) {
+          this.optimizer.minimize(loss);
         } else {
           sumAccu++;
         }
@@ -73,27 +73,42 @@ class Brain_ {
 
   void buildModelSoftmax() {
     this.model = new Model();
-    
+
     this.model.add(new DenseBuilder()
       .setInputUnits(2)
       .setUnits(BRAIN_HIDDEN_NEURONS)
-      .setActivation(new LeakyRelu())
+      .build());
+
+    this.model.add(new NormalizerBuilder()
       .setNormalizer(new BatchNormalizer())
       .build());
-      
+
+    this.model.add(new ActivationBuilder()
+      .setActivation(new LeakyRelu())
+      .build());
+
     this.model.add(new DenseBuilder()
       .setInputUnits(BRAIN_HIDDEN_NEURONS)
       .setUnits(BRAIN_HIDDEN_NEURONS)
-      .setActivation(new LeakyRelu())
+      .build());
+
+    this.model.add(new NormalizerBuilder()
       .setNormalizer(new BatchNormalizer())
       .build());
-      
+
+    this.model.add(new ActivationBuilder()
+      .setActivation(new LeakyRelu())
+      .build());
+
     this.model.add(new DenseBuilder()
       .setInputUnits(BRAIN_HIDDEN_NEURONS)
       .setUnits(2)
+      .build());
+
+    this.model.add(new ActivationBuilder()
       .setActivation(new Softmax())
       .build());
-    
+
     this.optimizer = new OptimizerAdamBuilder().build(this.model);
 
     this.criterion = new Loss(new SoftmaxCrossEntropy());
@@ -101,16 +116,22 @@ class Brain_ {
 
   void buildModelMSE() {
     this.model = new Model();
-    
+
     this.model.add(new DenseBuilder()
       .setInputUnits(2)
       .setUnits(BRAIN_HIDDEN_NEURONS)
+      .build());
+
+    this.model.add(new ActivationBuilder()
       .setActivation(new Tanh())
       .build());
-      
+
     this.model.add(new DenseBuilder()
       .setInputUnits(BRAIN_HIDDEN_NEURONS)
       .setUnits(2)
+      .build());
+
+    this.model.add(new ActivationBuilder()
       .setActivation(new Linear())
       .build());
 
@@ -124,16 +145,22 @@ class Brain_ {
 
   void buildModelHuber() {
     this.model = new Model();
-    
+
     this.model.add(new DenseBuilder()
       .setInputUnits(2)
       .setUnits(BRAIN_HIDDEN_NEURONS)
+      .build());
+
+    this.model.add(new ActivationBuilder()
       .setActivation(new Relu())
       .build());
-      
+
     this.model.add(new DenseBuilder()
       .setInputUnits(BRAIN_HIDDEN_NEURONS)
       .setUnits(2)
+      .build());
+
+    this.model.add(new ActivationBuilder()
       .setActivation(new Linear())
       .build());
 
@@ -141,20 +168,20 @@ class Brain_ {
 
     this.criterion = new Loss(new Huber());
   }
-  
+
   String toString() {
     String result = "";
     /*
     for (Layer layer = this.model.start.next; layer != null; layer = layer.next) {
-      if (layer.prev == this.model.start) {
-        result += String.format("%d -> %d -> %s ->", layer.weights.W.cols, layer.weights.W.rows, getClassInfo(layer.activation));
-      } else if (layer.next == null) {
-        result += String.format("%d -> %s", layer.weights.W.rows, getClassInfo(layer.activation));
-      } else {
-        result += String.format("%d -> %s ->", layer.weights.W.rows, getClassInfo(layer.activation));
-      }
-    }
-    */
+     if (layer.prev == this.model.start) {
+     result += String.format("%d -> %d -> %s ->", layer.weights.W.cols, layer.weights.W.rows, getClassInfo(layer.activation));
+     } else if (layer.next == null) {
+     result += String.format("%d -> %s", layer.weights.W.rows, getClassInfo(layer.activation));
+     } else {
+     result += String.format("%d -> %s ->", layer.weights.W.rows, getClassInfo(layer.activation));
+     }
+     }
+     */
     return result;
   }
 }

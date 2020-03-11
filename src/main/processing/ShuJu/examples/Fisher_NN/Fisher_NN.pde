@@ -78,19 +78,29 @@ void buildModel() {
   model.add(new DenseBuilder()
     .setInputUnits(4)
     .setUnits(64)
-    .setActivation(new Relu())
     .setInitializer(new GlorotUniformInitializer())
+    .build());
+
+  model.add(new NormalizerBuilder()
     .setNormalizer(new BatchNormalizer())
+    .build());
+
+  model.add(new ActivationBuilder()
+    .setActivation(new Relu())
     .build());
 
   model.add(new DenseBuilder()
     .setInputUnits(64)
     .setUnits(3)
-    .setActivation(new Softmax())
     .setInitializer(new GlorotUniformInitializer())
     .build());
 
+  model.add(new ActivationBuilder()
+    .setActivation(new Softmax())
+    .build());
+
   optimizer = new OptimizerRMSPropBuilder().build(model);
+
   loss = new Loss(new SoftmaxCrossEntropy());
 }
 
@@ -159,7 +169,7 @@ void draw() {
   for (int i = 0; i < iterationCount; i++) {
     optimizer.zeroGradients();
     for(int j = 0; j < trainingInputs.length; j++) {
-      loss.loss(model.model(trainingInputs[j]), trainingTargets[j]).backward();
+      optimizer.minimize(loss.loss(model.model(trainingInputs[j]), trainingTargets[j]);
     }
     optimizer.step();
     epochs++;

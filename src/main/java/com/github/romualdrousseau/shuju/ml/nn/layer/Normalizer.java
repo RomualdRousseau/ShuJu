@@ -4,12 +4,14 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Matrix;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
+import com.github.romualdrousseau.shuju.ml.nn.NormalizerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
 
-public class Empty extends Layer {
+public class Normalizer extends Layer {
 
-    public Empty(float bias) {
-        super(bias);
+    public Normalizer(NormalizerFunc normalizer) {
+        super(1.0f);
+        this.normalizer = normalizer;
         this.reset(false);
     }
 
@@ -23,13 +25,11 @@ public class Empty extends Layer {
     }
 
     public Matrix callForward(Matrix input) {
-        return input;
+        return this.normalizer.apply(input);
     }
 
-    public Matrix callBackward(Matrix error) {
-        // final Matrix last_input = this.prev.output;
-        // final float last_bias = this.prev.bias;
-        return error;
+    public Matrix callBackward(Matrix d_L_d_out) {
+        return this.normalizer.derivate(d_L_d_out);
     }
 
     public void fromJSON(JSONObject json) {
@@ -39,4 +39,6 @@ public class Empty extends Layer {
         JSONObject json = JSON.newJSONObject();
         return json;
     }
+
+    private NormalizerFunc normalizer;
 }
