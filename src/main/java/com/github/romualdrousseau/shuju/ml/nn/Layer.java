@@ -39,7 +39,7 @@ public abstract class Layer {
 
     public abstract void startBackward(Optimizer optimizer);
 
-    public abstract Matrix callBackward(Matrix error);
+    public abstract Matrix callBackward(Matrix d_L_d_out);
 
     public abstract void completeBackward(Optimizer optimizer);
 

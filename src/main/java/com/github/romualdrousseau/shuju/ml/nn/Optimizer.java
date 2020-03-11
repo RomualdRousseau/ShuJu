@@ -37,9 +37,9 @@ public abstract class Optimizer {
 
     public Loss minimize(Loss loss) {
         this.model.visitBackward(new Consumer<Layer>() {
-            Matrix error = loss.getRate();
+            Matrix d_L_d_out = loss.getRate();
             public void accept(Layer layer) {
-                error = layer.callBackward(error);
+                d_L_d_out = layer.callBackward(d_L_d_out);
             }
         });
         return loss;

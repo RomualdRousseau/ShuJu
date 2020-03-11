@@ -19,23 +19,23 @@ public class Model {
         }
     }
 
-    public Model add(Layer layer) {
-        layer.model = this;
-        this.layers.add(layer);
-        return this;
-    }
-
     public Layer model(Vector input) {
         return this.model(new Matrix(input, false));
     }
 
     public Layer model(Matrix input) {
         for(Layer layer : this.layers) {
-            layer.lastInput = input;
             layer.output = layer.callForward(input);
+            layer.lastInput = input;
             input = layer.output;
         }
         return this.layers.getLast();
+    }
+
+    public Model add(Layer layer) {
+        layer.model = this;
+        this.layers.add(layer);
+        return this;
     }
 
     public void visit(Consumer<Layer> visitFunc) {
