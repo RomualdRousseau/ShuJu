@@ -2,8 +2,8 @@ package com.github.romualdrousseau.shuju.ml.nn.layer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
+import com.github.romualdrousseau.shuju.math.Helper;
 import com.github.romualdrousseau.shuju.math.Matrix;
-import com.github.romualdrousseau.shuju.math.Scalar;
 import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
@@ -32,11 +32,12 @@ public class Dense extends Layer {
             this.weights.reset();
             this.biases.reset();
             this.initializer.apply(this.weights.W);
+            this.initializer.apply(this.biases.W);
         }
     }
 
     public Matrix callForward(Matrix input) {
-        return Scalar.xw_plus_b(input, this.weights.W, this.biases.W);
+        return Helper.xw_plus_b(input, this.weights.W, this.biases.W);
     }
 
     public void startBackward(Optimizer optimizer) {

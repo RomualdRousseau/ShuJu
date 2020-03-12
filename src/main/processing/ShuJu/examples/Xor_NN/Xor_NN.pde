@@ -26,7 +26,6 @@ import com.github.romualdrousseau.shuju.transforms.*;
 import com.github.romualdrousseau.shuju.ml.knn.*;
 import com.github.romualdrousseau.shuju.ml.nn.layer.*;
 import com.github.romualdrousseau.shuju.ml.naivebayes.*;
-import com.github.romualdrousseau.shuju.ml.nn.normalizer.*;
 import com.github.romualdrousseau.shuju.nlp.impl.*;
 
 final int[] classColors = {

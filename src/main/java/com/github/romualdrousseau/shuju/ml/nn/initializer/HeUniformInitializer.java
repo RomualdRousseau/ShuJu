@@ -5,7 +5,7 @@ import com.github.romualdrousseau.shuju.math.Matrix;
 import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 
 public class HeUniformInitializer implements InitializerFunc {
-    public void apply(Matrix matrix) {
-        matrix.randomize(Scalar.sqrt(3.0f / Scalar.sqrt(matrix.rowCount())));
+    public Matrix apply(Matrix matrix) {
+        return matrix.randomize(Scalar.sqrt(3.0f / Scalar.sqrt(matrix.rowCount())));
     }
 }

@@ -7,6 +7,7 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 
 import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Helper;
 import com.github.romualdrousseau.shuju.math.Matrix;
 
 public class Model {
@@ -19,15 +20,23 @@ public class Model {
         }
     }
 
+    public void setTrainingMode(boolean training) {
+        for(Layer layer : this.layers) {
+            layer.training = training;
+        }
+    }
+
     public Layer model(Vector input) {
         return this.model(new Matrix(input, false));
     }
 
     public Layer model(Matrix input) {
         for(Layer layer : this.layers) {
+            assert (!Helper.checkNaN(input)) : layer.toString() + ": NaN detected in forward input!";
             layer.output = layer.callForward(input);
             layer.lastInput = input;
             input = layer.output;
+            assert (!Helper.checkNaN(layer.output)) : layer.toString() + ": NaN detected in forward output!";
         }
         return this.layers.getLast();
     }

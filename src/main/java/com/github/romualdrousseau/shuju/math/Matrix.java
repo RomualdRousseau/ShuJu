@@ -703,8 +703,8 @@ public class Matrix {
             return sum;
         } else {
             float sum = 0.0f;
-            for (int i = 0; i < this.cols; i++) {
-                sum += this.data[idx][i];
+            for (int j = 0; j < this.cols; j++) {
+                sum += this.data[idx][j];
             }
             return sum;
         }
@@ -863,24 +863,35 @@ public class Matrix {
         return this;
     }
 
-    public Matrix batchNorm(final float a, final float b, final int axis) {
+    public Matrix batchNorm(final float gamma, final float delta, final int axis) {
         if (axis == 0) {
-            for (int j = 0; j < this.cols; j++) {
-                float avg = this.avg(j, 0);
-                float var = this.var(j, 0);
-                for (int i = 0; i < this.rows; i++) {
-                    final float x = (this.data[i][j] - avg) / Scalar.sqrt(var + Scalar.EPSILON);
-                    this.data[i][j] = a * x + b;
+            Matrix avg = this.avg(0);
+            Matrix var_inv = this.var(0).add(Scalar.EPSILON).sqrt().pow(-1.0f);
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; j < this.cols; j++) {
+                    final float x = (this.data[i][j] - avg.data[0][j]) * var_inv.data[0][j];
+                    this.data[i][j] = gamma * x + delta;
                 }
             }
         } else {
+            Matrix avg = this.avg(1);
+            Matrix var_inv = this.var(1).add(Scalar.EPSILON).sqrt().pow(-1.0f);
             for (int i = 0; i < this.rows; i++) {
-                float avg = this.avg(i, 1);
-                float var = this.var(i, 1);
                 for (int j = 0; j < this.cols; j++) {
-                    final float x = (this.data[i][j] - avg) / Scalar.sqrt(var + Scalar.EPSILON);
-                    this.data[i][j] = a * x + b;
+                    final float x = (this.data[i][j] - avg.data[i][0]) * var_inv.data[i][0];
+                    this.data[i][j] = gamma * x + delta;
                 }
+            }
+        }
+        return this;
+    }
+
+    public Matrix batchNorm(final float gamma, final float delta, final float avg, final float var) {
+        final float var_inv = 1.0f / Scalar.sqrt(var + Scalar.EPSILON);
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                final float x = (this.data[i][j] - avg) * var_inv;
+                this.data[i][j] = gamma * x + delta;
             }
         }
         return this;
@@ -910,7 +921,7 @@ public class Matrix {
             assert (this.rows == v.rows);
             for (int j = 0; j < this.cols; j++) {
                 final float[] b = v.data;
-                for (int i = 0; j < this.rows; i++) {
+                for (int i = 0; i < this.rows; i++) {
                     this.data[i][j] += b[i];
                 }
             }
@@ -954,7 +965,7 @@ public class Matrix {
             assert (this.rows == v.rows);
             for (int j = 0; j < this.cols; j++) {
                 final float[] b = v.data;
-                for (int i = 0; j < this.rows; i++) {
+                for (int i = 0; i < this.rows; i++) {
                     this.data[i][j] -= b[i];
                 }
             }
@@ -998,7 +1009,7 @@ public class Matrix {
             assert (this.rows == v.rows);
             for (int j = 0; j < this.cols; j++) {
                 final float[] b = v.data;
-                for (int i = 0; j < this.rows; i++) {
+                for (int i = 0; i < this.rows; i++) {
                     this.data[i][j] *= b[i];
                 }
             }
@@ -1042,7 +1053,7 @@ public class Matrix {
             assert (this.rows == v.rows);
             for (int j = 0; j < this.cols; j++) {
                 final float[] b = v.data;
-                for (int i = 0; j < this.rows; i++) {
+                for (int i = 0; i < this.rows; i++) {
                     this.data[i][j] /= b[i];
                 }
             }
@@ -1284,64 +1295,6 @@ public class Matrix {
             }
         }
         return result;
-    }
-
-    public Matrix deflating(Matrix input, Matrix error, int size) {
-        Matrix result  = new Matrix(this.rows * size, this.cols * size);
-        for(int i = 0; i < result.rows; i++) {
-            for(int j = 0; j < result.cols; j++) {
-                int oi = i / size;
-                int oj = j / size;
-                if(input.data[i][j] == this.data[oi][oj]) {
-                    result.data[i][j] = error.data[oi][oj];
-                }
-            }
-        }
-        return result;
-    }
-
-    public Matrix poolmax(final int size) {
-        assert (size > 0);
-        if (size == 1) {
-            return this.copy();
-        } else {
-            Matrix result = new Matrix(this.rows / size, this.cols / size);
-            for (int i = 0; i < result.rows; i++) {
-                for (int j = 0; j < result.cols; j++) {
-                    float max = this.data[i * size][j * size];
-                    for (int y = 0; y < size; y++) {
-                        final float[] b = this.data[i * size + y];
-                        for (int x = 0; x < size; x++) {
-                            max = Scalar.max(b[j * size + x], max);
-                        }
-                    }
-                    result.data[i][j] = max;
-                }
-            }
-            return result;
-        }
-    }
-
-    public Matrix poolmin(final int size) {
-        assert (size > 0);
-        if (size == 1) {
-            return this.copy();
-        } else {
-            Matrix result = new Matrix(this.rows / size, this.cols / size);
-            for (int i = 0; i < result.rows; i++) {
-                for (int j = 0; j < result.cols; j++) {
-                    float min = this.data[i * size][j * size];
-                    for (int y = 0; y < size; y++) {
-                        final float[] b = this.data[i * size + y];
-                        for (int x = 0; x < size; x++) {
-                            min = Scalar.min(b[j * size + x], min);
-                        }
-                    }
-                    result.data[i][j] = min;
-                }
-            }
-            return result;
-        }
     }
 
     public Matrix map(final MatrixFunction<Float, Float> fn) {

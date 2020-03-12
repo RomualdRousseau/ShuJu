@@ -33,6 +33,8 @@ class Brain_ {
       return;
     }
 
+    model.setTrainingMode(true);
+
     for (int n = 0; n < BRAIN_CLOCK; n++) {
       float sumAccu = 0.0;
       float sumMean = 0.0;
@@ -69,6 +71,8 @@ class Brain_ {
       this.accuracy = constrain(sumAccu / Map2D.points.size(), 0, 1);
       this.mean = constrain(sumMean / Map2D.points.size(), 0, 1);
     }
+
+    model.setTrainingMode(false);
   }
 
   void buildModelSoftmax() {
@@ -79,9 +83,8 @@ class Brain_ {
       .setUnits(BRAIN_HIDDEN_NEURONS)
       .build());
 
-    this.model.add(new NormalizerBuilder()
-      .setNormalizer(new BatchNormalizer())
-      .build());
+    this.model.add(new BatchNormalizerBuilder()
+     .build());
 
     this.model.add(new ActivationBuilder()
       .setActivation(new LeakyRelu())
@@ -92,9 +95,8 @@ class Brain_ {
       .setUnits(BRAIN_HIDDEN_NEURONS)
       .build());
 
-    this.model.add(new NormalizerBuilder()
-      .setNormalizer(new BatchNormalizer())
-      .build());
+    this.model.add(new BatchNormalizerBuilder()
+     .build());
 
     this.model.add(new ActivationBuilder()
       .setActivation(new LeakyRelu())

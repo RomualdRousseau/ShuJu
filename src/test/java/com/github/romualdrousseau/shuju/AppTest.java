@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.*;
 
 import com.github.romualdrousseau.shuju.columns.NumericColumn;
 import com.github.romualdrousseau.shuju.columns.StringColumn;
+import com.github.romualdrousseau.shuju.math.Helper;
 import com.github.romualdrousseau.shuju.math.Linalg;
 import com.github.romualdrousseau.shuju.math.Matrix;
 import com.github.romualdrousseau.shuju.math.Vector;
@@ -60,30 +61,36 @@ public class AppTest {
         Matrix F = new Matrix(new float[][] { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } });
         Matrix R = new Matrix(new float[][] { { 29, -192 }, { -35, -22 } });
         assertTrue("Conv(M, F) = R", M.conv(F).equals(R));
+        assertTrue("F @ im2col(M) = R", F.reshape(1, 3 * 3).matmul(Helper.im2col(M, 3, 1)).reshape(2, 2).equals(R));
     }
 
     @Test
-    public void testMatrixPoolMax() {
+    public void testHelperIm2Col() {
         Matrix M = new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 90, 0, 75 }, { 0, 9, 0, 95 } });
-        Matrix R = new Matrix(new float[][] { { 80, 31 }, { 90, 95 } });
-        assertTrue("PoolMax(M, 2) = R", M.poolmax(2).equals(R));
+        assertTrue("Col2im(Im2col(M, 2, 2) = M", Helper.col2im(Helper.im2col(M, 2, 2), 4, 4, 2, 2).equals(M));
     }
 
     @Test
-    public void testMatrixPoolMin() {
+    public void testHelperPool() {
         Matrix M = new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 90, 0, 75 }, { 0, 9, 0, 95 } });
-        Matrix R = new Matrix(new float[][] { { 0, 0 }, { 0, 0 } });
-        assertTrue("PoolMin(M, 2) = R", M.poolmin(2).equals(R));
+        Matrix R1 = new Matrix(new float[][] { { 80, 31 }, { 90, 95 } });
+        Matrix R2 = new Matrix(new float[][] { { 0, 0 }, { 0, 0 } });
+        Matrix R3 = new Matrix(new float[][] { { 32.5f, 15.5f }, { 33.0f, 42.5f } });
+        assertTrue("PoolMax(M, 2) = R", Helper.im2col(M, 2, 2).max(0).reshape(2, 2).equals(R1));
+        assertTrue("PoolMin(M, 2) = R", Helper.im2col(M, 2, 2).min(0).reshape(2, 2).equals(R2));
+        assertTrue("PoolAvg(M, 2) = R", Helper.im2col(M, 2, 2).avg(0).reshape(2, 2).equals(R3));
     }
 
     @Test
-    public void testMatrixDeflating() {
+    public void testHelperExpand() {
         Matrix M = new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 90, 0, 75 }, { 0, 9, 0, 95 } });
         Matrix E = new Matrix(new float[][] { { 1, 1 }, { 1, 1 } });
         Matrix R1 = new Matrix(new float[][] { { 0, 0, 0, 0 }, { 0, 1, 1, 0 }, { 0, 1, 0, 0 }, { 0, 0, 0, 1 } });
         Matrix R2 = new Matrix(new float[][] { { 1, 0, 1, 0 }, { 1, 0, 0, 0 }, { 0, 0, 1, 0 }, { 1, 0, 1, 0 } });
-        assertTrue("deflating(M, 2) = R1", M.poolmax(2).deflating(M, E, 2).equals(R1));
-        assertTrue("deflating(M, 2) = R2", M.poolmin(2).deflating(M, E, 2).equals(R2));
+        Matrix R3 = new Matrix(new float[][] { { 8.125f, 8.125f, 3.875f, 3.875f }, { 8.125f, 8.125f, 3.875f, 3.875f }, { 8.25f, 8.25f, 10.625f, 10.625f }, { 8.25f, 8.25f, 10.625f, 10.625f } });
+        assertTrue("ExpandMax(M, 2) = R1", Helper.expand_minmax(Helper.im2col(M, 2, 2).max(0).reshape(2, 2), M, E).reshape(4, 4).equals(R1));
+        assertTrue("ExpandMin(M, 2) = R2", Helper.expand_minmax(Helper.im2col(M, 2, 2).min(0).reshape(2, 2), M, E).reshape(4, 4).equals(R2));
+        assertTrue("ExpandAvg(M, 2) = R3", Helper.expand_avg(Helper.im2col(M, 2, 2).avg(0).reshape(2, 2), 2).reshape(4, 4).equals(R3));
     }
 
     @Test

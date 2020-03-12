@@ -3,7 +3,7 @@ package com.github.romualdrousseau.shuju.math;
 import java.util.Random;
 
 public class Scalar {
-    public static final float EPSILON = 1e-8f;
+    public static final float EPSILON = 1e-5f;
 
     private static Random randomGenerator;
 
@@ -78,13 +78,5 @@ public class Scalar {
 
     public static float if_lt_then(float x, float p, float a, float b) {
         return (x < p) ? a : b;
-    }
-
-    public static Matrix xw_plus_b(Matrix input, Matrix weights, Matrix bias) {
-        return weights.matmul(input).add(bias);
-    }
-
-    public static Matrix a_mul_b(Matrix a, Matrix b) {
-        return (a.colCount() == b.colCount()) ? b.mul(a) : b.matmul(a);
     }
 }

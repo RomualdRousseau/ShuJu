@@ -10,10 +10,8 @@ public class Flatten extends Layer {
 
     public Flatten(int inputUnits, int inputChannels) {
         super(1.0f);
-
         this.inputUnits = inputUnits;
         this.inputChannels = inputChannels;
-
         this.reset(false);
     }
 
