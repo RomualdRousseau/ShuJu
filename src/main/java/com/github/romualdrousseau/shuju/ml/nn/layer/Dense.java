@@ -2,7 +2,7 @@ package com.github.romualdrousseau.shuju.ml.nn.layer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Helper;
+import com.github.romualdrousseau.shuju.math.Linalg;
 import com.github.romualdrousseau.shuju.math.Matrix;
 import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
@@ -37,7 +37,7 @@ public class Dense extends Layer {
     }
 
     public Matrix callForward(Matrix input) {
-        return Helper.xw_plus_b(input, this.weights.W, this.biases.W);
+        return Linalg.xw_plus_b(input, this.weights.W, this.biases.W);
     }
 
     public void startBackward(Optimizer optimizer) {

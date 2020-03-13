@@ -2,7 +2,7 @@ package com.github.romualdrousseau.shuju.ml.nn.layer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Helper;
+import com.github.romualdrousseau.shuju.math.Linalg;
 import com.github.romualdrousseau.shuju.math.Matrix;
 import com.github.romualdrousseau.shuju.ml.nn.ActivationFunc;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
@@ -28,7 +28,7 @@ public class Activation extends Layer {
     }
 
     public Matrix callBackward(Matrix d_L_d_out) {
-        return Helper.a_mul_b(d_L_d_out, this.activation.derivate(this.output));
+        return Linalg.a_mul_b(d_L_d_out, this.activation.derivate(this.output));
     }
 
     public void completeBackward(Optimizer optimizer) {

@@ -61,38 +61,38 @@ public class AppTest {
         Matrix F = new Matrix(new float[][] { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } });
         Matrix R = new Matrix(new float[][] { { 29, -192 }, { -35, -22 } });
         assertTrue("Conv(M, F) = R", M.conv(F).equals(R));
-        assertTrue("F @ im2col(M) = R", F.reshape(1, 3 * 3).matmul(Helper.im2col(M, 1, 3, 1, false)).reshape(2, 2).equals(R));
+        assertTrue("F @ im2col(M) = R", F.reshape(1, 3 * 3).matmul(Linalg.Img2Conv(M, 1, 3, 1, false)).reshape(2, 2).equals(R));
     }
 
     @Test
-    public void testHelperIm2Col() {
+    public void testLinalgIm2Col() {
         Matrix M1 = new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 90, 0, 75 }, { 0, 9, 0, 95 } });
         Matrix M2 = M1.concatenate(new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 91, 0, 75 }, { 0, 9, 0, 95 } }), 0);
-        assertTrue("Col2im(Im2col(M1, 2, 2) = M1", Helper.col2im(Helper.im2col(M1, 1, 2, 2, false), 1, 4, 4, 2, 2).equals(M1));
-        assertTrue("Col2im(Im2col(M2, 2, 2) = M2", Helper.col2im(Helper.im2col(M2, 2, 2, 2, false), 2, 4, 4, 2, 2).equals(M2));
+        assertTrue("Col2im(Im2col(M1, 2, 2) = M1", Linalg.Conv2Img(Linalg.Img2Conv(M1, 1, 2, 2, false), 1, 4, 4, 2, 2).equals(M1));
+        assertTrue("Col2im(Im2col(M2, 2, 2) = M2", Linalg.Conv2Img(Linalg.Img2Conv(M2, 2, 2, 2, false), 2, 4, 4, 2, 2).equals(M2));
     }
 
     @Test
-    public void testHelperPool() {
+    public void testLinalgPooling() {
         Matrix M = new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 90, 0, 75 }, { 0, 9, 0, 95 } });
         Matrix R1 = new Matrix(new float[][] { { 80, 31 }, { 90, 95 } });
         Matrix R2 = new Matrix(new float[][] { { 0, 0 }, { 0, 0 } });
         Matrix R3 = new Matrix(new float[][] { { 32.5f, 15.5f }, { 33.0f, 42.5f } });
-        assertTrue("PoolMax(M, 2) = R", Helper.im2col(M, 1, 2, 2, false).max(0).reshape(2, 2).equals(R1));
-        assertTrue("PoolMin(M, 2) = R", Helper.im2col(M, 1, 2, 2, false).min(0).reshape(2, 2).equals(R2));
-        assertTrue("PoolAvg(M, 2) = R", Helper.im2col(M, 1, 2, 2, false).avg(0).reshape(2, 2).equals(R3));
+        assertTrue("PoolMax(M, 2) = R", Linalg.Img2Conv(M, 1, 2, 2, false).max(0).reshape(2, 2).equals(R1));
+        assertTrue("PoolMin(M, 2) = R", Linalg.Img2Conv(M, 1, 2, 2, false).min(0).reshape(2, 2).equals(R2));
+        assertTrue("PoolAvg(M, 2) = R", Linalg.Img2Conv(M, 1, 2, 2, false).avg(0).reshape(2, 2).equals(R3));
     }
 
     @Test
-    public void testHelperExpand() {
+    public void testHelperExpanding() {
         Matrix M = new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 90, 0, 75 }, { 0, 9, 0, 95 } });
         Matrix E = new Matrix(new float[][] { { 1, 1 }, { 1, 1 } });
         Matrix R1 = new Matrix(new float[][] { { 0, 0, 0, 0 }, { 0, 1, 1, 0 }, { 0, 1, 0, 0 }, { 0, 0, 0, 1 } });
         Matrix R2 = new Matrix(new float[][] { { 1, 0, 1, 0 }, { 1, 0, 0, 0 }, { 0, 0, 1, 0 }, { 1, 0, 1, 0 } });
         Matrix R3 = new Matrix(new float[][] { { 8.125f, 8.125f, 3.875f, 3.875f }, { 8.125f, 8.125f, 3.875f, 3.875f }, { 8.25f, 8.25f, 10.625f, 10.625f }, { 8.25f, 8.25f, 10.625f, 10.625f } });
-        assertTrue("ExpandMax(M, 2) = R1", Helper.expand_minmax(Helper.im2col(M, 1, 2, 2, false).max(0).reshape(2, 2), M, E).reshape(4, 4).equals(R1));
-        assertTrue("ExpandMin(M, 2) = R2", Helper.expand_minmax(Helper.im2col(M, 1, 2, 2, false).min(0).reshape(2, 2), M, E).reshape(4, 4).equals(R2));
-        assertTrue("ExpandAvg(M, 2) = R3", Helper.expand_avg(Helper.im2col(M, 1, 2, 2, false).avg(0).reshape(2, 2), 2).reshape(4, 4).equals(R3));
+        assertTrue("ExpandMax(M, 2) = R1", Helper.expand_minmax(Linalg.Img2Conv(M, 1, 2, 2, false).max(0).reshape(2, 2), M, E).reshape(4, 4).equals(R1));
+        assertTrue("ExpandMin(M, 2) = R2", Helper.expand_minmax(Linalg.Img2Conv(M, 1, 2, 2, false).min(0).reshape(2, 2), M, E).reshape(4, 4).equals(R2));
+        assertTrue("ExpandAvg(M, 2) = R3", Helper.expand_avg(Linalg.Img2Conv(M, 1, 2, 2, false).avg(0).reshape(2, 2), 2).reshape(4, 4).equals(R3));
     }
 
     @Test
