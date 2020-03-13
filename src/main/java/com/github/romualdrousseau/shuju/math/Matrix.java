@@ -1407,16 +1407,10 @@ public class Matrix {
     }
 
     public Matrix replace(int a, int b, final Matrix m) {
-        if(a < 0) {
-            a = 0;
-        }
-        if(b < 0) {
-            b = 0;
-        }
         assert ((a + m.rows) >= 0 && (a + m.rows) <= this.rows);
         assert ((b + m.cols) >= 0 && (b + m.cols) <= this.cols);
         for (int i = 0; i < m.rows; i++) {
-            System.arraycopy(m.data[a], 0, this.data[a + i], b, m.cols);
+            System.arraycopy(m.data[i], 0, this.data[a + i], b, m.cols);
         }
         return this;
     }

@@ -2,6 +2,62 @@ package com.github.romualdrousseau.shuju.math;
 
 public class Linalg {
 
+    public static Matrix BlockDiagonal(Matrix m, int repeat, boolean transpose) {
+        if(repeat <= 1) {
+            if(transpose) {
+                return m.transpose();
+            } else {
+                return m;
+            }
+        } else {
+            final int split_r = m.rows / repeat;
+            if(transpose) {
+                final Matrix result = new Matrix(m.cols * repeat, m.rows);
+                for (int i = 0; i < m.rows; i++) {
+                    final int off_r = (i / split_r) * m.cols;
+                    for (int j = 0; j < m.cols; j++) {
+                        result.data[off_r + j][i] = m.data[i][j];
+                    }
+                }
+                return result;
+            } else {
+                final Matrix result = new Matrix(m.rows, m.cols * repeat);
+                for (int i = 0; i < m.rows; i++) {
+                    final int off_r = (i / split_r) * m.cols;
+                    for (int j = 0; j < m.cols; j++) {
+                        result.data[i][off_r + j] = m.data[i][j];
+                    }
+                }
+                return result;
+            }
+        }
+    }
+
+    public static Matrix BlockColumn(Matrix m, int repeat, int axis) {
+        if(repeat <= 1) {
+            return m;
+        } else if (axis == 0) {
+            final int split_c = m.cols / repeat;
+            final Matrix result = new Matrix(m.rows / repeat, m.cols);
+            for (int i = 0; i < result.rows; i++) {
+                for (int j = 0; j < result.cols; j++) {
+                    result.data[i][j] = m.data[(j / split_c) * result.rows + i][j];
+                }
+            }
+            return result;
+        } else {
+            final int split_r = m.rows / repeat;
+            final Matrix result = new Matrix(m.rows, m.cols / repeat);
+            for (int i = 0; i < result.rows; i++) {
+                final int off_m = (i / split_r) * result.cols;
+                for (int j = 0; j < result.cols; j++) {
+                    result.data[i][j] = m.data[i][off_m + j];
+                }
+            }
+            return result;
+        }
+    }
+
     public static Matrix Pivot(final Matrix m) {
         assert (m.isSquared());
         final Matrix result = new Matrix(m.rows, m.rows).identity();

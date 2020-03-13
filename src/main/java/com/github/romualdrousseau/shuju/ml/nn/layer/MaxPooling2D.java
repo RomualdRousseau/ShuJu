@@ -25,8 +25,8 @@ public class MaxPooling2D extends Layer {
     public Matrix callForward(final Matrix input) {
         final Matrix output = new Matrix(this.inputChannels, this.units * this.units);
         for (int k = 0; k < this.inputChannels; k++) {
-            final Matrix input_k = input.slice(0, k, input.rowCount(), 1).reshape(this.inputUnits);
-            output.replace(0, k, Helper.im2col(input_k, 1, this.size, this.size, false).max(0));
+            final Matrix input_k = input.slice(0, k, -1, 1).reshape(this.inputUnits);
+            output.replace(k, 0, Helper.im2col(input_k, 1, this.size, this.size, false).max(0));
         }
         return output.transpose();
     }
@@ -37,10 +37,10 @@ public class MaxPooling2D extends Layer {
     public Matrix callBackward(final Matrix d_L_d_out) {
         final Matrix d_L_d_in = new Matrix(this.inputChannels, this.inputUnits * this.inputUnits);
         for (int k = 0; k < this.inputChannels; k++) {
+            final Matrix d_L_d_out_k = d_L_d_out.slice(0, k, -1, 1).reshape(this.units);
             final Matrix input_k = this.lastInput.slice(0, k, -1, 1).reshape(this.inputUnits);
             final Matrix output_k = this.output.slice(0, k, -1, 1).reshape(this.units);
-            final Matrix d_L_d_out_k = d_L_d_out.slice(0, k, -1, 1).reshape(this.units);
-            d_L_d_in.replace(0, k, Helper.expand_minmax(output_k, input_k, d_L_d_out_k));
+            d_L_d_in.replace(k, 0, Helper.expand_minmax(output_k, input_k, d_L_d_out_k));
         }
         return d_L_d_in.transpose();
     }

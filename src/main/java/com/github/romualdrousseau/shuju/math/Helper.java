@@ -74,41 +74,6 @@ public class Helper {
         return result;
     }
 
-    public static Matrix block_diag(Matrix m, int repeat, boolean transpose) {
-        final int split_r = m.rows / repeat;
-        if(transpose) {
-            final Matrix result = new Matrix(m.cols * repeat, m.rows);
-            for (int i = 0; i < m.rows; i++) {
-                final int off_r = (i / split_r) * m.cols;
-                for (int j = 0; j < m.cols; j++) {
-                    result.data[off_r + j][i] = m.data[i][j];
-                }
-            }
-            return result;
-        } else {
-            final Matrix result = new Matrix(m.rows, m.cols * repeat);
-            for (int i = 0; i < m.rows; i++) {
-                final int off_r = (i / split_r) * m.cols;
-                for (int j = 0; j < m.cols; j++) {
-                    result.data[i][off_r + j] = m.data[i][j];
-                }
-            }
-            return result;
-        }
-    }
-
-    public static Matrix block_undiag(Matrix m, int repeat) {
-        final int split_r = m.rows / repeat;
-        final Matrix result = new Matrix(m.rows, m.cols / repeat);
-        for (int i = 0; i < result.rows; i++) {
-            final int off_m = (i / split_r) * result.cols;
-            for (int j = 0; j < result.cols; j++) {
-                result.data[i][j] = m.data[i][off_m + j];
-            }
-        }
-        return result;
-    }
-
     public static Matrix im2col(Matrix m, int repeat, int size, int stride, boolean transpose) {
         assert (repeat > 0);
         assert (stride > 0);

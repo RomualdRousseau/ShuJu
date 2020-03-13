@@ -5,9 +5,7 @@ import java.util.function.Consumer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
-
 import com.github.romualdrousseau.shuju.math.Vector;
-import com.github.romualdrousseau.shuju.math.Helper;
 import com.github.romualdrousseau.shuju.math.Matrix;
 
 public class Model {
@@ -32,11 +30,9 @@ public class Model {
 
     public Layer model(Matrix input) {
         for(Layer layer : this.layers) {
-            assert (!Helper.checkNaN(input)) : layer.toString() + ": NaN detected in forward input!";
             layer.output = layer.callForward(input);
             layer.lastInput = input;
             input = layer.output;
-            assert (!Helper.checkNaN(layer.output)) : layer.toString() + ": NaN detected in forward output!";
         }
         return this.layers.getLast();
     }

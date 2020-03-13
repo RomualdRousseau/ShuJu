@@ -2,7 +2,6 @@ package com.github.romualdrousseau.shuju.ml.nn;
 
 import java.util.function.Consumer;
 
-import com.github.romualdrousseau.shuju.math.Helper;
 import com.github.romualdrousseau.shuju.math.Matrix;
 
 public abstract class Optimizer {
@@ -40,9 +39,7 @@ public abstract class Optimizer {
         this.model.visitBackward(new Consumer<Layer>() {
             Matrix d_L_d_out = loss.getRate();
             public void accept(Layer layer) {
-                assert (!Helper.checkNaN(d_L_d_out)) : layer.toString() + ": NaN detected in backward in gradient!";
                 d_L_d_out = layer.callBackward(d_L_d_out);
-                assert (!Helper.checkNaN(d_L_d_out)) : layer.toString() + ": NaN detected in backward out gradient!";
             }
         });
         return loss;
