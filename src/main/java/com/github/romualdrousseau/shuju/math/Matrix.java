@@ -806,6 +806,25 @@ public class Matrix {
         return this;
     }
 
+    public Matrix arrange(int axis) {
+        if (axis == 0) {
+            for (int i = 0; i < this.rows; i++) {
+                final float[] a = this.data[i];
+                for (int j = 0; j < this.cols; j++) {
+                    a[j] = i  + j * this.rows;
+                }
+            }
+        } else {
+            for (int i = 0; i < this.rows; i++) {
+                final float[] a = this.data[i];
+                for (int j = 0; j < this.cols; j++) {
+                    a[j] = i * this.cols + j;
+                }
+            }
+        }
+        return this;
+    }
+
     public Matrix chop(final float e) {
         for (int i = 0; i < this.rows; i++) {
             final float[] a = this.data[i];
@@ -881,17 +900,6 @@ public class Matrix {
                     final float x = (this.data[i][j] - avg.data[i][0]) * var_inv.data[i][0];
                     this.data[i][j] = gamma * x + delta;
                 }
-            }
-        }
-        return this;
-    }
-
-    public Matrix batchNorm(final float gamma, final float delta, final float avg, final float var) {
-        final float var_inv = 1.0f / Scalar.sqrt(var + Scalar.EPSILON);
-        for (int i = 0; i < this.rows; i++) {
-            for (int j = 0; j < this.cols; j++) {
-                final float x = (this.data[i][j] - avg) * var_inv;
-                this.data[i][j] = gamma * x + delta;
             }
         }
         return this;
@@ -1246,31 +1254,46 @@ public class Matrix {
         return result;
     }
 
-    public Matrix reshape(final int newRows, final int axis) {
-        return this.reshape(newRows, this.rows * this.cols / newRows, axis);
+    public Matrix reshape(final int newRows) {
+        return this.reshape(newRows, -1, 'C');
     }
 
-    public Matrix reshape(final int newRows, final int newCols, final int axis) {
-        assert (newRows > 0 && newCols > 0);
+    public Matrix reshape(final int newRows, final char format) {
+        return this.reshape(newRows, -1, format);
+    }
+
+    public Matrix reshape(final int newRows, final int newCols) {
+        return this.reshape(newRows, newCols, 'C');
+    }
+
+    public Matrix reshape(int newRows, int newCols, final char format) {
+        assert (newRows > 0 || newCols > 0);
+        if(newRows < 0) {
+            newRows = this.rows * this.cols / newCols;
+        }
+        if(newCols < 0) {
+            newCols = this.rows * this.cols / newRows;
+        }
         assert (this.rows * this.cols == newRows * newCols);
         if(newRows == this.rows || newCols == this.cols) {
             return this.copy();
         }
         final Matrix result = new Matrix(newRows, newCols);
-        if (axis == 0) {
-            for (int k = 0; k < this.rows * this.cols; k++) {
-                final int i1 = k % this.rows;
-                final int j1 = k / this.rows;
-                final int i2 = k % result.rows;
-                final int j2 = k / result.rows;
-                result.data[i2][j2] = this.data[i1][j1];
-            }
-        } else {
+        if (format == 'C') {
             for (int k = 0; k < this.rows * this.cols; k++) {
                 final int i1 = k / this.cols;
                 final int j1 = k % this.cols;
                 final int i2 = k / result.cols;
                 final int j2 = k % result.cols;
+                result.data[i2][j2] = this.data[i1][j1];
+            }
+
+        } else {
+            for (int k = 0; k < this.rows * this.cols; k++) {
+                final int i1 = k % this.rows;
+                final int j1 = k / this.rows;
+                final int i2 = k % result.rows;
+                final int j2 = k / result.rows;
                 result.data[i2][j2] = this.data[i1][j1];
             }
         }
@@ -1320,16 +1343,26 @@ public class Matrix {
     }
 
     public Matrix copy() {
-        return this.copy(0, 0);
+        return this.slice(0, 0);
     }
 
-    public Matrix copy(final int a, final int b) {
-        return this.copy(a, b, this.rows - a, this.cols - b);
+    public Matrix slice(final int a, final int b) {
+        return this.slice(a, b, this.rows - a, this.cols - b);
     }
 
-    public Matrix copy(final int a, final int b, final int h, final int w) {
-        assert (a >= 0 && a < this.rows);
-        assert (b >= 0 && b < this.cols);
+    public Matrix slice(int a, int b, int h, int w) {
+        if(a < 0) {
+            a = 0;
+        }
+        if(b < 0) {
+            b = 0;
+        }
+        if(h < 0) {
+            h = this.rows - a;
+        }
+        if(w < 0) {
+            w = this.cols - b;
+        }
         assert ((a + h) >= 0 && (a + h) <= this.rows);
         assert ((b + w) >= 0 && (b + w) <= this.cols);
         final Matrix result = new Matrix(h, w);
@@ -1337,24 +1370,6 @@ public class Matrix {
             System.arraycopy(this.data[a + i], b, result.data[i], 0, w);
         }
         return result;
-    }
-
-    public Matrix extract(int idx, final int axis) {
-        if (axis == 0) {
-            assert (idx >= 0 && idx < this.rows);
-            final Matrix result = new Matrix(1, this.cols);
-            for (int i = 0; i < this.cols; i++) {
-                result.data[0][i] = this.data[idx][i];
-            }
-            return result;
-        } else {
-            assert (idx >= 0 && idx < this.cols);
-            final Matrix result = new Matrix(this.rows, 1);
-            for (int i = 0; i < this.rows; i++) {
-                result.data[i][0] = this.data[i][idx];
-            }
-            return result;
-        }
     }
 
     public Matrix diagonal(final int axis) {
@@ -1387,21 +1402,26 @@ public class Matrix {
         }
     }
 
-    public Matrix replace(final int idx, final Matrix m, final int axis) {
-        if (axis == 0) {
-            assert (this.cols == m.cols);
-            System.arraycopy(m.data[0], 0, this.data[idx], 0, this.cols);
-            return this;
-        } else {
-            assert (this.rows == m.rows);
-            for (int i = 0; i < this.rows; i++) {
-                this.data[i][idx] = m.data[i][0];
-            }
-            return this;
-        }
+    public Matrix replace(final Matrix m) {
+        return this.replace(0, 0, m);
     }
 
-    public Matrix concat(final Vector v, final int axis) {
+    public Matrix replace(int a, int b, final Matrix m) {
+        if(a < 0) {
+            a = 0;
+        }
+        if(b < 0) {
+            b = 0;
+        }
+        assert ((a + m.rows) >= 0 && (a + m.rows) <= this.rows);
+        assert ((b + m.cols) >= 0 && (b + m.cols) <= this.cols);
+        for (int i = 0; i < m.rows; i++) {
+            System.arraycopy(m.data[a], 0, this.data[a + i], b, m.cols);
+        }
+        return this;
+    }
+
+    public Matrix concatenate(final Vector v, final int axis) {
         if (axis == 0) {
             assert (this.cols == v.rows);
             final Matrix result = new Matrix(this.rows + 1, this.cols);
@@ -1421,7 +1441,7 @@ public class Matrix {
         }
     }
 
-    public Matrix concat(final Matrix m, final int axis) {
+    public Matrix concatenate(final Matrix m, final int axis) {
         if (axis == 0) {
             assert (this.cols == m.cols);
             final Matrix result = new Matrix(this.rows + m.rows, this.cols);
@@ -1659,9 +1679,9 @@ public class Matrix {
             final float[] a = this.data[i];
             result.append("| ");
             for (int j = 0; j < this.cols; j++) {
-                result.append(String.format("%.3f\t", a[j]));
+                result.append(String.format("%1$10.3f ", a[j]));
             }
-            result.append(" |").append(System.lineSeparator());
+            result.append("|").append(System.lineSeparator());
         }
 
         return result.toString();

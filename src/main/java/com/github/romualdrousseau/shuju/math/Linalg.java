@@ -98,10 +98,10 @@ public class Linalg {
 
     public static Matrix Solve(final Matrix m, final Matrix y) {
         assert (m.isSquared());
-        Matrix q = m.concat(y, 1);
+        Matrix q = m.concatenate(y, 1);
         q = Linalg.GaussianElimination(q, false);
         q = Linalg.SolveTriangular(q, false);
-        return q.copy(0, m.cols, y.rows, y.cols);
+        return q.slice(0, m.cols, y.rows, y.cols);
     }
 
     public static Vector Reflector(final Matrix m) {
@@ -130,7 +130,7 @@ public class Linalg {
 
         Matrix H = m;
         for (int k = 0; k <= m.rows - 3; k++) {
-            q[k] = Linalg.HouseHolder(H.copy(k + 1, k), H.rows);
+            q[k] = Linalg.HouseHolder(H.slice(k + 1, k), H.rows);
             H = q[k].matmul(H).matmul(q[k].transpose());
         }
 
@@ -248,7 +248,7 @@ public class Linalg {
         final Matrix cov = m.cov(0);
         final Matrix[] eig = Linalg.Eig(cov, e);
         final Matrix sort = Linalg.Sort(eig[0]);
-        return eig[1].matmul(sort).copy(0, 0, eig[1].rowCount(), n);
+        return eig[1].matmul(sort).slice(0, 0, eig[1].rowCount(), n);
     }
 
     private static float WilkinsonShift(final float a, final float b, final float c, final float d) {

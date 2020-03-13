@@ -19,14 +19,14 @@ public class Flatten extends Layer {
     }
 
     public Matrix callForward(Matrix input) {
-        return input.reshape(this.inputUnits * this.inputUnits * this.inputChannels, 1, 0);
+        return input.reshape(this.inputUnits * this.inputUnits * this.inputChannels, 1, 'F');
     }
 
     public void startBackward(Optimizer optimizer) {
     }
 
     public Matrix callBackward(Matrix d_L_d_out) {
-        return d_L_d_out.reshape(this.inputUnits * this.inputUnits, this.inputChannels, 0);
+        return d_L_d_out.reshape(this.inputUnits * this.inputUnits, this.inputChannels, 'F');
     }
 
     public void completeBackward(Optimizer optimizer) {

@@ -15,13 +15,13 @@ public class Conv2D extends Layer {
             final float bias, final InitializerFunc initializer) {
         super(bias);
 
-        assert (inputChannels == 1) : "Multiple input channels not supported";
-
         this.inputUnits = inputUnits;
-        this.units = this.inputUnits - filters + 1;
+        this.inputChannels = inputChannels;
         this.initializer = initializer;
-        this.filters = new Parameters(filters * filters, channels);
-        this.biases = new Parameters(1, channels);
+
+        this.units = this.inputUnits - filters + 1;
+        this.filters = new Parameters(filters * filters,  inputChannels * channels);
+        this.biases = new Parameters(1, inputChannels * channels);
 
         this.reset(false);
     }
@@ -41,9 +41,11 @@ public class Conv2D extends Layer {
     }
 
     public Matrix callForward(final Matrix input) {
-        final Matrix input_reshaped = input.reshape(this.inputUnits, this.inputUnits, 1);
-        final Matrix input_norm = Helper.im2col(input_reshaped, this.inputUnits - this.units + 1, 1);
-        return Helper.xw_plus_b(input_norm, this.filters.W, this.biases.W.toVector(0, false)).transpose();
+        final int n_filters = this.inputUnits - this.units + 1;
+        final Matrix filters_res = Helper.block_diag(this.filters.W, this.inputChannels, false);
+        final Matrix input_res = this.lastInput.transpose().reshape(-1, this.inputUnits);
+        final Matrix input_col = Helper.im2col(input_res, this.inputChannels, n_filters, 1, false);
+        return Helper.xw_plus_b(input_col, filters_res, this.biases.W.toVector(0, false)).transpose();
     }
 
     public void startBackward(final Optimizer optimizer) {
@@ -52,13 +54,18 @@ public class Conv2D extends Layer {
     }
 
     public Matrix callBackward(final Matrix d_L_d_out) {
-        final int n_filter = this.inputUnits - this.units + 1;
-        final Matrix input_reshaped = this.lastInput.reshape(this.inputUnits, this.inputUnits, 1);
-        final Matrix input_norm = Helper.im2col(input_reshaped, this.inputUnits - this.units + 1, 1).transpose();
-        final Matrix d_L_d_out_reshaped = d_L_d_out.transpose();
-        this.filters.G.fma(d_L_d_out_reshaped, input_norm);
-        this.biases.G.add(d_L_d_out_reshaped.flatten(1).mul(this.bias));
-        return Helper.col2im(this.filters.W.transpose().matmul(d_L_d_out_reshaped), this.inputUnits, this.inputUnits, n_filter, 1);
+        final int n_filters = this.inputUnits - this.units + 1;
+        final Matrix filters_res = Helper.block_diag(this.filters.W, this.inputChannels, true);
+        final Matrix input_res = this.lastInput.transpose().reshape(-1, this.inputUnits);
+        final Matrix input_col_T = Helper.im2col(input_res, this.inputChannels, n_filters, 1, true);
+        final Matrix d_L_d_out_T = d_L_d_out.transpose();
+        // d_L_d_F
+        this.filters.G.add(Helper.block_undiag(d_L_d_out_T.matmul(input_col_T), this.inputChannels));
+        // d_L_d_B
+        this.biases.G.add(d_L_d_out_T.flatten(1).mul(this.bias));
+        // d_L_d_in
+        final Matrix d_L_d_in = Helper.col2im(filters_res.matmul(d_L_d_out_T), this.inputChannels, this.inputUnits, this.inputUnits, n_filters, 1);
+        return d_L_d_in.reshape(-1, this.inputChannels);
     }
 
     public void completeBackward(final Optimizer optimizer) {
@@ -81,6 +88,7 @@ public class Conv2D extends Layer {
     }
 
     private final int inputUnits;
+    private final int inputChannels;
     private final int units;
     private final InitializerFunc initializer;
 

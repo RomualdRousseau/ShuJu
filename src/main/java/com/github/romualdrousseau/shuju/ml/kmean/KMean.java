@@ -27,7 +27,7 @@ public class KMean {
         this.weights = new Matrix(inputs[0].rowCount(), 0);
         for (int j = 0; j < this.k; j++) {
             int n = (int) Math.floor(Math.random() * inputs.length);
-            this.weights = this.weights.concat(inputs[n], 1);
+            this.weights = this.weights.concatenate(inputs[n], 1);
         }
     }
 
@@ -51,7 +51,7 @@ public class KMean {
                 }
             }
 
-            this.weights = this.weights.concat(sum.div(count), 1);
+            this.weights = this.weights.concatenate(sum.div(count), 1);
         }
     }
 

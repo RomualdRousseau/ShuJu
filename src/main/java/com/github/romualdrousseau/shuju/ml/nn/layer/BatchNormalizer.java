@@ -33,8 +33,10 @@ public class BatchNormalizer extends Layer {
 
     public Matrix callForward(final Matrix input) {
         final float gamma = this.norms.W.get(0, 0), beta = this.norms.W.get(1, 0);
+
         final float[] muvar = this.updateMuAndVar(input);
         final float mu = muvar[0], var = muvar[1];
+
         var_inv = 1.0f / Scalar.sqrt(var + Scalar.EPSILON);
         x_mu = input.copy().sub(mu);
         x_hat = x_mu.copy().mul(var_inv);
