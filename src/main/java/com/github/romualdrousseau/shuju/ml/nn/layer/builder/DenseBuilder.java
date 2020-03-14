@@ -9,7 +9,6 @@ public class DenseBuilder extends LayerBuilder<Dense> {
 
     public DenseBuilder() {
         super();
-        this.inputUnits = 0;
         this.units = 0;
         this.initializer = new GlorotUniformInitializer();
     }
@@ -28,17 +27,16 @@ public class DenseBuilder extends LayerBuilder<Dense> {
         return this;
     }
 
-    public DenseBuilder setInitializer(InitializerFunc initializer) {
-        this.initializer = initializer;
-        return this;
-    }
-
     public DenseBuilder setUnits(int units) {
         this.units = units;
         return this;
     }
 
-    private int inputUnits;
+    public DenseBuilder setInitializer(InitializerFunc initializer) {
+        this.initializer = initializer;
+        return this;
+    }
+
     private int units;
     private InitializerFunc initializer;
 }

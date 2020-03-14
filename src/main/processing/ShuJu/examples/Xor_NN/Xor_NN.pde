@@ -65,17 +65,13 @@ void buildModelXOR() {
 
   model.add(new DenseBuilder()
     .setInputUnits(2)
-    .setUnits(4)
-    .setInitializer(new GlorotUniformInitializer()).build());
+    .setUnits(4));
 
   model.add(new ActivationBuilder()
-    .setActivation(new Tanh())
-    .build());
+    .setActivation(new Tanh()));
 
   model.add(new DenseBuilder()
-    .setInputUnits(4)
-    .setUnits(1)
-    .setInitializer(new GlorotUniformInitializer()).build());
+    .setUnits(1));
 
   optimizer = new OptimizerRMSPropBuilder().build(model);
 

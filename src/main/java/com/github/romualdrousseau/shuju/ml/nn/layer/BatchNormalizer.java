@@ -11,13 +11,15 @@ import com.github.romualdrousseau.shuju.ml.nn.Parameters;
 
 public class BatchNormalizer extends Layer {
 
-    public BatchNormalizer() {
-        super(1.0f);
+    public BatchNormalizer(int inputUnits) {
+        super(inputUnits, inputUnits, 1.0f);
+
         this.norms = new Parameters(2);
         this.mu = 0.0f;
         this.var = 0.0f;
         this.mu_run = 0.0f;
         this.var_run = 0.0f;
+
         this.reset(false);
     }
 
@@ -33,12 +35,22 @@ public class BatchNormalizer extends Layer {
 
     public Matrix callForward(final Matrix input) {
         final float gamma = this.norms.W.get(0, 0), beta = this.norms.W.get(1, 0);
+        float mu_curr = 0.0f, var_curr = 1.0f;
 
-        final float[] muvar = this.updateMuAndVar(input);
-        final float mu = muvar[0], var = muvar[1];
+        if (this.training) {
+            this.mu = input.avg(0, 0);
+            this.var = input.var(0, 0);
+            this.mu_run = this.mu_run * 0.9f + this.mu * (1.0f - 0.9f);
+            this.var_run = this.var_run * 0.9f + this.var * (1.0f - 0.9f);
+            mu_curr = this.mu;
+            var_curr = this.var;
+        } else {
+            mu_curr = this.mu_run;
+            var_curr = this.var_run;
+        }
 
-        var_inv = 1.0f / Scalar.sqrt(var + Scalar.EPSILON);
-        x_mu = input.copy().sub(mu);
+        var_inv = 1.0f / Scalar.sqrt(var_curr + Scalar.EPSILON);
+        x_mu = input.copy().sub(mu_curr);
         x_hat = x_mu.copy().mul(var_inv);
         return x_hat.copy().mul(gamma).add(beta);
     }
@@ -53,7 +65,7 @@ public class BatchNormalizer extends Layer {
 
         final float dbeta = d_L_d_out.flatten(0, 0);
         final float dgamma = x_hat.copy().mul(d_L_d_out).flatten(0, 0);
-        this.norms.G.add(new Vector( new float[] { dgamma, dbeta }), 1);
+        this.norms.G.add(new Vector(new float[] { dgamma, dbeta }), 1);
 
         final Matrix dva2 = d_L_d_out.copy().mul(gamma);
         final float dvar_inv = x_mu.copy().mul(dva2).flatten(0, 0);
@@ -79,18 +91,6 @@ public class BatchNormalizer extends Layer {
         json.setFloat("mu_r", this.mu_run);
         json.setFloat("var_r", this.var_run);
         return json;
-    }
-
-    private float[] updateMuAndVar(Matrix input) {
-        if (this.training) {
-            this.mu = input.avg(0, 0);
-            this.var = input.var(0, 0);
-            this.mu_run = this.mu_run * 0.9f + this.mu * (1.0f - 0.9f);
-            this.var_run = this.var_run * 0.9f + this.var * (1.0f - 0.9f);
-            return new float[] { mu, var };
-        } else {
-            return new float[] { mu_run, var_run };
-        }
     }
 
     private final Parameters norms;

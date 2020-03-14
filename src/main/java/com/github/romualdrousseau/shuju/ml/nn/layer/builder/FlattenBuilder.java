@@ -7,7 +7,6 @@ public class FlattenBuilder extends LayerBuilder<Flatten> {
 
     public FlattenBuilder() {
         super();
-        this.inputUnits = 0;
         this.inputChannels = 8;
     }
 
@@ -24,8 +23,5 @@ public class FlattenBuilder extends LayerBuilder<Flatten> {
         this.inputChannels = inputChannels;
         return this;
     }
-
-    private int inputUnits;
-    private int inputChannels;
 }
 

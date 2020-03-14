@@ -9,19 +9,33 @@ public abstract class Layer {
 
     public Model model;
 
-    public Matrix lastInput;
+    public int inputUnits;
+    public int inputChannels;
+    public int units;
+    public int channels;
     public float bias;
+
+    public Matrix lastInput;
     public Matrix output;
 
     public boolean frozen;
     public boolean training;
 
-    protected Layer(float bias) {
+    protected Layer(int inputUnits, int units, float bias) {
+        this(inputUnits, 1, units, 1, bias);
+    }
+
+    protected Layer(int inputUnits, int inputChannels, int units, int channels, float bias) {
+        this.inputUnits = inputUnits;
+        this.inputChannels = inputChannels;
+        this.units = units;
+        this.channels = channels;
+        this.bias = bias;
+
         this.frozen = false;
         this.training = false;
 
         this.lastInput = null;
-        this.bias = 1.0f;
         this.output = null;
     }
 

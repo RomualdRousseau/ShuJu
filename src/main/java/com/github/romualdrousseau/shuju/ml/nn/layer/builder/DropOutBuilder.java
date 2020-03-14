@@ -7,10 +7,23 @@ public class DropOutBuilder extends LayerBuilder<DropOut> {
 
     public DropOutBuilder() {
         super();
+        this.rate = 0.8f;
     }
 
     public DropOut build() {
-        return new DropOut();
+        return new DropOut(this.inputUnits, this.rate);
     }
+
+    public DropOutBuilder setInputUnits(int inputUnits) {
+        this.inputUnits = inputUnits;
+        return this;
+    }
+
+    public DropOutBuilder setRate(final float rate) {
+        this.rate = rate;
+        return this;
+    }
+
+    private float rate;
 }
 

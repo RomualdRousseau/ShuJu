@@ -12,18 +12,6 @@ public class Model {
     public Model() {
     }
 
-    public void reset() {
-        for(Layer layer : this.layers) {
-            layer.reset(false);
-        }
-    }
-
-    public void setTrainingMode(boolean training) {
-        for(Layer layer : this.layers) {
-            layer.training = training;
-        }
-    }
-
     public Layer model(Vector input) {
         return this.model(new Matrix(input, false));
     }
@@ -37,7 +25,39 @@ public class Model {
         return this.layers.getLast();
     }
 
+    public int getLastUnits() {
+        return this.layers.getLast().units;
+    }
+
+    public int getLastChannels() {
+        return this.layers.getLast().channels;
+    }
+
+    public void setTrainingMode(boolean training) {
+        for(Layer layer : this.layers) {
+            layer.training = training;
+        }
+    }
+
+    public void reset() {
+        for(Layer layer : this.layers) {
+            layer.reset(false);
+        }
+    }
+
+    public Model add(LayerBuilder<?> builder) {
+        if(builder.inputUnits == 0) {
+            builder.setInputUnits(this.layers.getLast().units);
+        }
+        if(builder.inputChannels == 0) {
+            builder.setInputChannels(this.layers.getLast().channels);
+        }
+        return add(builder.build());
+    }
+
     public Model add(Layer layer) {
+        assert(this.layers.size() == 0 || layer.inputUnits == this.layers.getLast().units);
+        assert(this.layers.size() == 0 || layer.inputChannels == this.layers.getLast().channels);
         layer.model = this;
         this.layers.add(layer);
         return this;

@@ -80,36 +80,26 @@ class Brain_ {
 
     this.model.add(new DenseBuilder()
       .setInputUnits(2)
-      .setUnits(BRAIN_HIDDEN_NEURONS)
-      .build());
+      .setUnits(BRAIN_HIDDEN_NEURONS));
 
-    this.model.add(new BatchNormalizerBuilder()
-     .build());
+    this.model.add(new BatchNormalizerBuilder());
 
     this.model.add(new ActivationBuilder()
-      .setActivation(new LeakyRelu())
-      .build());
+      .setActivation(new LeakyRelu()));
 
     this.model.add(new DenseBuilder()
-      .setInputUnits(BRAIN_HIDDEN_NEURONS)
-      .setUnits(BRAIN_HIDDEN_NEURONS)
-      .build());
+      .setUnits(BRAIN_HIDDEN_NEURONS));
 
-    this.model.add(new BatchNormalizerBuilder()
-     .build());
+    this.model.add(new BatchNormalizerBuilder());
 
     this.model.add(new ActivationBuilder()
-      .setActivation(new LeakyRelu())
-      .build());
+      .setActivation(new LeakyRelu()));
 
     this.model.add(new DenseBuilder()
-      .setInputUnits(BRAIN_HIDDEN_NEURONS)
-      .setUnits(2)
-      .build());
+      .setUnits(2));
 
     this.model.add(new ActivationBuilder()
-      .setActivation(new Softmax())
-      .build());
+      .setActivation(new Softmax()));
 
     this.optimizer = new OptimizerAdamBuilder().build(this.model);
 
@@ -121,21 +111,16 @@ class Brain_ {
 
     this.model.add(new DenseBuilder()
       .setInputUnits(2)
-      .setUnits(BRAIN_HIDDEN_NEURONS)
-      .build());
+      .setUnits(BRAIN_HIDDEN_NEURONS));
 
     this.model.add(new ActivationBuilder()
-      .setActivation(new Tanh())
-      .build());
+      .setActivation(new Tanh()));
 
     this.model.add(new DenseBuilder()
-      .setInputUnits(BRAIN_HIDDEN_NEURONS)
-      .setUnits(2)
-      .build());
+      .setUnits(2));
 
     this.model.add(new ActivationBuilder()
-      .setActivation(new Linear())
-      .build());
+      .setActivation(new Linear()));
 
     this.optimizer = new OptimizerSgdBuilder()
       .setLearningRate(0.1)
@@ -150,21 +135,16 @@ class Brain_ {
 
     this.model.add(new DenseBuilder()
       .setInputUnits(2)
-      .setUnits(BRAIN_HIDDEN_NEURONS)
-      .build());
+      .setUnits(BRAIN_HIDDEN_NEURONS));
 
     this.model.add(new ActivationBuilder()
-      .setActivation(new Relu())
-      .build());
+      .setActivation(new Relu()));
 
     this.model.add(new DenseBuilder()
-      .setInputUnits(BRAIN_HIDDEN_NEURONS)
-      .setUnits(2)
-      .build());
+      .setUnits(2));
 
     this.model.add(new ActivationBuilder()
-      .setActivation(new Linear())
-      .build());
+      .setActivation(new Linear()));
 
     this.optimizer = new OptimizerRMSPropBuilder().build(this.model);
 
@@ -172,19 +152,13 @@ class Brain_ {
   }
 
   String toString() {
-    String result = "";
-    /*
-    for (Layer layer = this.model.start.next; layer != null; layer = layer.next) {
-     if (layer.prev == this.model.start) {
-     result += String.format("%d -> %d -> %s ->", layer.weights.W.cols, layer.weights.W.rows, getClassInfo(layer.activation));
-     } else if (layer.next == null) {
-     result += String.format("%d -> %s", layer.weights.W.rows, getClassInfo(layer.activation));
-     } else {
-     result += String.format("%d -> %s ->", layer.weights.W.rows, getClassInfo(layer.activation));
-     }
-     }
-     */
-    return result;
+    final StringBuilder result = new StringBuilder();
+    this.model.visit(new java.util.function.Consumer<Layer>() {
+        public void accept(Layer layer) {
+            result.append(String.format("%d -> %d -> %s ->", layer.inputUnits, layer.units, getClassInfo(layer)));
+        }
+    });
+    return result.toString();
   }
 }
 Brain_ Brain = new Brain_();

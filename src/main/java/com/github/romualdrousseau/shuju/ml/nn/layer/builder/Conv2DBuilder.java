@@ -9,8 +9,6 @@ public class Conv2DBuilder extends LayerBuilder<Conv2D> {
 
     public Conv2DBuilder() {
         super();
-        this.inputUnits = 0;
-        this.inputChannels = 1;
         this.filters = 3;
         this.channels = 8;
         this.initializer = new GlorotUniformInitializer();
@@ -18,11 +16,6 @@ public class Conv2DBuilder extends LayerBuilder<Conv2D> {
 
     public Conv2D build() {
         return new Conv2D(this.inputUnits, this.inputChannels, this.filters, this.channels, this.bias, this.initializer);
-    }
-
-    public Conv2DBuilder setBias(float bias) {
-        this.bias = bias;
-        return this;
     }
 
     public Conv2DBuilder setInputUnits(int inputUnits) {
@@ -35,8 +28,8 @@ public class Conv2DBuilder extends LayerBuilder<Conv2D> {
         return this;
     }
 
-    public Conv2DBuilder setInitializer(InitializerFunc initializer) {
-        this.initializer = initializer;
+    public Conv2DBuilder setBias(float bias) {
+        this.bias = bias;
         return this;
     }
 
@@ -50,8 +43,11 @@ public class Conv2DBuilder extends LayerBuilder<Conv2D> {
         return this;
     }
 
-    private int inputUnits;
-    private int inputChannels;
+    public Conv2DBuilder setInitializer(InitializerFunc initializer) {
+        this.initializer = initializer;
+        return this;
+    }
+
     private int filters;
     private int channels;
     private InitializerFunc initializer;

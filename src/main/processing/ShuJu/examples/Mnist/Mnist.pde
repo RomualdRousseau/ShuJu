@@ -28,12 +28,14 @@ import com.github.romualdrousseau.shuju.ml.knn.*;
 import com.github.romualdrousseau.shuju.ml.nn.layer.*;
 import com.github.romualdrousseau.shuju.ml.naivebayes.*;
 
-int trainingCount;
+final int epochCount = 10;
+final int trainingCount = 60000;
+final int testCount = 10000;
+
 int trainingPerRow;
 PImage trainingImages;
 int[][] trainingLabels;
 
-int testCount;
 int testPerRow;
 PImage testImages;
 int[][] testLabels;
@@ -43,12 +45,10 @@ Optimizer optimizer;
 Loss loss;
 
 void loadData() {
-  trainingCount = 60000;
   trainingPerRow = ceil(sqrt(trainingCount));
   trainingImages = readMnistImages("train-images.idx3-ubyte", trainingCount);
   trainingLabels = readMnistLabels("train-labels.idx1-ubyte", trainingCount);
 
-  testCount = 10000;
   testPerRow = ceil(sqrt(testCount));
   testImages = readMnistImages("t10k-images.idx3-ubyte", testCount);
   testLabels = readMnistLabels("t10k-labels.idx1-ubyte", testCount);
@@ -65,36 +65,26 @@ void buildModel() {
     .build());
 
   model.add(new MaxPooling2DBuilder()
-    .setInputUnits(MnistImageSize - 2)
-    .setInputChannels(8)
-    .setSize(2)
-    .build());
+    .setSize(2));
 
-  model.add(new FlattenBuilder()
-    .setInputUnits((MnistImageSize - 2) / 2)
-    .setInputChannels(8)
-    .build());
+  model.add(new FlattenBuilder());
+
+  model.add(new DropOutBuilder()
+    .setRate(0.8));
 
   model.add(new DenseBuilder()
-    .setInputUnits(floor(pow((MnistImageSize - 2) / 2, 2) * 8))
-    .setUnits(100) 
-    .build());
-    
-  model.add(new BatchNormalizerBuilder()
-    .build());
+    .setUnits(100));
+
+  model.add(new BatchNormalizerBuilder());
 
   model.add(new ActivationBuilder()
-    .setActivation(new Relu())
-    .build());
+    .setActivation(new Relu()));
 
   model.add(new DenseBuilder()
-    .setInputUnits(100)
-    .setUnits(MnistLabelSize) 
-    .build());
+    .setUnits(MnistLabelSize));
 
   model.add(new ActivationBuilder()
-    .setActivation(new Softmax())
-    .build());
+    .setActivation(new Softmax()));
 
   optimizer = new OptimizerSgdBuilder()
     .build(model);
@@ -103,14 +93,19 @@ void buildModel() {
 }
 
 void fitModel() {
-  final int batchSize = trainingCount / 1000;
+  final int oneEpoch = 1000;
+  final int batchSize = trainingCount / oneEpoch;
   int batchStart = 0;
   float sumAccu = 0;
   float sumMean = 0;
 
   model.setTrainingMode(true);
 
-  for (int k = 0; k < 6000; k++) {
+  for (int k = 0; k < epochCount * oneEpoch; k++) {
+    if ((k % oneEpoch) == 0) {
+      println(String.format("Epoch %d/%d", k / oneEpoch + 1, epochCount));
+    }
+
     if ((k % 100) == 99) {
       println();
       println(String.format("[Step %d] Past 100 steps: Average Loss: %.3f | Accuracy: %d%%", k + 1, sumMean / (batchSize * 100), floor(sumAccu / batchSize)));
@@ -136,7 +131,7 @@ void fitModel() {
       }
 
       sumMean += loss.getValue().flatten(0, 0);
-    }  
+    }
     optimizer.step();
 
     batchStart = (batchStart + batchSize) % trainingCount;
@@ -149,8 +144,8 @@ void fitModel() {
 }
 
 void testModel() {
-  int w = width / testPerRow;
-  int h = height / testPerRow;
+  final int w = width / testPerRow;
+  final int h = height / testPerRow;
   float sumAccu = 0;
   float sumMean = 0;
 
@@ -186,6 +181,7 @@ void testModel() {
 
 void setup() {
   size(800, 800);
+  textSize(8);
   noLoop();
 
   loadData();

@@ -11,15 +11,10 @@ import com.github.romualdrousseau.shuju.ml.nn.Parameters;
 
 public class Conv2D extends Layer {
 
-    public Conv2D(final int inputUnits, final int inputChannels, final int filters, final int channels,
-            final float bias, final InitializerFunc initializer) {
-        super(bias);
+    public Conv2D(int inputUnits, int inputChannels, int filters, int channels, float bias, InitializerFunc initializer) {
+        super(inputUnits, inputChannels, inputUnits - filters + 1, channels, bias);
 
-        this.inputUnits = inputUnits;
-        this.inputChannels = inputChannels;
         this.initializer = initializer;
-
-        this.units = this.inputUnits - filters + 1;
         this.filters = new Parameters(filters * filters,  inputChannels * channels);
         this.biases = new Parameters(1, inputChannels * channels);
 
@@ -84,11 +79,7 @@ public class Conv2D extends Layer {
         return json;
     }
 
-    private final int inputUnits;
-    private final int inputChannels;
-    private final int units;
     private final InitializerFunc initializer;
-
     private final Parameters filters;
     private final Parameters biases;
 }

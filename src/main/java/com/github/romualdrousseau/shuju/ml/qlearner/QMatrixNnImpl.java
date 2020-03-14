@@ -25,18 +25,13 @@ public class QMatrixNnImpl extends QMatrix {
         this.model = new Model()
             .add(new DenseBuilder()
                 .setInputUnits(numInputs)
-                .setUnits(numHiddens)
-                .build())
+                .setUnits(numHiddens))
             .add(new ActivationBuilder()
-                .setActivation(new Relu())
-                .build())
+                .setActivation(new Relu()))
             .add(new DenseBuilder()
-                .setInputUnits(numHiddens)
-                .setUnits(numOutputs + 1)
-                .build())
+                .setUnits(numOutputs + 1))
             .add(new ActivationBuilder()
-                .setActivation(new Tanh())
-                .build());
+                .setActivation(new Tanh()));
 
         this.optimizer = new OptimizerRMSPropBuilder().build(this.model);
 

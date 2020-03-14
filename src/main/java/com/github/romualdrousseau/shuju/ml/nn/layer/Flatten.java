@@ -9,9 +9,8 @@ import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
 public class Flatten extends Layer {
 
     public Flatten(int inputUnits, int inputChannels) {
-        super(1.0f);
-        this.inputUnits = inputUnits;
-        this.inputChannels = inputChannels;
+        super(inputUnits, inputChannels, inputUnits * inputUnits * inputChannels, 1, 1.0f);
+
         this.reset(false);
     }
 
@@ -39,7 +38,4 @@ public class Flatten extends Layer {
         JSONObject json = JSON.newJSONObject();
         return json;
     }
-
-    private int inputUnits;
-    private int inputChannels;
 }

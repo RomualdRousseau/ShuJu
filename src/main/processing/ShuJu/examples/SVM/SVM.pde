@@ -58,12 +58,10 @@ void buildModelSVM() {
 
   model.add(new DenseBuilder()
     .setInputUnits(3)
-    .setUnits(1)
-    .setInitializer(new GlorotUniformInitializer())
-    .build());
+    .setUnits(1));
 
   optimizer = new OptimizerSgdBuilder()
-    .setMomentum(0)
+    .setMomentum(0.0f)
     .build(model);
 
   loss = new Loss(new Hinge());

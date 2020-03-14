@@ -11,12 +11,11 @@ import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
 public class MaxPooling2D extends Layer {
 
     public MaxPooling2D(final int inputUnits, final int inputChannels, final int size) {
-        super(1.0f);
-        this.inputUnits = inputUnits;
-        this.inputChannels = inputChannels;
+        super(inputUnits, inputChannels, inputUnits / size, inputChannels, 1.0f);
+        assert (inputUnits == this.units * size);
+
         this.size = size;
-        this.units = inputUnits / size;
-        assert (this.units * size == inputUnits);
+
         this.reset(false);
     }
 
@@ -57,8 +56,5 @@ public class MaxPooling2D extends Layer {
         return json;
     }
 
-    private final int inputUnits;
-    private final int inputChannels;
     private final int size;
-    private final int units;
 }

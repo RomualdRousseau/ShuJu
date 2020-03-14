@@ -13,7 +13,12 @@ public class ActivationBuilder extends LayerBuilder<Activation> {
     }
 
     public Activation build() {
-        return new Activation(this.activation);
+        return new Activation(this.inputUnits, this.activation);
+    }
+
+    public ActivationBuilder setInputUnits(int inputUnits) {
+        this.inputUnits = inputUnits;
+        return this;
     }
 
     public ActivationBuilder setActivation(ActivationFunc activation) {

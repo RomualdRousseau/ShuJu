@@ -26,7 +26,6 @@ import com.github.romualdrousseau.shuju.transforms.*;
 import com.github.romualdrousseau.shuju.ml.knn.*;
 import com.github.romualdrousseau.shuju.ml.nn.layer.*;
 import com.github.romualdrousseau.shuju.ml.naivebayes.*;
-import com.github.romualdrousseau.shuju.ml.nn.normalizer.*;
 import com.github.romualdrousseau.shuju.nlp.impl.*;
 
 static final String[] flowerWords = {
@@ -77,27 +76,20 @@ void buildModel() {
 
   model.add(new DenseBuilder()
     .setInputUnits(4)
-    .setUnits(64)
-    .setInitializer(new GlorotUniformInitializer())
-    .build());
+    .setUnits(64));
 
-  model.add(new NormalizerBuilder()
-    .setNormalizer(new BatchNormalizer())
-    .build());
+  model.add(new DropOutBuilder());
+
+  model.add(new BatchNormalizerBuilder());
 
   model.add(new ActivationBuilder()
-    .setActivation(new Relu())
-    .build());
+    .setActivation(new Relu()));
 
   model.add(new DenseBuilder()
-    .setInputUnits(64)
-    .setUnits(3)
-    .setInitializer(new GlorotUniformInitializer())
-    .build());
+    .setUnits(3));
 
   model.add(new ActivationBuilder()
-    .setActivation(new Softmax())
-    .build());
+    .setActivation(new Softmax()));
 
   optimizer = new OptimizerRMSPropBuilder().build(model);
 
@@ -165,17 +157,19 @@ void draw() {
   line(width / 2, 0, width / 2, height);
   line(0, height / 2, width, height / 2);
 
+  model.setTrainingMode(true);
   float error = 0.0;
   for (int i = 0; i < iterationCount; i++) {
     optimizer.zeroGradients();
     for(int j = 0; j < trainingInputs.length; j++) {
-      optimizer.minimize(loss.loss(model.model(trainingInputs[j]), trainingTargets[j]);
+      optimizer.minimize(loss.loss(model.model(trainingInputs[j]), trainingTargets[j]));
     }
     optimizer.step();
     epochs++;
     error += loss.getValueAsVector().flatten();
   }
   error /= iterationCount;
+  model.setTrainingMode(false);
 
   timeLine1.append(error);
   if (timeLine1.size() > width / timeStepX + 1) {

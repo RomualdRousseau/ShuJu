@@ -10,6 +10,11 @@ public class BatchNormalizerBuilder extends LayerBuilder<BatchNormalizer> {
     }
 
     public BatchNormalizer build() {
-        return new BatchNormalizer();
+        return new BatchNormalizer(this.inputUnits);
+    }
+
+    public BatchNormalizerBuilder setInputUnits(int inputUnits) {
+        this.inputUnits = inputUnits;
+        return this;
     }
 }
