@@ -60,9 +60,14 @@ void buildModel() {
   model.add(new Conv2DBuilder()
     .setBias(0.1)
     .setInputUnits(MnistImageSize)
+    .setInputChannels(1)
+    .setFilters(5)
+    .setChannels(32));
+
+  model.add(new Conv2DBuilder()
+    .setBias(0.1)
     .setFilters(3)
-    .setChannels(8)
-    .build());
+    .setChannels(32));
 
   model.add(new MaxPooling2DBuilder()
     .setSize(2));
@@ -70,7 +75,7 @@ void buildModel() {
   model.add(new FlattenBuilder());
 
   model.add(new DropOutBuilder()
-    .setRate(0.8));
+    .setRate(0.4));
 
   model.add(new DenseBuilder()
     .setUnits(100));
@@ -86,7 +91,7 @@ void buildModel() {
   model.add(new ActivationBuilder()
     .setActivation(new Softmax()));
 
-  optimizer = new OptimizerSgdBuilder()
+  optimizer = new OptimizerAdamBuilder()
     .build(model);
 
   loss = new Loss(new SoftmaxCrossEntropy());
@@ -108,7 +113,7 @@ void fitModel() {
 
     if ((k % 100) == 99) {
       println();
-      println(String.format("[Step %d] Past 100 steps: Average Loss: %.3f | Accuracy: %d%%", k + 1, sumMean / (batchSize * 100), floor(sumAccu / batchSize)));
+      println(String.format("[Step %d] Past 100 steps: Average Loss: %.3f | Accuracy: %.3f%%", k + 1, sumMean / (batchSize * 100), sumAccu / batchSize));
       sumAccu = 0;
       sumMean = 0;
     }
@@ -176,7 +181,7 @@ void testModel() {
     sumMean += loss.getValue().flatten(0, 0);
   }
 
-  println(String.format("[Final step] Test: Average Loss: %.3f | Accuracy: %d%%", sumMean / testCount, floor(sumAccu * 100 / testCount)));
+  println(String.format("[Final step] Test: Average Loss: %.3f | Accuracy: %.3f%%", sumMean / testCount, sumAccu * 100 / testCount));
 }
 
 void setup() {

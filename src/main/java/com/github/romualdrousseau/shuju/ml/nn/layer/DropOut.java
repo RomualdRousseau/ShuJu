@@ -22,7 +22,7 @@ public class DropOut extends Layer {
 
     public Matrix callForward(final Matrix input) {
         if (this.training) {
-            this.U.randomize().if_lt_then(this.rate, 1.0f, 0.0f);
+            this.U.randomize().if_lt_then(this.rate, 0.0f, 1.0f);
             return input.mul(this.U);
         } else {
             return input;

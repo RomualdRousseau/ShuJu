@@ -9,6 +9,7 @@ public class Conv2DBuilder extends LayerBuilder<Conv2D> {
 
     public Conv2DBuilder() {
         super();
+        this.inputChannels = 0;
         this.filters = 3;
         this.channels = 8;
         this.initializer = new GlorotUniformInitializer();

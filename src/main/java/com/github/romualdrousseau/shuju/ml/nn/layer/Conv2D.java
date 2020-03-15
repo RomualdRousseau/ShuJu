@@ -12,7 +12,7 @@ import com.github.romualdrousseau.shuju.ml.nn.Parameters;
 public class Conv2D extends Layer {
 
     public Conv2D(int inputUnits, int inputChannels, int filters, int channels, float bias, InitializerFunc initializer) {
-        super(inputUnits, inputChannels, inputUnits - filters + 1, channels, bias);
+        super(inputUnits, inputChannels, inputUnits - filters + 1, inputChannels * channels, bias);
 
         this.initializer = initializer;
         this.filters = new Parameters(filters * filters,  inputChannels * channels);
@@ -40,7 +40,8 @@ public class Conv2D extends Layer {
         final Matrix filters_res = Linalg.BlockDiagonal(this.filters.W, this.inputChannels, false);
         final Matrix input_res = input.transpose().reshape(-1, this.inputUnits);
         final Matrix input_col = Linalg.Img2Conv(input_res, this.inputChannels, n_filters, 1, false);
-        return Linalg.xw_plus_b(input_col, filters_res, this.biases.W.toVector(0, false)).transpose();
+        final Matrix output = Linalg.xw_plus_b(input_col, filters_res, this.biases.W.toVector(0, false));
+        return output.transpose();
     }
 
     public void startBackward(final Optimizer optimizer) {

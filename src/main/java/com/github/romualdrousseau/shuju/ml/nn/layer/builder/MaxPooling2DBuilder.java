@@ -7,7 +7,7 @@ public class MaxPooling2DBuilder extends LayerBuilder<MaxPooling2D> {
 
     public MaxPooling2DBuilder() {
         super();
-        this.inputChannels = 8;
+        this.inputChannels = 0;
         this.size = 2;
     }
 
