@@ -8,14 +8,17 @@ import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
 import com.github.romualdrousseau.shuju.ml.nn.Parameters;
+import com.github.romualdrousseau.shuju.ml.nn.RegularizerFunc;
 
 public class Conv2D extends Layer {
 
-    public Conv2D(int inputUnits, int inputChannels, int filters, int channels, float bias, InitializerFunc initializer) {
+    public Conv2D(final int inputUnits, final int inputChannels, final int filters, final int channels,
+            final float bias, final InitializerFunc initializer, final RegularizerFunc regularizer) {
         super(inputUnits, inputChannels, inputUnits - filters + 1, inputChannels * channels, bias);
 
         this.initializer = initializer;
-        this.filters = new Parameters(filters * filters,  inputChannels * channels);
+        this.regularizer = regularizer;
+        this.filters = new Parameters(filters * filters, inputChannels * channels);
         this.biases = new Parameters(1, inputChannels * channels);
 
         this.reset(false);
@@ -57,11 +60,15 @@ public class Conv2D extends Layer {
         final Matrix d_L_d_out_T = d_L_d_out.transpose();
         this.filters.G.add(Linalg.BlockColumn(d_L_d_out_T.matmul(input_col_T), this.inputChannels, 1));
         this.biases.G.add(d_L_d_out_T.flatten(1).mul(this.bias));
-        final Matrix d_L_d_in = Linalg.Conv2Img(filters_res.matmul(d_L_d_out_T), this.inputChannels, this.inputUnits, this.inputUnits, n_filters, 1);
+        final Matrix d_L_d_in = Linalg.Conv2Img(filters_res.matmul(d_L_d_out_T), this.inputChannels, this.inputUnits,
+                this.inputUnits, n_filters, 1);
         return d_L_d_in.reshape(-1, this.inputChannels);
     }
 
     public void completeBackward(final Optimizer optimizer) {
+        if(this.regularizer != null) {
+            this.filters.G.add(this.regularizer.apply(this.filters.W));
+        }
         this.filters.W.sub(optimizer.computeGradients(this.filters));
         this.biases.W.sub(optimizer.computeGradients(this.biases));
     }
@@ -81,6 +88,7 @@ public class Conv2D extends Layer {
     }
 
     private final InitializerFunc initializer;
+    private final RegularizerFunc regularizer;
     private final Parameters filters;
     private final Parameters biases;
 }

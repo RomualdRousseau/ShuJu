@@ -8,13 +8,15 @@ import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
 import com.github.romualdrousseau.shuju.ml.nn.Parameters;
+import com.github.romualdrousseau.shuju.ml.nn.RegularizerFunc;
 
 public class Dense extends Layer {
 
-    public Dense(final int inputUnits, final int units, final float bias, final InitializerFunc initializer) {
+    public Dense(final int inputUnits, final int units, final float bias, final InitializerFunc initializer, final RegularizerFunc regularizer) {
         super(inputUnits, units, bias);
 
         this.initializer = initializer;
+        this.regularizer = regularizer;
         this.weights = new Parameters(inputUnits, units);
         this.biases = new Parameters(units);
 
@@ -51,6 +53,9 @@ public class Dense extends Layer {
     }
 
     public void completeBackward(final Optimizer optimizer) {
+        if(this.regularizer != null) {
+            this.weights.G.add(this.regularizer.apply(this.weights.W));
+        }
         this.weights.W.sub(optimizer.computeGradients(this.weights));
         this.biases.W.sub(optimizer.computeGradients(this.biases));
     }
@@ -72,4 +77,5 @@ public class Dense extends Layer {
     private final Parameters weights;
     private final Parameters biases;
     private final InitializerFunc initializer;
+    private final RegularizerFunc regularizer;
 }

@@ -2,6 +2,7 @@ package com.github.romualdrousseau.shuju.ml.nn.layer.builder;
 
 import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.LayerBuilder;
+import com.github.romualdrousseau.shuju.ml.nn.RegularizerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.layer.Dense;
 import com.github.romualdrousseau.shuju.ml.nn.initializer.GlorotUniformInitializer;
 
@@ -11,10 +12,11 @@ public class DenseBuilder extends LayerBuilder<Dense> {
         super();
         this.units = 0;
         this.initializer = new GlorotUniformInitializer();
+        this.regularizer = null;
     }
 
     public Dense build() {
-        return new Dense(this.inputUnits, this.units, this.bias, this.initializer);
+        return new Dense(this.inputUnits, this.units, this.bias, this.initializer, this.regularizer);
     }
 
     public DenseBuilder setBias(float bias) {
@@ -37,7 +39,13 @@ public class DenseBuilder extends LayerBuilder<Dense> {
         return this;
     }
 
+    public DenseBuilder setRegularizer(RegularizerFunc regularizer) {
+        this.regularizer = regularizer;
+        return this;
+    }
+
     private int units;
     private InitializerFunc initializer;
+    private RegularizerFunc regularizer;
 }
 

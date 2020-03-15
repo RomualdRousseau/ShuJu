@@ -4,6 +4,7 @@ import java.util.Random;
 
 public class Scalar {
     public static final float EPSILON = 1e-5f;
+    public static final float LAM = 1e-3f;
 
     private static Random randomGenerator;
 

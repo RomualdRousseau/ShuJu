@@ -2,6 +2,7 @@ package com.github.romualdrousseau.shuju.ml.nn.layer.builder;
 
 import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.LayerBuilder;
+import com.github.romualdrousseau.shuju.ml.nn.RegularizerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.initializer.GlorotUniformInitializer;
 import com.github.romualdrousseau.shuju.ml.nn.layer.Conv2D;
 
@@ -13,10 +14,11 @@ public class Conv2DBuilder extends LayerBuilder<Conv2D> {
         this.filters = 3;
         this.channels = 8;
         this.initializer = new GlorotUniformInitializer();
+        this.regularizer = null;
     }
 
     public Conv2D build() {
-        return new Conv2D(this.inputUnits, this.inputChannels, this.filters, this.channels, this.bias, this.initializer);
+        return new Conv2D(this.inputUnits, this.inputChannels, this.filters, this.channels, this.bias, this.initializer, this.regularizer);
     }
 
     public Conv2DBuilder setInputUnits(int inputUnits) {
@@ -49,8 +51,14 @@ public class Conv2DBuilder extends LayerBuilder<Conv2D> {
         return this;
     }
 
+    public Conv2DBuilder setRegularizer(RegularizerFunc regularizer) {
+        this.regularizer = regularizer;
+        return this;
+    }
+
     private int filters;
     private int channels;
     private InitializerFunc initializer;
+    private RegularizerFunc regularizer;
 }
 

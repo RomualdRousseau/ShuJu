@@ -49,7 +49,9 @@ public abstract class Optimizer {
         Optimizer me = this;
         this.model.visit(new Consumer<Layer>() {
             public void accept(Layer layer) {
-                layer.completeBackward(me);
+                if (!layer.frozen) {
+                    layer.completeBackward(me);
+                }
             }
         });
 
