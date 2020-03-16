@@ -7,9 +7,9 @@ import com.github.romualdrousseau.shuju.ml.nn.LossFunc;
 
 public class SoftmaxCrossEntropy implements LossFunc {
     public Matrix apply(Matrix output, final Matrix target) {
-        final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
-            public final Float apply(Float y, int row, int col, Matrix output) {
-                float a = output.get(row, col);
+        final MatrixFunction fn = new MatrixFunction() {
+            public final float apply(float y, int[] ij, Matrix target) {
+                float a = output.get(ij[0], ij[1]);
                 return (a > 0.0f) ? -y * Scalar.log(a) : 0.0f;
             }
         };
@@ -17,9 +17,9 @@ public class SoftmaxCrossEntropy implements LossFunc {
     }
 
     public Matrix derivate(Matrix output, Matrix target) {
-        final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
-            public final Float apply(Float y, int row, int col, Matrix output) {
-                float a = output.get(row, col);
+        final MatrixFunction fn = new MatrixFunction() {
+            public final float apply(float y, int[] ij, Matrix output) {
+                float a = output.get(ij[0], ij[1]);
                 return (a > 0.0f) ? -y / a : 0.0f;
             }
         };

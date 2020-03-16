@@ -6,56 +6,42 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
-public class Vector {
+public class Vector extends Tensor<float[]> {
     protected int rows;
-    protected float[] data;
 
     public static final Vector Null = new Vector(0);
 
     public Vector(int rows) {
+        super(new int[] { rows}, new float[rows]);
         this.rows = rows;
-        this.data = new float[this.rows];
     }
 
     public Vector(int rows, float v) {
-        this.rows = rows;
-        this.data = new float[this.rows];
+        this(rows);
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = v;
         }
     }
 
     public Vector(float[] v) {
-        this.rows = v.length;
-        this.data = new float[this.rows];
+        this(v.length);
         System.arraycopy(v, 0, this.data, 0, this.rows);
     }
 
     public Vector(Float[] v) {
-        this.rows = v.length;
-        this.data = new float[this.rows];
+        this(v.length);
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = v[i];
         }
     }
 
     public Vector(JSONObject json) {
-        this.rows = json.getInt("rows");
-        this.data = new float[this.rows];
+        this(json.getInt("rows"));
         JSONArray jsonData = json.getJSONArray("data");
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = jsonData.getFloat(i);
         }
     }
-
-    // @Deprecated
-    // public Vector(JSONArray json) {
-    //     this.rows = json.size();
-    //     this.data = new float[this.rows];
-    //     for (int i = 0; i < this.rows; i++) {
-    //         this.data[i] = json.getFloat(i);
-    //     }
-    // }
 
     public boolean isNull() {
         return this.rows == 0;
@@ -465,19 +451,19 @@ public class Vector {
         return this;
     }
 
-    public Vector map(VectorFunction<Float, Float> fn) {
+    public Vector map(VectorFunction fn) {
         assert (fn != null);
         for (int i = 0; i < this.rows; i++) {
-            this.data[i] = fn.apply(this.data[i], i, this);
+            this.data[i] = fn.apply(this.data[i], new int[] { i }, this);
         }
         return this;
     }
 
-    public Vector map(VectorFunction<Float, Float> fn, Vector other) {
+    public Vector map(VectorFunction fn, Vector other) {
         assert (fn != null);
 
         for (int i = 0; i < this.rows; i++) {
-            this.data[i] = fn.apply(this.data[i], i, other);
+            this.data[i] = fn.apply(this.data[i], new int[] { i }, other);
         }
         return this;
     }

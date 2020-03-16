@@ -151,8 +151,8 @@ public class DataSet {
         for (int i = 0; i < labels; i++) {
             final Vector c = new Vector(features).randomize(10);
             for (int k = 0; k < p; k++) {
-                Vector x = c.copy().map(new VectorFunction<Float, Float>() {
-                    public Float apply(Float v, int row, Vector vector) {
+                Vector x = c.copy().map(new VectorFunction() {
+                    public float apply(float v, int[] ij, Vector vector) {
                         return v + Scalar.randomGaussian();
                     }
                 });
@@ -171,8 +171,8 @@ public class DataSet {
         for (int i = 0; i < labels; i++) {
             final float l = 15.0f * i / (float) labels;
             for (int k = 0; k < p; k++) {
-                Vector x = c.copy().randomize().l2Norm().mul(l).map(new VectorFunction<Float, Float>() {
-                    public Float apply(Float v, int row, Vector vector) {
+                Vector x = c.copy().randomize().l2Norm().mul(l).map(new VectorFunction() {
+                    public float apply(float v, int[] ij, Vector vector) {
                         return v + Scalar.randomGaussian();
                     }
                 });

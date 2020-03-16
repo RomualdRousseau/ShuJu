@@ -14,17 +14,32 @@ import static org.hamcrest.Matchers.*;
 
 import com.github.romualdrousseau.shuju.columns.NumericColumn;
 import com.github.romualdrousseau.shuju.columns.StringColumn;
-import com.github.romualdrousseau.shuju.math.Helper;
 import com.github.romualdrousseau.shuju.math.Linalg;
 import com.github.romualdrousseau.shuju.math.Matrix;
 import com.github.romualdrousseau.shuju.math.Vector;
 import com.github.romualdrousseau.shuju.transforms.*;
 import com.github.romualdrousseau.shuju.ml.knn.*;
+import com.github.romualdrousseau.shuju.ml.nn.Helper;
 import com.github.romualdrousseau.shuju.ml.slr.*;
 import com.github.romualdrousseau.shuju.nlp.StringList;
 import com.github.romualdrousseau.shuju.util.*;
 
 public class AppTest {
+
+    @Test
+    public void test() {
+        Matrix I = new Matrix(4*4, 2).arrange(0);
+        Matrix F = new Matrix(2*2, 2*2).ones();
+        Matrix[] F_res = Helper.reshape(F, 2, 2, 2*2);
+        Matrix[] I_res = Helper.reshape(I.transpose(), 2, 4, 4);
+        Matrix[] I_col = Helper.Img2Conv(I_res, 2, 1, false);
+        System.out.println(Helper.toString(F_res));
+        System.out.println(Helper.toString(I_res));
+        System.out.println(Helper.toString(I_col));
+        Matrix O = Helper.reshape(Helper.a_mul_b(I_col, F_res), 4, 9);
+        System.out.println(O.add(new Vector(4), 1).transpose());
+    }
+
     @Test
     public void testMatrixMinor() {
         Matrix M1 = new Matrix(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
@@ -61,15 +76,15 @@ public class AppTest {
         Matrix F = new Matrix(new float[][] { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } });
         Matrix R = new Matrix(new float[][] { { 29, -192 }, { -35, -22 } });
         assertTrue("Conv(M, F) = R", M.conv(F).equals(R));
-        assertTrue("F @ im2col(M) = R", F.reshape(1, 3 * 3).matmul(Linalg.Img2Conv(M, 1, 3, 1, false)).reshape(2, 2).equals(R));
+        assertTrue("F @ im2col(M) = R", F.reshape(1, 3 * 3).matmul(Helper.Img2Conv(M, 1, 3, 1, false)).reshape(2, 2).equals(R));
     }
 
     @Test
     public void testLinalgIm2Col() {
         Matrix M1 = new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 90, 0, 75 }, { 0, 9, 0, 95 } });
         Matrix M2 = M1.concatenate(new Matrix(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 91, 0, 75 }, { 0, 9, 0, 95 } }), 0);
-        assertTrue("Col2im(Im2col(M1, 2, 2) = M1", Linalg.Conv2Img(Linalg.Img2Conv(M1, 1, 2, 2, false), 1, 4, 4, 2, 2).equals(M1));
-        assertTrue("Col2im(Im2col(M2, 2, 2) = M2", Linalg.Conv2Img(Linalg.Img2Conv(M2, 2, 2, 2, false), 2, 4, 4, 2, 2).equals(M2));
+        assertTrue("Col2im(Im2col(M1, 2, 2) = M1", Helper.Conv2Img(Helper.Img2Conv(M1, 1, 2, 2, false), 1, 4, 4, 2, 2).equals(M1));
+        assertTrue("Col2im(Im2col(M2, 2, 2) = M2", Helper.Conv2Img(Helper.Img2Conv(M2, 2, 2, 2, false), 2, 4, 4, 2, 2).equals(M2));
     }
 
     @Test
@@ -78,9 +93,9 @@ public class AppTest {
         Matrix R1 = new Matrix(new float[][] { { 80, 31 }, { 90, 95 } });
         Matrix R2 = new Matrix(new float[][] { { 0, 0 }, { 0, 0 } });
         Matrix R3 = new Matrix(new float[][] { { 32.5f, 15.5f }, { 33.0f, 42.5f } });
-        assertTrue("PoolMax(M, 2) = R", Linalg.Img2Conv(M, 1, 2, 2, false).max(0).reshape(2, 2).equals(R1));
-        assertTrue("PoolMin(M, 2) = R", Linalg.Img2Conv(M, 1, 2, 2, false).min(0).reshape(2, 2).equals(R2));
-        assertTrue("PoolAvg(M, 2) = R", Linalg.Img2Conv(M, 1, 2, 2, false).avg(0).reshape(2, 2).equals(R3));
+        assertTrue("PoolMax(M, 2) = R", Helper.Img2Conv(M, 1, 2, 2, false).max(0).reshape(2, 2).equals(R1));
+        assertTrue("PoolMin(M, 2) = R", Helper.Img2Conv(M, 1, 2, 2, false).min(0).reshape(2, 2).equals(R2));
+        assertTrue("PoolAvg(M, 2) = R", Helper.Img2Conv(M, 1, 2, 2, false).avg(0).reshape(2, 2).equals(R3));
     }
 
     @Test
@@ -90,9 +105,9 @@ public class AppTest {
         Matrix R1 = new Matrix(new float[][] { { 0, 0, 0, 0 }, { 0, 1, 1, 0 }, { 0, 1, 0, 0 }, { 0, 0, 0, 1 } });
         Matrix R2 = new Matrix(new float[][] { { 1, 0, 1, 0 }, { 1, 0, 0, 0 }, { 0, 0, 1, 0 }, { 1, 0, 1, 0 } });
         Matrix R3 = new Matrix(new float[][] { { 8.125f, 8.125f, 3.875f, 3.875f }, { 8.125f, 8.125f, 3.875f, 3.875f }, { 8.25f, 8.25f, 10.625f, 10.625f }, { 8.25f, 8.25f, 10.625f, 10.625f } });
-        assertTrue("ExpandMax(M, 2) = R1", Helper.expand_minmax(Linalg.Img2Conv(M, 1, 2, 2, false).max(0).reshape(2, 2), M, E).reshape(4, 4).equals(R1));
-        assertTrue("ExpandMin(M, 2) = R2", Helper.expand_minmax(Linalg.Img2Conv(M, 1, 2, 2, false).min(0).reshape(2, 2), M, E).reshape(4, 4).equals(R2));
-        assertTrue("ExpandAvg(M, 2) = R3", Helper.expand_avg(Linalg.Img2Conv(M, 1, 2, 2, false).avg(0).reshape(2, 2), 2).reshape(4, 4).equals(R3));
+        assertTrue("ExpandMax(M, 2) = R1", Helper.expand_minmax(Helper.Img2Conv(M, 1, 2, 2, false).max(0).reshape(2, 2), M, E).reshape(4, 4).equals(R1));
+        assertTrue("ExpandMin(M, 2) = R2", Helper.expand_minmax(Helper.Img2Conv(M, 1, 2, 2, false).min(0).reshape(2, 2), M, E).reshape(4, 4).equals(R2));
+        assertTrue("ExpandAvg(M, 2) = R3", Helper.expand_avg(Helper.Img2Conv(M, 1, 2, 2, false).avg(0).reshape(2, 2), 2).reshape(4, 4).equals(R3));
     }
 
     @Test

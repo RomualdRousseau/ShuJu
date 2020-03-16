@@ -1,5 +1,5 @@
 package com.github.romualdrousseau.shuju.math;
 
-public interface VectorFunction<T, R> {
-    R apply(T v, int row, Vector vector);
+public interface VectorFunction extends TensorFunction<Vector> {
+    float apply(float v, int[] loc, Vector vector);
 }

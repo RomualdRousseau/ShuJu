@@ -7,8 +7,8 @@ import com.github.romualdrousseau.shuju.ml.nn.ActivationFunc;
 
 public class Sigmoid implements ActivationFunc {
   public Matrix apply(Matrix input) {
-    final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
-      public final Float apply(Float x, int row, int col, Matrix matrix) {
+    final MatrixFunction fn = new MatrixFunction() {
+        public final float apply(float x, int[] ij, Matrix matrix) {
         return 1.0f / (1.0f + Scalar.exp(-x));
       }
     };
@@ -16,8 +16,8 @@ public class Sigmoid implements ActivationFunc {
   }
 
   public Matrix derivate(Matrix output) {
-    final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
-      public final Float apply(Float y, int row, int col, Matrix matrix) {
+    final MatrixFunction fn = new MatrixFunction() {
+        public final float apply(float y, int[] ij, Matrix matrix) {
         return y * (1.0f - y);
       }
     };

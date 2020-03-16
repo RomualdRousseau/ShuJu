@@ -7,9 +7,9 @@ import com.github.romualdrousseau.shuju.ml.nn.LossFunc;
 public class Hinge implements LossFunc {
 
     public Matrix apply(Matrix output, Matrix target) {
-        final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
-            public final Float apply(Float y, int row, int col, Matrix target) {
-                float a = y * target.get(row, col);
+        final MatrixFunction fn = new MatrixFunction() {
+            public final float apply(float y, int[] ij, Matrix target) {
+                float a = y * target.get(ij[0], ij[1]);
                 if(a >= 1.0f) {
                     return 0.0f;
                 } else {
@@ -21,13 +21,13 @@ public class Hinge implements LossFunc {
     }
 
     public Matrix derivate(Matrix output, Matrix target) {
-        final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
-            public final Float apply(Float y, int row, int col, Matrix target) {
-                float a = y * target.get(row, col);
+        final MatrixFunction fn = new MatrixFunction() {
+            public final float apply(float y, int[] ij, Matrix target) {
+                float a = y * target.get(ij[0], ij[1]);
                 if(a >= 1.0f) {
                     return 0.0f;
                 } else {
-                    return -target.get(row, col);
+                    return -target.get(ij[0], ij[1]);
                 }
             }
         };

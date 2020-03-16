@@ -21,9 +21,9 @@ public class OptimizerAdam extends Optimizer {
     public Matrix computeGradients(Parameters p) {
         final float lr = this.learningRate * Scalar.sqrt(1.0f - Scalar.pow(this.b2, this.epoch)) / (1.0f - Scalar.pow(this.b1, this.epoch));
 
-        final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
-            public final Float apply(Float m, int row, int col, Matrix cache) {
-                float v = cache.get(row, col);
+        final MatrixFunction fn = new MatrixFunction() {
+            public final float apply(float m, int[] ij, Matrix cache) {
+                float v = cache.get(ij[0], ij[1]);
                 return lr * m / (Scalar.sqrt(v) + Scalar.EPSILON);
             }
         };

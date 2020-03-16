@@ -15,8 +15,8 @@ public class Softmax implements ActivationFunc {
       }
       final float sum = temp;
 
-      final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
-        public final Float apply(Float x, int row, int col, Matrix matrix) {
+      final MatrixFunction fn = new MatrixFunction() {
+        public final float apply(float x, int[] ij, Matrix matrix) {
           return Scalar.exp(x + c) / sum;
         }
       };
@@ -25,10 +25,10 @@ public class Softmax implements ActivationFunc {
     }
 
     public Matrix derivate(Matrix output) {
-      final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
-        public final Float apply(Float y, int row, int col, Matrix output) {
-          final float k = (row == col) ? 1.0f : 0.0f;
-          return output.get(col, 0) * (k - output.get(row, 0));
+        final MatrixFunction fn = new MatrixFunction() {
+            public final float apply(float y, int[] ij, Matrix output) {
+          final float k = (ij[0] == ij[1]) ? 1.0f : 0.0f;
+          return output.get(ij[1], 0) * (k - output.get(ij[0], 0));
         }
       };
       return new Matrix(output.rowCount(), output.rowCount()).map(fn, output);

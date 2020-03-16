@@ -2,8 +2,8 @@ package com.github.romualdrousseau.shuju.ml.nn.layer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Linalg;
 import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.ml.nn.Helper;
 import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
@@ -40,11 +40,12 @@ public class Conv2D extends Layer {
 
     public Matrix callForward(final Matrix input) {
         final int n_filters = this.inputUnits - this.units + 1;
-        final Matrix filters_res = Linalg.BlockDiagonal(this.filters.W, this.inputChannels, false);
-        final Matrix input_res = input.transpose().reshape(-1, this.inputUnits);
-        final Matrix input_col = Linalg.Img2Conv(input_res, this.inputChannels, n_filters, 1, false);
-        final Matrix output = Linalg.xw_plus_b(input_col, filters_res, this.biases.W.toVector(0, false));
-        return output.transpose();
+        final int c_filters = this.channels / this.inputChannels;
+        final Matrix[] filters_res = Helper.reshape(this.filters.W, this.inputChannels, c_filters, n_filters * n_filters);
+        final Matrix[] input_res_T = Helper.reshape(input.transpose(), this.inputChannels, this.inputUnits, this.inputUnits);
+        final Matrix[] input_col = Helper.Img2Conv(input_res_T, n_filters, 1, false);
+        final Matrix output = Helper.reshape(Helper.a_mul_b(input_col, filters_res), this.channels, this.units * this.units);
+        return output.add(this.biases.W.toVector(0, false), 1).transpose();
     }
 
     public void startBackward(final Optimizer optimizer) {
@@ -54,14 +55,15 @@ public class Conv2D extends Layer {
 
     public Matrix callBackward(final Matrix d_L_d_out) {
         final int n_filters = this.inputUnits - this.units + 1;
-        final Matrix filters_res = Linalg.BlockDiagonal(this.filters.W, this.inputChannels, true);
-        final Matrix input_res = this.lastInput.transpose().reshape(-1, this.inputUnits);
-        final Matrix input_col_T = Linalg.Img2Conv(input_res, this.inputChannels, n_filters, 1, true);
+        final int c_filters = this.channels / this.inputChannels;
+        final Matrix[] filters_res_T = Helper.reshape(this.filters.W.transpose(), this.inputChannels, c_filters, n_filters * n_filters);
+        final Matrix[] input_res_T = Helper.reshape(this.lastInput.transpose(), this.inputChannels, this.inputUnits, this.inputUnits);
+        final Matrix[] input_col_T = Helper.Img2Conv(input_res_T, n_filters, 1, true);
         final Matrix d_L_d_out_T = d_L_d_out.transpose();
-        this.filters.G.add(Linalg.BlockColumn(d_L_d_out_T.matmul(input_col_T), this.inputChannels, 1));
+        this.filters.G.add(Helper.reshape(Helper.a_mul_b(d_L_d_out_T, input_col_T), this.channels, n_filters * n_filters));
         this.biases.G.add(d_L_d_out_T.flatten(1).mul(this.bias));
-        final Matrix d_L_d_in = Linalg.Conv2Img(filters_res.matmul(d_L_d_out_T), this.inputChannels, this.inputUnits, this.inputUnits, n_filters, 1);
-        return d_L_d_in.reshape(-1, this.inputChannels);
+        final Matrix[] d_L_d_in = Helper.Conv2Img(Helper.a_mul_b(d_L_d_out_T, filters_res_T), this.inputUnits, this.inputUnits, n_filters, 1);
+        return Helper.reshape(d_L_d_in, this.inputChannels, this.inputUnits * this.inputUnits).transpose();
     }
 
     public void completeBackward(final Optimizer optimizer) {

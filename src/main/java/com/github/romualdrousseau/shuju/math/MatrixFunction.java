@@ -1,5 +1,5 @@
 package com.github.romualdrousseau.shuju.math;
 
-public interface MatrixFunction<T, R> {
-    R apply(T v, int row, int col, Matrix matrix);
+public interface MatrixFunction extends TensorFunction<Matrix> {
+    float apply(float v, int[] loc, Matrix matrix);
 }

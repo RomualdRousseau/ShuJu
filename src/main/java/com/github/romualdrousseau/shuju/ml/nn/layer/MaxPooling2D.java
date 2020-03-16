@@ -2,9 +2,8 @@ package com.github.romualdrousseau.shuju.ml.nn.layer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Helper;
-import com.github.romualdrousseau.shuju.math.Linalg;
 import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.ml.nn.Helper;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
 
@@ -26,7 +25,7 @@ public class MaxPooling2D extends Layer {
         final Matrix output = new Matrix(this.inputChannels, this.units * this.units);
         for (int k = 0; k < this.inputChannels; k++) {
             final Matrix input_k = input.slice(0, k, -1, 1).reshape(this.inputUnits);
-            output.replace(k, 0, Linalg.Img2Conv(input_k, 1, this.size, this.size, false).max(0));
+            output.replace(k, 0, Helper.Img2Conv(input_k, 1, this.size, this.size, false).max(0));
         }
         return output.transpose();
     }

@@ -9,9 +9,9 @@ public class Huber implements LossFunc {
     private final float alpha = 1.0f;
 
     public Matrix apply(Matrix output, Matrix target) {
-        final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
-            public final Float apply(Float y, int row, int col, Matrix output) {
-                float a = y - output.get(row, col);
+        final MatrixFunction fn = new MatrixFunction() {
+            public final float apply(float y, int[] ij, Matrix output) {
+                float a = y - output.get(ij[0], ij[1]);
                 if (Scalar.abs(a) <= alpha) {
                     return 0.5f * a * a;
                 } else {
@@ -23,9 +23,9 @@ public class Huber implements LossFunc {
     }
 
     public Matrix derivate(Matrix output, Matrix target) {
-        final MatrixFunction<Float, Float> fn = new MatrixFunction<Float, Float>() {
-            public final Float apply(Float y, int row, int col, Matrix target) {
-                float a = y - target.get(row, col);
+        final MatrixFunction fn = new MatrixFunction() {
+            public final float apply(float y, int[] ij, Matrix target) {
+                float a = y - target.get(ij[0], ij[1]);
                 if (a < -alpha) {
                     return -alpha;
                 } else if (a <= alpha) {

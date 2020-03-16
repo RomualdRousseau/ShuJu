@@ -55,9 +55,9 @@ public class KMean {
         }
     }
 
-    private MatrixFunction<Float, Float> MSE = new MatrixFunction<Float, Float>() {
-        public Float apply(Float v, int row, int col, Matrix matrix) {
-            float a = v - matrix.get(row, 0);
+    private MatrixFunction MSE = new MatrixFunction() {
+        public float apply(float v, int[] loc, Matrix matrix) {
+            float a = v - matrix.get(loc[0], 0);
             return a * a;
         }
     };

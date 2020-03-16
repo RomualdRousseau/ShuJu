@@ -6,21 +6,22 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
-public class Matrix {
+public class Matrix extends Tensor<float[][]> {
     protected int rows;
     protected int cols;
-    protected float[][] data;
 
     public Matrix(final int rows, final int cols) {
+        super(new int[] { rows, cols }, new float[rows][cols]);
         this.rows = rows;
         this.cols = cols;
-        this.data = new float[this.rows][this.cols];
+    }
+
+    public Matrix(final int rows, final int cols, final boolean rowvar) {
+        this(rowvar ? rows : cols, rowvar ? cols : rows);
     }
 
     public Matrix(final int rows, final int cols, final float v) {
-        this.rows = rows;
-        this.cols = cols;
-        this.data = new float[this.rows][this.cols];
+        this(rows, cols);
         for (int i = 0; i < this.rows; i++) {
             final float[] a = this.data[i];
             for (int j = 0; j < this.cols; j++) {
@@ -34,15 +35,10 @@ public class Matrix {
     }
 
     public Matrix(final float[] v, final boolean rowvar) {
+        this(1, v.length, rowvar);
         if (rowvar) {
-            this.rows = 1;
-            this.cols = v.length;
-            this.data = new float[this.rows][this.cols];
             System.arraycopy(v, 0, this.data[0], 0, this.cols);
         } else {
-            this.rows = v.length;
-            this.cols = 1;
-            this.data = new float[this.rows][this.cols];
             for (int i = 0; i < this.rows; i++) {
                 this.data[i][0] = v[i];
             }
@@ -54,17 +50,12 @@ public class Matrix {
     }
 
     public Matrix(final float[][] v, final boolean rowvar) {
+        this(v.length, v[0].length, rowvar);
         if (rowvar) {
-            this.rows = v.length;
-            this.cols = v[0].length;
-            this.data = new float[this.rows][this.cols];
             for (int i = 0; i < this.rows; i++) {
                 System.arraycopy(v[i], 0, this.data[i], 0, this.cols);
             }
         } else {
-            this.rows = v[0].length;
-            this.cols = v.length;
-            this.data = new float[this.rows][this.cols];
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; j < this.cols; j++) {
                     this.data[i][j] = v[j][i];
@@ -78,17 +69,12 @@ public class Matrix {
     }
 
     public Matrix(final Float[] v, final boolean rowvar) {
+        this(1, v.length, rowvar);
         if (rowvar) {
-            this.rows = 1;
-            this.cols = v.length;
-            this.data = new float[this.rows][this.cols];
             for (int j = 0; j < this.cols; j++) {
                 this.data[0][j] = v[j];
             }
         } else {
-            this.rows = v.length;
-            this.cols = 1;
-            this.data = new float[this.rows][this.cols];
             for (int i = 0; i < this.rows; i++) {
                 this.data[i][0] = v[i];
             }
@@ -100,19 +86,14 @@ public class Matrix {
     }
 
     public Matrix(final Float[][] v, final boolean rowvar) {
+        this(v.length, v[0].length, rowvar);
         if (rowvar) {
-            this.rows = v.length;
-            this.cols = v[0].length;
-            this.data = new float[this.rows][this.cols];
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; j < this.cols; j++) {
                     this.data[i][j] = v[i][j];
                 }
             }
         } else {
-            this.rows = v[0].length;
-            this.cols = v.length;
-            this.data = new float[this.rows][this.cols];
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; j < this.cols; j++) {
                     this.data[i][j] = v[j][i];
@@ -126,17 +107,12 @@ public class Matrix {
     }
 
     public Matrix(final Vector v, final boolean rowvar) {
+        this(1, v.rows, rowvar);
         if (rowvar) {
-            this.rows = 1;
-            this.cols = v.rows;
-            this.data = new float[this.rows][this.cols];
             for (int j = 0; j < this.cols; j++) {
                 this.data[0][j] = v.data[j];
             }
         } else {
-            this.rows = v.rows;
-            this.cols = 1;
-            this.data = new float[this.rows][this.cols];
             for (int i = 0; i < this.rows; i++) {
                 this.data[i][0] = v.data[i];
             }
@@ -148,17 +124,12 @@ public class Matrix {
     }
 
     public Matrix(final Vector[] v, final boolean rowvar) {
+        this(v.length, v[0].rows, rowvar);
         if (rowvar) {
-            this.rows = v.length;
-            this.cols = v[0].rows;
-            this.data = new float[this.rows][this.cols];
             for (int i = 0; i < this.rows; i++) {
                 System.arraycopy(v[i].data, 0, this.data[i], 0, this.cols);
             }
         } else {
-            this.rows = v[0].rows;
-            this.cols = v.length;
-            this.data = new float[this.rows][this.cols];
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; i < this.cols; j++) {
                     this.data[i][j] = v[j].data[i];
@@ -172,22 +143,16 @@ public class Matrix {
     }
 
     public Matrix(final Vector v, final int stride, final boolean rowvar) {
+        this(v.rows / stride, stride, rowvar);
         assert (stride > 0);
+        int vi = 0;
         if (rowvar) {
-            this.rows = v.rows / stride;
-            this.cols = stride;
-            this.data = new float[this.rows][this.cols];
-            int vi = 0;
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; j < this.cols; j++) {
                     this.data[i][j] = v.data[vi++];
                 }
             }
         } else {
-            this.rows = stride;
-            this.cols = v.rows / stride;
-            this.data = new float[this.rows][this.cols];
-            int vi = 0;
             for (int j = 0; j < this.cols; j++) {
                 for (int i = 0; i < this.rows; i++) {
                     this.data[i][j] = v.data[vi++];
@@ -197,9 +162,7 @@ public class Matrix {
     }
 
     public Matrix(final JSONObject json) {
-        this.rows = json.getInt("rows");
-        this.cols = json.getInt("cols");
-        this.data = new float[this.rows][this.cols];
+        this(json.getInt("rows"), json.getInt("cols"));
         final JSONArray jsonData = json.getJSONArray("data");
         for (int i = 0; i < this.rows; i++) {
             final JSONArray jsonRow = jsonData.getJSONArray(i);
@@ -1320,23 +1283,23 @@ public class Matrix {
         return result;
     }
 
-    public Matrix map(final MatrixFunction<Float, Float> fn) {
+    public Matrix map(final MatrixFunction fn) {
         assert (fn != null);
         for (int i = 0; i < this.rows; i++) {
             final float[] a = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                a[j] = fn.apply(a[j], i, j, this);
+                a[j] = fn.apply(a[j], new int[] { i, j }, this);
             }
         }
         return this;
     }
 
-    public Matrix map(final MatrixFunction<Float, Float> fn, final Matrix other) {
+    public Matrix map(final MatrixFunction fn, final Matrix other) {
         assert (fn != null);
         for (int i = 0; i < this.rows; i++) {
             final float[] a = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                a[j] = fn.apply(a[j], i, j, other);
+                a[j] = fn.apply(a[j], new int[] { i, j }, other);
             }
         }
         return this;
