@@ -62,12 +62,15 @@ void buildModel() {
     .setInputUnits(MnistImageSize)
     .setInputChannels(1)
     .setFilters(5)
-    .setChannels(32));
+    .setChannels(8));
+
+  model.add(new ActivationBuilder()
+    .setActivation(new Relu()));
 
   model.add(new Conv2DBuilder()
     .setBias(0.1)
     .setFilters(3)
-    .setChannels(32));
+    .setChannels(8));
 
   model.add(new MaxPooling2DBuilder()
     .setSize(2));
