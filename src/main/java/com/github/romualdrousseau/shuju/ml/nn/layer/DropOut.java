@@ -9,11 +9,12 @@ import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
 
 public class DropOut extends Layer {
 
-    public DropOut(int inputUnits, final float rate) {
-        super(inputUnits, inputUnits, 1.0f);
+    public DropOut(int inputUnits, final int inputChannels, final float rate) {
+        super(inputUnits, inputChannels, inputUnits, inputChannels, 1.0f);
 
         this.rate = Scalar.map(rate, 0.0f, 1.0f, -1.0f, 1.0f);
         this.U = new Matrix(this.inputUnits, this.inputChannels).ones();
+
         this.reset(false);
     }
 

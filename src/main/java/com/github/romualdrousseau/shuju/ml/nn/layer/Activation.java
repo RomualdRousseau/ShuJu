@@ -11,8 +11,8 @@ import com.github.romualdrousseau.shuju.ml.nn.activation.Linear;
 
 public class Activation extends Layer {
 
-    public Activation(final int inputUnits, final ActivationFunc activation) {
-        super(inputUnits, inputUnits, 1.0f);
+    public Activation(final int inputUnits, final int inputChannels, final ActivationFunc activation) {
+        super(inputUnits, inputChannels, inputUnits, inputChannels, 1.0f);
 
         this.activation = (activation == null) ? new Linear() : activation;
 

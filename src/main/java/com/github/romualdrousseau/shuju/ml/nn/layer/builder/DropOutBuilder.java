@@ -7,15 +7,21 @@ public class DropOutBuilder extends LayerBuilder<DropOut> {
 
     public DropOutBuilder() {
         super();
+        this.inputChannels = 0;
         this.rate = 0.8f;
     }
 
     public DropOut build() {
-        return new DropOut(this.inputUnits, this.rate);
+        return new DropOut(this.inputUnits, this.inputChannels, this.rate);
     }
 
     public DropOutBuilder setInputUnits(int inputUnits) {
         this.inputUnits = inputUnits;
+        return this;
+    }
+
+    public DropOutBuilder setInputChannels(int inputChannels) {
+        this.inputChannels = inputChannels;
         return this;
     }
 

@@ -9,15 +9,21 @@ public class ActivationBuilder extends LayerBuilder<Activation> {
 
     public ActivationBuilder() {
         super();
+        this.inputChannels = 0;
         this.activation = new Linear();
     }
 
     public Activation build() {
-        return new Activation(this.inputUnits, this.activation);
+        return new Activation(this.inputUnits, this.inputChannels, this.activation);
     }
 
     public ActivationBuilder setInputUnits(int inputUnits) {
         this.inputUnits = inputUnits;
+        return this;
+    }
+
+    public ActivationBuilder setInputChannels(int inputChannels) {
+        this.inputChannels = inputChannels;
         return this;
     }
 
