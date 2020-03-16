@@ -69,14 +69,14 @@ public class Linalg {
         }
     }
 
-    public static Matrix Conv2Img(Matrix m, int repeat, int size, int stride) {
+    public static Matrix Conv2Img(Matrix m, int repeat, int rows, int cols, int size, int stride) {
         assert (repeat > 0);
         assert (stride > 0);
         assert (size > 0);
-        final int rows_n = m.rows;
-        final int cols_n = m.cols;
-        final int rows = (rows_n - 1) * stride + size;
-        final int cols = (cols_n - 1) * stride + size;
+        final int rows_n = 1 + (rows - size) / stride;
+        final int cols_n = 1 + (cols - size) / stride;
+        assert ((rows_n - 1) * stride + size == rows);
+        assert ((cols_n - 1) * stride + size == cols);
         final Matrix result = new Matrix(rows * repeat, cols);
         for(int k = 0; k < repeat; k++) {
             final int off_m_k = k * size;

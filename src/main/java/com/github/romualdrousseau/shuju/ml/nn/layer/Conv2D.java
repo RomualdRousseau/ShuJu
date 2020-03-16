@@ -60,7 +60,7 @@ public class Conv2D extends Layer {
         final Matrix d_L_d_out_T = d_L_d_out.transpose();
         this.filters.G.add(Linalg.BlockColumn(d_L_d_out_T.matmul(input_col_T), this.inputChannels, 1));
         this.biases.G.add(d_L_d_out_T.flatten(1).mul(this.bias));
-        final Matrix d_L_d_in = Linalg.Conv2Img(filters_res.matmul(d_L_d_out_T), this.inputChannels, n_filters, 1);
+        final Matrix d_L_d_in = Linalg.Conv2Img(filters_res.matmul(d_L_d_out_T), this.inputChannels, this.inputUnits, this.inputUnits, n_filters, 1);
         return d_L_d_in.reshape(-1, this.inputChannels);
     }
 
