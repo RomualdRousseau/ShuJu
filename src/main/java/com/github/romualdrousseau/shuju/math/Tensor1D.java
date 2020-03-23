@@ -6,36 +6,36 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
-public class Vector extends Tensor<float[]> {
+public class Tensor1D extends AbstractTensor<float[]> {
     protected int rows;
 
-    public static final Vector Null = new Vector(0);
+    public static final Tensor1D Null = new Tensor1D(0);
 
-    public Vector(int rows) {
+    public Tensor1D(int rows) {
         super(new int[] { rows}, new float[rows]);
         this.rows = rows;
     }
 
-    public Vector(int rows, float v) {
+    public Tensor1D(int rows, float v) {
         this(rows);
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = v;
         }
     }
 
-    public Vector(float[] v) {
+    public Tensor1D(float[] v) {
         this(v.length);
         System.arraycopy(v, 0, this.data, 0, this.rows);
     }
 
-    public Vector(Float[] v) {
+    public Tensor1D(Float[] v) {
         this(v.length);
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = v[i];
         }
     }
 
-    public Vector(JSONObject json) {
+    public Tensor1D(JSONObject json) {
         this(json.getInt("rows"));
         JSONArray jsonData = json.getJSONArray("data");
         for (int i = 0; i < this.rows; i++) {
@@ -59,16 +59,16 @@ public class Vector extends Tensor<float[]> {
         return this.data[i];
     }
 
-    public Vector set(int i, float v) {
+    public Tensor1D set(int i, float v) {
         this.data[i] = v;
         return this;
     }
 
-    public boolean equals(final Vector v) {
+    public boolean equals(final Tensor1D v) {
         return this.rows == v.rows && Arrays.equals(this.data, v.data);
     }
 
-    public boolean equals(final Vector v, final float e) {
+    public boolean equals(final Tensor1D v, final float e) {
         boolean result = this.rows == v.rows;
         for (int i = 0; i < this.rows && result; i++) {
             float a = this.data[i];
@@ -78,11 +78,11 @@ public class Vector extends Tensor<float[]> {
         return result;
     }
 
-    public boolean isSimilar(final Vector v, final float e) {
+    public boolean isSimilar(final Tensor1D v, final float e) {
         return 1.0f -  Scalar.abs(this.similarity(v)) < e;
     }
 
-    public float similarity(final Vector v) {
+    public float similarity(final Tensor1D v) {
         if(this.sparsity() == 1.0f || v.sparsity() == 1.0f) {
             return 0.0f;
         } else {
@@ -98,7 +98,7 @@ public class Vector extends Tensor<float[]> {
         return (float) count / (float) this.rows;
     }
 
-    public Vector chop(final float e) {
+    public Tensor1D chop(final float e) {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = (Scalar.abs(this.data[i]) < e) ? 0.0f : this.data[i];
         }
@@ -123,7 +123,7 @@ public class Vector extends Tensor<float[]> {
         return var / (float) (this.rows - 1);
     }
 
-    public float cov(Vector v) {
+    public float cov(Tensor1D v) {
         assert (this.rows == v.rows);
 
         float avg1 = this.avg();
@@ -137,7 +137,7 @@ public class Vector extends Tensor<float[]> {
         return cov / (float) (this.rows - 1);
     }
 
-    public Vector min(Vector v) {
+    public Tensor1D min(Tensor1D v) {
         assert (this.rows == v.rows);
 
         for (int i = 0; i < this.rows; i++) {
@@ -156,7 +156,7 @@ public class Vector extends Tensor<float[]> {
         return minValue;
     }
 
-    public Vector max(Vector v) {
+    public Tensor1D max(Tensor1D v) {
         assert (this.rows == v.rows);
 
         for (int i = 0; i < this.rows; i++) {
@@ -207,28 +207,28 @@ public class Vector extends Tensor<float[]> {
         return sum;
     }
 
-    public Vector zero() {
+    public Tensor1D zero() {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = 0.0f;
         }
         return this;
     }
 
-    public Vector ones() {
+    public Tensor1D ones() {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = 1.0f;
         }
         return this;
     }
 
-    public Vector oneHot(int k) {
+    public Tensor1D oneHot(int k) {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = (i == k) ? 1.0f : 0.0f;
         }
         return this;
     }
 
-    public <T extends Enum<T>> Vector oneHot(T e) {
+    public <T extends Enum<T>> Tensor1D oneHot(T e) {
         if (e == null) {
             return this.zero();
         }
@@ -236,7 +236,7 @@ public class Vector extends Tensor<float[]> {
         return this.oneHot(e.ordinal());
     }
 
-    public <T extends Enum<T>> Vector oneHot(T[] s) {
+    public <T extends Enum<T>> Tensor1D oneHot(T[] s) {
         if (s == null) {
             return this.zero();
         }
@@ -247,39 +247,39 @@ public class Vector extends Tensor<float[]> {
         return this;
     }
 
-    public Vector mutate(float rate, float variance) {
+    public Tensor1D mutate(float rate, float variance) {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] += Scalar.randomGaussian() * variance;
         }
         return this;
     }
 
-    public Vector randomize() {
+    public Tensor1D randomize() {
         return this.randomize(1.0f);
     }
 
-    public Vector randomize(float n) {
+    public Tensor1D randomize(float n) {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = Scalar.random(-n, n);
         }
         return this;
     }
 
-    public Vector constrain(float a, float b) {
+    public Tensor1D constrain(float a, float b) {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = Scalar.constrain(this.data[i], a, b);
         }
         return this;
     }
 
-    public Vector if_lt_then(float p, float a, float b) {
+    public Tensor1D if_lt_then(float p, float a, float b) {
         for (int j = 0; j < this.rows; j++) {
             this.data[j] = Scalar.if_lt_then(this.data[j], p, a, b);
         }
         return this;
     }
 
-    public Vector softmax() {
+    public Tensor1D softmax() {
         final float c = -this.data[this.argmax()];
 
         float sum = 0.0f;
@@ -295,7 +295,7 @@ public class Vector extends Tensor<float[]> {
         return this;
     }
 
-    public Vector l2Norm() {
+    public Tensor1D l2Norm() {
         float w = 1.0f / this.norm();
         for (int i = 0; i < this.rows; i++) {
             this.data[i] *= w;
@@ -303,7 +303,7 @@ public class Vector extends Tensor<float[]> {
         return this;
     }
 
-    public Vector batchNorm(float a, float b) {
+    public Tensor1D batchNorm(float a, float b) {
         float avg = 0.0f;
         for (int i = 0; i < this.rows; i++) {
             avg += this.data[i];
@@ -324,46 +324,44 @@ public class Vector extends Tensor<float[]> {
         return this;
     }
 
-    public Vector add(float k) {
+    public Tensor1D add(float k) {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] += k;
         }
         return this;
     }
 
-    public Vector add(final Vector v) {
-        assert (this.rows == v.rows);
-
+    public Tensor1D add(final Tensor1D v) {
+        assert (this.rows == v.shape[0]);
         for (int i = 0; i < this.rows; i++) {
-            this.data[i] += v.data[i];
+            this.data[i] += ((float[]) v.data)[i];
         }
         return this;
     }
 
-    public Vector sub(float k) {
+    public Tensor1D sub(float k) {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] -= k;
         }
         return this;
     }
 
-    public Vector sub(final Vector v) {
+    public Tensor1D sub(final Tensor1D v) {
         assert (this.rows == v.rows);
-
         for (int i = 0; i < this.rows; i++) {
             this.data[i] -= v.data[i];
         }
         return this;
     }
 
-    public Vector mul(float k) {
+    public Tensor1D mul(float k) {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] *= k;
         }
         return this;
     }
 
-    public Vector mul(final Vector v) {
+    public Tensor1D mul(final Tensor1D v) {
         assert (this.rows == v.rows);
 
         for (int i = 0; i < this.rows; i++) {
@@ -372,14 +370,14 @@ public class Vector extends Tensor<float[]> {
         return this;
     }
 
-    public Vector div(float k) {
+    public Tensor1D div(float k) {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] /= k;
         }
         return this;
     }
 
-    public Vector div(final Vector v) {
+    public Tensor1D div(final Tensor1D v) {
         assert (this.rows == v.rows);
 
         for (int i = 0; i < this.rows; i++) {
@@ -388,35 +386,35 @@ public class Vector extends Tensor<float[]> {
         return this;
     }
 
-    public Vector abs() {
+    public Tensor1D abs() {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = Scalar.abs(this.data[i]);
         }
         return this;
     }
 
-    public Vector pow(float n) {
+    public Tensor1D pow(float n) {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = Scalar.pow(this.data[i], n);
         }
         return this;
     }
 
-    public Vector exp() {
+    public Tensor1D exp() {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = Scalar.exp(this.data[i]);
         }
         return this;
     }
 
-    public Vector sqrt() {
+    public Tensor1D sqrt() {
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = Scalar.sqrt(this.data[i]);
         }
         return this;
     }
 
-    public float scalar(Vector v) {
+    public float scalar(Tensor1D v) {
         assert (this.rows == v.rows);
         float sum = 0;
         for (int i = 0; i < this.rows; i++) {
@@ -433,7 +431,7 @@ public class Vector extends Tensor<float[]> {
         return Scalar.sqrt(sum);
     }
 
-    public float distance(Vector v) {
+    public float distance(Tensor1D v) {
         assert (this.rows == v.rows);
         float sum = 0;
         for (int i = 0; i < this.rows; i++) {
@@ -443,7 +441,7 @@ public class Vector extends Tensor<float[]> {
         return Scalar.sqrt(sum);
     }
 
-    public Vector map(float start1, float stop1, float start2, float stop2) {
+    public Tensor1D map(float start1, float stop1, float start2, float stop2) {
         final float m = (stop2 - start2) / (stop1 - start1);
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = m * (this.data[i] - start1) + start2;
@@ -451,7 +449,7 @@ public class Vector extends Tensor<float[]> {
         return this;
     }
 
-    public Vector map(VectorFunction fn) {
+    public Tensor1D map(TensorFunction<Tensor1D> fn) {
         assert (fn != null);
         for (int i = 0; i < this.rows; i++) {
             this.data[i] = fn.apply(this.data[i], new int[] { i }, this);
@@ -459,7 +457,7 @@ public class Vector extends Tensor<float[]> {
         return this;
     }
 
-    public Vector map(VectorFunction fn, Vector other) {
+    public Tensor1D map(TensorFunction<Tensor1D> fn, Tensor1D other) {
         assert (fn != null);
 
         for (int i = 0; i < this.rows; i++) {
@@ -468,14 +466,14 @@ public class Vector extends Tensor<float[]> {
         return this;
     }
 
-    public Vector copy() {
-        Vector result = new Vector(this.rows);
+    public Tensor1D copy() {
+        Tensor1D result = new Tensor1D(this.rows);
         System.arraycopy(this.data, 0, result.data, 0, result.rows);
         return result;
     }
 
-    public Vector concat(Vector v) {
-        Vector result = new Vector(this.rows + v.rows);
+    public Tensor1D concat(Tensor1D v) {
+        Tensor1D result = new Tensor1D(this.rows + v.rows);
         for (int i = 0; i < this.rows; i++) {
             result.data[i] = this.data[i];
         }
@@ -485,9 +483,9 @@ public class Vector extends Tensor<float[]> {
         return result;
     }
 
-    public Matrix dot(Vector v) {
+    public Tensor2D dot(Tensor1D v) {
         assert (this.rows == v.rows);
-        Matrix result = new Matrix(this.rows, this.rows, 0.0f);
+        Tensor2D result = new Tensor2D(this.rows, this.rows);
         for (int i = 0; i < result.rows; i++) {
             for (int j = 0; j < result.cols; j++) {
                 result.data[i][j] = this.data[i] * v.data[j];
@@ -496,19 +494,29 @@ public class Vector extends Tensor<float[]> {
         return result;
     }
 
-    public Matrix dot(Matrix m) {
+    public Tensor2D dot(Tensor2D m) {
         assert (this.rows == m.rows);
-        Matrix result = new Matrix(this.rows, this.rows, 0.0f);
+        Tensor2D result = new Tensor2D(this.rows, this.rows);
         for (int i = 0; i < result.rows; i++) {
             for (int j = 0; j < result.cols; j++) {
-                float c = 0.0f;
+                float sum = 0.0f;
                 for(int k = 0; k < m.rows; k++) {
-                    c+= this.data[i] * m.data[k][j];
+                    sum += this.data[i] * m.data[k][j];
                 }
-                result.data[i][j] = c;
+                result.data[i][j] = sum;
             }
         }
         return result;
+    }
+
+    public AbstractTensor<?> matmul(final AbstractTensor<?> a) {
+        if(a.shape.length == 1) {
+            return this.dot((Tensor1D) a);
+        } else if(a.shape.length == 2) {
+            return this.dot((Tensor2D) a);
+        } else {
+            return null;
+        }
     }
 
     public String toString() {
@@ -519,10 +527,9 @@ public class Vector extends Tensor<float[]> {
         StringBuilder result = new StringBuilder();
         result.append("| ");
         for (int i = 0; i < this.rows; i++) {
-            result.append(String.format("%.3f\t", this.data[i]));
+            result.append(String.format("%1$10.3f ", this.data[i]));
         }
         result.append(" |").append(System.lineSeparator());
-        ;
 
         return result.toString();
     }

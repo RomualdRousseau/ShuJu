@@ -2,8 +2,8 @@ package com.github.romualdrousseau.shuju.ml.nn;
 
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
-import com.github.romualdrousseau.shuju.math.Matrix;
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor2D;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 
 public abstract class Layer {
 
@@ -15,8 +15,8 @@ public abstract class Layer {
     public int channels;
     public float bias;
 
-    public Matrix lastInput;
-    public Matrix output;
+    public Tensor2D lastInput;
+    public Tensor2D output;
 
     public boolean frozen;
     public boolean training;
@@ -39,21 +39,21 @@ public abstract class Layer {
         this.output = null;
     }
 
-    public Matrix detach() {
+    public Tensor2D detach() {
         return this.output;
     }
 
-    public Vector detachAsVector() {
+    public Tensor1D detachAsVector() {
         return this.output.toVector(0, false);
     }
 
     public abstract void reset(boolean parametersOnly);
 
-    public abstract Matrix callForward(Matrix input);
+    public abstract Tensor2D callForward(Tensor2D input);
 
     public abstract void startBackward(Optimizer optimizer);
 
-    public abstract Matrix callBackward(Matrix d_L_d_out);
+    public abstract Tensor2D callBackward(Tensor2D d_L_d_out);
 
     public abstract void completeBackward(Optimizer optimizer);
 

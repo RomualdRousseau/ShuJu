@@ -1,13 +1,13 @@
 package com.github.romualdrousseau.shuju;
 
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 
 public class DataSummary {
     public int count;
-    public Vector min;
-    public Vector max;
-    public Vector sum;
-    public Vector avg;
+    public Tensor1D min;
+    public Tensor1D max;
+    public Tensor1D sum;
+    public Tensor1D avg;
 
     public DataSummary(DataSet dataset, int part, int col) {
         this.dataset = dataset;
@@ -40,14 +40,14 @@ public class DataSummary {
 
     private void calculateStatistics(DataSet dataset, int part, int col) {
         this.count = dataset.rows().size();
-        this.min = new Vector(0);
-        this.max = new Vector(0);
-        this.sum = new Vector(0);
-        this.avg = new Vector(0);
+        this.min = new Tensor1D(0);
+        this.max = new Tensor1D(0);
+        this.sum = new Tensor1D(0);
+        this.avg = new Tensor1D(0);
 
         boolean firstRow = true;
         for (DataRow row : dataset.rows()) {
-            Vector feature = (part == DataRow.LABELS) ? row.label() : row.features().get(col);
+            Tensor1D feature = (part == DataRow.LABELS) ? row.label() : row.features().get(col);
             if (firstRow) {
                 this.min = feature.copy();
                 this.max = feature.copy();

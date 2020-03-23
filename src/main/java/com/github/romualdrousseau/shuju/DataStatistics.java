@@ -1,33 +1,33 @@
 package com.github.romualdrousseau.shuju;
 
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 
 public class DataStatistics {
     public static int count(DataSummary summary) {
         return summary.count;
     }
 
-    public static Vector min(DataSummary summary) {
+    public static Tensor1D min(DataSummary summary) {
         return summary.min;
     }
 
-    public static Vector max(DataSummary summary) {
+    public static Tensor1D max(DataSummary summary) {
         return summary.max;
     }
 
-    public static Vector sum(DataSummary summary) {
+    public static Tensor1D sum(DataSummary summary) {
         return summary.sum;
     }
 
-    public static Vector avg(DataSummary summary) {
+    public static Tensor1D avg(DataSummary summary) {
         return summary.avg;
     }
 
-    public static Vector var(DataSummary summary) {
-        Vector var = new Vector(0);
+    public static Tensor1D var(DataSummary summary) {
+        Tensor1D var = new Tensor1D(0);
         boolean firstRow = true;
         for (DataRow row : summary.getDataSet().rows()) {
-            Vector feature = (summary.getPart() == DataRow.LABELS) ? row.label()
+            Tensor1D feature = (summary.getPart() == DataRow.LABELS) ? row.label()
                     : row.features().get(summary.getColumn());
             if (firstRow) {
                 var = feature.copy().sub(summary.avg).pow(2.0f);
@@ -39,20 +39,20 @@ public class DataStatistics {
         return var.div((float) (summary.count - 1));
     }
 
-    public static Vector cov(DataSummary summary1, DataSummary summary2) {
+    public static Tensor1D cov(DataSummary summary1, DataSummary summary2) {
         assert (summary1.getDataSet() == summary2.getDataSet());
         assert (summary1.count == summary2.count);
 
-        Vector cov = new Vector(0);
+        Tensor1D cov = new Tensor1D(0);
         boolean firstRow = true;
         for (DataRow row : summary1.getDataSet().rows()) {
-            Vector feature1 = (summary1.getPart() == DataRow.LABELS) ? row.label()
+            Tensor1D feature1 = (summary1.getPart() == DataRow.LABELS) ? row.label()
                     : row.features().get(summary1.getColumn());
-            Vector feature2 = (summary2.getPart() == DataRow.LABELS) ? row.label()
+            Tensor1D feature2 = (summary2.getPart() == DataRow.LABELS) ? row.label()
                     : row.features().get(summary2.getColumn());
 
-            Vector temp1 = feature1.copy().sub(summary1.avg);
-            Vector temp2 = feature2.copy().sub(summary2.avg);
+            Tensor1D temp1 = feature1.copy().sub(summary1.avg);
+            Tensor1D temp2 = feature2.copy().sub(summary2.avg);
 
             if (firstRow) {
                 cov = temp1.mul(temp2);
@@ -64,10 +64,10 @@ public class DataStatistics {
         return cov.div((float) (summary1.count - 1));
     }
 
-    public static Vector corr(DataSummary summary1, DataSummary summary2) {
-        Vector cov = DataStatistics.cov(summary1, summary2);
-        Vector var1 = DataStatistics.var(summary1);
-        Vector var2 = DataStatistics.var(summary2);
+    public static Tensor1D corr(DataSummary summary1, DataSummary summary2) {
+        Tensor1D cov = DataStatistics.cov(summary1, summary2);
+        Tensor1D var1 = DataStatistics.var(summary1);
+        Tensor1D var2 = DataStatistics.var(summary2);
         return cov.div(var1.mul(var2).sqrt());
     }
 }

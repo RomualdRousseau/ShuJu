@@ -28,7 +28,7 @@ import com.github.romualdrousseau.shuju.ml.knn.*;
 import com.github.romualdrousseau.shuju.ml.nn.layer.*;
 import com.github.romualdrousseau.shuju.ml.naivebayes.*;
 
-final int epochCount = 10;
+final int epochCount = 30;
 final int trainingCount = 60000;
 final int testCount = 10000;
 
@@ -62,15 +62,21 @@ void buildModel() {
     .setInputUnits(MnistImageSize)
     .setInputChannels(1)
     .setFilters(5)
-    .setChannels(8));
+    .setChannels(32));
 
   model.add(new ActivationBuilder()
     .setActivation(new Relu()));
 
+  model.add(new MaxPooling2DBuilder()
+    .setSize(2));
+
   model.add(new Conv2DBuilder()
     .setBias(0.1)
-    .setFilters(3)
-    .setChannels(8));
+    .setFilters(5)
+    .setChannels(64));
+
+  model.add(new ActivationBuilder()
+    .setActivation(new Relu()));
 
   model.add(new MaxPooling2DBuilder()
     .setSize(2));
@@ -81,12 +87,15 @@ void buildModel() {
     .setRate(0.4));
 
   model.add(new DenseBuilder()
-    .setUnits(100));
-
-  model.add(new BatchNormalizerBuilder());
+    .setUnits(128));
 
   model.add(new ActivationBuilder()
     .setActivation(new Relu()));
+
+  model.add(new BatchNormalizerBuilder());
+
+  model.add(new DropOutBuilder()
+    .setRate(0.4));
 
   model.add(new DenseBuilder()
     .setUnits(MnistLabelSize));

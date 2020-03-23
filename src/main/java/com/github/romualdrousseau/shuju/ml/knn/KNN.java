@@ -1,28 +1,28 @@
 package com.github.romualdrousseau.shuju.ml.knn;
 
-import com.github.romualdrousseau.shuju.math.Matrix;
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor2D;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 
 public class KNN {
     public KNN(int k) {
         this.k = k;
     }
 
-    public void fit(final Vector[] inputs, final Vector[] targets) {
+    public void fit(final Tensor1D[] inputs, final Tensor1D[] targets) {
         assert (inputs.length == targets.length);
         this.inputs = inputs;
         this.targets = targets;
     }
 
-    public Vector predict(final Vector input) {
+    public Tensor1D predict(final Tensor1D input) {
         if (this.inputs == null || this.targets == null || input == null) {
-            return new Vector(0);
+            return new Tensor1D(0);
         }
 
         final int targetSize = this.targets[0].rowCount();
 
-        Vector kmeans = new Vector(this.k, -1.0f);
-        Matrix results = new Matrix(this.k, targetSize);
+        Tensor1D kmeans = new Tensor1D(this.k, -1.0f);
+        Tensor2D results = new Tensor2D(this.k, targetSize);
 
         for(int i = 0; i < this.inputs.length; i++) {
             float kmean = this.inputs[i].distance(input);
@@ -38,6 +38,6 @@ public class KNN {
     }
 
     private int k;
-    private Vector[] inputs;
-    private Vector[] targets;
+    private Tensor1D[] inputs;
+    private Tensor1D[] targets;
 }

@@ -1,7 +1,7 @@
 package com.github.romualdrousseau.shuju.transforms;
 
 import com.github.romualdrousseau.shuju.ITransform;
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.DataRow;
 import com.github.romualdrousseau.shuju.DataSet;
 
@@ -18,8 +18,8 @@ public class VectorAdd implements ITransform {
         this.a = a;
     }
 
-    public void apply(Vector feature, int rowIndex, int colIndex) {
-        Vector otherFeature = (this.part == DataRow.LABELS) ? this.other.rows().get(rowIndex).label()
+    public void apply(Tensor1D feature, int rowIndex, int colIndex) {
+        Tensor1D otherFeature = (this.part == DataRow.LABELS) ? this.other.rows().get(rowIndex).label()
                 : this.other.rows().get(rowIndex).features().get(colIndex);
         feature.add(otherFeature.copy().mul(this.a));
     }

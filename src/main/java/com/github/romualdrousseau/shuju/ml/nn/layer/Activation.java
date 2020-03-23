@@ -2,7 +2,7 @@ package com.github.romualdrousseau.shuju.ml.nn.layer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Tensor2D;
 import com.github.romualdrousseau.shuju.ml.nn.ActivationFunc;
 import com.github.romualdrousseau.shuju.ml.nn.Helper;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
@@ -22,14 +22,14 @@ public class Activation extends Layer {
     public void reset(final boolean parametersOnly) {
     }
 
-    public Matrix callForward(final Matrix input) {
+    public Tensor2D callForward(final Tensor2D input) {
         return this.activation.apply(input);
     }
 
     public void startBackward(final Optimizer optimizer) {
     }
 
-    public Matrix callBackward(final Matrix d_L_d_out) {
+    public Tensor2D callBackward(final Tensor2D d_L_d_out) {
         return Helper.a_mul_b(d_L_d_out, this.activation.derivate(this.output));
     }
 

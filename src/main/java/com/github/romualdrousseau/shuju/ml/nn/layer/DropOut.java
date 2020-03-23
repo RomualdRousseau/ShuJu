@@ -2,7 +2,7 @@ package com.github.romualdrousseau.shuju.ml.nn.layer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Tensor2D;
 import com.github.romualdrousseau.shuju.math.Scalar;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
@@ -13,7 +13,7 @@ public class DropOut extends Layer {
         super(inputUnits, inputChannels, inputUnits, inputChannels, 1.0f);
 
         this.rate = Scalar.map(rate, 0.0f, 1.0f, -1.0f, 1.0f);
-        this.U = new Matrix(this.inputUnits, this.inputChannels).ones();
+        this.U = new Tensor2D(this.inputUnits, this.inputChannels).ones();
 
         this.reset(false);
     }
@@ -21,7 +21,7 @@ public class DropOut extends Layer {
     public void reset(final boolean parametersOnly) {
     }
 
-    public Matrix callForward(final Matrix input) {
+    public Tensor2D callForward(final Tensor2D input) {
         if (this.training) {
             this.U.randomize().if_lt_then(this.rate, 0.0f, 1.0f);
             return input.mul(this.U);
@@ -33,7 +33,7 @@ public class DropOut extends Layer {
     public void startBackward(final Optimizer optimizer) {
     }
 
-    public Matrix callBackward(final Matrix d_L_d_out) {
+    public Tensor2D callBackward(final Tensor2D d_L_d_out) {
         return d_L_d_out.mul(this.U);
     }
 
@@ -50,5 +50,5 @@ public class DropOut extends Layer {
 
     private float rate;
     // cache
-    private Matrix U;
+    private Tensor2D U;
 }

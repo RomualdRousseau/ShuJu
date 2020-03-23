@@ -8,8 +8,8 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Scalar;
-import com.github.romualdrousseau.shuju.math.Vector;
-import com.github.romualdrousseau.shuju.math.VectorFunction;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
+import com.github.romualdrousseau.shuju.math.TensorFunction;
 
 public class DataSet {
     public DataSet() {
@@ -31,10 +31,10 @@ public class DataSet {
 
             JSONArray jsonInput = jsonInputs.getJSONArray(i);
             for (int j = 0; j < jsonInput.size(); j++) {
-                row.addFeature(new Vector(jsonInput.getJSONObject(j)));
+                row.addFeature(new Tensor1D(jsonInput.getJSONObject(j)));
             }
 
-            row.setLabel(new Vector(jsonTargets.getJSONObject(i)));
+            row.setLabel(new Tensor1D(jsonTargets.getJSONObject(i)));
 
             rows.add(row);
         }
@@ -129,16 +129,16 @@ public class DataSet {
         return result;
     }
 
-    public Vector[] featuresAsVectorArray() {
-        Vector[] result = new Vector[this.rows.size()];
+    public Tensor1D[] featuresAsVectorArray() {
+        Tensor1D[] result = new Tensor1D[this.rows.size()];
         for (int i = 0; i < this.rows.size(); i++) {
             result[i] = this.rows.get(i).featuresAsOneVector();
         }
         return result;
     }
 
-    public Vector[] labelsAsVectorArray() {
-        Vector[] result = new Vector[this.rows.size()];
+    public Tensor1D[] labelsAsVectorArray() {
+        Tensor1D[] result = new Tensor1D[this.rows.size()];
         for (int i = 0; i < this.rows.size(); i++) {
             result[i] = this.rows.get(i).label();
         }
@@ -149,14 +149,14 @@ public class DataSet {
         DataSet result = new DataSet();
         final int p = rows / labels;
         for (int i = 0; i < labels; i++) {
-            final Vector c = new Vector(features).randomize(10);
+            final Tensor1D c = new Tensor1D(features).randomize(10);
             for (int k = 0; k < p; k++) {
-                Vector x = c.copy().map(new VectorFunction() {
-                    public float apply(float v, int[] ij, Vector vector) {
+                Tensor1D x = c.copy().map(new TensorFunction<Tensor1D>() {
+                    public float apply(float v, int[] ij, Tensor1D vector) {
                         return v + Scalar.randomGaussian();
                     }
                 });
-                Vector y = new Vector(labels).oneHot(i);
+                Tensor1D y = new Tensor1D(labels).oneHot(i);
                 result.addRow(new DataRow().addFeature(x).setLabel(y));
             }
         }
@@ -167,16 +167,16 @@ public class DataSet {
     public static DataSet makeCircles(int rows, int features, int labels) {
         DataSet result = new DataSet();
         final int p = rows / labels;
-        final Vector c = new Vector(features).zero();
+        final Tensor1D c = new Tensor1D(features).zero();
         for (int i = 0; i < labels; i++) {
             final float l = 15.0f * i / (float) labels;
             for (int k = 0; k < p; k++) {
-                Vector x = c.copy().randomize().l2Norm().mul(l).map(new VectorFunction() {
-                    public float apply(float v, int[] ij, Vector vector) {
+                Tensor1D x = c.copy().randomize().l2Norm().mul(l).map(new TensorFunction<Tensor1D>() {
+                    public float apply(float v, int[] ij, Tensor1D vector) {
                         return v + Scalar.randomGaussian();
                     }
                 });
-                Vector y = new Vector(labels).oneHot(i);
+                Tensor1D y = new Tensor1D(labels).oneHot(i);
                 result.addRow(new DataRow().addFeature(x).setLabel(y));
             }
         }

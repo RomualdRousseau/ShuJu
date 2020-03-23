@@ -51,8 +51,8 @@ public class QMatrixNnImpl extends QMatrix {
         this.optimizer.zeroGradients();
 
         for (MemoryCell memory : this.memoryMap.replay(0, this.numStates)) {
-            Vector state = new Vector(MemoryCell.IntToFloatArray(memory.state, numInputs));
-            Vector action = new Vector(MemoryCell.IntToFloatArray(memory.action, numOutputs + 1));
+            Tensor1D state = new Tensor1D(MemoryCell.IntToFloatArray(memory.state, numInputs));
+            Tensor1D action = new Tensor1D(MemoryCell.IntToFloatArray(memory.action, numOutputs + 1));
             action.set(numOutputs, (float) memory.reward);
             this.optimizer.minimize(this.loss.loss(this.model.model(state), action));
         }
@@ -61,14 +61,14 @@ public class QMatrixNnImpl extends QMatrix {
     }
 
     public int predictAction(int s) {
-        Vector a = new Vector(MemoryCell.IntToFloatArray(s, numInputs));
-        Vector b = this.model.model(a).detachAsVector();
+        Tensor1D a = new Tensor1D(MemoryCell.IntToFloatArray(s, numInputs));
+        Tensor1D b = this.model.model(a).detachAsVector();
         return MemoryCell.FloatArrayToInt(b.getFloats(), numOutputs);
     }
 
     public double predictReward(int s) {
-        Vector a = new Vector(MemoryCell.IntToFloatArray(s, numInputs));
-        Vector b = this.model.model(a).detachAsVector();
+        Tensor1D a = new Tensor1D(MemoryCell.IntToFloatArray(s, numInputs));
+        Tensor1D b = this.model.model(a).detachAsVector();
         return b.get(numOutputs);
     }
 

@@ -1,7 +1,7 @@
 package com.github.romualdrousseau.shuju.columns;
 
 import com.github.romualdrousseau.shuju.IColumn;
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.nlp.StringList;
 
 public class StringColumn implements IColumn<String> {
@@ -11,7 +11,7 @@ public class StringColumn implements IColumn<String> {
         this.stringTypes = stringTypes;
     }
 
-    public Vector valueOf(String w) {
+    public Tensor1D valueOf(String w) {
         return this.stringTypes.word2vec(w);
     }
 }

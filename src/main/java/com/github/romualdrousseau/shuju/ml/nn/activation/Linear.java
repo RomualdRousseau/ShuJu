@@ -1,14 +1,14 @@
 package com.github.romualdrousseau.shuju.ml.nn.activation;
 
-import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Tensor2D;
 import com.github.romualdrousseau.shuju.ml.nn.ActivationFunc;
 
 public class Linear implements ActivationFunc {
-    public Matrix apply(Matrix input) {
+    public Tensor2D apply(Tensor2D input) {
         return input;
     }
 
-    public Matrix derivate(Matrix output) {
+    public Tensor2D derivate(Tensor2D output) {
         return output.copy().ones();
     }
 }

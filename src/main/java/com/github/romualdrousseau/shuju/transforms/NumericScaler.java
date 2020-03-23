@@ -1,7 +1,7 @@
 package com.github.romualdrousseau.shuju.transforms;
 
 import com.github.romualdrousseau.shuju.ITransform;
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.DataSummary;
 
 public class NumericScaler implements ITransform {
@@ -10,10 +10,10 @@ public class NumericScaler implements ITransform {
         this.ratio = summary.min.copy().ones().div(summary.max.copy().sub(summary.min));
     }
 
-    public void apply(Vector feature, int rowIndex, int colIndex) {
+    public void apply(Tensor1D feature, int rowIndex, int colIndex) {
         feature.sub(this.min).mul(this.ratio);
     }
 
-    private Vector min;
-    private Vector ratio;
+    private Tensor1D min;
+    private Tensor1D ratio;
 }

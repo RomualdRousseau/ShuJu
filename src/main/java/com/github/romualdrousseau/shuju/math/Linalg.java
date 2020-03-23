@@ -2,10 +2,10 @@ package com.github.romualdrousseau.shuju.math;
 
 public class Linalg {
 
-    public static Matrix BlockDiagonal(Matrix m, int repeat, boolean transpose) {
+    public static Tensor2D BlockDiagonal(Tensor2D m, int repeat, boolean transpose) {
         final int split_r = m.rows / repeat;
         if(transpose) {
-            final Matrix result = new Matrix(m.cols * repeat, m.rows);
+            final Tensor2D result = new Tensor2D(m.cols * repeat, m.rows);
             for (int i = 0; i < m.rows; i++) {
                 final int off_r = (i / split_r) * m.cols;
                 for (int j = 0; j < m.cols; j++) {
@@ -14,7 +14,7 @@ public class Linalg {
             }
             return result;
         } else {
-            final Matrix result = new Matrix(m.rows, m.cols * repeat);
+            final Tensor2D result = new Tensor2D(m.rows, m.cols * repeat);
             for (int i = 0; i < m.rows; i++) {
                 final int off_r = (i / split_r) * m.cols;
                 for (int j = 0; j < m.cols; j++) {
@@ -25,10 +25,10 @@ public class Linalg {
         }
     }
 
-    public static Matrix BlockColumn(Matrix m, int repeat, int axis) {
+    public static Tensor2D BlockColumn(Tensor2D m, int repeat, int axis) {
         if (axis == 0) {
             final int split_c = m.cols / repeat;
-            final Matrix result = new Matrix(m.rows / repeat, m.cols);
+            final Tensor2D result = new Tensor2D(m.rows / repeat, m.cols);
             for (int i = 0; i < result.rows; i++) {
                 for (int j = 0; j < result.cols; j++) {
                     result.data[i][j] = m.data[(j / split_c) * result.rows + i][j];
@@ -37,7 +37,7 @@ public class Linalg {
             return result;
         } else {
             final int split_r = m.rows / repeat;
-            final Matrix result = new Matrix(m.rows, m.cols / repeat);
+            final Tensor2D result = new Tensor2D(m.rows, m.cols / repeat);
             for (int i = 0; i < result.rows; i++) {
                 final int off_m = (i / split_r) * result.cols;
                 for (int j = 0; j < result.cols; j++) {
@@ -48,9 +48,9 @@ public class Linalg {
         }
     }
 
-    public static Matrix Pivot(final Matrix m) {
+    public static Tensor2D Pivot(final Tensor2D m) {
         assert (m.isSquared());
-        final Matrix result = new Matrix(m.rows, m.rows).identity();
+        final Tensor2D result = new Tensor2D(m.rows, m.rows).identity();
         for (int j = 0; j < m.rows; j++) {
             int row = j;
             float max = m.data[j][j];
@@ -65,9 +65,9 @@ public class Linalg {
         return result;
     }
 
-    public static Matrix Sort(final Matrix m) {
+    public static Tensor2D Sort(final Tensor2D m) {
         assert (m.isSquared());
-        final Matrix result = new Matrix(m.rows, m.rows).identity();
+        final Tensor2D result = new Tensor2D(m.rows, m.rows).identity();
         for (int j = 0; j < m.rows; j++) {
             int row = j;
             float max = m.data[j][j];
@@ -82,8 +82,8 @@ public class Linalg {
         return result;
     }
 
-    public static Matrix GaussianElimination(final Matrix m, final boolean lower) {
-        final Matrix q = m.copy();
+    public static Tensor2D GaussianElimination(final Tensor2D m, final boolean lower) {
+        final Tensor2D q = m.copy();
 
         if (lower) {
             for (int k = q.data.length - 1; k >= 0; k--) {
@@ -116,8 +116,8 @@ public class Linalg {
         return q;
     }
 
-    public static Matrix SolveTriangular(final Matrix m, final boolean lower) {
-        final Matrix q = m.copy();
+    public static Tensor2D SolveTriangular(final Tensor2D m, final boolean lower) {
+        final Tensor2D q = m.copy();
 
         if (lower) {
             for (int k = 1; k < q.data.length; k++) {
@@ -142,56 +142,56 @@ public class Linalg {
         return q;
     }
 
-    public static Matrix Solve(final Matrix m, final Matrix y) {
+    public static Tensor2D Solve(final Tensor2D m, final Tensor2D y) {
         assert (m.isSquared());
-        Matrix q = m.concatenate(y, 1);
+        Tensor2D q = m.concatenate(y, 1);
         q = Linalg.GaussianElimination(q, false);
         q = Linalg.SolveTriangular(q, false);
         return q.slice(0, m.cols, y.rows, y.cols);
     }
 
-    public static Vector Reflector(final Matrix m) {
-        final Vector x = m.toVector(0, false);
-        final float x_0 = x.data[0];
-        final float u_0 = x_0 - x.norm() * Scalar.sign(x_0);
-        final Vector u = x.copy().set(0, u_0);
-        final Vector v = u.l2Norm();
+    public static Tensor2D Reflector(final Tensor2D m) {
+        final Tensor2D x = m.slice(0, 0, -1, 1);
+        final float x_0 = x.data[0][0];
+        final float u_0 = x_0 - x.norm(0, 0) * Scalar.sign(x_0);
+        final Tensor2D u = x.transpose().set(0, 0, u_0);
+        final Tensor2D v = u.l2Norm(1);
         return v;
     }
 
-    public static Matrix HouseHolder(final Matrix m, final int rows) {
-        final Vector v = Linalg.Reflector(m);
-        final Matrix result = new Matrix(rows, rows).identity();
-        for (int i = 0; i < v.rows; i++) {
-            for (int j = 0; j < v.rows; j++) {
-                final float a = -2 * v.data[v.rows - 1 - i] * v.data[v.rows - 1 - j];
+    public static Tensor2D HouseHolder(final Tensor2D m, final int rows) {
+        final Tensor2D v = Linalg.Reflector(m);
+        final Tensor2D result = new Tensor2D(rows, rows).identity();
+        for (int i = 0; i < v.shape[1]; i++) {
+            for (int j = 0; j < v.shape[1]; j++) {
+                final float a = -2 * v.data[0][v.cols - 1 - i] * v.data[0][v.cols - 1 - j];
                 result.data[rows - 1 - i][rows - 1 - j] += a;
             }
         }
         return result;
     }
 
-    public static Matrix[] Hessenberg(final Matrix m) {
-        final Matrix[] q = new Matrix[m.rows - 2];
+    public static Tensor2D[] Hessenberg(final Tensor2D m) {
+        final Tensor2D[] q = new Tensor2D[m.rows - 2];
 
-        Matrix H = m;
+        Tensor2D H = m;
         for (int k = 0; k <= m.rows - 3; k++) {
             q[k] = Linalg.HouseHolder(H.slice(k + 1, k), H.rows);
-            H = q[k].matmul(H).matmul(q[k].transpose());
+            H = (Tensor2D) q[k].matmul(H).matmul(q[k].transpose());
         }
 
-        Matrix V = new Matrix(m.rows, m.cols).identity();
+        Tensor2D V = new Tensor2D(m.rows, m.cols).identity();
         for (int k = m.rows - 3; k >= 0; k--) {
-            V = q[k].matmul(V);
+            V = (Tensor2D) q[k].matmul(V);
         }
 
-        return new Matrix[] { H, V };
+        return new Tensor2D[] { H, V };
     }
 
-    public static Matrix[] LU(final Matrix m) {
+    public static Tensor2D[] LU(final Tensor2D m) {
         final int n = m.rows;
-        final Matrix L = new Matrix(n, n).identity();
-        final Matrix U = new Matrix(n, n);
+        final Tensor2D L = new Tensor2D(n, n).identity();
+        final Tensor2D U = new Tensor2D(n, n);
 
         for (int j = 0; j < n; j++) {
             for (int i = 0; i <= j; i++) {
@@ -211,27 +211,27 @@ public class Linalg {
             }
         }
 
-        return new Matrix[] { L, U };
+        return new Tensor2D[] { L, U };
     }
 
-    public static Matrix[] QR(final Matrix m) {
-        Matrix tmp = Linalg.HouseHolder(m, m.rows);
-        Matrix R = tmp.matmul(m);
-        Matrix Q = tmp.transpose();
+    public static Tensor2D[] QR(final Tensor2D m) {
+        Tensor2D tmp = Linalg.HouseHolder(m, m.rows);
+        Tensor2D R = (Tensor2D) tmp.matmul(m);
+        Tensor2D Q = tmp.transpose();
 
         for (int k = 1; k < m.rows - 1; k++) {
             tmp = Linalg.HouseHolder(R.minor(k - 1, k - 1), R.rows);
-            R = tmp.matmul(R);
+            R = (Tensor2D) tmp.matmul(R);
             Q = Q.matmul(tmp, false, true);
         }
 
-        return new Matrix[] { Q, R };
+        return new Tensor2D[] { Q, R };
     }
 
-    public static Matrix Cholesky(final Matrix m) {
+    public static Tensor2D Cholesky(final Tensor2D m) {
         assert (m.isSymetric(Scalar.EPSILON));
 
-        final Matrix result = new Matrix(m.rows, m.cols, 0.0f);
+        final Tensor2D result = new Tensor2D(m.rows, m.cols).zero();
 
         final float[][] r_data = result.data;
         for (int i = 0; i < r_data.length; i++) {
@@ -256,10 +256,10 @@ public class Linalg {
         return result;
     }
 
-    public static Matrix[] Eig(final Matrix m, final float e) {
-        final Matrix[] h = Linalg.Hessenberg(m);
-        Matrix H = h[0];
-        Matrix Q = h[1];
+    public static Tensor2D[] Eig(final Tensor2D m, final float e) {
+        final Tensor2D[] h = Linalg.Hessenberg(m);
+        Tensor2D H = h[0];
+        Tensor2D Q = h[1];
         int its = 0;
         for (int p = H.rows - 1; p >= 1; p--) {
             do {
@@ -282,19 +282,19 @@ public class Linalg {
                 }
             } while (Scalar.abs(H.data[p][p - 1]) >= e);
         }
-        Q = Q.matmul(Linalg.EigensValuesAndVectorsFromShur(H, e));
-        return new Matrix[] { H, Q };
+        Q = (Tensor2D) Q.matmul(Linalg.EigensValuesAndVectorsFromShur(H, e));
+        return new Tensor2D[] { H, Q };
     }
 
-    public static Matrix[] Svd(final Matrix m, final float e) {
-        return Linalg.Eig(m.matmul(m.transpose()), e);
+    public static Tensor2D[] Svd(final Tensor2D m, final float e) {
+        return Linalg.Eig((Tensor2D) m.matmul(m.transpose()), e);
     }
 
-    public static Matrix PCA(final Matrix m, final int n, final float e) {
-        final Matrix cov = m.cov(0);
-        final Matrix[] eig = Linalg.Eig(cov, e);
-        final Matrix sort = Linalg.Sort(eig[0]);
-        return eig[1].matmul(sort).slice(0, 0, eig[1].rowCount(), n);
+    public static Tensor2D PCA(final Tensor2D m, final int n, final float e) {
+        final Tensor2D cov = m.cov(0);
+        final Tensor2D[] eig = Linalg.Eig(cov, e);
+        final Tensor2D sort = Linalg.Sort(eig[0]);
+        return ((Tensor2D) eig[1].matmul(sort)).slice(0, 0, eig[1].rowCount(), n);
     }
 
     private static float WilkinsonShift(final float a, final float b, final float c, final float d) {
@@ -307,7 +307,7 @@ public class Linalg {
         }
     }
 
-    private static void QRStep(final int n0, final int n1, final int n, final Matrix A, final Matrix Q,
+    private static void QRStep(final int n0, final int n1, final int n, final Tensor2D A, final Tensor2D Q,
             final float shift) {
         float c = A.data[n0][n0] - shift;
         float s = A.data[n1][n0];
@@ -342,8 +342,8 @@ public class Linalg {
         }
     }
 
-    private static Matrix EigensValuesAndVectorsFromShur(final Matrix H, final float e) {
-        final Matrix Y = new Matrix(H.rows, H.cols);
+    private static Tensor2D EigensValuesAndVectorsFromShur(final Tensor2D H, final float e) {
+        final Tensor2D Y = new Tensor2D(H.rows, H.cols);
         final int n = Y.rows - 1;
         final float smallnum = (n / e) * Float.MIN_VALUE;
         final float bignum = (e / n) * Float.MAX_VALUE;

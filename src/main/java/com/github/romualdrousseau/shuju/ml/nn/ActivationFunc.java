@@ -1,9 +1,9 @@
 package com.github.romualdrousseau.shuju.ml.nn;
 
-import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Tensor2D;
 
 public interface ActivationFunc {
-    Matrix apply(Matrix x);
+    Tensor2D apply(Tensor2D x);
 
-    Matrix derivate(Matrix y);
+    Tensor2D derivate(Tensor2D y);
 }

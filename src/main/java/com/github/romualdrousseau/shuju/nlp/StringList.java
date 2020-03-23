@@ -7,7 +7,7 @@ import java.util.List;
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.util.StringUtility;
 
 public class StringList implements BaseList {
@@ -68,8 +68,8 @@ public class StringList implements BaseList {
         return this.vectorSize;
     }
 
-    public Vector word2vec(String w) {
-        Vector result = new Vector(this.vectorSize);
+    public Tensor1D word2vec(String w) {
+        Tensor1D result = new Tensor1D(this.vectorSize);
 
         if (StringUtility.isEmpty(w)) {
             return result;

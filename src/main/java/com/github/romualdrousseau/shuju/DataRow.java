@@ -3,7 +3,7 @@ package com.github.romualdrousseau.shuju;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 
 public class DataRow {
     public final static int FEATURES = 0;
@@ -11,15 +11,15 @@ public class DataRow {
     public final static int X = 0;
     public final static int y = 1;
 
-    public List<Vector> features() {
+    public List<Tensor1D> features() {
         return this.features;
     }
 
-    public Vector featuresAsOneVector() {
+    public Tensor1D featuresAsOneVector() {
         if (this.features.size() == 1) {
             return this.features.get(0);
         } else {
-            Vector result = new Vector(0);
+            Tensor1D result = new Tensor1D(0);
             for (int i = 0; i < this.features.size(); i++) {
                 result = result.concat(this.features.get(i));
             }
@@ -27,16 +27,16 @@ public class DataRow {
         }
     }
 
-    public DataRow addFeature(Vector feature) {
+    public DataRow addFeature(Tensor1D feature) {
         this.features.add(feature);
         return this;
     }
 
-    public Vector label() {
+    public Tensor1D label() {
         return this.label;
     }
 
-    public DataRow setLabel(Vector label) {
+    public DataRow setLabel(Tensor1D label) {
         this.label = label;
         return this;
     }
@@ -64,7 +64,7 @@ public class DataRow {
     public String toString() {
         String featuresString = "";
         boolean firstPass = true;
-        for (Vector feature : this.features) {
+        for (Tensor1D feature : this.features) {
             if (firstPass) {
                 featuresString = feature.toString();
                 firstPass = false;
@@ -78,6 +78,6 @@ public class DataRow {
         return String.format("[%s :- %s]", featuresString, labelsString);
     }
 
-    private ArrayList<Vector> features = new ArrayList<Vector>();
-    private Vector label = null;
+    private ArrayList<Tensor1D> features = new ArrayList<Tensor1D>();
+    private Tensor1D label = null;
 }

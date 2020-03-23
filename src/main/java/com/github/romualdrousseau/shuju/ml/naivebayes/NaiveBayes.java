@@ -5,12 +5,12 @@ import com.github.romualdrousseau.shuju.DataSet;
 import com.github.romualdrousseau.shuju.DataStatistics;
 import com.github.romualdrousseau.shuju.DataSummary;
 import com.github.romualdrousseau.shuju.math.DistributionFunction;
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.math.distribution.GaussianDistribution;
 
 public class NaiveBayes {
 
-    public void fit(final Vector[] inputs, final Vector[] targets) {
+    public void fit(final Tensor1D[] inputs, final Tensor1D[] targets) {
         final int f = inputs[0].rowCount();
         final int c = targets[0].rowCount();
 
@@ -18,7 +18,7 @@ public class NaiveBayes {
         this.matrix = new DistributionFunction[c][f];
 
         for (int i = 0; i < c; i++) {
-            final Vector y = new Vector(c).set(i, 1); // Quick oneHot
+            final Tensor1D y = new Tensor1D(c).set(i, 1); // Quick oneHot
 
             // Select all data for a given class i
             final DataSet Xy = new DataSet();
@@ -33,8 +33,8 @@ public class NaiveBayes {
 
             // Get some statistics about the data
             DataSummary summary = new DataSummary(Xy, DataRow.FEATURES, 0);
-            Vector mean = DataStatistics.avg(summary);
-            Vector sigma = DataStatistics.var(summary).sqrt();
+            Tensor1D mean = DataStatistics.avg(summary);
+            Tensor1D sigma = DataStatistics.var(summary).sqrt();
 
             // Prepare distribution matrix for each feature and class i
             for (int j = 0; j < matrix[i].length; j++) {
@@ -43,8 +43,8 @@ public class NaiveBayes {
         }
     }
 
-    public Vector predict(final Vector input) {
-        Vector yhat = new Vector(priory.length);
+    public Tensor1D predict(final Tensor1D input) {
+        Tensor1D yhat = new Tensor1D(priory.length);
         float maxPy = 0;
         boolean firstPass = true;
 

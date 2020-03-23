@@ -1,7 +1,7 @@
 package com.github.romualdrousseau.shuju.ml.nn;
 
-import com.github.romualdrousseau.shuju.math.Vector;
-import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
+import com.github.romualdrousseau.shuju.math.Tensor2D;
 
 public class Loss {
 
@@ -9,29 +9,29 @@ public class Loss {
         this.lossFunc = lossFunc;
     }
 
-    public Loss loss(Layer output, Vector target) {
-        return this.loss(output, new Matrix(target, false));
+    public Loss loss(Layer output, Tensor1D target) {
+        return this.loss(output, new Tensor2D(target, false));
     }
 
-    public Loss loss(Layer output, Matrix target) {
+    public Loss loss(Layer output, Tensor2D target) {
         this.value = this.lossFunc.apply(output.output, target);
         this.rate = this.lossFunc.derivate(output.output, target);
         return this;
     }
 
-    public Matrix getRate() {
+    public Tensor2D getRate() {
         return this.rate;
     }
 
-    public Matrix getValue() {
+    public Tensor2D getValue() {
         return this.value;
     }
 
-    public Vector getValueAsVector() {
+    public Tensor1D getValueAsVector() {
         return this.value.toVector(0, false);
     }
 
     private LossFunc lossFunc;
-    private Matrix value;
-    private Matrix rate;
+    private Tensor2D value;
+    private Tensor2D rate;
 }

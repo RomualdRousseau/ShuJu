@@ -1,7 +1,7 @@
 package com.github.romualdrousseau.shuju.columns;
 
 import com.github.romualdrousseau.shuju.IColumn;
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.nlp.RegexList;
 
 public class RegexColumn implements IColumn<String> {
@@ -11,7 +11,7 @@ public class RegexColumn implements IColumn<String> {
         this.entityTypes = entityTypes;
     }
 
-    public Vector valueOf(String w) {
+    public Tensor1D valueOf(String w) {
         return this.entityTypes.word2vec(w);
     }
 }

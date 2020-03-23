@@ -3,7 +3,7 @@ package com.github.romualdrousseau.shuju.nlp;
 import java.util.List;
 
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 
 public interface BaseList {
     List<String> values();
@@ -18,7 +18,7 @@ public interface BaseList {
 
     int getVectorSize();
 
-    Vector word2vec(String w);
+    Tensor1D word2vec(String w);
 
     JSONObject toJSON();
 }

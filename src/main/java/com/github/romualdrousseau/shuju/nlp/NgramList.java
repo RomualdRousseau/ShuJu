@@ -7,7 +7,7 @@ import java.util.List;
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.nlp.impl.NgramTokenizer;
 import com.github.romualdrousseau.shuju.nlp.impl.ShingleTokenizer;
 import com.github.romualdrousseau.shuju.util.StringUtility;
@@ -114,8 +114,8 @@ public class NgramList implements BaseList {
         return this.vectorSize;
     }
 
-    public Vector word2vec(String w) {
-        Vector result = new Vector(this.vectorSize);
+    public Tensor1D word2vec(String w) {
+        Tensor1D result = new Tensor1D(this.vectorSize);
         if (StringUtility.isEmpty(w)) {
             return result;
         } else {

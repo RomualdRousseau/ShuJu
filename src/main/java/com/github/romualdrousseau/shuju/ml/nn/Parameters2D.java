@@ -2,17 +2,17 @@ package com.github.romualdrousseau.shuju.ml.nn;
 
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
-import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Tensor2D;
 
-public class Parameters {
-    public Matrix W, G, M, V;
+public class Parameters2D {
+    public Tensor2D W, G, M, V;
 
-    public Parameters(int units) {
+    public Parameters2D(int units) {
       this(1, units);
     }
 
-    public Parameters(int inputUnits, int units) {
-      this.W = new Matrix(units, inputUnits, 0.0f);
+    public Parameters2D(int inputUnits, int units) {
+      this.W = new Tensor2D(units, inputUnits).zero();
       this.G = W.copy().zero();
       this.M = W.copy().zero();
       this.V = W.copy().zero();
@@ -26,7 +26,7 @@ public class Parameters {
     }
 
     public void fromJSON(JSONObject json) {
-      this.W = new Matrix(json);
+      this.W = new Tensor2D(json);
       this.G = W.copy().zero();
       this.M = W.copy().zero();
       this.V = W.copy().zero();

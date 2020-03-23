@@ -6,35 +6,25 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
-public class Matrix extends Tensor<float[][]> {
+public class Tensor2D extends AbstractTensor<float[][]> {
     protected int rows;
     protected int cols;
 
-    public Matrix(final int rows, final int cols) {
+    public Tensor2D(final int rows, final int cols) {
         super(new int[] { rows, cols }, new float[rows][cols]);
         this.rows = rows;
         this.cols = cols;
     }
 
-    public Matrix(final int rows, final int cols, final boolean rowvar) {
+    public Tensor2D(final int rows, final int cols, final boolean rowvar) {
         this(rowvar ? rows : cols, rowvar ? cols : rows);
     }
 
-    public Matrix(final int rows, final int cols, final float v) {
-        this(rows, cols);
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] = v;
-            }
-        }
-    }
-
-    public Matrix(final float[] v) {
+    public Tensor2D(final float[] v) {
         this(v, true);
     }
 
-    public Matrix(final float[] v, final boolean rowvar) {
+    public Tensor2D(final float[] v, final boolean rowvar) {
         this(1, v.length, rowvar);
         if (rowvar) {
             System.arraycopy(v, 0, this.data[0], 0, this.cols);
@@ -45,11 +35,11 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix(final float[][] v) {
+    public Tensor2D(final float[][] v) {
         this(v, true);
     }
 
-    public Matrix(final float[][] v, final boolean rowvar) {
+    public Tensor2D(final float[][] v, final boolean rowvar) {
         this(v.length, v[0].length, rowvar);
         if (rowvar) {
             for (int i = 0; i < this.rows; i++) {
@@ -64,11 +54,11 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix(final Float[] v) {
+    public Tensor2D(final Float[] v) {
         this(v, true);
     }
 
-    public Matrix(final Float[] v, final boolean rowvar) {
+    public Tensor2D(final Float[] v, final boolean rowvar) {
         this(1, v.length, rowvar);
         if (rowvar) {
             for (int j = 0; j < this.cols; j++) {
@@ -81,11 +71,11 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix(final Float[][] v) {
+    public Tensor2D(final Float[][] v) {
         this(v, true);
     }
 
-    public Matrix(final Float[][] v, final boolean rowvar) {
+    public Tensor2D(final Float[][] v, final boolean rowvar) {
         this(v.length, v[0].length, rowvar);
         if (rowvar) {
             for (int i = 0; i < this.rows; i++) {
@@ -102,11 +92,11 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix(final Vector v) {
+    public Tensor2D(final Tensor1D v) {
         this(v, true);
     }
 
-    public Matrix(final Vector v, final boolean rowvar) {
+    public Tensor2D(final Tensor1D v, final boolean rowvar) {
         this(1, v.rows, rowvar);
         if (rowvar) {
             for (int j = 0; j < this.cols; j++) {
@@ -119,11 +109,11 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix(final Vector[] v) {
+    public Tensor2D(final Tensor1D[] v) {
         this(v, true);
     }
 
-    public Matrix(final Vector[] v, final boolean rowvar) {
+    public Tensor2D(final Tensor1D[] v, final boolean rowvar) {
         this(v.length, v[0].rows, rowvar);
         if (rowvar) {
             for (int i = 0; i < this.rows; i++) {
@@ -138,11 +128,11 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix(final Vector v, final int stride) {
+    public Tensor2D(final Tensor1D v, final int stride) {
         this(v, stride, true);
     }
 
-    public Matrix(final Vector v, final int stride, final boolean rowvar) {
+    public Tensor2D(final Tensor1D v, final int stride, final boolean rowvar) {
         this(v.rows / stride, stride, rowvar);
         assert (stride > 0);
         int vi = 0;
@@ -161,7 +151,7 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix(final JSONObject json) {
+    public Tensor2D(final JSONObject json) {
         this(json.getInt("rows"), json.getInt("cols"));
         final JSONArray jsonData = json.getJSONArray("data");
         for (int i = 0; i < this.rows; i++) {
@@ -192,22 +182,22 @@ public class Matrix extends Tensor<float[][]> {
         return this.data[row][col];
     }
 
-    public Matrix set(final int row, final int col, final float v) {
+    public Tensor2D set(final int row, final int col, final float v) {
         this.data[row][col] = v;
         return this;
     }
 
-    public Vector get(final int row) {
-        return new Vector(this.data[row]);
+    public Tensor1D get(final int row) {
+        return new Tensor1D(this.data[row]);
     }
 
-    public Matrix set(final int row, final Vector v) {
+    public Tensor2D set(final int row, final Tensor1D v) {
         assert (this.cols == v.rows);
         System.arraycopy(v.data, 0, this.data[row], 0, this.cols);
         return this;
     }
 
-    public boolean equals(final Matrix m) {
+    public boolean equals(final Tensor2D m) {
         boolean result = this.rows == m.rows && this.cols == m.cols;
         for (int i = 0; i < this.rows && result; i++) {
             final float[] a = this.data[i];
@@ -217,7 +207,7 @@ public class Matrix extends Tensor<float[][]> {
         return result;
     }
 
-    public boolean equals(final Matrix m, final float e) {
+    public boolean equals(final Tensor2D m, final float e) {
         boolean result = this.rows == m.rows && this.cols == m.cols;
         for (int i = 0; i < this.rows && result; i++) {
             final float[] a = this.data[i];
@@ -234,7 +224,7 @@ public class Matrix extends Tensor<float[][]> {
     }
 
     public boolean isUpper(final int offset, final float e) {
-        int n = Math.min(this.rows, this.cols);
+        final int n = Math.min(this.rows, this.cols);
         assert (offset >= 0 && offset < n);
         for (int i = 0; i < n - offset; i++) {
             for (int j = 0; j < n - offset; j++) {
@@ -247,7 +237,7 @@ public class Matrix extends Tensor<float[][]> {
     }
 
     public boolean isLower(final int offset, final float e) {
-        int n = Math.min(this.rows, this.cols);
+        final int n = Math.min(this.rows, this.cols);
         assert (offset >= 0 && offset < n);
         for (int i = 0; i < n - offset; i++) {
             for (int j = 0; j < n - offset; j++) {
@@ -260,7 +250,7 @@ public class Matrix extends Tensor<float[][]> {
     }
 
     public boolean isDiagonal(final int offset, final float e) {
-        int n = Math.min(this.rows, this.cols);
+        final int n = Math.min(this.rows, this.cols);
         if (offset >= 0) {
             assert (offset < n);
             for (int i = 0; i < n - offset; i++) {
@@ -327,6 +317,38 @@ public class Matrix extends Tensor<float[][]> {
         return (float) count / (float) (this.rows * this.cols);
     }
 
+    public float norm(final int idx, final int axis) {
+        if (axis == 0) {
+            float sum = 0.0f;
+            for (int i = 0; i < this.rows; i++) {
+                sum += this.data[i][idx] * this.data[i][idx];
+            }
+            return Scalar.sqrt(sum);
+        } else {
+            float sum = 0.0f;
+            for (int i = 0; i < this.cols; i++) {
+                sum += this.data[idx][i] * this.data[idx][i];
+            }
+            return Scalar.sqrt(sum);
+        }
+    }
+
+    public Tensor2D norm(final int axis) {
+        if (axis == 0) {
+            final Tensor2D result = new Tensor2D(1, this.cols);
+            for (int i = 0; i < this.cols; i++) {
+                result.data[0][i] = this.norm(i, 0);
+            }
+            return result;
+        } else {
+            final Tensor2D result = new Tensor2D(this.rows, 1);
+            for (int i = 0; i < this.rows; i++) {
+                result.data[i][0] = this.norm(i, 1);
+            }
+            return result;
+        }
+    }
+
     public int argmin(final int idx, final int axis) {
         if (axis == 0) {
             int result = 0;
@@ -351,15 +373,15 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix argmin(final int axis) {
+    public Tensor2D argmin(final int axis) {
         if (axis == 0) {
-            final Matrix result = new Matrix(1, this.cols);
+            final Tensor2D result = new Tensor2D(1, this.cols);
             for (int i = 0; i < this.cols; i++) {
                 result.data[0][i] = this.argmin(i, 0);
             }
             return result;
         } else {
-            final Matrix result = new Matrix(this.rows, 1);
+            final Tensor2D result = new Tensor2D(this.rows, 1);
             for (int i = 0; i < this.rows; i++) {
                 result.data[i][0] = this.argmin(i, 1);
             }
@@ -391,15 +413,15 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix argmax(final int axis) {
+    public Tensor2D argmax(final int axis) {
         if (axis == 0) {
-            final Matrix result = new Matrix(1, this.cols);
+            final Tensor2D result = new Tensor2D(1, this.cols);
             for (int i = 0; i < this.cols; i++) {
                 result.data[0][i] = this.argmax(i, 0);
             }
             return result;
         } else {
-            final Matrix result = new Matrix(this.rows, 1);
+            final Tensor2D result = new Tensor2D(this.rows, 1);
             for (int i = 0; i < this.rows; i++) {
                 result.data[i][0] = this.argmax(i, 1);
             }
@@ -423,15 +445,15 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix avg(final int axis) {
+    public Tensor2D avg(final int axis) {
         if (axis == 0) {
-            final Matrix result = new Matrix(1, this.cols);
+            final Tensor2D result = new Tensor2D(1, this.cols);
             for (int i = 0; i < this.cols; i++) {
                 result.data[0][i] = this.avg(i, 0);
             }
             return result;
         } else {
-            final Matrix result = new Matrix(this.rows, 1);
+            final Tensor2D result = new Tensor2D(this.rows, 1);
             for (int i = 0; i < this.rows; i++) {
                 result.data[i][0] = this.avg(i, 1);
             }
@@ -459,15 +481,15 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix var(final int axis) {
+    public Tensor2D var(final int axis) {
         if (axis == 0) {
-            final Matrix result = new Matrix(1, this.cols);
+            final Tensor2D result = new Tensor2D(1, this.cols);
             for (int i = 0; i < this.cols; i++) {
                 result.data[0][i] = this.var(i, 0);
             }
             return result;
         } else {
-            final Matrix result = new Matrix(this.rows, 1);
+            final Tensor2D result = new Tensor2D(this.rows, 1);
             for (int i = 0; i < this.rows; i++) {
                 result.data[i][0] = this.var(i, 1);
             }
@@ -499,9 +521,9 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix cov(final int axis) {
+    public Tensor2D cov(final int axis) {
         if (axis == 0) {
-            final Matrix result = new Matrix(this.cols, this.cols);
+            final Tensor2D result = new Tensor2D(this.cols, this.cols);
             for (int i = 0; i < this.cols; i++) {
                 for (int j = 0; j < this.cols; j++) {
                     result.data[i][j] = this.cov(i, j, 0);
@@ -509,7 +531,7 @@ public class Matrix extends Tensor<float[][]> {
             }
             return result;
         } else {
-            final Matrix result = new Matrix(this.rows, this.rows);
+            final Tensor2D result = new Tensor2D(this.rows, this.rows);
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; j < this.rows; j++) {
                     result.data[i][j] = this.cov(i, j, 1);
@@ -519,11 +541,11 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public float cov(final Matrix m, final int idx, final int axis) {
+    public float cov(final Tensor2D m, final int idx, final int axis) {
         return this.cov(m, idx, idx, axis);
     }
 
-    public float cov(final Matrix m, final int idx1, final int idx2, final int axis) {
+    public float cov(final Tensor2D m, final int idx1, final int idx2, final int axis) {
         if (axis == 0) {
             assert (this.rows == m.rows);
             final float avg1 = this.avg(idx1, 0);
@@ -549,10 +571,10 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix cov(final Matrix m, final int axis, final boolean full) {
+    public Tensor2D cov(final Tensor2D m, final int axis, final boolean full) {
         if (full) {
             if (axis == 0) {
-                final Matrix result = new Matrix(this.cols, this.cols);
+                final Tensor2D result = new Tensor2D(this.cols, this.cols);
                 for (int i = 0; i < this.cols; i++) {
                     for (int j = 0; j < this.cols; j++) {
                         result.data[i][j] = this.cov(m, i, j, 0);
@@ -560,7 +582,7 @@ public class Matrix extends Tensor<float[][]> {
                 }
                 return result;
             } else {
-                final Matrix result = new Matrix(this.rows, this.rows);
+                final Tensor2D result = new Tensor2D(this.rows, this.rows);
                 for (int i = 0; i < this.rows; i++) {
                     for (int j = 0; j < this.rows; j++) {
                         result.data[i][j] = this.cov(m, i, j, 1);
@@ -570,13 +592,13 @@ public class Matrix extends Tensor<float[][]> {
             }
         } else {
             if (axis == 0) {
-                final Matrix result = new Matrix(1, this.cols);
+                final Tensor2D result = new Tensor2D(1, this.cols);
                 for (int i = 0; i < this.cols; i++) {
                     result.data[0][i] = this.cov(m, i, 0);
                 }
                 return result;
             } else {
-                final Matrix result = new Matrix(this.rows, 1);
+                final Tensor2D result = new Tensor2D(this.rows, 1);
                 for (int i = 0; i < this.rows; i++) {
                     result.data[i][0] = this.cov(m, i, 1);
                 }
@@ -605,15 +627,15 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix min(final int axis) {
+    public Tensor2D min(final int axis) {
         if (axis == 0) {
-            final Matrix result = new Matrix(1, this.cols);
+            final Tensor2D result = new Tensor2D(1, this.cols);
             for (int i = 0; i < this.cols; i++) {
                 result.data[0][i] = this.min(i, 0);
             }
             return result;
         } else {
-            final Matrix result = new Matrix(this.rows, 1);
+            final Tensor2D result = new Tensor2D(this.rows, 1);
             for (int i = 0; i < this.rows; i++) {
                 result.data[i][0] = this.min(i, 1);
             }
@@ -641,15 +663,15 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix max(final int axis) {
+    public Tensor2D max(final int axis) {
         if (axis == 0) {
-            final Matrix result = new Matrix(1, this.cols);
+            final Tensor2D result = new Tensor2D(1, this.cols);
             for (int i = 0; i < this.cols; i++) {
                 result.data[0][i] = this.max(i, 0);
             }
             return result;
         } else {
-            final Matrix result = new Matrix(this.rows, 1);
+            final Tensor2D result = new Tensor2D(this.rows, 1);
             for (int i = 0; i < this.rows; i++) {
                 result.data[i][0] = this.max(i, 1);
             }
@@ -673,15 +695,15 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix flatten(final int axis) {
+    public Tensor2D flatten(final int axis) {
         if (axis == 0) {
-            final Matrix result = new Matrix(1, this.cols);
+            final Tensor2D result = new Tensor2D(1, this.cols);
             for (int i = 0; i < this.cols; i++) {
                 result.data[0][i] = this.flatten(i, 0);
             }
             return result;
         } else {
-            final Matrix result = new Matrix(this.rows, 1);
+            final Tensor2D result = new Tensor2D(this.rows, 1);
             for (int i = 0; i < this.rows; i++) {
                 result.data[i][0] = this.flatten(i, 1);
             }
@@ -689,51 +711,60 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix zero() {
+    public Tensor2D zero() {
         for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
+            final float[] m_i = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                a[j] = 0.0f;
+                m_i[j] = 0.0f;
             }
         }
         return this;
     }
 
-    public Matrix ones() {
+    public Tensor2D ones() {
         for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
+            final float[] m_i = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                a[j] = 1.0f;
+                m_i[j] = 1.0f;
             }
         }
         return this;
     }
 
-    public Matrix identity() {
+    public Tensor2D fill(final float v) {
         for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
+            final float[] m_i = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                a[j] = (i == j) ? 1.0f : 0.0f;
+                m_i[j] = v;
             }
         }
         return this;
     }
 
-    public Matrix swap(final int idx1, final int idx2, final int axis) {
+    public Tensor2D identity() {
+        for (int i = 0; i < this.rows; i++) {
+            final float[] m_i = this.data[i];
+            for (int j = 0; j < this.cols; j++) {
+                m_i[j] = (i == j) ? 1.0f : 0.0f;
+            }
+        }
+        return this;
+    }
+
+    public Tensor2D swap(final int idx1, final int idx2, final int axis) {
         if (idx1 == idx2) {
             return this;
-        }
-        else if(axis == 0) {
-            assert(idx1 >= 0 && idx1 < this.rows);
-            assert(idx2 >= 0 && idx2 < this.rows);
+        } else if (axis == 0) {
+            assert (idx1 >= 0 && idx1 < this.rows);
+            assert (idx2 >= 0 && idx2 < this.rows);
             for (int i = 0; i < this.cols; i++) {
                 final float tmp = this.data[idx1][i];
                 this.data[idx1][i] = this.data[idx2][i];
                 this.data[idx2][i] = tmp;
             }
         } else {
-            assert(idx1 >= 0 && idx1 < this.cols);
-            assert(idx2 >= 0 && idx2 < this.cols);
+            assert (idx1 >= 0 && idx1 < this.cols);
+            assert (idx2 >= 0 && idx2 < this.cols);
             for (int j = 0; j < this.rows; j++) {
                 final float tmp = this.data[j][idx1];
                 this.data[j][idx1] = this.data[j][idx2];
@@ -743,82 +774,82 @@ public class Matrix extends Tensor<float[][]> {
         return this;
     }
 
-    public Matrix mutate(final float rate, final float variance) {
+    public Tensor2D mutate(final float rate, final float variance) {
         for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
+            final float[] m_i = this.data[i];
             for (int j = 0; j < this.cols; j++) {
                 if (Scalar.random(1.0f) < rate) {
-                    a[j] += Scalar.randomGaussian() * variance;
+                    m_i[j] += Scalar.randomGaussian() * variance;
                 }
             }
         }
         return this;
     }
 
-    public Matrix randomize() {
+    public Tensor2D randomize() {
         return this.randomize(1.0f);
     }
 
-    public Matrix randomize(final float n) {
+    public Tensor2D randomize(final float n) {
         for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
+            final float[] m_i = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                a[j] = Scalar.random(-n, n);
+                m_i[j] = Scalar.random(-n, n);
             }
         }
         return this;
     }
 
-    public Matrix arrange(int axis) {
+    public Tensor2D arrange(final int axis) {
         if (axis == 0) {
             for (int i = 0; i < this.rows; i++) {
-                final float[] a = this.data[i];
+                final float[] m_i = this.data[i];
                 for (int j = 0; j < this.cols; j++) {
-                    a[j] = i  + j * this.rows;
+                    m_i[j] = i + j * this.rows + 1;
                 }
             }
         } else {
             for (int i = 0; i < this.rows; i++) {
-                final float[] a = this.data[i];
+                final float[] m_i = this.data[i];
                 for (int j = 0; j < this.cols; j++) {
-                    a[j] = i * this.cols + j;
+                    m_i[j] = i * this.cols + j + 1;
                 }
             }
         }
         return this;
     }
 
-    public Matrix chop(final float e) {
+    public Tensor2D chop(final float e) {
         for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
+            final float[] m_i = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                a[j] = (Scalar.abs(a[j]) < e) ? 0.0f : a[j];
+                m_i[j] = (Scalar.abs(m_i[j]) < e) ? 0.0f : m_i[j];
             }
         }
         return this;
     }
 
-    public Matrix constrain(final float a, final float b) {
+    public Tensor2D constrain(final float a, final float b) {
         for (int i = 0; i < this.rows; i++) {
-            final float[] c = this.data[i];
+            final float[] m_i = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                c[j] = Scalar.constrain(c[j], a, b);
+                m_i[j] = Scalar.constrain(m_i[j], a, b);
             }
         }
         return this;
     }
 
-    public Matrix if_lt_then(final float p, final float a, final float b) {
+    public Tensor2D if_lt_then(final float p, final float a, final float b) {
         for (int i = 0; i < this.rows; i++) {
-            final float[] c = this.data[i];
+            final float[] m_i = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                c[j] = Scalar.if_lt_then(c[j], p, a, b);
+                m_i[j] = Scalar.if_lt_then(m_i[j], p, a, b);
             }
         }
         return this;
     }
 
-    public Matrix l2Norm(final int axis) {
+    public Tensor2D l2Norm(final int axis) {
         if (axis == 0) {
             for (int j = 0; j < this.cols; j++) {
                 float sum = 0.0f;
@@ -845,10 +876,10 @@ public class Matrix extends Tensor<float[][]> {
         return this;
     }
 
-    public Matrix batchNorm(final float gamma, final float delta, final int axis) {
+    public Tensor2D batchNorm(final float gamma, final float delta, final int axis) {
         if (axis == 0) {
-            Matrix avg = this.avg(0);
-            Matrix var_inv = this.var(0).add(Scalar.EPSILON).sqrt().pow(-1.0f);
+            final Tensor2D avg = this.avg(0);
+            final Tensor2D var_inv = this.var(0).add(Scalar.EPSILON).sqrt().pow(-1.0f);
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; j < this.cols; j++) {
                     final float x = (this.data[i][j] - avg.data[0][j]) * var_inv.data[0][j];
@@ -856,8 +887,8 @@ public class Matrix extends Tensor<float[][]> {
                 }
             }
         } else {
-            Matrix avg = this.avg(1);
-            Matrix var_inv = this.var(1).add(Scalar.EPSILON).sqrt().pow(-1.0f);
+            final Tensor2D avg = this.avg(1);
+            final Tensor2D var_inv = this.var(1).add(Scalar.EPSILON).sqrt().pow(-1.0f);
             for (int i = 0; i < this.rows; i++) {
                 for (int j = 0; j < this.cols; j++) {
                     final float x = (this.data[i][j] - avg.data[i][0]) * var_inv.data[i][0];
@@ -868,347 +899,327 @@ public class Matrix extends Tensor<float[][]> {
         return this;
     }
 
-    public Matrix add(final float n) {
+    public Tensor2D add(final float n) {
         for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
+            final float[] m_i = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                a[j] += n;
+                m_i[j] += n;
             }
         }
         return this;
     }
 
-    public Matrix add(final Vector v, final int axis) {
-        if (axis == 0) {
-            assert (this.cols == v.rows);
+    // public Tensor2D add(final Tensor1D v, final int axis) {
+    //     if (axis == 0) {
+    //         assert (this.cols == v.rows);
+    //         for (int i = 0; i < this.rows; i++) {
+    //             final float[] m_i = this.data[i];
+    //             final float[] b = v.data;
+    //             for (int j = 0; j < this.cols; j++) {
+    //                 m_i[j] += b[j];
+    //             }
+    //         }
+    //     } else {
+    //         assert (this.rows == v.rows);
+    //         for (int j = 0; j < this.cols; j++) {
+    //             final float[] b = v.data;
+    //             for (int i = 0; i < this.rows; i++) {
+    //                 this.data[i][j] += b[i];
+    //             }
+    //         }
+    //     }
+    //     return this;
+    // }
+
+    public Tensor2D add(final Tensor2D a) {
+        assert (this.rows == a.rows || this.cols == a.cols);
+        if(this.rows == a.rows && this.cols == a.cols) {
             for (int i = 0; i < this.rows; i++) {
-                final float[] a = this.data[i];
-                final float[] b = v.data;
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i];
                 for (int j = 0; j < this.cols; j++) {
-                    a[j] += b[j];
+                    m_i[j] += a_i[j];
                 }
             }
-        } else {
-            assert (this.rows == v.rows);
-            for (int j = 0; j < this.cols; j++) {
-                final float[] b = v.data;
-                for (int i = 0; i < this.rows; i++) {
-                    this.data[i][j] += b[i];
-                }
-            }
-        }
-        return this;
-    }
-
-    public Matrix add(final Matrix m) {
-        assert (this.rows == m.rows && this.cols == m.cols);
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            final float[] b = m.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] += b[j];
-            }
-        }
-        return this;
-    }
-
-    public Matrix sub(final float n) {
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] -= n;
-            }
-        }
-        return this;
-    }
-
-    public Matrix sub(final Vector v, final int axis) {
-        if (axis == 0) {
-            assert (this.cols == v.rows);
+        } else if(this.rows == a.rows) {
             for (int i = 0; i < this.rows; i++) {
-                final float[] a = this.data[i];
-                final float[] b = v.data;
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i];
                 for (int j = 0; j < this.cols; j++) {
-                    a[j] -= b[j];
-                }
-            }
-        } else {
-            assert (this.rows == v.rows);
-            for (int j = 0; j < this.cols; j++) {
-                final float[] b = v.data;
-                for (int i = 0; i < this.rows; i++) {
-                    this.data[i][j] -= b[i];
-                }
-            }
-        }
-        return this;
-    }
-
-    public Matrix sub(final Matrix m) {
-        assert (this.rows == m.rows && this.cols == m.cols);
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            final float[] b = m.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] -= b[j];
-            }
-        }
-        return this;
-    }
-
-    public Matrix mul(final float n) {
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] *= n;
-            }
-        }
-        return this;
-    }
-
-    public Matrix mul(final Vector v, final int axis) {
-        if (axis == 0) {
-            assert (this.cols == v.rows);
-            for (int i = 0; i < this.rows; i++) {
-                final float[] a = this.data[i];
-                final float[] b = v.data;
-                for (int j = 0; j < this.cols; j++) {
-                    a[j] *= b[j];
-                }
-            }
-        } else {
-            assert (this.rows == v.rows);
-            for (int j = 0; j < this.cols; j++) {
-                final float[] b = v.data;
-                for (int i = 0; i < this.rows; i++) {
-                    this.data[i][j] *= b[i];
-                }
-            }
-        }
-        return this;
-    }
-
-    public Matrix mul(final Matrix m) {
-        assert (this.rows == m.rows && this.cols == m.cols);
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            final float[] b = m.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] *= b[j];
-            }
-        }
-        return this;
-    }
-
-    public Matrix div(final float n) {
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] /= n;
-            }
-        }
-        return this;
-    }
-
-    public Matrix div(final Vector v, final int axis) {
-        if (axis == 0) {
-            assert (this.cols == v.rows);
-            for (int i = 0; i < this.rows; i++) {
-                final float[] a = this.data[i];
-                final float[] b = v.data;
-                for (int j = 0; j < this.cols; j++) {
-                    a[j] /= b[j];
-                }
-            }
-        } else {
-            assert (this.rows == v.rows);
-            for (int j = 0; j < this.cols; j++) {
-                final float[] b = v.data;
-                for (int i = 0; i < this.rows; i++) {
-                    this.data[i][j] /= b[i];
-                }
-            }
-        }
-        return this;
-    }
-
-    public Matrix div(final Matrix m) {
-        assert (this.rows == m.rows && this.cols == m.cols);
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            final float[] b = m.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] /= b[j];
-            }
-        }
-        return this;
-    }
-
-    public Matrix abs() {
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] = Scalar.abs(a[j]);
-            }
-        }
-        return this;
-    }
-
-    public Matrix pow(final float n) {
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] = Scalar.pow(a[j], n);
-            }
-        }
-        return this;
-    }
-
-    public Matrix sqrt() {
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] = Scalar.sqrt(a[j]);
-            }
-        }
-        return this;
-    }
-
-    public Matrix exp() {
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] = Scalar.exp(a[j]);
-            }
-        }
-        return this;
-    }
-
-    public Matrix log() {
-        for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
-                a[j] = Scalar.log(a[j]);
-            }
-        }
-        return this;
-    }
-
-    public Matrix fma(final Matrix m1, final Matrix m2) {
-        assert (this.rows == m1.rows && this.cols == m2.cols);
-        assert (m1.cols == m2.rows);
-        for (int i = 0; i < this.rows; i++) {
-            final float[] c = this.data[i];
-            for (int k = 0; k < m1.cols; k++) {
-                final float a = m1.data[i][k];
-                final float[] b = m2.data[k];
-                for (int j = 0; j < this.cols; j++) {
-                    c[j] = a * b[j] + c[j];
-                }
-            }
-        }
-        return this;
-    }
-
-    public Matrix fma(final Matrix m1, final Matrix m2, final boolean transposeA, final boolean transposeB) {
-        final int colsA = transposeA ? m1.rows : m1.cols;
-        final int rowsA = transposeA ? m1.cols : m1.rows;
-        final int colsB = transposeB ? m2.rows : m2.cols;
-        final int rowsB = transposeB ? m2.cols : m2.rows;
-
-        assert (this.rows == rowsA && this.cols == colsB);
-        assert (colsA == rowsB);
-
-        if (transposeA && transposeB) {
-            for (int i = 0; i < this.rows; i++) {
-                final float[] c = this.data[i];
-                for (int k = 0; k < colsA; k++) {
-                    final float a = m1.data[k][i];
-                    final float[][] b = m2.data;
-                    for (int j = 0; j < this.cols; j++) {
-                        c[j] = a * b[j][k] + c[j];
-                    }
-                }
-            }
-        } else if (transposeA && !transposeB) {
-            for (int i = 0; i < this.rows; i++) {
-                final float[] c = this.data[i];
-                for (int k = 0; k < colsA; k++) {
-                    final float a = m1.data[k][i];
-                    final float[] b = m2.data[k];
-                    for (int j = 0; j < this.cols; j++) {
-                        c[j] = a * b[j] + c[j];
-                    }
-                }
-            }
-        } else if (!transposeA && transposeB) {
-            for (int i = 0; i < this.rows; i++) {
-                final float[] c = this.data[i];
-                final float[] a = m1.data[i];
-                for (int j = 0; j < this.cols; j++) {
-                    final float[] b = m2.data[j];
-                    for (int k = 0; k < colsA; k++) {
-                        c[j] = a[k] * b[k] + c[j];
-                    }
+                    m_i[j] += a_i[j % a.cols];
                 }
             }
         } else {
             for (int i = 0; i < this.rows; i++) {
-                final float[] c = this.data[i];
-                for (int k = 0; k < colsA; k++) {
-                    final float a = m1.data[i][k];
-                    final float[] b = m2.data[k];
-                    for (int j = 0; j < this.cols; j++) {
-                        c[j] = a * b[j] + c[j];
-                    }
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i % a.rows];
+                for (int j = 0; j < this.cols; j++) {
+                    m_i[j] += a_i[j];
                 }
             }
         }
         return this;
     }
 
-    public Matrix fma(final Matrix m, final float n) {
-        assert (this.rows == m.rows && this.cols == m.cols);
-
+    public Tensor2D sub(final float n) {
         for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
-            final float[] b = m.data[i];
+            final float[] m_i = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                a[j] = b[j] * n + a[j];
+                m_i[j] -= n;
             }
         }
         return this;
     }
 
-    public Matrix fma(final Matrix m, final float n, final boolean transpose) {
-        final int cols = transpose ? m.rows : m.cols;
-        final int rows = transpose ? m.cols : m.rows;
+    // public Tensor2D sub(final Tensor1D v, final int axis) {
+    //     if (axis == 0) {
+    //         assert (this.cols == v.rows);
+    //         for (int i = 0; i < this.rows; i++) {
+    //             final float[] m_i = this.data[i];
+    //             final float[] b = v.data;
+    //             for (int j = 0; j < this.cols; j++) {
+    //                 m_i[j] -= b[j];
+    //             }
+    //         }
+    //     } else {
+    //         assert (this.rows == v.rows);
+    //         for (int j = 0; j < this.cols; j++) {
+    //             final float[] b = v.data;
+    //             for (int i = 0; i < this.rows; i++) {
+    //                 this.data[i][j] -= b[i];
+    //             }
+    //         }
+    //     }
+    //     return this;
+    // }
 
-        assert (this.rows == rows && this.cols == cols);
-
-        if (transpose) {
+    public Tensor2D sub(final Tensor2D a) {
+        assert (this.rows == a.rows || this.cols == a.cols);
+        if(this.rows == a.rows && this.cols == a.cols) {
             for (int i = 0; i < this.rows; i++) {
-                final float[] a = this.data[i];
-                final float[] b = m.data[i];
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i];
                 for (int j = 0; j < this.cols; j++) {
-                    a[j] = b[i] * n + a[j];
+                    m_i[j] -= a_i[j];
+                }
+            }
+        } else if(this.rows == a.rows) {
+            for (int i = 0; i < this.rows; i++) {
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i];
+                for (int j = 0; j < this.cols; j++) {
+                    m_i[j] -= a_i[j % a.cols];
                 }
             }
         } else {
             for (int i = 0; i < this.rows; i++) {
-                final float[] a = this.data[i];
-                final float[] b = m.data[i];
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i % a.rows];
                 for (int j = 0; j < this.cols; j++) {
-                    a[j] = b[j] * n + a[j];
+                    m_i[j] -= a_i[j];
                 }
             }
         }
         return this;
     }
 
-    public Matrix pad(int padding, float value) {
-        assert(padding > 0);
-        Matrix result = new Matrix(this.rows + 2 * padding, this.cols + 2 * padding, value);
+    public Tensor2D mul(final float n) {
+        for (int i = 0; i < this.rows; i++) {
+            final float[] m_i = this.data[i];
+            for (int j = 0; j < this.cols; j++) {
+                m_i[j] *= n;
+            }
+        }
+        return this;
+    }
+
+    // public Tensor2D mul(final Tensor1D v, final int axis) {
+    //     if (axis == 0) {
+    //         assert (this.cols == v.rows);
+    //         for (int i = 0; i < this.rows; i++) {
+    //             final float[] m_i = this.data[i];
+    //             final float[] b = v.data;
+    //             for (int j = 0; j < this.cols; j++) {
+    //                 m_i[j] *= b[j];
+    //             }
+    //         }
+    //     } else {
+    //         assert (this.rows == v.rows);
+    //         for (int j = 0; j < this.cols; j++) {
+    //             final float[] b = v.data;
+    //             for (int i = 0; i < this.rows; i++) {
+    //                 this.data[i][j] *= b[i];
+    //             }
+    //         }
+    //     }
+    //     return this;
+    // }
+
+    public Tensor2D mul(final Tensor2D a) {
+        assert (this.rows == a.rows || this.cols == a.cols);
+        if(this.rows == a.rows && this.cols == a.cols) {
+            for (int i = 0; i < this.rows; i++) {
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i];
+                for (int j = 0; j < this.cols; j++) {
+                    m_i[j] *= a_i[j];
+                }
+            }
+        } else if(this.rows == a.rows) {
+            for (int i = 0; i < this.rows; i++) {
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i];
+                for (int j = 0; j < this.cols; j++) {
+                    m_i[j] *= a_i[j % a.cols];
+                }
+            }
+        } else {
+            for (int i = 0; i < this.rows; i++) {
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i % a.rows];
+                for (int j = 0; j < this.cols; j++) {
+                    m_i[j] *= a_i[j];
+                }
+            }
+        }
+        return this;
+    }
+
+    public Tensor2D div(final float n) {
+        for (int i = 0; i < this.rows; i++) {
+            final float[] m_i = this.data[i];
+            for (int j = 0; j < this.cols; j++) {
+                m_i[j] /= n;
+            }
+        }
+        return this;
+    }
+
+    // public Tensor2D div(final Tensor1D v, final int axis) {
+    //     if (axis == 0) {
+    //         assert (this.cols == v.rows);
+    //         for (int i = 0; i < this.rows; i++) {
+    //             final float[] m_i = this.data[i];
+    //             final float[] b = v.data;
+    //             for (int j = 0; j < this.cols; j++) {
+    //                 m_i[j] /= b[j];
+    //             }
+    //         }
+    //     } else {
+    //         assert (this.rows == v.rows);
+    //         for (int j = 0; j < this.cols; j++) {
+    //             final float[] b = v.data;
+    //             for (int i = 0; i < this.rows; i++) {
+    //                 this.data[i][j] /= b[i];
+    //             }
+    //         }
+    //     }
+    //     return this;
+    // }
+
+    public Tensor2D div(final Tensor2D a) {
+        assert (this.rows == a.rows || this.cols == a.cols);
+        if(this.rows == a.rows && this.cols == a.cols) {
+            for (int i = 0; i < this.rows; i++) {
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i];
+                for (int j = 0; j < this.cols; j++) {
+                    m_i[j] /= a_i[j];
+                }
+            }
+        } else if(this.rows == a.rows) {
+            for (int i = 0; i < this.rows; i++) {
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i];
+                for (int j = 0; j < this.cols; j++) {
+                    m_i[j] /= a_i[j % a.cols];
+                }
+            }
+        } else {
+            for (int i = 0; i < this.rows; i++) {
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i % a.rows];
+                for (int j = 0; j < this.cols; j++) {
+                    m_i[j] /= a_i[j];
+                }
+            }
+        }
+        return this;
+    }
+
+    public Tensor2D abs() {
+        for (int i = 0; i < this.rows; i++) {
+            final float[] m_i = this.data[i];
+            for (int j = 0; j < this.cols; j++) {
+                m_i[j] = Scalar.abs(m_i[j]);
+            }
+        }
+        return this;
+    }
+
+    public Tensor2D pow(final float n) {
+        for (int i = 0; i < this.rows; i++) {
+            final float[] m_i = this.data[i];
+            for (int j = 0; j < this.cols; j++) {
+                m_i[j] = Scalar.pow(m_i[j], n);
+            }
+        }
+        return this;
+    }
+
+    public Tensor2D sqrt() {
+        for (int i = 0; i < this.rows; i++) {
+            final float[] m_i = this.data[i];
+            for (int j = 0; j < this.cols; j++) {
+                m_i[j] = Scalar.sqrt(m_i[j]);
+            }
+        }
+        return this;
+    }
+
+    public Tensor2D exp() {
+        for (int i = 0; i < this.rows; i++) {
+            final float[] m_i = this.data[i];
+            for (int j = 0; j < this.cols; j++) {
+                m_i[j] = Scalar.exp(m_i[j]);
+            }
+        }
+        return this;
+    }
+
+    public Tensor2D log() {
+        for (int i = 0; i < this.rows; i++) {
+            final float[] m_i = this.data[i];
+            for (int j = 0; j < this.cols; j++) {
+                m_i[j] = Scalar.log(m_i[j]);
+            }
+        }
+        return this;
+    }
+
+    public Tensor2D fma(final Tensor2D m1, final Tensor2D m2) {
+        Blas.fgemm(false, false, m1.data, 1.0f, m2.data, 1.0f, this.data);
+        return this;
+    }
+
+    public Tensor2D fma(final Tensor2D m1, final Tensor2D m2, final boolean transposeA, final boolean transposeB) {
+        Blas.fgemm(transposeA, transposeB, m1.data, 1.0f, m2.data, 1.0f, this.data);
+        return this;
+    }
+
+    public Tensor2D fma(final Tensor2D m, final float n) {
+        Blas.fgemm(false, false, m.data, n, null, 1.0f, this.data);
+        return this;
+    }
+
+    public Tensor2D fma(final Tensor2D m, final float n, final boolean transpose) {
+        Blas.fgemm(false, false, m.data, n, null, 1.0f, this.data);
+        return this;
+    }
+
+    public Tensor2D pad(final int padding, final float value) {
+        assert (padding > 0);
+        final Tensor2D result = new Tensor2D(this.rows + 2 * padding, this.cols + 2 * padding).fill(value);
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.cols; j++) {
                 result.data[padding + i][padding + j] = this.data[i][j];
@@ -1217,31 +1228,31 @@ public class Matrix extends Tensor<float[][]> {
         return result;
     }
 
-    public Matrix reshape(final int newRows) {
+    public Tensor2D reshape(final int newRows) {
         return this.reshape(newRows, -1, 'C');
     }
 
-    public Matrix reshape(final int newRows, final char format) {
+    public Tensor2D reshape(final int newRows, final char format) {
         return this.reshape(newRows, -1, format);
     }
 
-    public Matrix reshape(final int newRows, final int newCols) {
+    public Tensor2D reshape(final int newRows, final int newCols) {
         return this.reshape(newRows, newCols, 'C');
     }
 
-    public Matrix reshape(int newRows, int newCols, final char format) {
+    public Tensor2D reshape(int newRows, int newCols, final char format) {
         assert (newRows > 0 || newCols > 0);
-        if(newRows < 0) {
+        if (newRows < 0) {
             newRows = this.rows * this.cols / newCols;
         }
-        if(newCols < 0) {
+        if (newCols < 0) {
             newCols = this.rows * this.cols / newRows;
         }
         assert (this.rows * this.cols == newRows * newCols);
-        if(newRows == this.rows || newCols == this.cols) {
+        if (newRows == this.rows || newCols == this.cols) {
             return this.copy();
         }
-        final Matrix result = new Matrix(newRows, newCols);
+        final Tensor2D result = new Tensor2D(newRows, newCols);
         if (format == 'C') {
             for (int k = 0; k < this.rows * this.cols; k++) {
                 final int i1 = k / this.cols;
@@ -1251,7 +1262,7 @@ public class Matrix extends Tensor<float[][]> {
                 result.data[i2][j2] = this.data[i1][j1];
             }
 
-        } else {
+        } else { // 'F'
             for (int k = 0; k < this.rows * this.cols; k++) {
                 final int i1 = k % this.rows;
                 final int j1 = k / this.rows;
@@ -1263,18 +1274,52 @@ public class Matrix extends Tensor<float[][]> {
         return result;
     }
 
-    public Matrix conv(final Matrix f) {
+    public Tensor3D reshape(final int newDepths, final int newRows, final int newCols) {
+        return this.reshape(newDepths, newRows, newCols, 'C');
+    }
+
+    public Tensor3D reshape(int newDepths, int newRows, int newCols, final char format) {
+        assert (newDepths > 0 || newRows > 0 || newCols > 0);
+        if (newDepths < 0) {
+            newDepths = this.rows * this.cols / (newRows * newCols);
+        }
+        if (newRows < 0) {
+            newRows = this.rows * this.cols / (newDepths * newCols);
+        }
+        if (newCols < 0) {
+            newCols = this.rows * this.cols / (newDepths * newRows);
+        }
+        assert (this.rows * this.cols == newDepths * newRows * newCols);
+        final Tensor3D result = new Tensor3D(newDepths, newRows, newCols);
+        if (format == 'C') {
+            final int r_stride1 = result.shape[2] * result.shape[1];
+            final int r_stride2 = result.shape[2];
+            for (int i = 0; i < this.rows; i++) {
+                for (int j = 0; j < this.cols; j++) {
+                    final int m_off1 = this.cols * i + j;
+                    final float[][] r_i = result.data[m_off1 / r_stride1];
+                    final int m_off2 = m_off1 % r_stride1;
+                    final float[] r_ij = r_i[m_off2 / r_stride2];
+                    r_ij[m_off2 % r_stride2] = this.data[i][j];
+                }
+            }
+        } else { // 'F'
+        }
+        return result;
+    }
+
+    public Tensor2D conv(final Tensor2D f) {
         final int orow = f.rows - 1;
         final int ocol = f.cols - 1;
-        Matrix result = new Matrix(this.rows - orow, this.cols - ocol);
+        final Tensor2D result = new Tensor2D(this.rows - orow, this.cols - ocol);
         for (int i = 0; i < this.rows - orow; i++) {
             for (int j = 0; j < this.cols - ocol; j++) {
                 float acc = 0.0f;
                 for (int y = 0; y < f.rows; y++) {
-                    final float[] a = f.data[y];
-                    final float[] b = this.data[i + y];
+                    final float[] f_y = f.data[y];
+                    final float[] m_i = this.data[i + y];
                     for (int x = 0; x < f.cols; x++) {
-                        acc += a[x] * b[j + x];
+                        acc += f_y[x] * m_i[j + x];
                     }
                 }
                 result.data[i][j] = acc;
@@ -1283,67 +1328,67 @@ public class Matrix extends Tensor<float[][]> {
         return result;
     }
 
-    public Matrix map(final MatrixFunction fn) {
+    public Tensor2D map(final TensorFunction<Tensor2D> fn) {
         assert (fn != null);
         for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
+            final float[] m_i = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                a[j] = fn.apply(a[j], new int[] { i, j }, this);
+                m_i[j] = fn.apply(m_i[j], new int[] { i, j }, this);
             }
         }
         return this;
     }
 
-    public Matrix map(final MatrixFunction fn, final Matrix other) {
+    public Tensor2D map(final TensorFunction<Tensor2D> fn, final Tensor2D other) {
         assert (fn != null);
         for (int i = 0; i < this.rows; i++) {
-            final float[] a = this.data[i];
+            final float[] m_i = this.data[i];
             for (int j = 0; j < this.cols; j++) {
-                a[j] = fn.apply(a[j], new int[] { i, j }, other);
+                m_i[j] = fn.apply(m_i[j], new int[] { i, j }, other);
             }
         }
         return this;
     }
 
-    public Matrix copy() {
+    public Tensor2D copy() {
         return this.slice(0, 0);
     }
 
-    public Matrix slice(final int a, final int b) {
+    public Tensor2D slice(final int a, final int b) {
         return this.slice(a, b, this.rows - a, this.cols - b);
     }
 
-    public Matrix slice(int a, int b, int h, int w) {
-        if(a < 0) {
+    public Tensor2D slice(int a, int b, int h, int w) {
+        if (a < 0) {
             a = 0;
         }
-        if(b < 0) {
+        if (b < 0) {
             b = 0;
         }
-        if(h < 0) {
+        if (h < 0) {
             h = this.rows - a;
         }
-        if(w < 0) {
+        if (w < 0) {
             w = this.cols - b;
         }
         assert ((a + h) >= 0 && (a + h) <= this.rows);
         assert ((b + w) >= 0 && (b + w) <= this.cols);
-        final Matrix result = new Matrix(h, w);
+        final Tensor2D result = new Tensor2D(h, w);
         for (int i = 0; i < h; i++) {
             System.arraycopy(this.data[a + i], b, result.data[i], 0, w);
         }
         return result;
     }
 
-    public Matrix diagonal(final int axis) {
+    public Tensor2D diagonal(final int axis) {
         if (axis == 0) {
-            final Matrix result = new Matrix(1, this.cols);
+            final Tensor2D result = new Tensor2D(1, this.cols);
             for (int i = 0; i < this.cols; i++) {
                 result.data[0][i] = this.data[i][i];
             }
             return result;
         } else {
-            final Matrix result = new Matrix(this.rows, 1);
+            final Tensor2D result = new Tensor2D(this.rows, 1);
             for (int i = 0; i < this.rows; i++) {
                 result.data[i][0] = this.data[i][i];
             }
@@ -1351,7 +1396,7 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix replace(final int idx, final Vector v, final int axis) {
+    public Tensor2D replace(final int idx, final Tensor1D v, final int axis) {
         if (axis == 0) {
             assert (this.cols == v.rows);
             System.arraycopy(v.data, 0, this.data[idx], 0, this.cols);
@@ -1365,11 +1410,11 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix replace(final Matrix m) {
+    public Tensor2D replace(final Tensor2D m) {
         return this.replace(0, 0, m);
     }
 
-    public Matrix replace(int a, int b, final Matrix m) {
+    public Tensor2D replace(final int a, final int b, final Tensor2D m) {
         assert ((a + m.rows) >= 0 && (a + m.rows) <= this.rows);
         assert ((b + m.cols) >= 0 && (b + m.cols) <= this.cols);
         for (int i = 0; i < m.rows; i++) {
@@ -1378,10 +1423,10 @@ public class Matrix extends Tensor<float[][]> {
         return this;
     }
 
-    public Matrix concatenate(final Vector v, final int axis) {
+    public Tensor2D concatenate(final Tensor1D v, final int axis) {
         if (axis == 0) {
             assert (this.cols == v.rows);
-            final Matrix result = new Matrix(this.rows + 1, this.cols);
+            final Tensor2D result = new Tensor2D(this.rows + 1, this.cols);
             for (int i = 0; i < this.rows; i++) {
                 System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
             }
@@ -1389,7 +1434,7 @@ public class Matrix extends Tensor<float[][]> {
             return result;
         } else {
             assert (this.rows == v.rows);
-            final Matrix result = new Matrix(this.rows, this.cols + 1);
+            final Tensor2D result = new Tensor2D(this.rows, this.cols + 1);
             for (int i = 0; i < this.rows; i++) {
                 System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
                 result.data[i][this.cols] = v.data[i];
@@ -1398,10 +1443,10 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix concatenate(final Matrix m, final int axis) {
+    public Tensor2D concatenate(final Tensor2D m, final int axis) {
         if (axis == 0) {
             assert (this.cols == m.cols);
-            final Matrix result = new Matrix(this.rows + m.rows, this.cols);
+            final Tensor2D result = new Tensor2D(this.rows + m.rows, this.cols);
             for (int i = 0; i < this.rows; i++) {
                 System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
             }
@@ -1411,7 +1456,7 @@ public class Matrix extends Tensor<float[][]> {
             return result;
         } else {
             assert (this.rows == m.rows);
-            final Matrix result = new Matrix(this.rows, this.cols + m.cols);
+            final Tensor2D result = new Tensor2D(this.rows, this.cols + m.cols);
             for (int i = 0; i < this.rows; i++) {
                 System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
                 System.arraycopy(m.data[i], 0, result.data[i], this.cols, m.cols);
@@ -1420,121 +1465,57 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Matrix transpose() {
-        final Matrix result = new Matrix(this.cols, this.rows);
+    public Tensor2D transpose() {
+        final Tensor2D result = new Tensor2D(this.cols, this.rows);
         for (int i = 0; i < result.rows; i++) {
-            final float[] b = result.data[i];
+            final float[] r_i = result.data[i];
             for (int j = 0; j < result.cols; j++) {
-                b[j] = this.data[j][i];
+                r_i[j] = this.data[j][i];
             }
         }
         return result;
     }
 
-    public Vector matmul(Vector v) {
-        assert (v.rows == this.cols);
-        Vector result = new Vector(v.rows, 0.0f);
-        for (int i = 0; i < result.rows; i++) {
-            float c = 0.0f;
-            for (int k = 0; k < this.cols; k++) {
-                float a = this.data[i][k];
-                float b = v.data[k];
-                c += a * b;
-            }
-            result.data[i] = c;
-        }
+    public Tensor1D matmul(final Tensor1D v) {
+        final Tensor1D result = new Tensor1D(this.rows, 0.0f);
+        Blas.fgemv(false, this.data, 1.0f, v.data, 1.0f, result.data);
         return result;
     }
 
-    public Matrix matmul(final Matrix m) {
-        assert (this.cols == m.rows);
-        final Matrix result = new Matrix(this.rows, m.cols, 0.0f);
-        for (int i = 0; i < result.rows; i++) {
-            final float[] c = result.data[i];
-            for (int k = 0; k < this.cols; k++) {
-                final float a = this.data[i][k];
-                final float[] b = m.data[k];
-                for (int j = 0; j < result.cols; j++) {
-                    c[j] = a * b[j] + c[j];
-                }
-            }
-        }
+    public Tensor2D matmul(final Tensor2D m) {
+        final Tensor2D result = new Tensor2D(this.rows, m.cols).zero();
+        Blas.fgemm(false, false, this.data, 1.0f, m.data, 1.0f, result.data);
         return result;
     }
 
-    public Matrix matmul(final Matrix m, final boolean transposeA, final boolean transposeB) {
-        final int colsA = transposeA ? this.rows : this.cols;
+    public Tensor2D matmul(final Tensor2D m, final boolean transposeA, final boolean transposeB) {
         final int rowsA = transposeA ? this.cols : this.rows;
         final int colsB = transposeB ? m.rows : m.cols;
-        final int rowsB = transposeB ? m.cols : m.rows;
+        final Tensor2D result = new Tensor2D(rowsA, colsB).zero();
+        Blas.fgemm(transposeA, transposeB, this.data, 1.0f, m.data, 1.0f, result.data);
+        return result;
+    }
 
-        assert (colsA == rowsB);
-
-        final Matrix result = new Matrix(rowsA, colsB, 0.0f);
-        if (transposeA && transposeB) {
-            for (int i = 0; i < result.rows; i++) {
-                final float[] c = result.data[i];
-                for (int k = 0; k < colsA; k++) {
-                    final float a = this.data[k][i];
-                    final float[][] b = m.data;
-                    for (int j = 0; j < result.cols; j++) {
-                        c[j] = a * b[j][k] + c[j];
-                    }
-                }
-            }
-        } else if (transposeA && !transposeB) {
-            for (int i = 0; i < result.rows; i++) {
-                final float[] c = result.data[i];
-                for (int k = 0; k < colsA; k++) {
-                    final float a = this.data[k][i];
-                    final float[] b = m.data[k];
-                    for (int j = 0; j < result.cols; j++) {
-                        c[j] = a * b[j] + c[j];
-                    }
-                }
-            }
-        } else if (!transposeA && transposeB) {
-            for (int i = 0; i < result.rows; i++) {
-                final float[] c = result.data[i];
-                final float[] a = this.data[i];
+    public Tensor2D minor(final int a, final int b) {
+        final Tensor2D result = new Tensor2D(this.rows - 1, this.cols - 1);
+        for (int i = 0; i < result.rows; i++) {
+            final float[] r_i = result.data[i];
+            if (i < a) {
+                final float[] m_i = this.data[i];
                 for (int j = 0; j < result.cols; j++) {
-                    final float[] b = m.data[j];
-                    for (int k = 0; k < colsA; k++) {
-                        c[j] = a[k] * b[k] + c[j];
+                    if (j < b) {
+                        r_i[j] = m_i[j];
+                    } else {
+                        r_i[j] = m_i[j + 1];
                     }
                 }
-            }
-        } else {
-            for (int i = 0; i < result.rows; i++) {
-                final float[] c = result.data[i];
-                for (int k = 0; k < colsA; k++) {
-                    final float a = this.data[i][k];
-                    final float[] b = m.data[k];
-                    for (int j = 0; j < result.cols; j++) {
-                        c[j] = a * b[j] + c[j];
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-    public Matrix minor(final int a, final int b) {
-        final Matrix result = new Matrix(this.rows - 1, this.cols - 1);
-        for (int i = 0; i < result.rows; i++) {
-            for (int j = 0; j < result.cols; j++) {
-                if (i < a) {
+            } else {
+                final float[] m_i = this.data[i + 1];
+                for (int j = 0; j < result.cols; j++) {
                     if (j < b) {
-                        result.data[i][j] = this.data[i][j];
+                        r_i[j] = m_i[j];
                     } else {
-                        result.data[i][j] = this.data[i][j + 1];
-                    }
-                } else {
-                    if (j < b) {
-                        result.data[i][j] = this.data[i + 1][j];
-                    } else {
-                        result.data[i][j] = this.data[i + 1][j + 1];
+                        r_i[j] = m_i[j + 1];
                     }
                 }
             }
@@ -1542,13 +1523,14 @@ public class Matrix extends Tensor<float[][]> {
         return result;
     }
 
-    public Matrix cof() {
-        final Matrix result = new Matrix(this.rows, this.cols);
+    public Tensor2D cof() {
+        final Tensor2D result = new Tensor2D(this.rows, this.cols);
         float b = 1.0f;
         for (int i = 0; i < result.rows; i++) {
+            final float[] r_i = result.data[i];
             float a = b;
             for (int j = 0; j < result.cols; j++) {
-                result.data[i][j] = a * this.minor(i, j).det();
+                r_i[j] = a * this.minor(i, j).det();
                 a *= -1.0;
             }
             b *= -1.0;
@@ -1556,13 +1538,14 @@ public class Matrix extends Tensor<float[][]> {
         return result;
     }
 
-    public Matrix adj() {
-        final Matrix result = new Matrix(this.cols, this.rows);
+    public Tensor2D adj() {
+        final Tensor2D result = new Tensor2D(this.cols, this.rows);
         float b = 1.0f;
         for (int i = 0; i < result.rows; i++) {
+            final float[] r_i = result.data[i];
             float a = b;
             for (int j = 0; j < result.cols; j++) {
-                result.data[i][j] = a * this.minor(j, i).det();
+                r_i[j] = a * this.minor(j, i).det();
                 a *= -1.0;
             }
             b *= -1.0;
@@ -1570,16 +1553,16 @@ public class Matrix extends Tensor<float[][]> {
         return result;
     }
 
-    public Matrix inv() {
+    public Tensor2D inv() {
         final float d = this.det();
         assert (d != 0.0f);
-
-        final Matrix result = new Matrix(this.rows, this.cols);
+        final Tensor2D result = new Tensor2D(this.rows, this.cols);
         float b = 1.0f / d;
         for (int i = 0; i < result.rows; i++) {
+            final float[] r_i = result.data[i];
             float a = b;
             for (int j = 0; j < result.cols; j++) {
-                result.data[i][j] = a * this.minor(j, i).det();
+                r_i[j] = a * this.minor(j, i).det();
                 a *= -1.0f;
             }
             b *= -1.0f;
@@ -1587,15 +1570,15 @@ public class Matrix extends Tensor<float[][]> {
         return result;
     }
 
-    public Vector toVector(final int idx) {
+    public Tensor1D toVector(final int idx) {
         return this.toVector(idx, true);
     }
 
-    public Vector toVector(final int idx, final boolean rowvar) {
+    public Tensor1D toVector(final int idx, final boolean rowvar) {
         if (rowvar) {
             return this.get(idx);
         } else {
-            final Vector result = new Vector(this.rows);
+            final Tensor1D result = new Tensor1D(this.rows);
             for (int i = 0; i < this.rows; i++) {
                 result.data[i] = this.data[i][idx];
             }
@@ -1603,21 +1586,21 @@ public class Matrix extends Tensor<float[][]> {
         }
     }
 
-    public Vector[] toVectorArray() {
+    public Tensor1D[] toVectorArray() {
         return this.toVectorArray(true);
     }
 
-    public Vector[] toVectorArray(final boolean rowvar) {
+    public Tensor1D[] toVectorArray(final boolean rowvar) {
         if (rowvar) {
-            final Vector[] result = new Vector[this.rows];
+            final Tensor1D[] result = new Tensor1D[this.rows];
             for (int i = 0; i < this.rows; i++) {
                 result[i] = this.get(i);
             }
             return result;
         } else {
-            final Vector[] result = new Vector[this.cols];
+            final Tensor1D[] result = new Tensor1D[this.cols];
             for (int j = 0; j < this.cols; j++) {
-                result[j] = new Vector(this.rows);
+                result[j] = new Tensor1D(this.rows);
                 for (int i = 0; i < this.rows; i++) {
                     result[j].data[i] = this.data[i][j];
                 }

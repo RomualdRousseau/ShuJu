@@ -1,9 +1,9 @@
 package com.github.romualdrousseau.shuju.ml.nn;
 
-import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Tensor2D;
 
 public interface LossFunc {
-    Matrix apply(Matrix output, Matrix target);
+    Tensor2D apply(Tensor2D output, Tensor2D target);
 
-    Matrix derivate(Matrix output, Matrix target);
+    Tensor2D derivate(Tensor2D output, Tensor2D target);
 }

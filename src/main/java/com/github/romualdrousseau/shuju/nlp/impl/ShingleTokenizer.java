@@ -2,7 +2,7 @@ package com.github.romualdrousseau.shuju.nlp.impl;
 
 import java.util.ArrayList;
 
-import com.github.romualdrousseau.shuju.math.Vector;
+import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.nlp.ITokenizer;
 import com.github.romualdrousseau.shuju.util.FuzzyString;
 import com.github.romualdrousseau.shuju.util.StringUtility;
@@ -43,7 +43,7 @@ public class ShingleTokenizer implements ITokenizer {
         return result.toArray(new String[result.size()]);
     }
 
-    public Vector word2vec(String s, Vector outVector) {
+    public Tensor1D word2vec(String s, Tensor1D outVector) {
         String[] tokens = this.tokenize(s);
         for (int i = 0; i < tokens.length; i++) {
             String token = tokens[i];

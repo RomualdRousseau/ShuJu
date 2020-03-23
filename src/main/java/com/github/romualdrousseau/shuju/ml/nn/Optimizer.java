@@ -2,7 +2,8 @@ package com.github.romualdrousseau.shuju.ml.nn;
 
 import java.util.function.Consumer;
 
-import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Tensor2D;
+import com.github.romualdrousseau.shuju.math.Tensor3D;
 
 public abstract class Optimizer {
     protected Model model;
@@ -37,7 +38,7 @@ public abstract class Optimizer {
 
     public Loss minimize(Loss loss) {
         this.model.visitBackward(new Consumer<Layer>() {
-            Matrix d_L_d_out = loss.getRate();
+            Tensor2D d_L_d_out = loss.getRate();
             public void accept(Layer layer) {
                 d_L_d_out = layer.callBackward(d_L_d_out);
             }
@@ -62,5 +63,7 @@ public abstract class Optimizer {
         }
     }
 
-    public abstract Matrix computeGradients(Parameters p);
+    public abstract Tensor2D computeGradients(Parameters2D p);
+
+    public abstract Tensor3D computeGradients(Parameters3D p);
 }

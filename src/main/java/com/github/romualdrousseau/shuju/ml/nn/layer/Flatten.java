@@ -2,7 +2,7 @@ package com.github.romualdrousseau.shuju.ml.nn.layer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Tensor2D;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
 
@@ -17,14 +17,14 @@ public class Flatten extends Layer {
     public void reset(boolean parametersOnly) {
     }
 
-    public Matrix callForward(Matrix input) {
+    public Tensor2D callForward(Tensor2D input) {
         return input.reshape(this.inputUnits * this.inputUnits * this.inputChannels, 1, 'F');
     }
 
     public void startBackward(Optimizer optimizer) {
     }
 
-    public Matrix callBackward(Matrix d_L_d_out) {
+    public Tensor2D callBackward(Tensor2D d_L_d_out) {
         return d_L_d_out.reshape(this.inputUnits * this.inputUnits, this.inputChannels, 'F');
     }
 

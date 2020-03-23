@@ -2,12 +2,12 @@ package com.github.romualdrousseau.shuju.ml.nn.layer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Matrix;
+import com.github.romualdrousseau.shuju.math.Tensor2D;
 import com.github.romualdrousseau.shuju.ml.nn.Helper;
 import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
-import com.github.romualdrousseau.shuju.ml.nn.Parameters;
+import com.github.romualdrousseau.shuju.ml.nn.Parameters2D;
 import com.github.romualdrousseau.shuju.ml.nn.RegularizerFunc;
 
 public class Dense extends Layer {
@@ -17,8 +17,8 @@ public class Dense extends Layer {
 
         this.initializer = initializer;
         this.regularizer = regularizer;
-        this.weights = new Parameters(inputUnits, units);
-        this.biases = new Parameters(units);
+        this.weights = new Parameters2D(inputUnits, units);
+        this.biases = new Parameters2D(units);
 
         this.reset(false);
     }
@@ -37,7 +37,7 @@ public class Dense extends Layer {
         }
     }
 
-    public Matrix callForward(final Matrix input) {
+    public Tensor2D callForward(final Tensor2D input) {
         return Helper.xw_plus_b(input, this.weights.W, this.biases.W);
     }
 
@@ -46,7 +46,7 @@ public class Dense extends Layer {
         this.biases.G.zero();
     }
 
-    public Matrix callBackward(final Matrix d_L_d_out) {
+    public Tensor2D callBackward(final Tensor2D d_L_d_out) {
         this.weights.G.fma(d_L_d_out, this.lastInput, false, true);
         this.biases.G.fma(d_L_d_out, this.bias);
         return this.weights.W.matmul(d_L_d_out, true, false);
@@ -74,8 +74,8 @@ public class Dense extends Layer {
         return json;
     }
 
-    private final Parameters weights;
-    private final Parameters biases;
+    private final Parameters2D weights;
+    private final Parameters2D biases;
     private final InitializerFunc initializer;
     private final RegularizerFunc regularizer;
 }
