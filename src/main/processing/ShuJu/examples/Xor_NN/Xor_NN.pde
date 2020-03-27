@@ -34,18 +34,18 @@ final int[] classColors = {
   color(255, 255, 255)
 };
 
-final Vector[] inputs = {
-  new Vector(new float[] {0, 0}),
-  new Vector(new float[] {0, 1}),
-  new Vector(new float[] {1, 0}),
-  new Vector(new float[] {1, 1})
+final Tensor1D[] inputs = {
+  new Tensor1D(new float[] {0, 0}),
+  new Tensor1D(new float[] {0, 1}),
+  new Tensor1D(new float[] {1, 0}),
+  new Tensor1D(new float[] {1, 1})
 };
 
-final Vector[] targets = {
-  new Vector(new float[] {0}),
-  new Vector(new float[] {1}),
-  new Vector(new float[] {1}),
-  new Vector(new float[] {0})
+final Tensor1D[] targets = {
+  new Tensor1D(new float[] {0}),
+  new Tensor1D(new float[] {1}),
+  new Tensor1D(new float[] {1}),
+  new Tensor1D(new float[] {0})
 };
 
 Model model;
@@ -92,7 +92,7 @@ float[][] predictModel(int r) {
   float[][] result = new float[r + 1][r + 1];
   for (int i = 0; i <= r; i++) {
     for (int j = 0; j <= r; j++) {
-      Vector input = new Vector(new float[] { j, i }).map(0, r, 0, 1);
+      Tensor1D input = new Tensor1D(new float[] { j, i }).map(0, r, 0, 1);
       result[i][j] = model.model(input).detachAsVector().get(0);
     }
   }

@@ -1228,14 +1228,6 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         return result;
     }
 
-    public Tensor2D reshape(final int newRows) {
-        return this.reshape(newRows, -1, 'C');
-    }
-
-    public Tensor2D reshape(final int newRows, final char format) {
-        return this.reshape(newRows, -1, format);
-    }
-
     public Tensor2D reshape(final int newRows, final int newCols) {
         return this.reshape(newRows, newCols, 'C');
     }
@@ -1483,16 +1475,16 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D matmul(final Tensor2D m) {
-        final Tensor2D result = new Tensor2D(this.rows, m.cols).zero();
-        Blas.fgemm(false, false, this.data, 1.0f, m.data, 1.0f, result.data);
+        final Tensor2D result = new Tensor2D(this.rows, m.cols);
+        Blas.fgemm(false, false, this.data, 1.0f, m.data, 0.0f, result.data);
         return result;
     }
 
     public Tensor2D matmul(final Tensor2D m, final boolean transposeA, final boolean transposeB) {
         final int rowsA = transposeA ? this.cols : this.rows;
         final int colsB = transposeB ? m.rows : m.cols;
-        final Tensor2D result = new Tensor2D(rowsA, colsB).zero();
-        Blas.fgemm(transposeA, transposeB, this.data, 1.0f, m.data, 1.0f, result.data);
+        final Tensor2D result = new Tensor2D(rowsA, colsB);
+        Blas.fgemm(transposeA, transposeB, this.data, 1.0f, m.data, 0.0f, result.data);
         return result;
     }
 

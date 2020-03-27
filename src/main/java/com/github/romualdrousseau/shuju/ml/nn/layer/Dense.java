@@ -3,7 +3,6 @@ package com.github.romualdrousseau.shuju.ml.nn.layer;
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Tensor2D;
-import com.github.romualdrousseau.shuju.ml.nn.Helper;
 import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
@@ -38,7 +37,7 @@ public class Dense extends Layer {
     }
 
     public Tensor2D callForward(final Tensor2D input) {
-        return Helper.xw_plus_b(input, this.weights.W, this.biases.W);
+        return this.weights.W.matmul(input).add(this.biases.W);
     }
 
     public void startBackward(final Optimizer optimizer) {

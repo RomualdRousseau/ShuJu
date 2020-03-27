@@ -116,15 +116,13 @@ public class AppTest {
         Tensor2D F = new Tensor2D(new float[][] { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } });
         Tensor2D R = new Tensor2D(new float[][] { { 29, -192 }, { -35, -22 } });
         assertTrue("Conv(M, F) = R", M.conv(F).equals(R));
-        assertTrue("F @ im2col(M) = R", F.reshape(1, 3 * 3).matmul(Helper.Img2Conv(M, 1, 3, 1, false)).reshape(2, 2).equals(R));
+        assertTrue("F @ im2col(M) = R", F.reshape(1, 3 * 3).matmul(Helper.Img2Conv(M, 3, 1)).reshape(2, 2).equals(R));
     }
 
     @Test
     public void testLinalgIm2Col() {
         Tensor2D M1 = new Tensor2D(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 90, 0, 75 }, { 0, 9, 0, 95 } });
-        Tensor2D M2 = M1.concatenate(new Tensor2D(new float[][] { { 0, 50, 0, 29 }, { 0, 80, 31, 2 }, { 33, 91, 0, 75 }, { 0, 9, 0, 95 } }), 0);
-        assertTrue("Col2im(Im2col(M1, 2, 2) = M1", Helper.Conv2Img(Helper.Img2Conv(M1, 1, 2, 2, false), 1, 4, 4, 2, 2).equals(M1));
-        assertTrue("Col2im(Im2col(M2, 2, 2) = M2", Helper.Conv2Img(Helper.Img2Conv(M2, 2, 2, 2, false), 2, 4, 4, 2, 2).equals(M2));
+        assertTrue("Col2im(Im2col(M1, 2, 2) = M1", Helper.Conv2Img(Helper.Img2Conv(M1, 2, 2), 4, 4, 2, 2).equals(M1));
     }
 
     @Test
@@ -133,9 +131,9 @@ public class AppTest {
         Tensor2D R1 = new Tensor2D(new float[][] { { 80, 31 }, { 90, 95 } });
         Tensor2D R2 = new Tensor2D(new float[][] { { 0, 0 }, { 0, 0 } });
         Tensor2D R3 = new Tensor2D(new float[][] { { 32.5f, 15.5f }, { 33.0f, 42.5f } });
-        assertTrue("PoolMax(M, 2) = R", Helper.Img2Conv(M, 1, 2, 2, false).max(0).reshape(2, 2).equals(R1));
-        assertTrue("PoolMin(M, 2) = R", Helper.Img2Conv(M, 1, 2, 2, false).min(0).reshape(2, 2).equals(R2));
-        assertTrue("PoolAvg(M, 2) = R", Helper.Img2Conv(M, 1, 2, 2, false).avg(0).reshape(2, 2).equals(R3));
+        assertTrue("PoolMax(M, 2) = R", Helper.Img2Conv(M, 2, 2).max(0).reshape(2, 2).equals(R1));
+        assertTrue("PoolMin(M, 2) = R", Helper.Img2Conv(M, 2, 2).min(0).reshape(2, 2).equals(R2));
+        assertTrue("PoolAvg(M, 2) = R", Helper.Img2Conv(M, 2, 2).avg(0).reshape(2, 2).equals(R3));
     }
 
     @Test
@@ -145,9 +143,9 @@ public class AppTest {
         Tensor2D R1 = new Tensor2D(new float[][] { { 0, 0, 0, 0 }, { 0, 1, 1, 0 }, { 0, 1, 0, 0 }, { 0, 0, 0, 1 } });
         Tensor2D R2 = new Tensor2D(new float[][] { { 1, 0, 1, 0 }, { 1, 0, 0, 0 }, { 0, 0, 1, 0 }, { 1, 0, 1, 0 } });
         Tensor2D R3 = new Tensor2D(new float[][] { { 8.125f, 8.125f, 3.875f, 3.875f }, { 8.125f, 8.125f, 3.875f, 3.875f }, { 8.25f, 8.25f, 10.625f, 10.625f }, { 8.25f, 8.25f, 10.625f, 10.625f } });
-        assertTrue("ExpandMax(M, 2) = R1", Helper.expand_minmax(Helper.Img2Conv(M, 1, 2, 2, false).max(0).reshape(2, 2), M, E).reshape(4, 4).equals(R1));
-        assertTrue("ExpandMin(M, 2) = R2", Helper.expand_minmax(Helper.Img2Conv(M, 1, 2, 2, false).min(0).reshape(2, 2), M, E).reshape(4, 4).equals(R2));
-        assertTrue("ExpandAvg(M, 2) = R3", Helper.expand_avg(Helper.Img2Conv(M, 1, 2, 2, false).avg(0).reshape(2, 2), 2).reshape(4, 4).equals(R3));
+        assertTrue("ExpandMax(M, 2) = R1", Helper.expand_minmax(Helper.Img2Conv(M, 2, 2).max(0).reshape(2, 2), M, E).reshape(4, 4).equals(R1));
+        assertTrue("ExpandMin(M, 2) = R2", Helper.expand_minmax(Helper.Img2Conv(M, 2, 2).min(0).reshape(2, 2), M, E).reshape(4, 4).equals(R2));
+        assertTrue("ExpandAvg(M, 2) = R3", Helper.expand_avg(Helper.Img2Conv(M, 2, 2).avg(0).reshape(2, 2), 2).reshape(4, 4).equals(R3));
     }
 
     @Test

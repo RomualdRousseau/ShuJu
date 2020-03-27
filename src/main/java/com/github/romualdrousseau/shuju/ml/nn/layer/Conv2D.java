@@ -2,13 +2,14 @@ package com.github.romualdrousseau.shuju.ml.nn.layer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Linalg;
 import com.github.romualdrousseau.shuju.math.Tensor2D;
+import com.github.romualdrousseau.shuju.math.Tensor3D;
 import com.github.romualdrousseau.shuju.ml.nn.Helper;
 import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
 import com.github.romualdrousseau.shuju.ml.nn.Parameters2D;
+import com.github.romualdrousseau.shuju.ml.nn.Parameters3D;
 import com.github.romualdrousseau.shuju.ml.nn.RegularizerFunc;
 
 public class Conv2D extends Layer {
@@ -19,7 +20,7 @@ public class Conv2D extends Layer {
 
         this.initializer = initializer;
         this.regularizer = regularizer;
-        this.filters = new Parameters2D(filters * filters, inputChannels * channels);
+        this.filters = new Parameters3D(inputChannels, filters * filters, channels);
         this.biases = new Parameters2D(inputChannels * channels);
 
         this.reset(false);
@@ -41,10 +42,9 @@ public class Conv2D extends Layer {
 
     public Tensor2D callForward(final Tensor2D input) {
         final int n_filters = this.inputUnits - this.units + 1;
-        final Tensor2D filters_res = Linalg.BlockDiagonal(this.filters.W, this.inputChannels, false);
-        final Tensor2D input_res = input.transpose().reshape(-1, this.inputUnits);
-        final Tensor2D input_col = Helper.Img2Conv(input_res, this.inputChannels, n_filters, 1, false);
-        final Tensor2D output = Helper.xw_plus_b(input_col, filters_res, this.biases.W);
+        final Tensor3D input_res_T = input.transpose().reshape(this.inputChannels, this.inputUnits, -1);
+        final Tensor3D input_col = Helper.Img2Conv(input_res_T, n_filters, 1);
+        final Tensor2D output = this.filters.W.matmul(input_col).reshape(this.channels, -1).add(this.biases.W);
         return output.transpose();
     }
 
@@ -55,14 +55,14 @@ public class Conv2D extends Layer {
 
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
         final int n_filters = this.inputUnits - this.units + 1;
-        final Tensor2D filters_res = Linalg.BlockDiagonal(this.filters.W, this.inputChannels, false);
-        final Tensor2D input_res = this.lastInput.transpose().reshape(-1, this.inputUnits);
-        final Tensor2D input_col = Helper.Img2Conv(input_res, this.inputChannels, n_filters, 1, false);
+        final Tensor3D input_res_T = this.lastInput.transpose().reshape(this.inputChannels, this.inputUnits, -1);
+        final Tensor3D input_col = Helper.Img2Conv(input_res_T, n_filters, 1);
         final Tensor2D d_L_d_out_T = d_L_d_out.transpose();
-        this.filters.G.add(Linalg.BlockColumn(d_L_d_out_T.matmul(input_col, false, true), this.inputChannels, 1));
+        final Tensor3D d_L_d_out_res_T = d_L_d_out_T.reshape(this.inputChannels, -1, this.units * this.units);
+        final Tensor3D d_L_d_in = Helper.Conv2Img(this.filters.W.matmul(d_L_d_out_res_T, true, false), this.inputUnits, this.inputUnits, n_filters, 1);
+        this.filters.G.add(d_L_d_out_res_T.matmul(input_col, false, true));
         this.biases.G.add(d_L_d_out_T.flatten(1).mul(this.bias));
-        final Tensor2D d_L_d_in = Helper.Conv2Img(filters_res.matmul(d_L_d_out_T, true, false), this.inputChannels, this.inputUnits, this.inputUnits, n_filters, 1);
-        return d_L_d_in.reshape(-1, this.inputChannels);
+        return d_L_d_in.reshape(this.inputChannels, -1).transpose();
     }
 
     public void completeBackward(final Optimizer optimizer) {
@@ -89,6 +89,6 @@ public class Conv2D extends Layer {
 
     private final InitializerFunc initializer;
     private final RegularizerFunc regularizer;
-    private final Parameters2D filters;
+    private final Parameters3D filters;
     private final Parameters2D biases;
 }

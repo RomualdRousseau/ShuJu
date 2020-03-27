@@ -4,7 +4,6 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Tensor2D;
 import com.github.romualdrousseau.shuju.ml.nn.ActivationFunc;
-import com.github.romualdrousseau.shuju.ml.nn.Helper;
 import com.github.romualdrousseau.shuju.ml.nn.Layer;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
 import com.github.romualdrousseau.shuju.ml.nn.activation.Linear;
@@ -30,7 +29,12 @@ public class Activation extends Layer {
     }
 
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
-        return Helper.a_mul_b(d_L_d_out, this.activation.derivate(this.output));
+        final Tensor2D f_l_d_f = this.activation.derivate(this.output);
+        if (d_L_d_out.shape[1] == f_l_d_f.shape[1]) {
+            return f_l_d_f.mul(d_L_d_out);
+        } else {
+            return f_l_d_f.matmul(d_L_d_out);
+        }
     }
 
     public void completeBackward(final Optimizer optimizer) {

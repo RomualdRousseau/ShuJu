@@ -70,23 +70,19 @@ public class Blas {
             return;
         }
 
-        final int M = tranA ? a[0].length : a.length;
-        final int K = tranA ? a.length : a[0].length;
-
-
         // bC = C
 
         if (beta == 0.0f) {
-            for (int i = 0; i < M; i++) {
+            for (int i = 0; i < c.length; i++) {
                 final float[] c_i = c[i];
-                for (int j = 0; j < K; j++) {
+                for (int j = 0; j < c_i.length; j++) {
                     c_i[j] = 0.0f;
                 }
             }
         } else if (beta != 1.0f) {
-            for (int i = 0; i < M; i++) {
+            for (int i = 0; i < c.length; i++) {
                 final float[] c_i = c[i];
-                for (int j = 0; j < K; j++) {
+                for (int j = 0; j < c_i.length; j++) {
                     c_i[j] *= beta;
                 }
             }
@@ -95,6 +91,9 @@ public class Blas {
         if (alpha == 0.0f) {
             return;
         }
+
+        final int M = tranA ? a[0].length : a.length;
+        final int K = tranA ? a.length : a[0].length;
 
         if (b == null) {
             assert (c.length == M && c[0].length == K) : "Illegal Dimension";
@@ -130,7 +129,7 @@ public class Blas {
             assert (K == K_) : "Illegal Dimension";
             assert (c.length == M && c[0].length == N) : "Illegal Dimension";
 
-            final int count = Math.min(M / 128 + 1, Blas.ncpu);
+            final int count = Math.min(1 + (M * N) / (64 * 64), Blas.ncpu);
 
             if (count <= 1) {
 
@@ -150,7 +149,7 @@ public class Blas {
         }
     }
 
-    private static void fgemm_kernel_cpu(final boolean tranA, final boolean tranB, int M, int N, int K,
+    private static void fgemm_kernel_cpu(final boolean tranA, final boolean tranB, final int M, final int N, final int K,
             final float[][] a, int offA, final float alpha, final float[][] b, int offB, final float beta,
             final float[][] c, int offC) {
 
@@ -251,5 +250,4 @@ public class Blas {
             }
         }
     }
-
 }

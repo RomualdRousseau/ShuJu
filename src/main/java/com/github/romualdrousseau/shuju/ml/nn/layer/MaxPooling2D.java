@@ -24,8 +24,8 @@ public class MaxPooling2D extends Layer {
     public Tensor2D callForward(final Tensor2D input) {
         final Tensor2D output = new Tensor2D(this.inputChannels, this.units * this.units);
         for (int k = 0; k < this.inputChannels; k++) {
-            final Tensor2D input_k = input.slice(0, k, -1, 1).reshape(this.inputUnits);
-            output.replace(k, 0, Helper.Img2Conv(input_k, 1, this.size, this.size, false).max(0));
+            final Tensor2D input_k = input.slice(0, k, -1, 1).reshape(this.inputUnits, -1);
+            output.replace(k, 0, Helper.Img2Conv(input_k, this.size, this.size).max(0));
         }
         return output.transpose();
     }
@@ -36,9 +36,9 @@ public class MaxPooling2D extends Layer {
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
         final Tensor2D d_L_d_in = new Tensor2D(this.inputChannels, this.inputUnits * this.inputUnits);
         for (int k = 0; k < this.inputChannels; k++) {
-            final Tensor2D d_L_d_out_k = d_L_d_out.slice(0, k, -1, 1).reshape(this.units);
-            final Tensor2D input_k = this.lastInput.slice(0, k, -1, 1).reshape(this.inputUnits);
-            final Tensor2D output_k = this.output.slice(0, k, -1, 1).reshape(this.units);
+            final Tensor2D d_L_d_out_k = d_L_d_out.slice(0, k, -1, 1).reshape(this.units, -1);
+            final Tensor2D input_k = this.lastInput.slice(0, k, -1, 1).reshape(this.inputUnits, -1);
+            final Tensor2D output_k = this.output.slice(0, k, -1, 1).reshape(this.units, -1);
             d_L_d_in.replace(k, 0, Helper.expand_minmax(output_k, input_k, d_L_d_out_k));
         }
         return d_L_d_in.transpose();

@@ -11,7 +11,7 @@ public class Parameters3D {
       this(1, 1, units);
     }
 
-    public Parameters3D(int inputUnits, int inputChannels, int units) {
+    public Parameters3D(int inputChannels, int inputUnits, int units) {
       this.W = new Tensor3D(inputChannels, units, inputUnits).zero();
       this.G = W.copy().zero();
       this.M = W.copy().zero();

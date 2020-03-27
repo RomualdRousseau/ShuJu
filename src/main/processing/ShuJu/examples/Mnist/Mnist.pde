@@ -125,7 +125,7 @@ void fitModel() {
 
     if ((k % 100) == 99) {
       println();
-      println(String.format("[Step %d] Past 100 steps: Average Loss: %.3f | Accuracy: %.3f%%", k + 1, sumMean / (batchSize * 100), sumAccu / batchSize));
+      println(String.format("[Step %d] Past 100 steps: Average Loss: %.3f | Accuracy: %.3f%%", (k + 1) % oneEpoch, sumMean / (batchSize * 100), sumAccu / batchSize));
       sumAccu = 0;
       sumMean = 0;
     }
@@ -135,8 +135,8 @@ void fitModel() {
       final int imgx = i % trainingPerRow;
       final int imgy = i / trainingPerRow;
 
-      Matrix x = image2Matrix(trainingImages, imgx, imgy, MnistImageSize, MnistImageSize).reshape(MnistImageSize * MnistImageSize, 1);
-      Matrix y = new Matrix(new Vector(MnistLabelSize).oneHot(trainingLabels[imgx][imgy]), false);
+      Tensor2D x = image2Tensor2D(trainingImages, imgx, imgy, MnistImageSize, MnistImageSize).reshape(MnistImageSize * MnistImageSize, 1);
+      Tensor2D y = new Tensor2D(new Tensor1D(MnistLabelSize).oneHot(trainingLabels[imgx][imgy]), false);
 
       Layer output = this.model.model(x);
       loss.loss(output, y);
@@ -170,8 +170,8 @@ void testModel() {
     final int imgx = i % testPerRow;
     final int imgy = i / testPerRow;
 
-    Matrix x = image2Matrix(testImages, imgx, imgy, MnistImageSize, MnistImageSize).reshape(MnistImageSize * MnistImageSize, 1);
-    Matrix y = new Matrix(new Vector(MnistLabelSize).oneHot(testLabels[imgx][imgy]), false);
+    Tensor2D x = image2Tensor2D(testImages, imgx, imgy, MnistImageSize, MnistImageSize).reshape(MnistImageSize * MnistImageSize, 1);
+    Tensor2D y = new Tensor2D(new Tensor1D(MnistLabelSize).oneHot(testLabels[imgx][imgy]), false);
 
     Layer output = this.model.model(x);
     loss.loss(output, y);

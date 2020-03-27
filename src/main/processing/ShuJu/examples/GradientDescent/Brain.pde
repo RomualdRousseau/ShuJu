@@ -22,8 +22,8 @@ class Brain_ {
     }
   }
 
-  Matrix predict(PVector point) {
-    Vector input = new Vector(new float[] { point.x, point.y });
+  Tensor2D predict(PVector point) {
+    Tensor2D input = new Tensor2D(new float[] { point.x, point.y }, false);
     return this.model.model(input).detach();
   }
 
@@ -44,8 +44,8 @@ class Brain_ {
       for (int i = 0; i < Map2D.points.size(); i++) {
         PVector point = Map2D.points.get(i);
 
-        Vector input = new Vector(new float[] { point.x, point.y });
-        Vector target = new Vector(2).oneHot(int(point.z));
+        Tensor1D input = new Tensor1D(new float[] { point.x, point.y });
+        Tensor1D target = new Tensor1D(2).oneHot(int(point.z));
 
         Layer output = this.model.model(input);
         Loss loss = this.criterion.loss(output, target);
