@@ -1147,6 +1147,36 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         return this;
     }
 
+    public Tensor2D expAvg(final Tensor2D a, final float n) {
+        assert (this.rows == a.rows || this.cols == a.cols);
+        if(this.rows == a.rows && this.cols == a.cols) {
+            for (int i = 0; i < this.rows; i++) {
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i];
+                for (int j = 0; j < this.cols; j++) {
+                    m_i[j] = n * m_i[j] + (1.0f - n) * a_i[j];
+                }
+            }
+        } else if(this.rows == a.rows) {
+            for (int i = 0; i < this.rows; i++) {
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i];
+                for (int j = 0; j < this.cols; j++) {
+                    m_i[j] = n * m_i[j] + (1.0f - n) * a_i[j % a.cols];
+                }
+            }
+        } else {
+            for (int i = 0; i < this.rows; i++) {
+                final float[] m_i = this.data[i];
+                final float[] a_i = a.data[i % a.rows];
+                for (int j = 0; j < this.cols; j++) {
+                    m_i[j] = n * m_i[j] + (1.0f - n) * a_i[j];
+                }
+            }
+        }
+        return this;
+    }
+
     public Tensor2D abs() {
         for (int i = 0; i < this.rows; i++) {
             final float[] m_i = this.data[i];
