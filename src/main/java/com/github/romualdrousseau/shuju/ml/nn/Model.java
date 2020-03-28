@@ -51,8 +51,8 @@ public class Model {
     }
 
     public Model add(Layer layer) {
-        assert(this.layers.size() == 0 || layer.inputUnits == this.layers.getLast().units);
-        assert(this.layers.size() == 0 || layer.inputChannels == this.layers.getLast().channels);
+        assert (this.layers.size() == 0 || layer.inputUnits == this.layers.getLast().units);
+        assert (this.layers.size() == 0 || layer.inputChannels == this.layers.getLast().channels);
         layer.model = this;
         this.layers.add(layer);
         return this;

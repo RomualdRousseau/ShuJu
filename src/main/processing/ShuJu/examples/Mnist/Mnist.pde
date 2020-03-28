@@ -67,7 +67,7 @@ void buildModel() {
   model.add(new ActivationBuilder()
     .setActivation(new Relu()));
     
-  //model.add(new BatchNormalizerBuilder());
+  model.add(new BatchNormalizerBuilder());
 
   model.add(new MaxPooling2DBuilder()
     .setSize(2));
@@ -80,7 +80,7 @@ void buildModel() {
   model.add(new ActivationBuilder()
     .setActivation(new Relu()));
     
-  //model.add(new BatchNormalizerBuilder());
+  model.add(new BatchNormalizerBuilder());
 
   model.add(new MaxPooling2DBuilder()
     .setSize(2));
@@ -129,7 +129,7 @@ void fitModel() {
 
     if ((k % 100) == 99) {
       println();
-      println(String.format("[Step %d] Past 100 steps: Average Loss: %.3f | Accuracy: %.3f%%", (k + 1) % (oneEpoch + 1), sumMean / (batchSize * 100), sumAccu / batchSize));
+      println(String.format("[Step %d] Past 100 steps: Average Loss: %.3f | Accuracy: %.3f%%", (k % oneEpoch) + 1, sumMean / (batchSize * 100), sumAccu / batchSize));
       sumAccu = 0;
       sumMean = 0;
     }
