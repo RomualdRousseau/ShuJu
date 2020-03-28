@@ -44,19 +44,19 @@ class Brain_ {
       for (int i = 0; i < Map2D.points.size(); i++) {
         PVector point = Map2D.points.get(i);
 
-        Tensor1D input = new Tensor1D(new float[] { point.x, point.y });
-        Tensor1D target = new Tensor1D(2).oneHot(int(point.z));
+        Tensor2D input = new Tensor2D(new float[] { point.x, point.y }, false);
+        Tensor2D target = new Tensor2D(2, 1).oneHot(0, int(point.z), 0);
 
         Layer output = this.model.model(input);
         Loss loss = this.criterion.loss(output, target);
 
-        if (output.detachAsVector().argmax() != target.argmax()) {
+        if (output.detach().argmax(0, 0) != target.argmax(0, 0)) {
           this.optimizer.minimize(loss);
         } else {
           sumAccu++;
         }
 
-        sumMean += loss.getValueAsVector().flatten();
+        sumMean += loss.getValue().flatten(0, 0);
 
         if (Float.isNaN(sumMean)) {
           sumMean = 0.0;

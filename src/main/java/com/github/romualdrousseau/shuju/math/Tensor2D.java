@@ -412,6 +412,42 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         }
     }
 
+    public Tensor2D oneHot(final int idx, final int k, final int axis) {
+        if (axis == 0) {
+            for (int i = 0; i < this.shape[0]; i++) {
+                this.data[i][idx] = (i == k) ? 1.0f : 0.0f;
+            }
+        } else {
+            for (int j = 0; j < this.shape[1]; j++) {
+                this.data[idx][j] = (j == k) ? 1.0f : 0.0f;
+            }
+        }
+        return this;
+    }
+
+    public <T extends Enum<T>> Tensor2D oneHot(final int idx, final T e, final int axis) {
+        if (e == null) {
+            return this.zero();
+        }
+        return this.oneHot(idx, e.ordinal(), axis);
+    }
+
+    public <T extends Enum<T>> Tensor2D oneHot(final int idx, final T[] s, final int axis) {
+        if (s == null) {
+            return this.zero();
+        }
+        if (axis == 0) {
+            for (int i = 0; i < this.shape[0]; i++) {
+                this.data[i][idx] = (i == s[i].ordinal()) ? 1.0f : 0.0f;
+            }
+        } else {
+            for (int j = 0; j < this.shape[1]; j++) {
+                this.data[idx][j] = (j == s[j].ordinal()) ? 1.0f : 0.0f;
+            }
+        }
+        return this;
+    }
+
     public float avg(final int idx, final int axis) {
         if (axis == 0) {
             float sum = 0.0f;
