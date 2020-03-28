@@ -5,15 +5,10 @@ import java.util.function.Consumer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
-import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.math.Tensor2D;
 
 public class Model {
     public Model() {
-    }
-
-    public Layer model(Tensor1D input) {
-        return this.model(new Tensor2D(input, false));
     }
 
     public Layer model(Tensor2D input) {

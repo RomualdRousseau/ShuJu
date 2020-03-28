@@ -3,7 +3,6 @@ package com.github.romualdrousseau.shuju.ml.nn;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
 import com.github.romualdrousseau.shuju.math.Tensor2D;
-import com.github.romualdrousseau.shuju.math.Tensor1D;
 
 public abstract class Layer {
 
@@ -41,10 +40,6 @@ public abstract class Layer {
 
     public Tensor2D detach() {
         return this.output;
-    }
-
-    public Tensor1D detachAsVector() {
-        return new Tensor1D(this.output.transpose().getFloats(0));
     }
 
     public abstract void reset(boolean parametersOnly);
