@@ -15,13 +15,16 @@ import com.github.romualdrousseau.shuju.ml.nn.RegularizerFunc;
 public class Conv2D extends Layer {
 
     public Conv2D(final int inputUnits, final int inputChannels, final int filters, final int channels,
-            final float bias, final InitializerFunc initializer, final RegularizerFunc regularizer) {
-        super(inputUnits, inputChannels, inputUnits - filters + 1, inputChannels * channels, bias);
+            final float bias, final InitializerFunc initializer, final RegularizerFunc regularizer, final boolean paddingValid) {
+        super(inputUnits, inputChannels, paddingValid ? (inputUnits - filters + 1) : inputUnits, inputChannels * channels, bias);
 
+        this.n_filters = filters;
+        this.n_pads = paddingValid ? 0 : (filters / 2);
         this.initializer = initializer;
         this.regularizer = regularizer;
         this.filters = new Parameters3D(inputChannels, filters * filters, channels);
         this.biases = new Parameters2D(inputChannels * channels);
+
 
         this.reset(false);
     }
@@ -41,9 +44,8 @@ public class Conv2D extends Layer {
     }
 
     public Tensor2D callForward(final Tensor2D input) {
-        final int n_filters = this.inputUnits - this.units + 1;
         final Tensor3D input_res_T = input.transpose().reshape(this.inputChannels, this.inputUnits, -1);
-        final Tensor3D input_col = Helper.Img2Conv(input_res_T, n_filters, 1);
+        final Tensor3D input_col = Helper.Img2Conv(input_res_T, this.n_filters, 1, this.n_pads);
         final Tensor2D output = this.filters.W.matmul(input_col).reshape(this.channels, -1).add(this.biases.W);
         return output.transpose();
     }
@@ -54,12 +56,11 @@ public class Conv2D extends Layer {
     }
 
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
-        final int n_filters = this.inputUnits - this.units + 1;
         final Tensor3D input_res_T = this.lastInput.transpose().reshape(this.inputChannels, this.inputUnits, -1);
-        final Tensor3D input_col = Helper.Img2Conv(input_res_T, n_filters, 1);
+        final Tensor3D input_col = Helper.Img2Conv(input_res_T, n_filters, 1, this.n_pads);
         final Tensor2D d_L_d_out_T = d_L_d_out.transpose();
         final Tensor3D d_L_d_out_res_T = d_L_d_out_T.reshape(this.inputChannels, -1, this.units * this.units);
-        final Tensor3D d_L_d_in = Helper.Conv2Img(this.filters.W.matmul(d_L_d_out_res_T, true, false), this.inputUnits, this.inputUnits, n_filters, 1);
+        final Tensor3D d_L_d_in = Helper.Conv2Img(this.filters.W.matmul(d_L_d_out_res_T, true, false), this.inputUnits, this.inputUnits, this.n_filters, 1, this.n_pads);
         this.filters.G.add(d_L_d_out_res_T.matmul(input_col, false, true));
         this.biases.G.add(d_L_d_out_T.flatten(1).mul(this.bias));
         return d_L_d_in.reshape(this.inputChannels, -1).transpose();
@@ -87,6 +88,8 @@ public class Conv2D extends Layer {
         return json;
     }
 
+    private final int n_filters;
+    private final int n_pads;
     private final InitializerFunc initializer;
     private final RegularizerFunc regularizer;
     private final Parameters3D filters;

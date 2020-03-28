@@ -15,10 +15,11 @@ public class Conv2DBuilder extends LayerBuilder<Conv2D> {
         this.channels = 8;
         this.initializer = new GlorotUniformInitializer();
         this.regularizer = null;
+        this.paddingValid = false;
     }
 
     public Conv2D build() {
-        return new Conv2D(this.inputUnits, this.inputChannels, this.filters, this.channels, this.bias, this.initializer, this.regularizer);
+        return new Conv2D(this.inputUnits, this.inputChannels, this.filters, this.channels, this.bias, this.initializer, this.regularizer, this.paddingValid);
     }
 
     public Conv2DBuilder setInputUnits(int inputUnits) {
@@ -46,6 +47,16 @@ public class Conv2DBuilder extends LayerBuilder<Conv2D> {
         return this;
     }
 
+    public Conv2DBuilder withSamePadding() {
+        this.paddingValid = false;
+        return this;
+    }
+
+    public Conv2DBuilder withValidPadding() {
+        this.paddingValid = true;
+        return this;
+    }
+
     public Conv2DBuilder setInitializer(InitializerFunc initializer) {
         this.initializer = initializer;
         return this;
@@ -60,5 +71,6 @@ public class Conv2DBuilder extends LayerBuilder<Conv2D> {
     private int channels;
     private InitializerFunc initializer;
     private RegularizerFunc regularizer;
+    private boolean paddingValid;
 }
 

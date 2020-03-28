@@ -1,5 +1,6 @@
 package com.github.romualdrousseau.shuju.math;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import com.github.romualdrousseau.shuju.json.JSON;
@@ -10,6 +11,10 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
 
     public Tensor3D(final int... shape) {
         super(new int[] { shape[0], shape[1], shape[2] }, new float[shape[0]][shape[1]][shape[2]]);
+    }
+
+    public Tensor3D(final float[][][] data) {
+        super(new int[] { data.length, data[0].length, data[0][0].length }, data);
     }
 
     public Tensor3D(final JSONObject json) {
@@ -24,6 +29,32 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
                 }
             }
         }
+    }
+
+    public boolean equals(final Tensor3D m) {
+        boolean result = this.shape[0] == m.shape[0] && this.shape[1] == m.shape[1] && this.shape[2] == m.shape[2];
+        for (int i = 0; i < this.shape[0]; i++) {
+            for (int j = 0; j < this.shape[1] && result; j++) {
+                final float[] a = this.data[i][j];
+                final float[] b = m.data[i][j];
+                result &= Arrays.equals(a, b);
+            }
+        }
+        return result;
+    }
+
+    public boolean equals(final Tensor3D m, final float e) {
+        boolean result = this.shape[0] == m.shape[0] && this.shape[1] == m.shape[1] && this.shape[2] == m.shape[2];
+        for (int i = 0; i < this.shape[0]; i++) {
+            for (int j = 0; j < this.shape[1] && result; j++) {
+                final float[] a = this.data[i][j];
+                final float[] b = m.data[i][j];
+                for (int k = 0; k < this.shape[2] && result; k++) {
+                    result &= Math.abs(a[k] - b[k]) < e;
+                }
+            }
+        }
+        return result;
     }
 
     public float get(final int i, final int j, final int k) {
@@ -55,7 +86,7 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
             newCols = this.shape[0] * this.shape[1] * this.shape[2] / newRows;
         }
         assert (this.shape[0] * this.shape[1] * this.shape[2] == newRows * newCols);
-        final Tensor2D result =  new Tensor2D(newRows, newCols);
+        final Tensor2D result = new Tensor2D(newRows, newCols);
         if (format == 'C') {
             int a = 0;
             for (int i = 0; i < this.shape[0]; i++) {
@@ -83,6 +114,59 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
         return result;
     }
 
+    public Tensor3D reshape(final int newDepth, final int newRows, final int newCols) {
+        return this.reshape(newDepth, newRows, newCols, 'C');
+    }
+
+    public Tensor3D reshape(int newDepth, int newRows, int newCols, final char format) {
+        assert (newDepth > 0 || newRows > 0 || newCols > 0);
+
+        if (newDepth < 0) {
+            newDepth = this.shape[0] * this.shape[1] * this.shape[2] / (newRows * newCols);
+        }
+        if (newRows < 0) {
+            newRows = this.shape[0] * this.shape[1] * this.shape[2] / (newDepth * newCols);
+        }
+        if (newCols < 0) {
+            newCols = this.shape[0] * this.shape[1] * this.shape[2] / (newDepth * newCols);
+        }
+
+        assert (this.shape[0] * this.shape[1] * this.shape[2] == newDepth * newRows * newCols);
+
+        final Tensor3D result = new Tensor3D(newDepth, newRows, newCols);
+
+        if (format == 'C') {
+            int a = 0;
+            for (int i = 0; i < this.shape[0]; i++) {
+                final float[][] m_i = this.data[i];
+                for (int j = 0; j < this.shape[1]; j++) {
+                    final float[] m_ij = m_i[j];
+                    for (int k = 0; k < this.shape[2]; k++) {
+                        final int ii = a / (newCols * newRows);
+                        final int jj = a % (newCols * newRows);
+                        result.data[ii][jj / newCols][jj % newCols] = m_ij[k];
+                        a++;
+                    }
+                }
+            }
+        } else { // 'F'
+            int a = 0;
+            for (int i = 0; i < this.shape[0]; i++) {
+                final float[][] m_i = this.data[i];
+                for (int k = 0; k < this.shape[2]; k++) {
+                    for (int j = 0; j < this.shape[1]; j++) {
+                        final int ii = a / (newCols * newRows);
+                        final int jj = a % (newCols * newRows);
+                        result.data[ii][jj / newCols][jj % newCols] = m_i[j][k];
+                        a++;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
     public Tensor3D zero() {
         for (int i = 0; i < this.shape[0]; i++) {
             final float[][] m_i = this.data[i];
@@ -90,6 +174,44 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
                 final float[] m_ij = m_i[j];
                 for (int k = 0; k < this.shape[2]; k++) {
                     m_ij[k] = 0.0f;
+                }
+            }
+        }
+        return this;
+    }
+
+    public Tensor3D ones() {
+        for (int i = 0; i < this.shape[0]; i++) {
+            final float[][] m_i = this.data[i];
+            for (int j = 0; j < this.shape[1]; j++) {
+                final float[] m_ij = m_i[j];
+                for (int k = 0; k < this.shape[2]; k++) {
+                    m_ij[k] = 1.0f;
+                }
+            }
+        }
+        return this;
+    }
+
+    public Tensor3D arrange(final int axis) {
+        if (axis == 0) {
+            for (int i = 0; i < this.shape[0]; i++) {
+                final float[][] m_i = this.data[i];
+                for (int j = 0; j < this.shape[1]; j++) {
+                    final float[] m_ij = m_i[j];
+                    for (int k = 0; k < this.shape[2]; k++) {
+                        m_ij[k] = i * this.shape[1] * this.shape[2] + j * this.shape[2] + k + 1;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < this.shape[0]; i++) {
+                final float[][] m_i = this.data[i];
+                for (int j = 0; j < this.shape[1]; j++) {
+                    final float[] m_ij = m_i[j];
+                    for (int k = 0; k < this.shape[2]; k++) {
+                        m_ij[k] = i * this.shape[1] * this.shape[2] + k * this.shape[1] + j + 1;
+                    }
                 }
             }
         }
@@ -111,6 +233,122 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
             }
         }
         return this;
+    }
+
+    public float max(final int k, final int idx, final int axis) {
+        if (axis == 0) {
+            float maxValue = this.data[k][0][idx];
+            for (int i = 1; i < this.shape[1]; i++) {
+                if (this.data[k][i][idx] > maxValue) {
+                    maxValue = this.data[k][i][idx];
+                }
+            }
+            return maxValue;
+        } else {
+            float maxValue = this.data[k][idx][0];
+            for (int i = 1; i < this.shape[2]; i++) {
+                if (this.data[k][idx][i] > maxValue) {
+                    maxValue = this.data[k][idx][i];
+                }
+            }
+            return maxValue;
+        }
+    }
+
+    public Tensor3D max(int axis) {
+        if (axis == 0) {
+            final Tensor3D result = new Tensor3D(this.shape[0], 1, this.shape[2]);
+            for (int k = 0; k < this.shape[0]; k++) {
+                for (int i = 0; i < this.shape[2]; i++) {
+                    result.data[k][0][i] = this.max(k, i, 0);
+                }
+            }
+            return result;
+        } else {
+            final Tensor3D result = new Tensor3D(this.shape[0], this.shape[1], 1);
+            for (int k = 0; k < this.shape[0]; k++) {
+                for (int i = 0; i < this.shape[1]; i++) {
+                    result.data[k][i][0] = this.max(k, i, 1);
+                }
+            }
+            return result;
+        }
+    }
+
+    public float min(final int k, final int idx, final int axis) {
+        if (axis == 0) {
+            float minValue = this.data[k][0][idx];
+            for (int i = 1; i < this.shape[1]; i++) {
+                if (this.data[k][i][idx] < minValue) {
+                    minValue = this.data[k][i][idx];
+                }
+            }
+            return minValue;
+        } else {
+            float minValue = this.data[k][idx][0];
+            for (int i = 1; i < this.shape[2]; i++) {
+                if (this.data[k][idx][i] < minValue) {
+                    minValue = this.data[k][idx][i];
+                }
+            }
+            return minValue;
+        }
+    }
+
+    public Tensor3D min(int axis) {
+        if (axis == 0) {
+            final Tensor3D result = new Tensor3D(this.shape[0], 1, this.shape[2]);
+            for (int k = 0; k < this.shape[0]; k++) {
+                for (int i = 0; i < this.shape[2]; i++) {
+                    result.data[k][0][i] = this.min(k, i, 0);
+                }
+            }
+            return result;
+        } else {
+            final Tensor3D result = new Tensor3D(this.shape[0], this.shape[1], 1);
+            for (int k = 0; k < this.shape[0]; k++) {
+                for (int i = 0; i < this.shape[1]; i++) {
+                    result.data[k][i][0] = this.min(k, i, 1);
+                }
+            }
+            return result;
+        }
+    }
+
+    public float avg(final int k, final int idx, final int axis) {
+        if (axis == 0) {
+            float sum = 0.0f;
+            for (int i = 0; i < this.shape[1]; i++) {
+                sum += this.data[k][i][idx];
+            }
+            return sum / (float) this.shape[1];
+        } else {
+            float sum = 0.0f;
+            for (int i = 0; i < this.shape[2]; i++) {
+                sum += this.data[k][idx][i];
+            }
+            return sum / (float) this.shape[2];
+        }
+    }
+
+    public Tensor3D avg(int axis) {
+        if (axis == 0) {
+            final Tensor3D result = new Tensor3D(this.shape[0], 1, this.shape[2]);
+            for (int k = 0; k < this.shape[0]; k++) {
+                for (int i = 0; i < this.shape[2]; i++) {
+                    result.data[k][0][i] = this.avg(k, i, 0);
+                }
+            }
+            return result;
+        } else {
+            final Tensor3D result = new Tensor3D(this.shape[0], this.shape[1], 1);
+            for (int k = 0; k < this.shape[0]; k++) {
+                for (int i = 0; i < this.shape[1]; i++) {
+                    result.data[k][i][0] = this.avg(k, i, 1);
+                }
+            }
+            return result;
+        }
     }
 
     public Tensor3D abs() {

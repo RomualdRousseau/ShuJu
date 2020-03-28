@@ -805,14 +805,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
             for (int i = 0; i < this.rows; i++) {
                 final float[] m_i = this.data[i];
                 for (int j = 0; j < this.cols; j++) {
-                    m_i[j] = i + j * this.rows + 1;
+                    m_i[j] = i * this.cols + j + 1;
                 }
             }
         } else {
             for (int i = 0; i < this.rows; i++) {
                 final float[] m_i = this.data[i];
                 for (int j = 0; j < this.cols; j++) {
-                    m_i[j] = i * this.cols + j + 1;
+                    m_i[j] = j * this.rows + i + 1;
                 }
             }
         }

@@ -125,7 +125,7 @@ void fitModel() {
 
     if ((k % 100) == 99) {
       println();
-      println(String.format("[Step %d] Past 100 steps: Average Loss: %.3f | Accuracy: %.3f%%", (k + 1) % oneEpoch, sumMean / (batchSize * 100), sumAccu / batchSize));
+      println(String.format("[Step %d] Past 100 steps: Average Loss: %.3f | Accuracy: %.3f%%", (k + 1) % (oneEpoch + 1), sumMean / (batchSize * 100), sumAccu / batchSize));
       sumAccu = 0;
       sumMean = 0;
     }
