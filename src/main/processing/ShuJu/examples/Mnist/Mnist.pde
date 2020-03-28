@@ -58,25 +58,29 @@ void buildModel() {
   model = new Model();
 
   model.add(new Conv2DBuilder()
-    .setBias(0.1)
     .setInputUnits(MnistImageSize)
     .setInputChannels(1)
     .setFilters(5)
+    .withSamePadding()
     .setChannels(32));
 
   model.add(new ActivationBuilder()
     .setActivation(new Relu()));
+    
+  //model.add(new BatchNormalizerBuilder());
 
   model.add(new MaxPooling2DBuilder()
     .setSize(2));
 
   model.add(new Conv2DBuilder()
-    .setBias(0.1)
     .setFilters(5)
+    .withSamePadding()
     .setChannels(64));
 
   model.add(new ActivationBuilder()
     .setActivation(new Relu()));
+    
+  //model.add(new BatchNormalizerBuilder());
 
   model.add(new MaxPooling2DBuilder()
     .setSize(2));

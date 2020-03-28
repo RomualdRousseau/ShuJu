@@ -34,14 +34,15 @@ static final String[] flowerWords = {
   "I. virginica"
 };
 
-final int iterationCount = 100;
+final int iterationCount = 10;
 final int timeStepX = 10;
+final int miniBatch = 10;
 
 ArrayList<Float[]> fisherSet;
-Vector[] trainingInputs;
-Vector[] trainingTargets;
-Vector[] testInputs;
-Vector[] testTargets;
+Tensor2D[] trainingInputs;
+Tensor2D[] trainingTargets;
+Tensor2D[] testInputs;
+Tensor2D[] testTargets;
 Model model;
 Optimizer optimizer;
 Loss loss;
@@ -77,13 +78,9 @@ void buildModel() {
   model.add(new DenseBuilder()
     .setInputUnits(4)
     .setUnits(64));
-
-  model.add(new DropOutBuilder());
-
-  model.add(new BatchNormalizerBuilder());
-
+    
   model.add(new ActivationBuilder()
-    .setActivation(new Relu()));
+    .setActivation(new Tanh()));
 
   model.add(new DenseBuilder()
     .setUnits(3));
@@ -91,7 +88,7 @@ void buildModel() {
   model.add(new ActivationBuilder()
     .setActivation(new Softmax()));
 
-  optimizer = new OptimizerRMSPropBuilder().build(model);
+  optimizer = new OptimizerAdamBuilder().build(model);
 
   loss = new Loss(new SoftmaxCrossEntropy());
 }
@@ -103,36 +100,36 @@ void buildTraingAndTestSets() {
   ArrayList<Float[]> training = subset(fisherSet, 0, p);
   ArrayList<Float[]> test = subset(fisherSet, p, fisherSet.size());
 
-  // Training to Matrix
-  trainingInputs = new Vector[training.size()];
-  trainingTargets = new Vector[training.size()];
+  // Training to Tensor2D
+  trainingInputs = new Tensor2D[training.size()];
+  trainingTargets = new Tensor2D[training.size()];
   for (int i = 0; i < training.size(); i++) {
     Float[] data = training.get(i);
-    trainingInputs[i] = new Vector(4);
-    trainingInputs[i].set(0, data[0]);
-    trainingInputs[i].set(1, data[1]);
-    trainingInputs[i].set(2, data[2]);
-    trainingInputs[i].set(3, data[3]);
-    trainingTargets[i] = new Vector(3);
-    trainingTargets[i].set(0, data[4]);
-    trainingTargets[i].set(1, data[5]);
-    trainingTargets[i].set(2, data[6]);
+    trainingInputs[i] = new Tensor2D(4, 1);
+    trainingInputs[i].set(0, 0, data[0]);
+    trainingInputs[i].set(1, 0, data[1]);
+    trainingInputs[i].set(2, 0, data[2]);
+    trainingInputs[i].set(3, 0, data[3]);
+    trainingTargets[i] = new Tensor2D(3, 1);
+    trainingTargets[i].set(0, 0, data[4]);
+    trainingTargets[i].set(1, 0, data[5]);
+    trainingTargets[i].set(2, 0, data[6]);
   }
 
-  // Test to Matrix
-  testInputs = new Vector[test.size()];
-  testTargets = new Vector[test.size()];
+  // Test to Tensor2D
+  testInputs = new Tensor2D[test.size()];
+  testTargets = new Tensor2D[test.size()];
   for (int i = 0; i < test.size(); i++) {
     Float[] data = test.get(i);
-    testInputs[i] = new Vector(4);
-    testInputs[i].set(0, data[0]);
-    testInputs[i].set(1, data[1]);
-    testInputs[i].set(2, data[2]);
-    testInputs[i].set(3, data[3]);
-    testTargets[i] = new Vector(3);
-    testTargets[i].set(0, data[4]);
-    testTargets[i].set(1, data[5]);
-    testTargets[i].set(2, data[6]);
+    testInputs[i] = new Tensor2D(4, 1);
+    testInputs[i].set(0, 0, data[0]);
+    testInputs[i].set(1, 0, data[1]);
+    testInputs[i].set(2, 0, data[2]);
+    testInputs[i].set(3, 0, data[3]);
+    testTargets[i] = new Tensor2D(3, 1);
+    testTargets[i].set(0, 0, data[4]);
+    testTargets[i].set(1, 0, data[5]);
+    testTargets[i].set(2, 0, data[6]);
   }
 }
 
@@ -160,13 +157,15 @@ void draw() {
   model.setTrainingMode(true);
   float error = 0.0;
   for (int i = 0; i < iterationCount; i++) {
-    optimizer.zeroGradients();
-    for(int j = 0; j < trainingInputs.length; j++) {
-      optimizer.minimize(loss.loss(model.model(trainingInputs[j]), trainingTargets[j]));
+    for(int j = 0; j < trainingInputs.length; j += miniBatch) {
+      optimizer.zeroGradients();
+      for(int k = j; k < Math.min(trainingInputs.length, j + miniBatch); k++) {
+        optimizer.minimize(loss.loss(model.model(trainingInputs[k]), trainingTargets[k]));
+      }
+      optimizer.step();
     }
-    optimizer.step();
     epochs++;
-    error += loss.getValueAsVector().flatten();
+    error += loss.getValue().flatten(0, 0);
   }
   error /= iterationCount;
   model.setTrainingMode(false);
@@ -178,37 +177,37 @@ void draw() {
 
   strokeWeight(4);
   for (int i = 0; i < trainingInputs.length; i++) {
-    float c = map(trainingTargets[i].argmax(), 0, 3, 0, 360);
+    float c = map(trainingTargets[i].argmax(0, 0), 0, 3, 0, 360);
     stroke(c, 100, 100);
 
-    float x = map(trainingInputs[i].get(0), 0, 1.0, 1, width / 2 - 1);
-    float y = map(trainingInputs[i].get(1), 0, 1.0, height / 2 - 1, 1);
+    float x = map(trainingInputs[i].get(0, 0), 0, 1.0, 1, width / 2 - 1);
+    float y = map(trainingInputs[i].get(1, 0), 0, 1.0, height / 2 - 1, 1);
     point(x, y);
 
-    x = map(trainingInputs[i].get(0), 0, 1.0, width / 2 + 1, width - 1);
-    y = map(trainingInputs[i].get(2), 0, 1.0, height / 2 - 1, 1);
+    x = map(trainingInputs[i].get(0, 0), 0, 1.0, width / 2 + 1, width - 1);
+    y = map(trainingInputs[i].get(2, 0), 0, 1.0, height / 2 - 1, 1);
     point(x, y);
 
-    x = map(trainingInputs[i].get(1), 0, 1.0, width / 2 + 1, width);
-    y = map(trainingInputs[i].get(3), 0, 1.0, height - 1, height / 2 + 1);
+    x = map(trainingInputs[i].get(1, 0), 0, 1.0, width / 2 + 1, width);
+    y = map(trainingInputs[i].get(3, 0), 0, 1.0, height - 1, height / 2 + 1);
     point(x, y);
 
-    x = map(trainingInputs[i].get(2), 0, 1.0, 1, width / 2 - 1);
-    y = map(trainingInputs[i].get(3), 0, 1.0, height - 1, height / 2 + 1);
+    x = map(trainingInputs[i].get(2, 0), 0, 1.0, 1, width / 2 - 1);
+    y = map(trainingInputs[i].get(3, 0), 0, 1.0, height - 1, height / 2 + 1);
     point(x, y);
   }
 
   int success = 0;
   for (int i = 0; i < testInputs.length; i++) {
-    Vector r = model.model(testInputs[i]).detachAsVector();
-    int i1 = r.argmax();
-    int i2 = testTargets[i].argmax();
+    Tensor2D r = model.model(testInputs[i]).detach();
+    int i1 = r.argmax(0, 0);
+    int i2 = testTargets[i].argmax(0, 0);
     if (i1 == i2) {
       success++;
     }
 
-    float x = map(testInputs[i].get(0), 0, 1.0, 1, width / 2 - 1);
-    float y = map(testInputs[i].get(1), 0, 1.0, height / 2 - 1, 1);
+    float x = map(testInputs[i].get(0, 0), 0, 1.0, 1, width / 2 - 1);
+    float y = map(testInputs[i].get(1, 0), 0, 1.0, height / 2 - 1, 1);
     float c = map(i2, 0, 3, 0, 360);
     strokeWeight(8);
     stroke(c, 100, 100);
@@ -220,8 +219,8 @@ void draw() {
       point(x, y);
     }
 
-    x = map(testInputs[i].get(0), 0, 1.0, width / 2 + 1, width - 1);
-    y = map(testInputs[i].get(2), 0, 1.0, height / 2 - 1, 1);
+    x = map(testInputs[i].get(0, 0), 0, 1.0, width / 2 + 1, width - 1);
+    y = map(testInputs[i].get(2, 0), 0, 1.0, height / 2 - 1, 1);
     c = map(i2, 0, 3, 0, 360);
     strokeWeight(8);
     stroke(c, 100, 100);
@@ -233,8 +232,8 @@ void draw() {
       point(x, y);
     }
 
-    x = map(testInputs[i].get(1), 0, 1.0, width / 2 + 1, width - 1);
-    y = map(testInputs[i].get(3), 0, 1.0, height - 1, height / 2 + 1);
+    x = map(testInputs[i].get(1, 0), 0, 1.0, width / 2 + 1, width - 1);
+    y = map(testInputs[i].get(3, 0), 0, 1.0, height - 1, height / 2 + 1);
     c = map(i2, 0, 3, 0, 360);
     strokeWeight(8);
     stroke(c, 100, 100);
@@ -246,8 +245,8 @@ void draw() {
       point(x, y);
     }
 
-    x = map(testInputs[i].get(2), 0, 1.0, 1, width / 2 - 1);
-    y = map(testInputs[i].get(3), 0, 1.0, height - 1, height / 2 + 1);
+    x = map(testInputs[i].get(2, 0), 0, 1.0, 1, width / 2 - 1);
+    y = map(testInputs[i].get(3, 0), 0, 1.0, height - 1, height / 2 + 1);
     c = map(i2, 0, 3, 0, 360);
     strokeWeight(8);
     stroke(c, 100, 100);
@@ -286,7 +285,7 @@ void draw() {
   }
   endShape();
 
-  text(String.format("%d %.5f %.2f%%", epochs, optimizer.learningRate, accuracy * 100), 1, height - 1);
+  text(String.format("%d %.5f %.2f%%", epochs, error, accuracy * 100), 1, height - 1);
 
   if (epochs > 1000 && accuracy < 0.8) {
     model.reset();
@@ -302,6 +301,7 @@ void keyPressed() {
   } else if (key == 'n') {
     println("new training");
     buildTraingAndTestSets();
+    model.reset();
     optimizer.reset();
   } else if (key == 's') {
     println("save model");

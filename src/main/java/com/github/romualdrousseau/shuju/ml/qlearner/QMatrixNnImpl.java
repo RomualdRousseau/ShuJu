@@ -51,9 +51,9 @@ public class QMatrixNnImpl extends QMatrix {
         this.optimizer.zeroGradients();
 
         for (MemoryCell memory : this.memoryMap.replay(0, this.numStates)) {
-            Tensor1D state = new Tensor1D(MemoryCell.IntToFloatArray(memory.state, numInputs));
-            Tensor1D action = new Tensor1D(MemoryCell.IntToFloatArray(memory.action, numOutputs + 1));
-            action.set(numOutputs, (float) memory.reward);
+            Tensor2D state = new Tensor2D(MemoryCell.IntToFloatArray(memory.state, numInputs), false);
+            Tensor2D action = new Tensor2D(MemoryCell.IntToFloatArray(memory.action, numOutputs + 1), false);
+            action.set(numOutputs, 0, (float) memory.reward);
             this.optimizer.minimize(this.loss.loss(this.model.model(state), action));
         }
 
@@ -61,15 +61,15 @@ public class QMatrixNnImpl extends QMatrix {
     }
 
     public int predictAction(int s) {
-        Tensor1D a = new Tensor1D(MemoryCell.IntToFloatArray(s, numInputs));
-        Tensor1D b = this.model.model(a).detachAsVector();
-        return MemoryCell.FloatArrayToInt(b.getFloats(), numOutputs);
+        Tensor2D a = new Tensor2D(MemoryCell.IntToFloatArray(s, numInputs), false);
+        Tensor2D b = this.model.model(a).detach();
+        return MemoryCell.FloatArrayToInt(b.transpose().getFloats(0), numOutputs);
     }
 
     public double predictReward(int s) {
-        Tensor1D a = new Tensor1D(MemoryCell.IntToFloatArray(s, numInputs));
-        Tensor1D b = this.model.model(a).detachAsVector();
-        return b.get(numOutputs);
+        Tensor2D a = new Tensor2D(MemoryCell.IntToFloatArray(s, numInputs), false);
+        Tensor2D b = this.model.model(a).detach();
+        return b.get(numOutputs, 0);
     }
 
     private int numStates;

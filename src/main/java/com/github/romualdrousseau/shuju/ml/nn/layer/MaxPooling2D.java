@@ -23,34 +23,20 @@ public class MaxPooling2D extends Layer {
     }
 
     public Tensor2D callForward(final Tensor2D input) {
-        final Tensor3D input_res = this.lastInput.transpose().reshape(this.inputChannels, this.inputUnits, -1);
+        final Tensor3D input_res = input.transpose().reshape(this.inputChannels, this.inputUnits, -1);
         final Tensor3D output = Helper.Img2Conv(input_res, this.size, this.size, 0).max(0);
         return output.reshape(this.channels, -1).transpose();
-        // final Tensor2D output = new Tensor2D(this.inputChannels, this.units * this.units);
-        // for (int k = 0; k < this.inputChannels; k++) {
-        //     final Tensor2D input_k = input.slice(0, k, -1, 1).reshape(this.inputUnits, -1);
-        //     output.replace(k, 0, Helper.Img2Conv(input_k, this.size, this.size, 0).max(0));
-        // }
-        // return output.transpose();
     }
 
     public void startBackward(final Optimizer optimizer) {
     }
 
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
-        final Tensor3D d_L_d_out_res = d_L_d_out.transpose().reshape(this.inputChannels, this.units, -1);
         final Tensor3D input_res = this.lastInput.transpose().reshape(this.inputChannels, this.inputUnits, -1);
         final Tensor3D output_res = this.output.transpose().reshape(this.inputChannels, this.units, -1);
+        final Tensor3D d_L_d_out_res = d_L_d_out.transpose().reshape(this.inputChannels, this.units, -1);
         final Tensor3D d_L_d_in = Helper.expandMinMax(output_res, input_res, d_L_d_out_res);
         return d_L_d_in.reshape(this.inputChannels, -1).transpose();
-        // final Tensor2D d_L_d_in = new Tensor2D(this.inputChannels, this.inputUnits * this.inputUnits);
-        // for (int k = 0; k < this.inputChannels; k++) {
-        //     final Tensor2D d_L_d_out_k = d_L_d_out.slice(0, k, -1, 1).reshape(this.units, -1);
-        //     final Tensor2D input_k = this.lastInput.slice(0, k, -1, 1).reshape(this.inputUnits, -1);
-        //     final Tensor2D output_k = this.output.slice(0, k, -1, 1).reshape(this.units, -1);
-        //     d_L_d_in.replace(k, 0, Helper.expandMinMax(output_k, input_k, d_L_d_out_k));
-        // }
-        // return d_L_d_in.transpose();
     }
 
     public void completeBackward(final Optimizer optimizer) {

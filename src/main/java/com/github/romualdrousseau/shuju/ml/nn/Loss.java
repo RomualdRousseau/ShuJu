@@ -28,7 +28,7 @@ public class Loss {
     }
 
     public Tensor1D getValueAsVector() {
-        return this.value.toVector(0, false);
+        return new Tensor1D(this.value.transpose().getFloats(0));
     }
 
     private LossFunc lossFunc;

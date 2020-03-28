@@ -10,96 +10,97 @@ import com.github.romualdrousseau.shuju.ml.nn.Parameters2D;
 
 public class BatchNormalizer extends Layer {
 
-    public BatchNormalizer(int inputUnits) {
-        super(inputUnits, inputUnits, 1.0f);
+    public BatchNormalizer(final int inputUnits, final int inputChannels) {
+        super(inputUnits, inputChannels, inputUnits, inputChannels, 1.0f);
 
-        this.norms = new Parameters2D(2);
-        this.mu = 0.0f;
-        this.var = 0.0f;
-        this.mu_run = 0.0f;
-        this.var_run = 0.0f;
+        this.gamma = new Parameters2D(inputChannels, 1);
+        this.beta = new Parameters2D(inputChannels, 1);
+        this.mu_run = new Tensor2D(1, inputChannels).zero();
+        this.var_run = new Tensor2D(1, inputChannels).ones();
 
         this.reset(false);
     }
 
     public void reset(final boolean parametersOnly) {
         if (parametersOnly) {
-            this.norms.M.zero();
-            this.norms.V.zero();
+            this.gamma.M.zero();
+            this.gamma.V.zero();
+            this.beta.M.zero();
+            this.beta.V.zero();
         } else {
-            this.norms.reset();
-            this.norms.W.set(0, 0, 1.0f);
+            this.gamma.reset();
+            this.gamma.W.ones();
+            this.beta.reset();
         }
     }
 
     public Tensor2D callForward(final Tensor2D input) {
-        final float gamma = this.norms.W.get(0, 0), beta = this.norms.W.get(1, 0);
-        float mu_curr = 0.0f, var_curr = 1.0f;
+        final Tensor2D mu;
+        final Tensor2D var;
 
         if (this.training) {
-            this.mu = input.avg(0, 0);
-            this.var = input.var(0, 0);
-            this.mu_run = this.mu_run * 0.9f + this.mu * (1.0f - 0.9f);
-            this.var_run = this.var_run * 0.9f + this.var * (1.0f - 0.9f);
-            mu_curr = this.mu;
-            var_curr = this.var;
+            mu = input.avg(0);
+            var = input.var(0);
+            this.mu_run = this.mu_run.expAvg(mu, 0.9f);
+            this.var_run = this.var_run.expAvg(var, 0.9f);
         } else {
-            mu_curr = this.mu_run;
-            var_curr = this.var_run;
+            mu = this.mu_run.copy();
+            var = this.var_run.copy();
         }
 
-        var_inv = 1.0f / Scalar.sqrt(var_curr + Scalar.EPSILON);
-        x_mu = input.copy().sub(mu_curr);
-        x_hat = x_mu.copy().mul(var_inv);
-        return x_hat.copy().mul(gamma).add(beta);
+        std_inv = var.add(Scalar.EPSILON).invsqrt();
+        x_mu = input.copy().sub(mu);
+        x_hat = x_mu.copy().mul(std_inv);
+        return x_hat.copy().mul(this.gamma.W).add(this.beta.W);
     }
 
     public void startBackward(final Optimizer optimizer) {
-        this.norms.G.zero();
+        this.gamma.G.zero();
+        this.beta.G.zero();
     }
 
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
-        final float gamma = this.norms.W.get(0, 0);
         final float N = d_L_d_out.rowCount();
 
-        Tensor2D dG = new Tensor2D(2, 1);
-        dG.set(0, 0, d_L_d_out.flatten(0, 0));
-        dG.set(1, 0, x_hat.copy().mul(d_L_d_out).flatten(0, 0));
-        this.norms.G.add(dG);
+        this.gamma.G.add(d_L_d_out.flatten(0));
 
-        final Tensor2D dva2 = d_L_d_out.copy().mul(gamma);
-        final float dvar_inv = x_mu.copy().mul(dva2).flatten(0, 0);
-        final float dvar = -0.5f * dvar_inv * Scalar.pow(var_inv, 3);
-        final Tensor2D dxmu = (Tensor2D) dva2.copy().mul(var_inv).add(x_mu.copy().mul(2.0f * dvar / N));
-        final float dmu = -dxmu.flatten(0, 0) / N;
+        this.beta.G.add(x_hat.copy().mul(d_L_d_out).flatten(0));
+
+        final Tensor2D dva2 = d_L_d_out.copy().mul(this.gamma.W);
+        final Tensor2D dstd_inv = x_mu.copy().mul(dva2).flatten(0);
+        final Tensor2D dvar = dstd_inv.mul(-0.5f).mul(std_inv.copy().pow(3));
+        final Tensor2D dxmu = dva2.mul(std_inv).add(x_mu.copy().mul(dvar).mul(2.0f / N));
+        final Tensor2D dmu = dxmu.flatten(0).mul(-1.0f / N);
         return dxmu.add(dmu);
     }
 
     public void completeBackward(final Optimizer optimizer) {
-        this.norms.W.sub(optimizer.computeGradients(this.norms));
+        this.gamma.W.sub(optimizer.computeGradients(this.gamma));
+        this.beta.W.sub(optimizer.computeGradients(this.beta));
     }
 
     public void fromJSON(final JSONObject json) {
-        this.norms.fromJSON(json.getJSONObject("norms"));
-        this.mu_run = json.getFloat("mu_r");
-        this.var_run = json.getFloat("var_r");
+        this.gamma.fromJSON(json.getJSONObject("gamma"));
+        this.beta.fromJSON(json.getJSONObject("beta"));
+        this.mu_run = new Tensor2D(json.getJSONObject("mu_run"));
+        this.var_run = new Tensor2D(json.getJSONObject("var_run"));
     }
 
     public JSONObject toJSON() {
         final JSONObject json = JSON.newJSONObject();
-        json.setJSONObject("norms", this.norms.toJSON());
-        json.setFloat("mu_r", this.mu_run);
-        json.setFloat("var_r", this.var_run);
+        json.setJSONObject("gamma", this.gamma.toJSON());
+        json.setJSONObject("beta", this.beta.toJSON());
+        json.setJSONObject("mu_run", this.mu_run.toJSON());
+        json.setJSONObject("var_run", this.var_run.toJSON());
         return json;
     }
 
-    private final Parameters2D norms;
-    private float mu_run;
-    private float var_run;
+    private final Parameters2D gamma;
+    private final Parameters2D beta;
+    private Tensor2D mu_run;
+    private Tensor2D var_run;
     // cache
-    private float mu;
-    private float var;
-    private float var_inv;
+    private Tensor2D std_inv;
     private Tensor2D x_mu;
     private Tensor2D x_hat;
 }

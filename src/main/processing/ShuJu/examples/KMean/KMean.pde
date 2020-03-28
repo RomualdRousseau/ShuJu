@@ -25,14 +25,13 @@ import com.github.romualdrousseau.shuju.ml.slr.*;
 import com.github.romualdrousseau.shuju.transforms.*;
 import com.github.romualdrousseau.shuju.ml.knn.*;
 import com.github.romualdrousseau.shuju.ml.nn.layer.*;
-import com.github.romualdrousseau.shuju.ml.nn.normalizer.*;
 import com.github.romualdrousseau.shuju.nlp.impl.*;
 import com.github.romualdrousseau.shuju.ml.naivebayes.*;
 
 final static int K = 3;
 
-Vector[] data = new Vector[100];
-Vector[] labels = new Vector[100];
+Tensor1D[] data = new Tensor1D[100];
+Tensor1D[] labels = new Tensor1D[100];
 
 com.github.romualdrousseau.shuju.ml.kmean.KMean kmean = new com.github.romualdrousseau.shuju.ml.kmean.KMean(K);
 
@@ -41,8 +40,8 @@ void setup() {
   frameRate(1);
 
   for (int i = 0; i < 100; i++) {
-    data[i] = new Vector(new float[] { random(1), random(1) });
-    labels[i] = new Vector(K).set(int(random(K)), 1);
+    data[i] = new Tensor1D(new float[] { random(1), random(1) });
+    labels[i] = new Tensor1D(K).set(int(random(K)), 1);
   }
 }
 
@@ -55,9 +54,9 @@ void draw() {
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      Vector point = new Vector(new float[] {map(x, 0, width, 0, 1), map(y, 0, height, 0, 1)});
-      Vector label = kmean.predict(point);
-      float[] v = new Vector(K).oneHot(label.argmax()).getFloats();
+      Tensor1D point = new Tensor1D(new float[] {map(x, 0, width, 0, 1), map(y, 0, height, 0, 1)});
+      Tensor1D label = kmean.predict(point);
+      float[] v = new Tensor1D(K).oneHot(label.argmax()).getFloats();
       float r = map(v[0], 0, 1, 128, 255);
       float g = map(v[1], 0, 1, 128, 255);
       float b = map(v[2], 0, 1, 128, 255);
@@ -69,10 +68,10 @@ void draw() {
   noStroke();
 
   for (int i = 0; i < data.length; i++) {
-    Vector point = data[i];
-    Vector label = labels[i];
+    Tensor1D point = data[i];
+    Tensor1D label = labels[i];
 
-    float[] v = new Vector(K).oneHot(label.argmax()).getFloats();
+    float[] v = new Tensor1D(K).oneHot(label.argmax()).getFloats();
     float r = map(v[0], 0, 1, 128, 255);
     float g = map(v[1], 0, 1, 128, 255);
     float b = map(v[2], 0, 1, 128, 255);
@@ -86,6 +85,6 @@ void draw() {
 
 void keyPressed() {
     for (int i = 0; i < 100; i++) {
-      data[i] = new Vector(new float[] { random(1), random(1) });
+      data[i] = new Tensor1D(new float[] { random(1), random(1) });
     }
 }

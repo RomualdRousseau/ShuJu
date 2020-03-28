@@ -7,13 +7,9 @@ import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
 public class Tensor2D extends AbstractTensor<float[][]> {
-    protected int rows;
-    protected int cols;
 
     public Tensor2D(final int rows, final int cols) {
         super(new int[] { rows, cols }, new float[rows][cols]);
-        this.rows = rows;
-        this.cols = cols;
     }
 
     public Tensor2D(final int rows, final int cols, final boolean rowvar) {
@@ -27,9 +23,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     public Tensor2D(final float[] v, final boolean rowvar) {
         this(1, v.length, rowvar);
         if (rowvar) {
-            System.arraycopy(v, 0, this.data[0], 0, this.cols);
+            System.arraycopy(v, 0, this.data[0], 0, this.shape[1]);
         } else {
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 this.data[i][0] = v[i];
             }
         }
@@ -42,31 +38,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     public Tensor2D(final float[][] v, final boolean rowvar) {
         this(v.length, v[0].length, rowvar);
         if (rowvar) {
-            for (int i = 0; i < this.rows; i++) {
-                System.arraycopy(v[i], 0, this.data[i], 0, this.cols);
+            for (int i = 0; i < this.shape[0]; i++) {
+                System.arraycopy(v[i], 0, this.data[i], 0, this.shape[1]);
             }
         } else {
-            for (int i = 0; i < this.rows; i++) {
-                for (int j = 0; j < this.cols; j++) {
+            for (int i = 0; i < this.shape[0]; i++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     this.data[i][j] = v[j][i];
                 }
-            }
-        }
-    }
-
-    public Tensor2D(final Float[] v) {
-        this(v, true);
-    }
-
-    public Tensor2D(final Float[] v, final boolean rowvar) {
-        this(1, v.length, rowvar);
-        if (rowvar) {
-            for (int j = 0; j < this.cols; j++) {
-                this.data[0][j] = v[j];
-            }
-        } else {
-            for (int i = 0; i < this.rows; i++) {
-                this.data[i][0] = v[i];
             }
         }
     }
@@ -78,14 +57,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     public Tensor2D(final Float[][] v, final boolean rowvar) {
         this(v.length, v[0].length, rowvar);
         if (rowvar) {
-            for (int i = 0; i < this.rows; i++) {
-                for (int j = 0; j < this.cols; j++) {
+            for (int i = 0; i < this.shape[0]; i++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     this.data[i][j] = v[i][j];
                 }
             }
         } else {
-            for (int i = 0; i < this.rows; i++) {
-                for (int j = 0; j < this.cols; j++) {
+            for (int i = 0; i < this.shape[0]; i++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     this.data[i][j] = v[j][i];
                 }
             }
@@ -97,13 +76,13 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D(final Tensor1D v, final boolean rowvar) {
-        this(1, v.rows, rowvar);
+        this(1, v.shape[0], rowvar);
         if (rowvar) {
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 this.data[0][j] = v.data[j];
             }
         } else {
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 this.data[i][0] = v.data[i];
             }
         }
@@ -114,14 +93,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D(final Tensor1D[] v, final boolean rowvar) {
-        this(v.length, v[0].rows, rowvar);
+        this(v.length, v[0].shape[0], rowvar);
         if (rowvar) {
-            for (int i = 0; i < this.rows; i++) {
-                System.arraycopy(v[i].data, 0, this.data[i], 0, this.cols);
+            for (int i = 0; i < this.shape[0]; i++) {
+                System.arraycopy(v[i].data, 0, this.data[i], 0, this.shape[1]);
             }
         } else {
-            for (int i = 0; i < this.rows; i++) {
-                for (int j = 0; i < this.cols; j++) {
+            for (int i = 0; i < this.shape[0]; i++) {
+                for (int j = 0; i < this.shape[1]; j++) {
                     this.data[i][j] = v[j].data[i];
                 }
             }
@@ -133,18 +112,18 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D(final Tensor1D v, final int stride, final boolean rowvar) {
-        this(v.rows / stride, stride, rowvar);
+        this(v.shape[0] / stride, stride, rowvar);
         assert (stride > 0);
         int vi = 0;
         if (rowvar) {
-            for (int i = 0; i < this.rows; i++) {
-                for (int j = 0; j < this.cols; j++) {
+            for (int i = 0; i < this.shape[0]; i++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     this.data[i][j] = v.data[vi++];
                 }
             }
         } else {
-            for (int j = 0; j < this.cols; j++) {
-                for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.shape[1]; j++) {
+                for (int i = 0; i < this.shape[0]; i++) {
                     this.data[i][j] = v.data[vi++];
                 }
             }
@@ -152,30 +131,34 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D(final JSONObject json) {
-        this(json.getInt("rows"), json.getInt("cols"));
+        this(json.getInt("shape[0]"), json.getInt("shape[1]"));
         final JSONArray jsonData = json.getJSONArray("data");
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final JSONArray jsonRow = jsonData.getJSONArray(i);
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 this.data[i][j] = jsonRow.getFloat(j);
             }
         }
     }
 
     public boolean isNull() {
-        return this.rows == 0 || this.cols == 0;
+        return this.shape[0] == 0 || this.shape[1] == 0;
     }
 
     public int rowCount() {
-        return this.rows;
+        return this.shape[0];
     }
 
     public int colCount() {
-        return this.cols;
+        return this.shape[1];
     }
 
     public float[][] getFloats() {
         return this.data;
+    }
+
+    public float[] getFloats(final int row) {
+        return this.data[row];
     }
 
     public float get(final int row, final int col) {
@@ -187,19 +170,19 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         return this;
     }
 
-    public Tensor1D get(final int row) {
-        return new Tensor1D(this.data[row]);
-    }
+    // public Tensor1D get(final int row) {
+    //     return new Tensor1D(this.data[row]);
+    // }
 
-    public Tensor2D set(final int row, final Tensor1D v) {
-        assert (this.cols == v.rows);
-        System.arraycopy(v.data, 0, this.data[row], 0, this.cols);
-        return this;
-    }
+    // public Tensor2D set(final int row, final Tensor1D v) {
+    //     assert (this.shape[1] == v.shape[0]);
+    //     System.arraycopy(v.data, 0, this.data[row], 0, this.shape[1]);
+    //     return this;
+    // }
 
     public boolean equals(final Tensor2D m) {
-        boolean result = this.rows == m.rows && this.cols == m.cols;
-        for (int i = 0; i < this.rows && result; i++) {
+        boolean result = this.shape[0] == m.shape[0] && this.shape[1] == m.shape[1];
+        for (int i = 0; i < this.shape[0] && result; i++) {
             final float[] a = this.data[i];
             final float[] b = m.data[i];
             result &= Arrays.equals(a, b);
@@ -208,11 +191,11 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public boolean equals(final Tensor2D m, final float e) {
-        boolean result = this.rows == m.rows && this.cols == m.cols;
-        for (int i = 0; i < this.rows && result; i++) {
+        boolean result = this.shape[0] == m.shape[0] && this.shape[1] == m.shape[1];
+        for (int i = 0; i < this.shape[0] && result; i++) {
             final float[] a = this.data[i];
             final float[] b = m.data[i];
-            for (int j = 0; j < this.cols && result; j++) {
+            for (int j = 0; j < this.shape[1] && result; j++) {
                 result &= Math.abs(a[j] - b[j]) < e;
             }
         }
@@ -220,11 +203,11 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public boolean isSquared() {
-        return this.rows == this.cols;
+        return this.shape[0] == this.shape[1];
     }
 
     public boolean isUpper(final int offset, final float e) {
-        final int n = Math.min(this.rows, this.cols);
+        final int n = Math.min(this.shape[0], this.shape[1]);
         assert (offset >= 0 && offset < n);
         for (int i = 0; i < n - offset; i++) {
             for (int j = 0; j < n - offset; j++) {
@@ -237,7 +220,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public boolean isLower(final int offset, final float e) {
-        final int n = Math.min(this.rows, this.cols);
+        final int n = Math.min(this.shape[0], this.shape[1]);
         assert (offset >= 0 && offset < n);
         for (int i = 0; i < n - offset; i++) {
             for (int j = 0; j < n - offset; j++) {
@@ -250,7 +233,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public boolean isDiagonal(final int offset, final float e) {
-        final int n = Math.min(this.rows, this.cols);
+        final int n = Math.min(this.shape[0], this.shape[1]);
         if (offset >= 0) {
             assert (offset < n);
             for (int i = 0; i < n - offset; i++) {
@@ -277,8 +260,8 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         if (!this.isSquared()) {
             return false;
         }
-        for (int i = 0; i < this.cols; i++) {
-            for (int j = 0; j < this.cols; j++) {
+        for (int i = 0; i < this.shape[1]; i++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 if (Math.abs(this.data[i][j] - this.data[j][i]) >= e) {
                     return false;
                 }
@@ -293,12 +276,12 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public float det() {
         assert (this.isSquared());
-        if (this.rows == 2) {
+        if (this.shape[0] == 2) {
             return this.data[0][0] * this.data[1][1] - this.data[0][1] * this.data[1][0];
         } else {
             float sum = 0.0f;
             float a = 1.0f;
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 sum += a * this.data[0][j] * this.minor(0, j).det();
                 a *= -1.0f;
             }
@@ -308,25 +291,25 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public float sparsity() {
         int count = 0;
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] a = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 count += (a[j] == 0.0) ? 1 : 0;
             }
         }
-        return (float) count / (float) (this.rows * this.cols);
+        return (float) count / (float) (this.shape[0] * this.shape[1]);
     }
 
     public float norm(final int idx, final int axis) {
         if (axis == 0) {
             float sum = 0.0f;
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 sum += this.data[i][idx] * this.data[i][idx];
             }
             return Scalar.sqrt(sum);
         } else {
             float sum = 0.0f;
-            for (int i = 0; i < this.cols; i++) {
+            for (int i = 0; i < this.shape[1]; i++) {
                 sum += this.data[idx][i] * this.data[idx][i];
             }
             return Scalar.sqrt(sum);
@@ -335,14 +318,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D norm(final int axis) {
         if (axis == 0) {
-            final Tensor2D result = new Tensor2D(1, this.cols);
-            for (int i = 0; i < this.cols; i++) {
+            final Tensor2D result = new Tensor2D(1, this.shape[1]);
+            for (int i = 0; i < this.shape[1]; i++) {
                 result.data[0][i] = this.norm(i, 0);
             }
             return result;
         } else {
-            final Tensor2D result = new Tensor2D(this.rows, 1);
-            for (int i = 0; i < this.rows; i++) {
+            final Tensor2D result = new Tensor2D(this.shape[0], 1);
+            for (int i = 0; i < this.shape[0]; i++) {
                 result.data[i][0] = this.norm(i, 1);
             }
             return result;
@@ -353,7 +336,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         if (axis == 0) {
             int result = 0;
             float minValue = this.data[0][idx];
-            for (int i = 1; i < this.rows; i++) {
+            for (int i = 1; i < this.shape[0]; i++) {
                 if (this.data[i][idx] < minValue) {
                     minValue = this.data[i][idx];
                     result = i;
@@ -363,7 +346,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         } else {
             int result = 0;
             float minValue = this.data[idx][0];
-            for (int i = 1; i < this.cols; i++) {
+            for (int i = 1; i < this.shape[1]; i++) {
                 if (this.data[idx][i] < minValue) {
                     minValue = this.data[idx][i];
                     result = i;
@@ -375,14 +358,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D argmin(final int axis) {
         if (axis == 0) {
-            final Tensor2D result = new Tensor2D(1, this.cols);
-            for (int i = 0; i < this.cols; i++) {
+            final Tensor2D result = new Tensor2D(1, this.shape[1]);
+            for (int i = 0; i < this.shape[1]; i++) {
                 result.data[0][i] = this.argmin(i, 0);
             }
             return result;
         } else {
-            final Tensor2D result = new Tensor2D(this.rows, 1);
-            for (int i = 0; i < this.rows; i++) {
+            final Tensor2D result = new Tensor2D(this.shape[0], 1);
+            for (int i = 0; i < this.shape[0]; i++) {
                 result.data[i][0] = this.argmin(i, 1);
             }
             return result;
@@ -393,7 +376,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         if (axis == 0) {
             int result = 0;
             float maxValue = this.data[0][idx];
-            for (int i = 1; i < this.rows; i++) {
+            for (int i = 1; i < this.shape[0]; i++) {
                 if (this.data[i][idx] > maxValue) {
                     maxValue = this.data[i][idx];
                     result = i;
@@ -403,7 +386,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         } else {
             int result = 0;
             float maxValue = this.data[idx][0];
-            for (int i = 1; i < this.cols; i++) {
+            for (int i = 1; i < this.shape[1]; i++) {
                 if (this.data[idx][i] > maxValue) {
                     maxValue = this.data[idx][i];
                     result = i;
@@ -415,14 +398,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D argmax(final int axis) {
         if (axis == 0) {
-            final Tensor2D result = new Tensor2D(1, this.cols);
-            for (int i = 0; i < this.cols; i++) {
+            final Tensor2D result = new Tensor2D(1, this.shape[1]);
+            for (int i = 0; i < this.shape[1]; i++) {
                 result.data[0][i] = this.argmax(i, 0);
             }
             return result;
         } else {
-            final Tensor2D result = new Tensor2D(this.rows, 1);
-            for (int i = 0; i < this.rows; i++) {
+            final Tensor2D result = new Tensor2D(this.shape[0], 1);
+            for (int i = 0; i < this.shape[0]; i++) {
                 result.data[i][0] = this.argmax(i, 1);
             }
             return result;
@@ -432,29 +415,29 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     public float avg(final int idx, final int axis) {
         if (axis == 0) {
             float sum = 0.0f;
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 sum += this.data[i][idx];
             }
-            return sum / (float) this.rows;
+            return sum / (float) this.shape[0];
         } else {
             float sum = 0.0f;
-            for (int i = 0; i < this.cols; i++) {
+            for (int i = 0; i < this.shape[1]; i++) {
                 sum += this.data[idx][i];
             }
-            return sum / (float) this.cols;
+            return sum / (float) this.shape[1];
         }
     }
 
     public Tensor2D avg(final int axis) {
         if (axis == 0) {
-            final Tensor2D result = new Tensor2D(1, this.cols);
-            for (int i = 0; i < this.cols; i++) {
+            final Tensor2D result = new Tensor2D(1, this.shape[1]);
+            for (int i = 0; i < this.shape[1]; i++) {
                 result.data[0][i] = this.avg(i, 0);
             }
             return result;
         } else {
-            final Tensor2D result = new Tensor2D(this.rows, 1);
-            for (int i = 0; i < this.rows; i++) {
+            final Tensor2D result = new Tensor2D(this.shape[0], 1);
+            for (int i = 0; i < this.shape[0]; i++) {
                 result.data[i][0] = this.avg(i, 1);
             }
             return result;
@@ -465,32 +448,32 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         if (axis == 0) {
             final float avg = this.avg(idx, 0);
             float var = 0.0f;
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float tmp = this.data[i][idx] - avg;
                 var += tmp * tmp;
             }
-            return var / (float) (this.rows - 1);
+            return var / (float) (this.shape[0] - 1);
         } else {
             final float avg = this.avg(idx, 1);
             float var = 0.0f;
-            for (int i = 0; i < this.cols; i++) {
+            for (int i = 0; i < this.shape[1]; i++) {
                 final float tmp = this.data[idx][i] - avg;
                 var += tmp * tmp;
             }
-            return var / (float) (this.cols - 1);
+            return var / (float) (this.shape[1] - 1);
         }
     }
 
     public Tensor2D var(final int axis) {
         if (axis == 0) {
-            final Tensor2D result = new Tensor2D(1, this.cols);
-            for (int i = 0; i < this.cols; i++) {
+            final Tensor2D result = new Tensor2D(1, this.shape[1]);
+            for (int i = 0; i < this.shape[1]; i++) {
                 result.data[0][i] = this.var(i, 0);
             }
             return result;
         } else {
-            final Tensor2D result = new Tensor2D(this.rows, 1);
-            for (int i = 0; i < this.rows; i++) {
+            final Tensor2D result = new Tensor2D(this.shape[0], 1);
+            for (int i = 0; i < this.shape[0]; i++) {
                 result.data[i][0] = this.var(i, 1);
             }
             return result;
@@ -502,38 +485,38 @@ public class Tensor2D extends AbstractTensor<float[][]> {
             final float avg1 = this.avg(idx1, 0);
             final float avg2 = this.avg(idx2, 0);
             float cov = 0.0f;
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float tmp1 = this.data[i][idx1] - avg1;
                 final float tmp2 = this.data[i][idx2] - avg2;
                 cov += tmp1 * tmp2;
             }
-            return cov / (float) (this.rows - 1);
+            return cov / (float) (this.shape[0] - 1);
         } else {
             final float avg1 = this.avg(idx1, 1);
             final float avg2 = this.avg(idx2, 1);
             float cov = 0.0f;
-            for (int i = 0; i < this.cols; i++) {
+            for (int i = 0; i < this.shape[1]; i++) {
                 final float tmp1 = this.data[idx1][i] - avg1;
                 final float tmp2 = this.data[idx2][i] - avg2;
                 cov += tmp1 * tmp2;
             }
-            return cov / (float) (this.cols - 1);
+            return cov / (float) (this.shape[1] - 1);
         }
     }
 
     public Tensor2D cov(final int axis) {
         if (axis == 0) {
-            final Tensor2D result = new Tensor2D(this.cols, this.cols);
-            for (int i = 0; i < this.cols; i++) {
-                for (int j = 0; j < this.cols; j++) {
+            final Tensor2D result = new Tensor2D(this.shape[1], this.shape[1]);
+            for (int i = 0; i < this.shape[1]; i++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     result.data[i][j] = this.cov(i, j, 0);
                 }
             }
             return result;
         } else {
-            final Tensor2D result = new Tensor2D(this.rows, this.rows);
-            for (int i = 0; i < this.rows; i++) {
-                for (int j = 0; j < this.rows; j++) {
+            final Tensor2D result = new Tensor2D(this.shape[0], this.shape[0]);
+            for (int i = 0; i < this.shape[0]; i++) {
+                for (int j = 0; j < this.shape[0]; j++) {
                     result.data[i][j] = this.cov(i, j, 1);
                 }
             }
@@ -547,44 +530,44 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public float cov(final Tensor2D m, final int idx1, final int idx2, final int axis) {
         if (axis == 0) {
-            assert (this.rows == m.rows);
+            assert (this.shape[0] == m.shape[0]);
             final float avg1 = this.avg(idx1, 0);
             final float avg2 = m.avg(idx2, 0);
             float cov = 0.0f;
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float tmp1 = this.data[i][idx1] - avg1;
                 final float tmp2 = m.data[i][idx2] - avg2;
                 cov += tmp1 * tmp2;
             }
-            return cov / (float) (this.rows - 1);
+            return cov / (float) (this.shape[0] - 1);
         } else {
-            assert (this.cols == m.cols);
+            assert (this.shape[1] == m.shape[1]);
             final float avg1 = this.avg(idx1, 1);
             final float avg2 = m.avg(idx2, 1);
             float cov = 0.0f;
-            for (int i = 0; i < this.cols; i++) {
+            for (int i = 0; i < this.shape[1]; i++) {
                 final float tmp1 = this.data[idx1][i] - avg1;
                 final float tmp2 = m.data[idx2][i] - avg2;
                 cov += tmp1 * tmp2;
             }
-            return cov / (float) (this.cols - 1);
+            return cov / (float) (this.shape[1] - 1);
         }
     }
 
     public Tensor2D cov(final Tensor2D m, final int axis, final boolean full) {
         if (full) {
             if (axis == 0) {
-                final Tensor2D result = new Tensor2D(this.cols, this.cols);
-                for (int i = 0; i < this.cols; i++) {
-                    for (int j = 0; j < this.cols; j++) {
+                final Tensor2D result = new Tensor2D(this.shape[1], this.shape[1]);
+                for (int i = 0; i < this.shape[1]; i++) {
+                    for (int j = 0; j < this.shape[1]; j++) {
                         result.data[i][j] = this.cov(m, i, j, 0);
                     }
                 }
                 return result;
             } else {
-                final Tensor2D result = new Tensor2D(this.rows, this.rows);
-                for (int i = 0; i < this.rows; i++) {
-                    for (int j = 0; j < this.rows; j++) {
+                final Tensor2D result = new Tensor2D(this.shape[0], this.shape[0]);
+                for (int i = 0; i < this.shape[0]; i++) {
+                    for (int j = 0; j < this.shape[0]; j++) {
                         result.data[i][j] = this.cov(m, i, j, 1);
                     }
                 }
@@ -592,14 +575,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
             }
         } else {
             if (axis == 0) {
-                final Tensor2D result = new Tensor2D(1, this.cols);
-                for (int i = 0; i < this.cols; i++) {
+                final Tensor2D result = new Tensor2D(1, this.shape[1]);
+                for (int i = 0; i < this.shape[1]; i++) {
                     result.data[0][i] = this.cov(m, i, 0);
                 }
                 return result;
             } else {
-                final Tensor2D result = new Tensor2D(this.rows, 1);
-                for (int i = 0; i < this.rows; i++) {
+                final Tensor2D result = new Tensor2D(this.shape[0], 1);
+                for (int i = 0; i < this.shape[0]; i++) {
                     result.data[i][0] = this.cov(m, i, 1);
                 }
                 return result;
@@ -610,7 +593,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     public float min(final int idx, final int axis) {
         if (axis == 0) {
             float minValue = this.data[0][idx];
-            for (int i = 1; i < this.rows; i++) {
+            for (int i = 1; i < this.shape[0]; i++) {
                 if (this.data[i][idx] < minValue) {
                     minValue = this.data[i][idx];
                 }
@@ -618,7 +601,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
             return minValue;
         } else {
             float minValue = this.data[idx][0];
-            for (int i = 1; i < this.cols; i++) {
+            for (int i = 1; i < this.shape[1]; i++) {
                 if (this.data[idx][i] < minValue) {
                     minValue = this.data[idx][i];
                 }
@@ -629,14 +612,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D min(final int axis) {
         if (axis == 0) {
-            final Tensor2D result = new Tensor2D(1, this.cols);
-            for (int i = 0; i < this.cols; i++) {
+            final Tensor2D result = new Tensor2D(1, this.shape[1]);
+            for (int i = 0; i < this.shape[1]; i++) {
                 result.data[0][i] = this.min(i, 0);
             }
             return result;
         } else {
-            final Tensor2D result = new Tensor2D(this.rows, 1);
-            for (int i = 0; i < this.rows; i++) {
+            final Tensor2D result = new Tensor2D(this.shape[0], 1);
+            for (int i = 0; i < this.shape[0]; i++) {
                 result.data[i][0] = this.min(i, 1);
             }
             return result;
@@ -646,7 +629,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     public float max(final int idx, final int axis) {
         if (axis == 0) {
             float maxValue = this.data[0][idx];
-            for (int i = 1; i < this.rows; i++) {
+            for (int i = 1; i < this.shape[0]; i++) {
                 if (this.data[i][idx] > maxValue) {
                     maxValue = this.data[i][idx];
                 }
@@ -654,7 +637,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
             return maxValue;
         } else {
             float maxValue = this.data[idx][0];
-            for (int i = 1; i < this.cols; i++) {
+            for (int i = 1; i < this.shape[1]; i++) {
                 if (this.data[idx][i] > maxValue) {
                     maxValue = this.data[idx][i];
                 }
@@ -665,14 +648,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D max(final int axis) {
         if (axis == 0) {
-            final Tensor2D result = new Tensor2D(1, this.cols);
-            for (int i = 0; i < this.cols; i++) {
+            final Tensor2D result = new Tensor2D(1, this.shape[1]);
+            for (int i = 0; i < this.shape[1]; i++) {
                 result.data[0][i] = this.max(i, 0);
             }
             return result;
         } else {
-            final Tensor2D result = new Tensor2D(this.rows, 1);
-            for (int i = 0; i < this.rows; i++) {
+            final Tensor2D result = new Tensor2D(this.shape[0], 1);
+            for (int i = 0; i < this.shape[0]; i++) {
                 result.data[i][0] = this.max(i, 1);
             }
             return result;
@@ -682,13 +665,13 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     public float flatten(final int idx, final int axis) {
         if (axis == 0) {
             float sum = 0.0f;
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 sum += this.data[i][idx];
             }
             return sum;
         } else {
             float sum = 0.0f;
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 sum += this.data[idx][j];
             }
             return sum;
@@ -697,14 +680,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D flatten(final int axis) {
         if (axis == 0) {
-            final Tensor2D result = new Tensor2D(1, this.cols);
-            for (int i = 0; i < this.cols; i++) {
+            final Tensor2D result = new Tensor2D(1, this.shape[1]);
+            for (int i = 0; i < this.shape[1]; i++) {
                 result.data[0][i] = this.flatten(i, 0);
             }
             return result;
         } else {
-            final Tensor2D result = new Tensor2D(this.rows, 1);
-            for (int i = 0; i < this.rows; i++) {
+            final Tensor2D result = new Tensor2D(this.shape[0], 1);
+            for (int i = 0; i < this.shape[0]; i++) {
                 result.data[i][0] = this.flatten(i, 1);
             }
             return result;
@@ -712,9 +695,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D zero() {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = 0.0f;
             }
         }
@@ -722,9 +705,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D ones() {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = 1.0f;
             }
         }
@@ -732,9 +715,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D fill(final float v) {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = v;
             }
         }
@@ -742,9 +725,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D identity() {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = (i == j) ? 1.0f : 0.0f;
             }
         }
@@ -755,17 +738,17 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         if (idx1 == idx2) {
             return this;
         } else if (axis == 0) {
-            assert (idx1 >= 0 && idx1 < this.rows);
-            assert (idx2 >= 0 && idx2 < this.rows);
-            for (int i = 0; i < this.cols; i++) {
+            assert (idx1 >= 0 && idx1 < this.shape[0]);
+            assert (idx2 >= 0 && idx2 < this.shape[0]);
+            for (int i = 0; i < this.shape[1]; i++) {
                 final float tmp = this.data[idx1][i];
                 this.data[idx1][i] = this.data[idx2][i];
                 this.data[idx2][i] = tmp;
             }
         } else {
-            assert (idx1 >= 0 && idx1 < this.cols);
-            assert (idx2 >= 0 && idx2 < this.cols);
-            for (int j = 0; j < this.rows; j++) {
+            assert (idx1 >= 0 && idx1 < this.shape[1]);
+            assert (idx2 >= 0 && idx2 < this.shape[1]);
+            for (int j = 0; j < this.shape[0]; j++) {
                 final float tmp = this.data[j][idx1];
                 this.data[j][idx1] = this.data[j][idx2];
                 this.data[j][idx2] = tmp;
@@ -775,9 +758,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D mutate(final float rate, final float variance) {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 if (Scalar.random(1.0f) < rate) {
                     m_i[j] += Scalar.randomGaussian() * variance;
                 }
@@ -791,9 +774,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D randomize(final float n) {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = Scalar.random(-n, n);
             }
         }
@@ -802,17 +785,17 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D arrange(final int axis) {
         if (axis == 0) {
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
-                for (int j = 0; j < this.cols; j++) {
-                    m_i[j] = i * this.cols + j + 1;
+                for (int j = 0; j < this.shape[1]; j++) {
+                    m_i[j] = i * this.shape[1] + j + 1;
                 }
             }
         } else {
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
-                for (int j = 0; j < this.cols; j++) {
-                    m_i[j] = j * this.rows + i + 1;
+                for (int j = 0; j < this.shape[1]; j++) {
+                    m_i[j] = j * this.shape[0] + i + 1;
                 }
             }
         }
@@ -820,9 +803,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D chop(final float e) {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = (Scalar.abs(m_i[j]) < e) ? 0.0f : m_i[j];
             }
         }
@@ -830,9 +813,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D constrain(final float a, final float b) {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = Scalar.constrain(m_i[j], a, b);
             }
         }
@@ -840,9 +823,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D if_lt_then(final float p, final float a, final float b) {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = Scalar.if_lt_then(m_i[j], p, a, b);
             }
         }
@@ -851,24 +834,24 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D l2Norm(final int axis) {
         if (axis == 0) {
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 float sum = 0.0f;
-                for (int i = 0; i < this.rows; i++) {
+                for (int i = 0; i < this.shape[0]; i++) {
                     sum += this.data[i][j] * this.data[i][j];
                 }
                 final float w = 1.0f / Scalar.sqrt(sum);
-                for (int i = 0; i < this.rows; i++) {
+                for (int i = 0; i < this.shape[0]; i++) {
                     this.data[i][j] *= w;
                 }
             }
         } else {
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 float sum = 0.0f;
-                for (int j = 0; j < this.cols; j++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     sum += this.data[i][j] * this.data[i][j];
                 }
                 final float w = 1.0f / Scalar.sqrt(sum);
-                for (int j = 0; j < this.cols; j++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     this.data[i][j] *= w;
                 }
             }
@@ -880,8 +863,8 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         if (axis == 0) {
             final Tensor2D avg = this.avg(0);
             final Tensor2D var_inv = this.var(0).add(Scalar.EPSILON).sqrt().pow(-1.0f);
-            for (int i = 0; i < this.rows; i++) {
-                for (int j = 0; j < this.cols; j++) {
+            for (int i = 0; i < this.shape[0]; i++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     final float x = (this.data[i][j] - avg.data[0][j]) * var_inv.data[0][j];
                     this.data[i][j] = gamma * x + delta;
                 }
@@ -889,8 +872,8 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         } else {
             final Tensor2D avg = this.avg(1);
             final Tensor2D var_inv = this.var(1).add(Scalar.EPSILON).sqrt().pow(-1.0f);
-            for (int i = 0; i < this.rows; i++) {
-                for (int j = 0; j < this.cols; j++) {
+            for (int i = 0; i < this.shape[0]; i++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     final float x = (this.data[i][j] - avg.data[i][0]) * var_inv.data[i][0];
                     this.data[i][j] = gamma * x + delta;
                 }
@@ -900,9 +883,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D add(final float n) {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] += n;
             }
         }
@@ -911,19 +894,19 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     // public Tensor2D add(final Tensor1D v, final int axis) {
     //     if (axis == 0) {
-    //         assert (this.cols == v.rows);
-    //         for (int i = 0; i < this.rows; i++) {
+    //         assert (this.shape[1] == v.shape[0]);
+    //         for (int i = 0; i < this.shape[0]; i++) {
     //             final float[] m_i = this.data[i];
     //             final float[] b = v.data;
-    //             for (int j = 0; j < this.cols; j++) {
+    //             for (int j = 0; j < this.shape[1]; j++) {
     //                 m_i[j] += b[j];
     //             }
     //         }
     //     } else {
-    //         assert (this.rows == v.rows);
-    //         for (int j = 0; j < this.cols; j++) {
+    //         assert (this.shape[0] == v.shape[0]);
+    //         for (int j = 0; j < this.shape[1]; j++) {
     //             final float[] b = v.data;
-    //             for (int i = 0; i < this.rows; i++) {
+    //             for (int i = 0; i < this.shape[0]; i++) {
     //                 this.data[i][j] += b[i];
     //             }
     //         }
@@ -932,28 +915,28 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     // }
 
     public Tensor2D add(final Tensor2D a) {
-        assert (this.rows == a.rows || this.cols == a.cols);
-        if(this.rows == a.rows && this.cols == a.cols) {
-            for (int i = 0; i < this.rows; i++) {
+        assert (this.shape[0] == a.shape[0] || this.shape[1] == a.shape[1]);
+        if(this.shape[0] == a.shape[0] && this.shape[1] == a.shape[1]) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
                 final float[] a_i = a.data[i];
-                for (int j = 0; j < this.cols; j++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     m_i[j] += a_i[j];
                 }
             }
-        } else if(this.rows == a.rows) {
-            for (int i = 0; i < this.rows; i++) {
+        } else if(this.shape[0] == a.shape[0]) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
                 final float[] a_i = a.data[i];
-                for (int j = 0; j < this.cols; j++) {
-                    m_i[j] += a_i[j % a.cols];
+                for (int j = 0; j < this.shape[1]; j++) {
+                    m_i[j] += a_i[j % a.shape[1]];
                 }
             }
         } else {
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
-                final float[] a_i = a.data[i % a.rows];
-                for (int j = 0; j < this.cols; j++) {
+                final float[] a_i = a.data[i % a.shape[0]];
+                for (int j = 0; j < this.shape[1]; j++) {
                     m_i[j] += a_i[j];
                 }
             }
@@ -962,9 +945,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D sub(final float n) {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] -= n;
             }
         }
@@ -973,19 +956,19 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     // public Tensor2D sub(final Tensor1D v, final int axis) {
     //     if (axis == 0) {
-    //         assert (this.cols == v.rows);
-    //         for (int i = 0; i < this.rows; i++) {
+    //         assert (this.shape[1] == v.shape[0]);
+    //         for (int i = 0; i < this.shape[0]; i++) {
     //             final float[] m_i = this.data[i];
     //             final float[] b = v.data;
-    //             for (int j = 0; j < this.cols; j++) {
+    //             for (int j = 0; j < this.shape[1]; j++) {
     //                 m_i[j] -= b[j];
     //             }
     //         }
     //     } else {
-    //         assert (this.rows == v.rows);
-    //         for (int j = 0; j < this.cols; j++) {
+    //         assert (this.shape[0] == v.shape[0]);
+    //         for (int j = 0; j < this.shape[1]; j++) {
     //             final float[] b = v.data;
-    //             for (int i = 0; i < this.rows; i++) {
+    //             for (int i = 0; i < this.shape[0]; i++) {
     //                 this.data[i][j] -= b[i];
     //             }
     //         }
@@ -994,28 +977,28 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     // }
 
     public Tensor2D sub(final Tensor2D a) {
-        assert (this.rows == a.rows || this.cols == a.cols);
-        if(this.rows == a.rows && this.cols == a.cols) {
-            for (int i = 0; i < this.rows; i++) {
+        assert (this.shape[0] == a.shape[0] || this.shape[1] == a.shape[1]);
+        if(this.shape[0] == a.shape[0] && this.shape[1] == a.shape[1]) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
                 final float[] a_i = a.data[i];
-                for (int j = 0; j < this.cols; j++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     m_i[j] -= a_i[j];
                 }
             }
-        } else if(this.rows == a.rows) {
-            for (int i = 0; i < this.rows; i++) {
+        } else if(this.shape[0] == a.shape[0]) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
                 final float[] a_i = a.data[i];
-                for (int j = 0; j < this.cols; j++) {
-                    m_i[j] -= a_i[j % a.cols];
+                for (int j = 0; j < this.shape[1]; j++) {
+                    m_i[j] -= a_i[j % a.shape[1]];
                 }
             }
         } else {
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
-                final float[] a_i = a.data[i % a.rows];
-                for (int j = 0; j < this.cols; j++) {
+                final float[] a_i = a.data[i % a.shape[0]];
+                for (int j = 0; j < this.shape[1]; j++) {
                     m_i[j] -= a_i[j];
                 }
             }
@@ -1024,9 +1007,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D mul(final float n) {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] *= n;
             }
         }
@@ -1035,19 +1018,19 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     // public Tensor2D mul(final Tensor1D v, final int axis) {
     //     if (axis == 0) {
-    //         assert (this.cols == v.rows);
-    //         for (int i = 0; i < this.rows; i++) {
+    //         assert (this.shape[1] == v.shape[0]);
+    //         for (int i = 0; i < this.shape[0]; i++) {
     //             final float[] m_i = this.data[i];
     //             final float[] b = v.data;
-    //             for (int j = 0; j < this.cols; j++) {
+    //             for (int j = 0; j < this.shape[1]; j++) {
     //                 m_i[j] *= b[j];
     //             }
     //         }
     //     } else {
-    //         assert (this.rows == v.rows);
-    //         for (int j = 0; j < this.cols; j++) {
+    //         assert (this.shape[0] == v.shape[0]);
+    //         for (int j = 0; j < this.shape[1]; j++) {
     //             final float[] b = v.data;
-    //             for (int i = 0; i < this.rows; i++) {
+    //             for (int i = 0; i < this.shape[0]; i++) {
     //                 this.data[i][j] *= b[i];
     //             }
     //         }
@@ -1056,28 +1039,28 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     // }
 
     public Tensor2D mul(final Tensor2D a) {
-        assert (this.rows == a.rows || this.cols == a.cols);
-        if(this.rows == a.rows && this.cols == a.cols) {
-            for (int i = 0; i < this.rows; i++) {
+        assert (this.shape[0] == a.shape[0] || this.shape[1] == a.shape[1]);
+        if(this.shape[0] == a.shape[0] && this.shape[1] == a.shape[1]) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
                 final float[] a_i = a.data[i];
-                for (int j = 0; j < this.cols; j++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     m_i[j] *= a_i[j];
                 }
             }
-        } else if(this.rows == a.rows) {
-            for (int i = 0; i < this.rows; i++) {
+        } else if(this.shape[0] == a.shape[0]) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
                 final float[] a_i = a.data[i];
-                for (int j = 0; j < this.cols; j++) {
-                    m_i[j] *= a_i[j % a.cols];
+                for (int j = 0; j < this.shape[1]; j++) {
+                    m_i[j] *= a_i[j % a.shape[1]];
                 }
             }
         } else {
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
-                final float[] a_i = a.data[i % a.rows];
-                for (int j = 0; j < this.cols; j++) {
+                final float[] a_i = a.data[i % a.shape[0]];
+                for (int j = 0; j < this.shape[1]; j++) {
                     m_i[j] *= a_i[j];
                 }
             }
@@ -1086,9 +1069,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D div(final float n) {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] /= n;
             }
         }
@@ -1097,19 +1080,19 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     // public Tensor2D div(final Tensor1D v, final int axis) {
     //     if (axis == 0) {
-    //         assert (this.cols == v.rows);
-    //         for (int i = 0; i < this.rows; i++) {
+    //         assert (this.shape[1] == v.shape[0]);
+    //         for (int i = 0; i < this.shape[0]; i++) {
     //             final float[] m_i = this.data[i];
     //             final float[] b = v.data;
-    //             for (int j = 0; j < this.cols; j++) {
+    //             for (int j = 0; j < this.shape[1]; j++) {
     //                 m_i[j] /= b[j];
     //             }
     //         }
     //     } else {
-    //         assert (this.rows == v.rows);
-    //         for (int j = 0; j < this.cols; j++) {
+    //         assert (this.shape[0] == v.shape[0]);
+    //         for (int j = 0; j < this.shape[1]; j++) {
     //             final float[] b = v.data;
-    //             for (int i = 0; i < this.rows; i++) {
+    //             for (int i = 0; i < this.shape[0]; i++) {
     //                 this.data[i][j] /= b[i];
     //             }
     //         }
@@ -1118,28 +1101,28 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     // }
 
     public Tensor2D div(final Tensor2D a) {
-        assert (this.rows == a.rows || this.cols == a.cols);
-        if(this.rows == a.rows && this.cols == a.cols) {
-            for (int i = 0; i < this.rows; i++) {
+        assert (this.shape[0] == a.shape[0] || this.shape[1] == a.shape[1]);
+        if(this.shape[0] == a.shape[0] && this.shape[1] == a.shape[1]) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
                 final float[] a_i = a.data[i];
-                for (int j = 0; j < this.cols; j++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     m_i[j] /= a_i[j];
                 }
             }
-        } else if(this.rows == a.rows) {
-            for (int i = 0; i < this.rows; i++) {
+        } else if(this.shape[0] == a.shape[0]) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
                 final float[] a_i = a.data[i];
-                for (int j = 0; j < this.cols; j++) {
-                    m_i[j] /= a_i[j % a.cols];
+                for (int j = 0; j < this.shape[1]; j++) {
+                    m_i[j] /= a_i[j % a.shape[1]];
                 }
             }
         } else {
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
-                final float[] a_i = a.data[i % a.rows];
-                for (int j = 0; j < this.cols; j++) {
+                final float[] a_i = a.data[i % a.shape[0]];
+                for (int j = 0; j < this.shape[1]; j++) {
                     m_i[j] /= a_i[j];
                 }
             }
@@ -1148,28 +1131,28 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D expAvg(final Tensor2D a, final float n) {
-        assert (this.rows == a.rows || this.cols == a.cols);
-        if(this.rows == a.rows && this.cols == a.cols) {
-            for (int i = 0; i < this.rows; i++) {
+        assert (this.shape[0] == a.shape[0] || this.shape[1] == a.shape[1]);
+        if(this.shape[0] == a.shape[0] && this.shape[1] == a.shape[1]) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
                 final float[] a_i = a.data[i];
-                for (int j = 0; j < this.cols; j++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     m_i[j] = n * m_i[j] + (1.0f - n) * a_i[j];
                 }
             }
-        } else if(this.rows == a.rows) {
-            for (int i = 0; i < this.rows; i++) {
+        } else if(this.shape[0] == a.shape[0]) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
                 final float[] a_i = a.data[i];
-                for (int j = 0; j < this.cols; j++) {
-                    m_i[j] = n * m_i[j] + (1.0f - n) * a_i[j % a.cols];
+                for (int j = 0; j < this.shape[1]; j++) {
+                    m_i[j] = n * m_i[j] + (1.0f - n) * a_i[j % a.shape[1]];
                 }
             }
         } else {
-            for (int i = 0; i < this.rows; i++) {
+            for (int i = 0; i < this.shape[0]; i++) {
                 final float[] m_i = this.data[i];
-                final float[] a_i = a.data[i % a.rows];
-                for (int j = 0; j < this.cols; j++) {
+                final float[] a_i = a.data[i % a.shape[0]];
+                for (int j = 0; j < this.shape[1]; j++) {
                     m_i[j] = n * m_i[j] + (1.0f - n) * a_i[j];
                 }
             }
@@ -1178,9 +1161,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D abs() {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = Scalar.abs(m_i[j]);
             }
         }
@@ -1188,9 +1171,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D pow(final float n) {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = Scalar.pow(m_i[j], n);
             }
         }
@@ -1198,19 +1181,29 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D sqrt() {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = Scalar.sqrt(m_i[j]);
             }
         }
         return this;
     }
 
-    public Tensor2D exp() {
-        for (int i = 0; i < this.rows; i++) {
+    public Tensor2D invsqrt() {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
+                m_i[j] = 1.0f / Scalar.sqrt(m_i[j]);
+            }
+        }
+        return this;
+    }
+
+    public Tensor2D exp() {
+        for (int i = 0; i < this.shape[0]; i++) {
+            final float[] m_i = this.data[i];
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = Scalar.exp(m_i[j]);
             }
         }
@@ -1218,9 +1211,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D log() {
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = Scalar.log(m_i[j]);
             }
         }
@@ -1249,9 +1242,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D pad(final int padding, final float value) {
         assert (padding > 0);
-        final Tensor2D result = new Tensor2D(this.rows + 2 * padding, this.cols + 2 * padding).fill(value);
-        for (int i = 0; i < this.rows; i++) {
-            for (int j = 0; j < this.cols; j++) {
+        final Tensor2D result = new Tensor2D(this.shape[0] + 2 * padding, this.shape[1] + 2 * padding).fill(value);
+        for (int i = 0; i < this.shape[0]; i++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 result.data[padding + i][padding + j] = this.data[i][j];
             }
         }
@@ -1265,31 +1258,31 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     public Tensor2D reshape(int newRows, int newCols, final char format) {
         assert (newRows > 0 || newCols > 0);
         if (newRows < 0) {
-            newRows = this.rows * this.cols / newCols;
+            newRows = this.shape[0] * this.shape[1] / newCols;
         }
         if (newCols < 0) {
-            newCols = this.rows * this.cols / newRows;
+            newCols = this.shape[0] * this.shape[1] / newRows;
         }
-        assert (this.rows * this.cols == newRows * newCols);
-        if (newRows == this.rows || newCols == this.cols) {
+        assert (this.shape[0] * this.shape[1] == newRows * newCols);
+        if (newRows == this.shape[0] || newCols == this.shape[1]) {
             return this.copy();
         }
         final Tensor2D result = new Tensor2D(newRows, newCols);
         if (format == 'C') {
-            for (int k = 0; k < this.rows * this.cols; k++) {
-                final int i1 = k / this.cols;
-                final int j1 = k % this.cols;
-                final int i2 = k / result.cols;
-                final int j2 = k % result.cols;
+            for (int k = 0; k < this.shape[0] * this.shape[1]; k++) {
+                final int i1 = k / this.shape[1];
+                final int j1 = k % this.shape[1];
+                final int i2 = k / result.shape[1];
+                final int j2 = k % result.shape[1];
                 result.data[i2][j2] = this.data[i1][j1];
             }
 
         } else { // 'F'
-            for (int k = 0; k < this.rows * this.cols; k++) {
-                final int i1 = k % this.rows;
-                final int j1 = k / this.rows;
-                final int i2 = k % result.rows;
-                final int j2 = k / result.rows;
+            for (int k = 0; k < this.shape[0] * this.shape[1]; k++) {
+                final int i1 = k % this.shape[0];
+                final int j1 = k / this.shape[0];
+                final int i2 = k % result.shape[0];
+                final int j2 = k / result.shape[0];
                 result.data[i2][j2] = this.data[i1][j1];
             }
         }
@@ -1303,22 +1296,22 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     public Tensor3D reshape(int newDepths, int newRows, int newCols, final char format) {
         assert (newDepths > 0 || newRows > 0 || newCols > 0);
         if (newDepths < 0) {
-            newDepths = this.rows * this.cols / (newRows * newCols);
+            newDepths = this.shape[0] * this.shape[1] / (newRows * newCols);
         }
         if (newRows < 0) {
-            newRows = this.rows * this.cols / (newDepths * newCols);
+            newRows = this.shape[0] * this.shape[1] / (newDepths * newCols);
         }
         if (newCols < 0) {
-            newCols = this.rows * this.cols / (newDepths * newRows);
+            newCols = this.shape[0] * this.shape[1] / (newDepths * newRows);
         }
-        assert (this.rows * this.cols == newDepths * newRows * newCols);
+        assert (this.shape[0] * this.shape[1] == newDepths * newRows * newCols);
         final Tensor3D result = new Tensor3D(newDepths, newRows, newCols);
         if (format == 'C') {
             final int r_stride1 = result.shape[2] * result.shape[1];
             final int r_stride2 = result.shape[2];
-            for (int i = 0; i < this.rows; i++) {
-                for (int j = 0; j < this.cols; j++) {
-                    final int m_off1 = this.cols * i + j;
+            for (int i = 0; i < this.shape[0]; i++) {
+                for (int j = 0; j < this.shape[1]; j++) {
+                    final int m_off1 = this.shape[1] * i + j;
                     final float[][] r_i = result.data[m_off1 / r_stride1];
                     final int m_off2 = m_off1 % r_stride1;
                     final float[] r_ij = r_i[m_off2 / r_stride2];
@@ -1331,16 +1324,16 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D conv(final Tensor2D f) {
-        final int orow = f.rows - 1;
-        final int ocol = f.cols - 1;
-        final Tensor2D result = new Tensor2D(this.rows - orow, this.cols - ocol);
-        for (int i = 0; i < this.rows - orow; i++) {
-            for (int j = 0; j < this.cols - ocol; j++) {
+        final int orow = f.shape[0] - 1;
+        final int ocol = f.shape[1] - 1;
+        final Tensor2D result = new Tensor2D(this.shape[0] - orow, this.shape[1] - ocol);
+        for (int i = 0; i < this.shape[0] - orow; i++) {
+            for (int j = 0; j < this.shape[1] - ocol; j++) {
                 float acc = 0.0f;
-                for (int y = 0; y < f.rows; y++) {
+                for (int y = 0; y < f.shape[0]; y++) {
                     final float[] f_y = f.data[y];
                     final float[] m_i = this.data[i + y];
-                    for (int x = 0; x < f.cols; x++) {
+                    for (int x = 0; x < f.shape[1]; x++) {
                         acc += f_y[x] * m_i[j + x];
                     }
                 }
@@ -1350,11 +1343,22 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         return result;
     }
 
+    public Tensor2D map(float start1, float stop1, float start2, float stop2) {
+        final float m = (stop2 - start2) / (stop1 - start1);
+        for (int i = 0; i < this.shape[0]; i++) {
+            final float[] m_i = this.data[i];
+            for (int j = 0; j < this.shape[1]; j++) {
+                m_i[j] = m * (m_i[j] - start1) + start2;
+            }
+        }
+        return this;
+    }
+
     public Tensor2D map(final TensorFunction<Tensor2D> fn) {
         assert (fn != null);
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = fn.apply(m_i[j], new int[] { i, j }, this);
             }
         }
@@ -1363,9 +1367,9 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D map(final TensorFunction<Tensor2D> fn, final Tensor2D other) {
         assert (fn != null);
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] m_i = this.data[i];
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 m_i[j] = fn.apply(m_i[j], new int[] { i, j }, other);
             }
         }
@@ -1377,7 +1381,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D slice(final int a, final int b) {
-        return this.slice(a, b, this.rows - a, this.cols - b);
+        return this.slice(a, b, this.shape[0] - a, this.shape[1] - b);
     }
 
     public Tensor2D slice(int a, int b, int h, int w) {
@@ -1388,13 +1392,13 @@ public class Tensor2D extends AbstractTensor<float[][]> {
             b = 0;
         }
         if (h < 0) {
-            h = this.rows - a;
+            h = this.shape[0] - a;
         }
         if (w < 0) {
-            w = this.cols - b;
+            w = this.shape[1] - b;
         }
-        assert ((a + h) >= 0 && (a + h) <= this.rows);
-        assert ((b + w) >= 0 && (b + w) <= this.cols);
+        assert ((a + h) >= 0 && (a + h) <= this.shape[0]);
+        assert ((b + w) >= 0 && (b + w) <= this.shape[1]);
         final Tensor2D result = new Tensor2D(h, w);
         for (int i = 0; i < h; i++) {
             System.arraycopy(this.data[a + i], b, result.data[i], 0, w);
@@ -1404,14 +1408,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D diagonal(final int axis) {
         if (axis == 0) {
-            final Tensor2D result = new Tensor2D(1, this.cols);
-            for (int i = 0; i < this.cols; i++) {
+            final Tensor2D result = new Tensor2D(1, this.shape[1]);
+            for (int i = 0; i < this.shape[1]; i++) {
                 result.data[0][i] = this.data[i][i];
             }
             return result;
         } else {
-            final Tensor2D result = new Tensor2D(this.rows, 1);
-            for (int i = 0; i < this.rows; i++) {
+            final Tensor2D result = new Tensor2D(this.shape[0], 1);
+            for (int i = 0; i < this.shape[0]; i++) {
                 result.data[i][0] = this.data[i][i];
             }
             return result;
@@ -1420,12 +1424,12 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D replace(final int idx, final Tensor1D v, final int axis) {
         if (axis == 0) {
-            assert (this.cols == v.rows);
-            System.arraycopy(v.data, 0, this.data[idx], 0, this.cols);
+            assert (this.shape[1] == v.shape[0]);
+            System.arraycopy(v.data, 0, this.data[idx], 0, this.shape[1]);
             return this;
         } else {
-            assert (this.rows == v.rows);
-            for (int i = 0; i < this.rows; i++) {
+            assert (this.shape[0] == v.shape[0]);
+            for (int i = 0; i < this.shape[0]; i++) {
                 this.data[i][idx] = v.data[i];
             }
             return this;
@@ -1437,29 +1441,29 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D replace(final int a, final int b, final Tensor2D m) {
-        assert ((a + m.rows) >= 0 && (a + m.rows) <= this.rows);
-        assert ((b + m.cols) >= 0 && (b + m.cols) <= this.cols);
-        for (int i = 0; i < m.rows; i++) {
-            System.arraycopy(m.data[i], 0, this.data[a + i], b, m.cols);
+        assert ((a + m.shape[0]) >= 0 && (a + m.shape[0]) <= this.shape[0]);
+        assert ((b + m.shape[1]) >= 0 && (b + m.shape[1]) <= this.shape[1]);
+        for (int i = 0; i < m.shape[0]; i++) {
+            System.arraycopy(m.data[i], 0, this.data[a + i], b, m.shape[1]);
         }
         return this;
     }
 
     public Tensor2D concatenate(final Tensor1D v, final int axis) {
         if (axis == 0) {
-            assert (this.cols == v.rows);
-            final Tensor2D result = new Tensor2D(this.rows + 1, this.cols);
-            for (int i = 0; i < this.rows; i++) {
-                System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
+            assert (this.shape[1] == v.shape[0]);
+            final Tensor2D result = new Tensor2D(this.shape[0] + 1, this.shape[1]);
+            for (int i = 0; i < this.shape[0]; i++) {
+                System.arraycopy(this.data[i], 0, result.data[i], 0, this.shape[1]);
             }
-            System.arraycopy(v.data, 0, result.data[this.rows], 0, this.cols);
+            System.arraycopy(v.data, 0, result.data[this.shape[0]], 0, this.shape[1]);
             return result;
         } else {
-            assert (this.rows == v.rows);
-            final Tensor2D result = new Tensor2D(this.rows, this.cols + 1);
-            for (int i = 0; i < this.rows; i++) {
-                System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
-                result.data[i][this.cols] = v.data[i];
+            assert (this.shape[0] == v.shape[0]);
+            final Tensor2D result = new Tensor2D(this.shape[0], this.shape[1] + 1);
+            for (int i = 0; i < this.shape[0]; i++) {
+                System.arraycopy(this.data[i], 0, result.data[i], 0, this.shape[1]);
+                result.data[i][this.shape[1]] = v.data[i];
             }
             return result;
         }
@@ -1467,31 +1471,31 @@ public class Tensor2D extends AbstractTensor<float[][]> {
 
     public Tensor2D concatenate(final Tensor2D m, final int axis) {
         if (axis == 0) {
-            assert (this.cols == m.cols);
-            final Tensor2D result = new Tensor2D(this.rows + m.rows, this.cols);
-            for (int i = 0; i < this.rows; i++) {
-                System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
+            assert (this.shape[1] == m.shape[1]);
+            final Tensor2D result = new Tensor2D(this.shape[0] + m.shape[0], this.shape[1]);
+            for (int i = 0; i < this.shape[0]; i++) {
+                System.arraycopy(this.data[i], 0, result.data[i], 0, this.shape[1]);
             }
-            for (int i = 0; i < m.rows; i++) {
-                System.arraycopy(m.data[i], 0, result.data[this.rows + i], 0, this.cols);
+            for (int i = 0; i < m.shape[0]; i++) {
+                System.arraycopy(m.data[i], 0, result.data[this.shape[0] + i], 0, this.shape[1]);
             }
             return result;
         } else {
-            assert (this.rows == m.rows);
-            final Tensor2D result = new Tensor2D(this.rows, this.cols + m.cols);
-            for (int i = 0; i < this.rows; i++) {
-                System.arraycopy(this.data[i], 0, result.data[i], 0, this.cols);
-                System.arraycopy(m.data[i], 0, result.data[i], this.cols, m.cols);
+            assert (this.shape[0] == m.shape[0]);
+            final Tensor2D result = new Tensor2D(this.shape[0], this.shape[1] + m.shape[1]);
+            for (int i = 0; i < this.shape[0]; i++) {
+                System.arraycopy(this.data[i], 0, result.data[i], 0, this.shape[1]);
+                System.arraycopy(m.data[i], 0, result.data[i], this.shape[1], m.shape[1]);
             }
             return result;
         }
     }
 
     public Tensor2D transpose() {
-        final Tensor2D result = new Tensor2D(this.cols, this.rows);
-        for (int i = 0; i < result.rows; i++) {
+        final Tensor2D result = new Tensor2D(this.shape[1], this.shape[0]);
+        for (int i = 0; i < result.shape[0]; i++) {
             final float[] r_i = result.data[i];
-            for (int j = 0; j < result.cols; j++) {
+            for (int j = 0; j < result.shape[1]; j++) {
                 r_i[j] = this.data[j][i];
             }
         }
@@ -1499,32 +1503,32 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor1D matmul(final Tensor1D v) {
-        final Tensor1D result = new Tensor1D(this.rows, 0.0f);
+        final Tensor1D result = new Tensor1D(this.shape[0], 0.0f);
         Blas.fgemv(false, this.data, 1.0f, v.data, 1.0f, result.data);
         return result;
     }
 
     public Tensor2D matmul(final Tensor2D m) {
-        final Tensor2D result = new Tensor2D(this.rows, m.cols);
+        final Tensor2D result = new Tensor2D(this.shape[0], m.shape[1]);
         Blas.fgemm(false, false, this.data, 1.0f, m.data, 0.0f, result.data);
         return result;
     }
 
     public Tensor2D matmul(final Tensor2D m, final boolean transposeA, final boolean transposeB) {
-        final int rowsA = transposeA ? this.cols : this.rows;
-        final int colsB = transposeB ? m.rows : m.cols;
-        final Tensor2D result = new Tensor2D(rowsA, colsB);
+        final int rows = transposeA ? this.shape[1] : this.shape[0];
+        final int cols = transposeB ? m.shape[0] : m.shape[1];
+        final Tensor2D result = new Tensor2D(rows, cols);
         Blas.fgemm(transposeA, transposeB, this.data, 1.0f, m.data, 0.0f, result.data);
         return result;
     }
 
     public Tensor2D minor(final int a, final int b) {
-        final Tensor2D result = new Tensor2D(this.rows - 1, this.cols - 1);
-        for (int i = 0; i < result.rows; i++) {
+        final Tensor2D result = new Tensor2D(this.shape[0] - 1, this.shape[1] - 1);
+        for (int i = 0; i < result.shape[0]; i++) {
             final float[] r_i = result.data[i];
             if (i < a) {
                 final float[] m_i = this.data[i];
-                for (int j = 0; j < result.cols; j++) {
+                for (int j = 0; j < result.shape[1]; j++) {
                     if (j < b) {
                         r_i[j] = m_i[j];
                     } else {
@@ -1533,7 +1537,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
                 }
             } else {
                 final float[] m_i = this.data[i + 1];
-                for (int j = 0; j < result.cols; j++) {
+                for (int j = 0; j < result.shape[1]; j++) {
                     if (j < b) {
                         r_i[j] = m_i[j];
                     } else {
@@ -1546,12 +1550,12 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D cof() {
-        final Tensor2D result = new Tensor2D(this.rows, this.cols);
+        final Tensor2D result = new Tensor2D(this.shape[0], this.shape[1]);
         float b = 1.0f;
-        for (int i = 0; i < result.rows; i++) {
+        for (int i = 0; i < result.shape[0]; i++) {
             final float[] r_i = result.data[i];
             float a = b;
-            for (int j = 0; j < result.cols; j++) {
+            for (int j = 0; j < result.shape[1]; j++) {
                 r_i[j] = a * this.minor(i, j).det();
                 a *= -1.0;
             }
@@ -1561,12 +1565,12 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D adj() {
-        final Tensor2D result = new Tensor2D(this.cols, this.rows);
+        final Tensor2D result = new Tensor2D(this.shape[1], this.shape[0]);
         float b = 1.0f;
-        for (int i = 0; i < result.rows; i++) {
+        for (int i = 0; i < result.shape[0]; i++) {
             final float[] r_i = result.data[i];
             float a = b;
-            for (int j = 0; j < result.cols; j++) {
+            for (int j = 0; j < result.shape[1]; j++) {
                 r_i[j] = a * this.minor(j, i).det();
                 a *= -1.0;
             }
@@ -1578,12 +1582,12 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     public Tensor2D inv() {
         final float d = this.det();
         assert (d != 0.0f);
-        final Tensor2D result = new Tensor2D(this.rows, this.cols);
+        final Tensor2D result = new Tensor2D(this.shape[0], this.shape[1]);
         float b = 1.0f / d;
-        for (int i = 0; i < result.rows; i++) {
+        for (int i = 0; i < result.shape[0]; i++) {
             final float[] r_i = result.data[i];
             float a = b;
-            for (int j = 0; j < result.cols; j++) {
+            for (int j = 0; j < result.shape[1]; j++) {
                 r_i[j] = a * this.minor(j, i).det();
                 a *= -1.0f;
             }
@@ -1592,55 +1596,55 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         return result;
     }
 
-    public Tensor1D toVector(final int idx) {
-        return this.toVector(idx, true);
-    }
+    // public Tensor1D toVector(final int idx) {
+    //     return this.toVector(idx, true);
+    // }
 
-    public Tensor1D toVector(final int idx, final boolean rowvar) {
-        if (rowvar) {
-            return this.get(idx);
-        } else {
-            final Tensor1D result = new Tensor1D(this.rows);
-            for (int i = 0; i < this.rows; i++) {
-                result.data[i] = this.data[i][idx];
-            }
-            return result;
-        }
-    }
+    // public Tensor1D toVector(final int idx, final boolean rowvar) {
+    //     if (rowvar) {
+    //         return this.get(idx);
+    //     } else {
+    //         final Tensor1D result = new Tensor1D(this.shape[0]);
+    //         for (int i = 0; i < this.shape[0]; i++) {
+    //             result.data[i] = this.data[i][idx];
+    //         }
+    //         return result;
+    //     }
+    // }
 
-    public Tensor1D[] toVectorArray() {
-        return this.toVectorArray(true);
-    }
+    // public Tensor1D[] toVectorArray() {
+    //     return this.toVectorArray(true);
+    // }
 
-    public Tensor1D[] toVectorArray(final boolean rowvar) {
-        if (rowvar) {
-            final Tensor1D[] result = new Tensor1D[this.rows];
-            for (int i = 0; i < this.rows; i++) {
-                result[i] = this.get(i);
-            }
-            return result;
-        } else {
-            final Tensor1D[] result = new Tensor1D[this.cols];
-            for (int j = 0; j < this.cols; j++) {
-                result[j] = new Tensor1D(this.rows);
-                for (int i = 0; i < this.rows; i++) {
-                    result[j].data[i] = this.data[i][j];
-                }
-            }
-            return result;
-        }
-    }
+    // public Tensor1D[] toVectorArray(final boolean rowvar) {
+    //     if (rowvar) {
+    //         final Tensor1D[] result = new Tensor1D[this.shape[0]];
+    //         for (int i = 0; i < this.shape[0]; i++) {
+    //             result[i] = this.get(i);
+    //         }
+    //         return result;
+    //     } else {
+    //         final Tensor1D[] result = new Tensor1D[this.shape[1]];
+    //         for (int j = 0; j < this.shape[1]; j++) {
+    //             result[j] = new Tensor1D(this.shape[0]);
+    //             for (int i = 0; i < this.shape[0]; i++) {
+    //                 result[j].data[i] = this.data[i][j];
+    //             }
+    //         }
+    //         return result;
+    //     }
+    // }
 
     public String toString() {
-        if (this.rows == 0 || this.cols == 0) {
+        if (this.shape[0] == 0 || this.shape[1] == 0) {
             return "||";
         }
 
         final StringBuilder result = new StringBuilder();
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] a = this.data[i];
             result.append("| ");
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 result.append(String.format("%1$10.3f ", a[j]));
             }
             result.append("|").append(System.lineSeparator());
@@ -1652,22 +1656,22 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     public JSONObject toJSON() {
         final JSONObject json = JSON.newJSONObject();
 
-        if (this.rows == 0 || this.cols == 0) {
+        if (this.shape[0] == 0 || this.shape[1] == 0) {
             return json;
         }
 
         final JSONArray jsonData = JSON.newJSONArray();
-        for (int i = 0; i < this.rows; i++) {
+        for (int i = 0; i < this.shape[0]; i++) {
             final float[] a = this.data[i];
             final JSONArray jsonRow = JSON.newJSONArray();
-            for (int j = 0; j < this.cols; j++) {
+            for (int j = 0; j < this.shape[1]; j++) {
                 jsonRow.append(a[j]);
             }
             jsonData.append(jsonRow);
         }
 
-        json.setInt("rows", this.rows);
-        json.setInt("cols", this.cols);
+        json.setInt("shape[0]", this.shape[0]);
+        json.setInt("shape[1]", this.shape[1]);
         json.setJSONArray("data", jsonData);
         return json;
     }

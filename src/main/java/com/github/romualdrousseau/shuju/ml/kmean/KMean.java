@@ -20,7 +20,7 @@ public class KMean {
     }
 
     public Tensor1D predict(final Tensor1D input) {
-        return this.weights.copy().map(MSE, new Tensor2D(input, false)).flatten(0).get(0).sqrt().mul(-1.0f).exp();
+        return new Tensor1D(this.weights.copy().map(MSE, new Tensor2D(input, false)).flatten(0).sqrt().mul(-1.0f).exp().getFloats(0));
     }
 
     private void initializer(Tensor1D[] inputs) {

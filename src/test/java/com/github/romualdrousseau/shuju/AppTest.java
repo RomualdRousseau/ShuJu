@@ -248,7 +248,7 @@ public class AppTest {
         final Tensor2D[] tmp = Linalg.Eig(M, 1e-6f);
         for (int i = 0; i < tmp[0].rowCount(); i++) {
             final float l = tmp[0].get(i, i);
-            final Tensor1D v = tmp[1].toVector(i, false);
+            final Tensor1D v = new Tensor1D(tmp[1].transpose().getFloats(i));
             assertTrue("M@v[" + i + "] = lv[" + i + "]", M.matmul(v).isSimilar(v.copy().mul(l), 1e-2f));
         }
         assertTrue("M = Q@H@Q-", tmp[1].matmul(tmp[0]).matmul(tmp[1].inv()).equals(M, 1e-2f));

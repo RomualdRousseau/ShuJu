@@ -25,14 +25,13 @@ import com.github.romualdrousseau.shuju.ml.slr.*;
 import com.github.romualdrousseau.shuju.transforms.*;
 import com.github.romualdrousseau.shuju.ml.knn.*;
 import com.github.romualdrousseau.shuju.ml.nn.layer.*;
-import com.github.romualdrousseau.shuju.ml.nn.normalizer.*;
 import com.github.romualdrousseau.shuju.nlp.impl.*;
 import com.github.romualdrousseau.shuju.ml.naivebayes.*;
 
-Vector[] trainingLabel;
-Vector[] trainingData;
-Vector[][] trainingDataByClass = {null, null, null};
-Vector[] reducedTrainingData;
+Tensor1D[] trainingLabel;
+Tensor1D[] trainingData;
+Tensor1D[][] trainingDataByClass = {null, null, null};
+Tensor2D reducedTrainingData;
 
 float t = 0;
 float dt = 0.01;
@@ -57,7 +56,7 @@ void setup() {
   trainingData = training.featuresAsVectorArray();
   
   for(int i = 0; i < flowerNames.size(); i++) {
-    final Vector label = flowerNames.word2vec(flowerNames.get(i));
+    final Tensor1D label = flowerNames.word2vec(flowerNames.get(i));
     trainingDataByClass[i] = training.filter(new java.util.function.Predicate<DataRow>() {
       public boolean test(DataRow row) {
         return row.label().equals(label);
@@ -65,49 +64,49 @@ void setup() {
     }).featuresAsVectorArray();
   }
   
-  Matrix featuresMeans = new Matrix(trainingData).avg(0);
+  Tensor2D featuresMeans = new Tensor2D(trainingData).avg(0);
   System.out.println(featuresMeans);
   
-  Matrix featuresMeansByClass = new Matrix(0, trainingDataByClass[0][0].rowCount()); 
+  Tensor2D featuresMeansByClass = new Tensor2D(0, trainingDataByClass[0][0].rowCount()); 
   for(int i = 0; i < trainingDataByClass.length; i++) {
-      Matrix m = new Matrix(trainingDataByClass[i]);
-      featuresMeansByClass = featuresMeansByClass.concat(m.avg(0), 0);
+      Tensor2D m = new Tensor2D(trainingDataByClass[i]);
+      featuresMeansByClass = featuresMeansByClass.concatenate(m.avg(0), 0);
   }
   System.out.println(featuresMeansByClass);
 
-  Matrix withinClassScatter = new Matrix(trainingDataByClass[0][0].rowCount(), trainingDataByClass[0][0].rowCount());
+  Tensor2D withinClassScatter = new Tensor2D(trainingDataByClass[0][0].rowCount(), trainingDataByClass[0][0].rowCount());
   for(int i = 0; i < trainingDataByClass.length; i++) {
-      Matrix m = new Matrix(trainingDataByClass[i]);
-      m = m.sub(featuresMeansByClass.get(i), 0);
+      Tensor2D m = new Tensor2D(trainingDataByClass[i]);
+      m = m.sub(featuresMeansByClass.slice(i, 0, 1, -1));
       m = m.transpose().matmul(m);
       withinClassScatter = withinClassScatter.add(m);
   }
   System.out.println(withinClassScatter);
 
-  Matrix betweenClassScatter = new Matrix(trainingDataByClass[0][0].rowCount(), trainingDataByClass[0][0].rowCount());
-  Matrix m = featuresMeansByClass.copy();
-  m = m.sub(featuresMeans.get(0), 0);
+  Tensor2D betweenClassScatter = new Tensor2D(trainingDataByClass[0][0].rowCount(), trainingDataByClass[0][0].rowCount());
+  Tensor2D m = featuresMeansByClass.copy();
+  m = m.sub(featuresMeans.slice(0, 0, 1, -1));
   betweenClassScatter = m.transpose().matmul(m).mul(trainingDataByClass[0].length);
   System.out.println(betweenClassScatter);
   
   m = withinClassScatter.inv().matmul(betweenClassScatter);
   System.out.println(m);
-  Matrix[] eig = Linalg.Eig(m, 1e-4);
-  Matrix sort = Linalg.Sort(eig[0]);
-  Matrix lda = eig[1].matmul(sort).copy(0, 0, eig[1].rowCount(), 2);
+  Tensor2D[] eig = Linalg.Eig(m, 1e-4);
+  Tensor2D sort = Linalg.Sort(eig[0]);
+  Tensor2D lda = eig[1].matmul(sort).slice(0, 0, eig[1].rowCount(), 2);
   System.out.println(lda);
   
-  Matrix all = new Matrix(training.featuresAsVectorArray());
-  reducedTrainingData = all.sub(featuresMeans.get(0), 0).matmul(lda).toVectorArray();
+  Tensor2D all = new Tensor2D(training.featuresAsVectorArray());
+  reducedTrainingData = all.sub(featuresMeans.slice(0, 0, 1, -1)).matmul(lda);
 }
 
 void draw() {
   background(255);
   
   noStroke();
-  for(int i = 0; i < reducedTrainingData.length; i++) {
-    float x = lerp(trainingData[i].get(0), reducedTrainingData[i].get(0), t);
-    float y = lerp(trainingData[i].get(1), reducedTrainingData[i].get(1), t);
+  for(int i = 0; i < reducedTrainingData.shape[0]; i++) {
+    float x = lerp(trainingData[i].get(0), reducedTrainingData.get(i, 0), t);
+    float y = lerp(trainingData[i].get(1), reducedTrainingData.get(i, 1), t);
     int l = trainingLabel[i].argmax();
     
     if(l == 0) {

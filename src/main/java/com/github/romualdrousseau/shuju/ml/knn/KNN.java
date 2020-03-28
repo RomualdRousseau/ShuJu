@@ -30,11 +30,11 @@ public class KNN {
             float kvalue = kmeans.get(kmax);
             if(kvalue == -1.0f || kmean < kvalue) {
                 kmeans.set(kmax, kmean);
-                results.set(kmax, this.targets[i]);
+                results.replace(kmax, this.targets[i], 0);
             }
         }
 
-        return results.flatten(0).get(0).l2Norm();
+        return new Tensor1D(results.flatten(0).l2Norm(1).getFloats(0));
     }
 
     private int k;

@@ -3,21 +3,21 @@ package com.github.romualdrousseau.shuju.math;
 public class Linalg {
 
     public static Tensor2D BlockDiagonal(Tensor2D m, int repeat, boolean transpose) {
-        final int split_r = m.rows / repeat;
+        final int split_r = m.shape[0] / repeat;
         if(transpose) {
-            final Tensor2D result = new Tensor2D(m.cols * repeat, m.rows);
-            for (int i = 0; i < m.rows; i++) {
-                final int off_r = (i / split_r) * m.cols;
-                for (int j = 0; j < m.cols; j++) {
+            final Tensor2D result = new Tensor2D(m.shape[1] * repeat, m.shape[0]);
+            for (int i = 0; i < m.shape[0]; i++) {
+                final int off_r = (i / split_r) * m.shape[1];
+                for (int j = 0; j < m.shape[1]; j++) {
                     result.data[off_r + j][i] = m.data[i][j];
                 }
             }
             return result;
         } else {
-            final Tensor2D result = new Tensor2D(m.rows, m.cols * repeat);
-            for (int i = 0; i < m.rows; i++) {
-                final int off_r = (i / split_r) * m.cols;
-                for (int j = 0; j < m.cols; j++) {
+            final Tensor2D result = new Tensor2D(m.shape[0], m.shape[1] * repeat);
+            for (int i = 0; i < m.shape[0]; i++) {
+                final int off_r = (i / split_r) * m.shape[1];
+                for (int j = 0; j < m.shape[1]; j++) {
                     result.data[i][off_r + j] = m.data[i][j];
                 }
             }
@@ -27,20 +27,20 @@ public class Linalg {
 
     public static Tensor2D BlockColumn(Tensor2D m, int repeat, int axis) {
         if (axis == 0) {
-            final int split_c = m.cols / repeat;
-            final Tensor2D result = new Tensor2D(m.rows / repeat, m.cols);
-            for (int i = 0; i < result.rows; i++) {
-                for (int j = 0; j < result.cols; j++) {
-                    result.data[i][j] = m.data[(j / split_c) * result.rows + i][j];
+            final int split_c = m.shape[1] / repeat;
+            final Tensor2D result = new Tensor2D(m.shape[0] / repeat, m.shape[1]);
+            for (int i = 0; i < result.shape[0]; i++) {
+                for (int j = 0; j < result.shape[1]; j++) {
+                    result.data[i][j] = m.data[(j / split_c) * result.shape[0] + i][j];
                 }
             }
             return result;
         } else {
-            final int split_r = m.rows / repeat;
-            final Tensor2D result = new Tensor2D(m.rows, m.cols / repeat);
-            for (int i = 0; i < result.rows; i++) {
-                final int off_m = (i / split_r) * result.cols;
-                for (int j = 0; j < result.cols; j++) {
+            final int split_r = m.shape[0] / repeat;
+            final Tensor2D result = new Tensor2D(m.shape[0], m.shape[1] / repeat);
+            for (int i = 0; i < result.shape[0]; i++) {
+                final int off_m = (i / split_r) * result.shape[1];
+                for (int j = 0; j < result.shape[1]; j++) {
                     result.data[i][j] = m.data[i][off_m + j];
                 }
             }
@@ -50,11 +50,11 @@ public class Linalg {
 
     public static Tensor2D Pivot(final Tensor2D m) {
         assert (m.isSquared());
-        final Tensor2D result = new Tensor2D(m.rows, m.rows).identity();
-        for (int j = 0; j < m.rows; j++) {
+        final Tensor2D result = new Tensor2D(m.shape[0], m.shape[0]).identity();
+        for (int j = 0; j < m.shape[0]; j++) {
             int row = j;
             float max = m.data[j][j];
-            for (int i = j + 1; i < m.rows; i++) {
+            for (int i = j + 1; i < m.shape[0]; i++) {
                 if (Scalar.abs(m.data[i][j]) > max) {
                     max = m.data[i][j];
                     row = i;
@@ -67,11 +67,11 @@ public class Linalg {
 
     public static Tensor2D Sort(final Tensor2D m) {
         assert (m.isSquared());
-        final Tensor2D result = new Tensor2D(m.rows, m.rows).identity();
-        for (int j = 0; j < m.rows; j++) {
+        final Tensor2D result = new Tensor2D(m.shape[0], m.shape[0]).identity();
+        for (int j = 0; j < m.shape[0]; j++) {
             int row = j;
             float max = m.data[j][j];
-            for (int i = j + 1; i < m.rows; i++) {
+            for (int i = j + 1; i < m.shape[0]; i++) {
                 if (Scalar.abs(m.data[i][i]) > max) {
                     max = m.data[i][i];
                     row = i;
@@ -147,7 +147,7 @@ public class Linalg {
         Tensor2D q = m.concatenate(y, 1);
         q = Linalg.GaussianElimination(q, false);
         q = Linalg.SolveTriangular(q, false);
-        return q.slice(0, m.cols, y.rows, y.cols);
+        return q.slice(0, m.shape[1], y.shape[0], y.shape[1]);
     }
 
     public static Tensor2D Reflector(final Tensor2D m) {
@@ -164,7 +164,7 @@ public class Linalg {
         final Tensor2D result = new Tensor2D(rows, rows).identity();
         for (int i = 0; i < v.shape[1]; i++) {
             for (int j = 0; j < v.shape[1]; j++) {
-                final float a = -2 * v.data[0][v.cols - 1 - i] * v.data[0][v.cols - 1 - j];
+                final float a = -2 * v.data[0][v.shape[1] - 1 - i] * v.data[0][v.shape[1] - 1 - j];
                 result.data[rows - 1 - i][rows - 1 - j] += a;
             }
         }
@@ -172,16 +172,16 @@ public class Linalg {
     }
 
     public static Tensor2D[] Hessenberg(final Tensor2D m) {
-        final Tensor2D[] q = new Tensor2D[m.rows - 2];
+        final Tensor2D[] q = new Tensor2D[m.shape[0] - 2];
 
         Tensor2D H = m;
-        for (int k = 0; k <= m.rows - 3; k++) {
-            q[k] = Linalg.HouseHolder(H.slice(k + 1, k), H.rows);
+        for (int k = 0; k <= m.shape[0] - 3; k++) {
+            q[k] = Linalg.HouseHolder(H.slice(k + 1, k), H.shape[0]);
             H = (Tensor2D) q[k].matmul(H).matmul(q[k].transpose());
         }
 
-        Tensor2D V = new Tensor2D(m.rows, m.cols).identity();
-        for (int k = m.rows - 3; k >= 0; k--) {
+        Tensor2D V = new Tensor2D(m.shape[0], m.shape[1]).identity();
+        for (int k = m.shape[0] - 3; k >= 0; k--) {
             V = (Tensor2D) q[k].matmul(V);
         }
 
@@ -189,7 +189,7 @@ public class Linalg {
     }
 
     public static Tensor2D[] LU(final Tensor2D m) {
-        final int n = m.rows;
+        final int n = m.shape[0];
         final Tensor2D L = new Tensor2D(n, n).identity();
         final Tensor2D U = new Tensor2D(n, n);
 
@@ -215,12 +215,12 @@ public class Linalg {
     }
 
     public static Tensor2D[] QR(final Tensor2D m) {
-        Tensor2D tmp = Linalg.HouseHolder(m, m.rows);
+        Tensor2D tmp = Linalg.HouseHolder(m, m.shape[0]);
         Tensor2D R = (Tensor2D) tmp.matmul(m);
         Tensor2D Q = tmp.transpose();
 
-        for (int k = 1; k < m.rows - 1; k++) {
-            tmp = Linalg.HouseHolder(R.minor(k - 1, k - 1), R.rows);
+        for (int k = 1; k < m.shape[0] - 1; k++) {
+            tmp = Linalg.HouseHolder(R.minor(k - 1, k - 1), R.shape[0]);
             R = (Tensor2D) tmp.matmul(R);
             Q = Q.matmul(tmp, false, true);
         }
@@ -231,7 +231,7 @@ public class Linalg {
     public static Tensor2D Cholesky(final Tensor2D m) {
         assert (m.isSymetric(Scalar.EPSILON));
 
-        final Tensor2D result = new Tensor2D(m.rows, m.cols).zero();
+        final Tensor2D result = new Tensor2D(m.shape[0], m.shape[1]).zero();
 
         final float[][] r_data = result.data;
         for (int i = 0; i < r_data.length; i++) {
@@ -261,7 +261,7 @@ public class Linalg {
         Tensor2D H = h[0];
         Tensor2D Q = h[1];
         int its = 0;
-        for (int p = H.rows - 1; p >= 1; p--) {
+        for (int p = H.shape[0] - 1; p >= 1; p--) {
             do {
                 float shift;
                 if ((its % 11) == 10) {
@@ -343,8 +343,8 @@ public class Linalg {
     }
 
     private static Tensor2D EigensValuesAndVectorsFromShur(final Tensor2D H, final float e) {
-        final Tensor2D Y = new Tensor2D(H.rows, H.cols);
-        final int n = Y.rows - 1;
+        final Tensor2D Y = new Tensor2D(H.shape[0], H.shape[1]);
+        final int n = Y.shape[0] - 1;
         final float smallnum = (n / e) * Float.MIN_VALUE;
         final float bignum = (e / n) * Float.MAX_VALUE;
 
@@ -386,8 +386,8 @@ public class Linalg {
             }
         }
 
-        for (int i = 0; i < H.rows; i++) {
-            for (int j = 0; j < H.cols; j++) {
+        for (int i = 0; i < H.shape[0]; i++) {
+            for (int j = 0; j < H.shape[1]; j++) {
                 if (j != i) {
                     H.data[i][j] = 0.0f;
                 }

@@ -44,7 +44,7 @@ public abstract class Layer {
     }
 
     public Tensor1D detachAsVector() {
-        return this.output.toVector(0, false);
+        return new Tensor1D(this.output.transpose().getFloats(0));
     }
 
     public abstract void reset(boolean parametersOnly);

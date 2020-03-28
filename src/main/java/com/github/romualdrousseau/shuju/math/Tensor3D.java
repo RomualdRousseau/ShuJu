@@ -392,7 +392,7 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
 
     public Tensor3D add(final Tensor1D a, final int axis) {
         if (axis == 0) {
-            assert (this.shape[2] == a.rows);
+            assert (this.shape[2] == a.shape[0]);
             for (int i = 0; i < this.shape[0]; i++) {
                 final float[][] m_i = this.data[i];
                 for (int j = 0; j < this.shape[1]; j++) {
@@ -403,7 +403,7 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
                 }
             }
         } else {
-            assert (this.shape[1] == a.rows);
+            assert (this.shape[1] == a.shape[0]);
             for (int i = 0; i < this.shape[0]; i++) {
                 final float[][] m_i = this.data[i];
                 for (int k = 0; k < this.shape[2]; k++) {

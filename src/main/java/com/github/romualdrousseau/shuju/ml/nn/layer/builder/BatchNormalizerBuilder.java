@@ -7,14 +7,20 @@ public class BatchNormalizerBuilder extends LayerBuilder<BatchNormalizer> {
 
     public BatchNormalizerBuilder() {
         super();
+        this.inputChannels = 0;
     }
 
     public BatchNormalizer build() {
-        return new BatchNormalizer(this.inputUnits);
+        return new BatchNormalizer(this.inputUnits, this.inputChannels);
     }
 
     public BatchNormalizerBuilder setInputUnits(int inputUnits) {
         this.inputUnits = inputUnits;
+        return this;
+    }
+
+    public BatchNormalizerBuilder setInputChannels(int inputChannels) {
+        this.inputChannels = inputChannels;
         return this;
     }
 }

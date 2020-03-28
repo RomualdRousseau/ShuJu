@@ -9,8 +9,8 @@ public class SLR {
         Tensor2D m1 = new Tensor2D(inputs);
         Tensor2D m2 = new Tensor2D(targets);
         Tensor2D m3 = m1.cov(m2, 0, false).div(m1.var(0));
-        this.beta = m3.get(0);
-        this.alpha = m2.avg(0).sub(m3.mul(m1.avg(0))).get(0);
+        this.beta = new Tensor1D(m3.getFloats(0));
+        this.alpha = new Tensor1D(m2.avg(0).sub(m3.mul(m1.avg(0))).getFloats(0));
     }
 
     public Tensor1D predict(final Tensor1D row) {
