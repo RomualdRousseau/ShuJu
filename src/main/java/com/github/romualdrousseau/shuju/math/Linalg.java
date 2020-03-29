@@ -294,7 +294,7 @@ public class Linalg {
         final Tensor2D cov = m.cov(0);
         final Tensor2D[] eig = Linalg.Eig(cov, e);
         final Tensor2D sort = Linalg.Sort(eig[0]);
-        return ((Tensor2D) eig[1].matmul(sort)).slice(0, 0, eig[1].rowCount(), n);
+        return ((Tensor2D) eig[1].matmul(sort)).slice(0, 0, eig[1].shape[0], n);
     }
 
     private static float WilkinsonShift(final float a, final float b, final float c, final float d) {

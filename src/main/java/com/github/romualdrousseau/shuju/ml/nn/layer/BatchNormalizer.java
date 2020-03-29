@@ -60,7 +60,7 @@ public class BatchNormalizer extends Layer {
     }
 
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
-        final float N = d_L_d_out.rowCount();
+        final float N = d_L_d_out.shape[0];
 
         this.gamma.G.add(d_L_d_out.flatten(0));
 

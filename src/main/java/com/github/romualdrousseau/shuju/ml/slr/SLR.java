@@ -14,7 +14,7 @@ public class SLR {
     }
 
     public Tensor1D predict(final Tensor1D row) {
-        return (Tensor1D) row.copy().mul(this.beta).add(this.alpha);
+        return row.copy().mul(this.beta).add(this.alpha);
     }
 
     private Tensor1D beta;

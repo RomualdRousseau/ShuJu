@@ -2,7 +2,6 @@ package com.github.romualdrousseau.shuju.ml.kmean;
 
 import com.github.romualdrousseau.shuju.math.Tensor2D;
 import com.github.romualdrousseau.shuju.math.TensorFunction;
-import com.github.romualdrousseau.shuju.math.Tensor1D;
 
 public class KMean {
     public KMean(int k) {
@@ -10,7 +9,7 @@ public class KMean {
         this.initialized = false;
     }
 
-    public void fit(final Tensor1D[] inputs, final Tensor1D[] targets) {
+    public void fit(final Tensor2D[] inputs, final Tensor2D[] targets) {
         if (!this.initialized) {
             this.initializer(inputs);
             this.initialized = true;
@@ -19,33 +18,33 @@ public class KMean {
         this.maximation(inputs, targets);
     }
 
-    public Tensor1D predict(final Tensor1D input) {
-        return new Tensor1D(this.weights.copy().map(MSE, new Tensor2D(input, false)).flatten(0).sqrt().mul(-1.0f).exp().getFloats(0));
+    public Tensor2D predict(final Tensor2D input) {
+        return this.weights.copy().map(MSE, input.transpose()).flatten(0).sqrt().mul(-1.0f).exp();
     }
 
-    private void initializer(Tensor1D[] inputs) {
-        this.weights = new Tensor2D(inputs[0].rowCount(), 0);
+    private void initializer(Tensor2D[] inputs) {
+        this.weights = new Tensor2D(inputs[0].shape[1], 0);
         for (int j = 0; j < this.k; j++) {
             int n = (int) Math.floor(Math.random() * inputs.length);
             this.weights = this.weights.concatenate(inputs[n], 1);
         }
     }
 
-    private void expectation(Tensor1D[] inputs, Tensor1D[] labels) {
+    private void expectation(Tensor2D[] inputs, Tensor2D[] labels) {
         for (int i = 0; i < inputs.length; i++) {
-            labels[i] = new Tensor1D(this.k)
-                    .oneHot(this.weights.copy().map(MSE, new Tensor2D(inputs[i], false)).flatten(0).argmin(0, 1));
+            labels[i] = new Tensor2D(1, this.k)
+                    .oneHot(this.weights.copy().map(MSE, inputs[i].transpose()).flatten(0).argmin(0, 1));
         }
     }
 
-    private void maximation(Tensor1D[] inputs, Tensor1D[] labels) {
-        this.weights = new Tensor2D(this.weights.rowCount(), 0);
+    private void maximation(Tensor2D[] inputs, Tensor2D[] labels) {
+        this.weights = new Tensor2D(this.weights.shape[0], 0);
 
         for (int j = 0; j < this.k; j++) {
-            Tensor1D sum = new Tensor1D(this.weights.rowCount());
+            Tensor2D sum = new Tensor2D(1, this.weights.shape[0]);
             float count = 0;
             for (int i = 0; i < inputs.length; i++) {
-                if (labels[i].argmax() == j) {
+                if (labels[i].argmax(0, 1) == j) {
                     sum.add(inputs[i]);
                     count++;
                 }

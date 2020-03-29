@@ -7,7 +7,7 @@ import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 
 public class GlorotUniformInitializer implements InitializerFunc {
     public Tensor2D apply(Tensor2D matrix) {
-        return matrix.randomize(Scalar.sqrt(6.0f / Scalar.sqrt(matrix.rowCount() + matrix.colCount())));
+        return matrix.randomize(Scalar.sqrt(6.0f / Scalar.sqrt(matrix.shape[0] + matrix.shape[1])));
     }
 
     public Tensor3D apply(Tensor3D matrix) {

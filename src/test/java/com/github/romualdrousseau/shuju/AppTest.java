@@ -246,7 +246,7 @@ public class AppTest {
                 new float[][] { { -3.05f, 1.62f, -4.94f, -5.17f }, { -3.72f, 2.18f, -6.11f, -6.32f },
                         { 13.24f, -7.23f, 21.51f, 22.44f }, { 7.01f, -3.43f, 11.23f, 11.86f } });
         final Tensor2D[] tmp = Linalg.Eig(M, 1e-6f);
-        for (int i = 0; i < tmp[0].rowCount(); i++) {
+        for (int i = 0; i < tmp[0].shape[0]; i++) {
             final float l = tmp[0].get(i, i);
             final Tensor1D v = new Tensor1D(tmp[1].transpose().getFloats(i));
             assertTrue("M@v[" + i + "] = lv[" + i + "]", M.matmul(v).isSimilar(v.copy().mul(l), 1e-2f));
