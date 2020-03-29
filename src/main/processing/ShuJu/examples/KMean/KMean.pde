@@ -30,8 +30,8 @@ import com.github.romualdrousseau.shuju.ml.naivebayes.*;
 
 final static int K = 3;
 
-Tensor1D[] data = new Tensor1D[100];
-Tensor1D[] labels = new Tensor1D[100];
+Tensor2D[] data = new Tensor2D[100];
+Tensor2D[] labels = new Tensor2D[100];
 
 com.github.romualdrousseau.shuju.ml.kmean.KMean kmean = new com.github.romualdrousseau.shuju.ml.kmean.KMean(K);
 
@@ -40,8 +40,8 @@ void setup() {
   frameRate(1);
 
   for (int i = 0; i < 100; i++) {
-    data[i] = new Tensor1D(new float[] { random(1), random(1) });
-    labels[i] = new Tensor1D(K).set(int(random(K)), 1);
+    data[i] = new Tensor2D(new float[] { random(1), random(1) });
+    labels[i] = new Tensor2D(1, K).oneHot(int(random(K)));
   }
 }
 
@@ -54,9 +54,9 @@ void draw() {
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      Tensor1D point = new Tensor1D(new float[] {map(x, 0, width, 0, 1), map(y, 0, height, 0, 1)});
-      Tensor1D label = kmean.predict(point);
-      float[] v = new Tensor1D(K).oneHot(label.argmax()).getFloats();
+      Tensor2D point = new Tensor2D(new float[] {map(x, 0, width, 0, 1), map(y, 0, height, 0, 1)});
+      Tensor2D label = kmean.predict(point);
+      float[] v = new Tensor2D(1, K).oneHot(label.argmax(0, 1)).getFloats(0);
       float r = map(v[0], 0, 1, 128, 255);
       float g = map(v[1], 0, 1, 128, 255);
       float b = map(v[2], 0, 1, 128, 255);
@@ -68,23 +68,23 @@ void draw() {
   noStroke();
 
   for (int i = 0; i < data.length; i++) {
-    Tensor1D point = data[i];
-    Tensor1D label = labels[i];
+    Tensor2D point = data[i];
+    Tensor2D label = labels[i];
 
-    float[] v = new Tensor1D(K).oneHot(label.argmax()).getFloats();
+    float[] v = new Tensor2D(1, K).oneHot(label.argmax(0, 1)).getFloats(0);
     float r = map(v[0], 0, 1, 128, 255);
     float g = map(v[1], 0, 1, 128, 255);
     float b = map(v[2], 0, 1, 128, 255);
     fill(r, g, b);
 
-    float x = map(point.get(0), 0, 1, 0, width);
-    float y = map(point.get(1), 0, 1, 0, height);
+    float x = map(point.get(0, 0), 0, 1, 0, width);
+    float y = map(point.get(0, 1), 0, 1, 0, height);
     ellipse(x, y, 5, 5);
   }
 }
 
 void keyPressed() {
     for (int i = 0; i < 100; i++) {
-      data[i] = new Tensor1D(new float[] { random(1), random(1) });
+      data[i] = new Tensor2D(new float[] { random(1), random(1) });
     }
 }
