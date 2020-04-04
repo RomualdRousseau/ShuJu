@@ -1,7 +1,6 @@
 package com.github.romualdrousseau.shuju.math;
 
 import java.util.Arrays;
-import java.util.stream.IntStream;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
@@ -612,30 +611,9 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
         final int rows = transposeA ? this.shape[2] : this.shape[1];
         final int cols = transposeB ? a.shape[1] : a.shape[2];
         final Tensor3D result = new Tensor3D(this.shape[0], rows, cols);
-
-        final int surface = this.shape[0] * this.shape[1] * this.shape[2];
-        final int count = Math.min(surface / (64 * 64) + 1, Runtime.getRuntime().availableProcessors());
-
-        if ((this.shape[0] / count) <= 1) {
-
-            // Single core calculation
-
-            for (int i = 0; i < this.shape[0]; i++) {
-                Blas.fgemm(transposeA, transposeB, this.data[i], 1.0f, a.data[i], 0.0f, result.data[i]);
-            }
-        } else {
-            final int stride = this.shape[0] / count + 1;
-
-            // Muti core calculation
-
-            IntStream.rangeClosed(0, count).map(i -> i * stride).parallel().forEach(i -> {
-                final int remaining = Math.min(this.shape[0] - i, stride);
-                for (int j = 0; j < remaining; j++) {
-                    Blas.fgemm(transposeA, transposeB, this.data[i + j], 1.0f, a.data[i + j], 0.0f, result.data[i + j]);
-                }
-            });
+        for (int i = 0; i < this.shape[0]; i++) {
+            Blas.fgemm(transposeA, transposeB, this.data[i], 1.0f, a.data[i], 0.0f, result.data[i]);
         }
-
         return result;
     }
 

@@ -25,7 +25,6 @@ public class Conv2D extends Layer {
         this.filters = new Parameters3D(inputChannels, filters * filters, channels);
         this.biases = new Parameters2D(inputChannels * channels);
 
-
         this.reset(false);
     }
 
@@ -39,7 +38,6 @@ public class Conv2D extends Layer {
             this.filters.reset();
             this.biases.reset();
             this.initializer.apply(this.filters.W).div(this.inputUnits - this.units + 1);
-            this.initializer.apply(this.biases.W);
         }
     }
 

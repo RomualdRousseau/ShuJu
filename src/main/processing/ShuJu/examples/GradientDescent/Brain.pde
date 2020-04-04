@@ -45,14 +45,16 @@ class Brain_ {
         PVector point = Map2D.points.get(i);
 
         Tensor2D input = new Tensor2D(new float[] { point.x, point.y }, false);
-        Tensor2D target = new Tensor2D(2, 1).oneHot(0, int(point.z), 0);
+        Tensor2D target = new Tensor2D(2, 1).oneHot(int(point.z));
 
         Layer output = this.model.model(input);
         Loss loss = this.criterion.loss(output, target);
 
-        if (output.detach().argmax(0, 0) != target.argmax(0, 0)) {
+        if(sumMean > 0.001) {
           this.optimizer.minimize(loss);
-        } else {
+        }
+        
+        if (output.detach().argmax(0, 0) == target.argmax(0, 0)) {
           sumAccu++;
         }
 

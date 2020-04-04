@@ -32,7 +32,6 @@ public class Dense extends Layer {
             this.weights.reset();
             this.biases.reset();
             this.initializer.apply(this.weights.W);
-            this.initializer.apply(this.biases.W);
         }
     }
 

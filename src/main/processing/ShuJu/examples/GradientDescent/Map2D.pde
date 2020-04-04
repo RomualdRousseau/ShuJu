@@ -1,3 +1,15 @@
+final int[] classColors = {
+  color(255, 185, 185),
+  color(185, 185, 255),
+  color(255, 255, 255)
+};
+
+//final int[] classColors = {
+//  color(32, 128, 0),
+//  color(32, 0, 255),
+//  color(255, 255, 255)
+//};
+
 class Map2D_ {
   ArrayList<PVector> points = new ArrayList<PVector>();
   PImage image;
@@ -16,9 +28,11 @@ class Map2D_ {
         float a = map(j, 0, this.image.width, 0, 1);
         PVector y = new PVector(a, b);
         Tensor2D predicted = Brain.predict(y);
-        float c1 = lerp(51, 128, predicted.get(0, 0));
-        float c2 = lerp(51, 255, predicted.get(1, 0));
-        this.image.pixels[int(i * image.width + j)] = color(32, c1, c2);
+        //float c1 = lerp(51, 128, predicted.get(0, 0));
+        //float c2 = lerp(51, 255, predicted.get(1, 0));
+        //this.image.pixels[int(i * image.width + j)] = color(32, c1, c2);
+        float amt = map(-predicted.get(0, 0) + predicted.get(1, 0), -1, 1, 0, 1);
+        this.image.pixels[int(i * image.width + j)] = lerpColor3(classColors[0], classColors[2], classColors[1], amt);
       }
     }
     this.image.updatePixels();
@@ -33,9 +47,8 @@ class Map2D_ {
       PVector point = this.points.get(i);
       float px = map(point.x, 0, 1, x, w);
       float py = map(point.y, 0, 1, y, h);
-      float c1 = lerp(51, 128, 1 - point.z);
-      float c2 = lerp(51, 255, point.z);
-      fill(32, c1, c2);
+      float amt = map(2 * point.z - 1, -1, 1, 0, 1);
+      fill(lerpColor3(classColors[0], classColors[2], classColors[1], amt));
       ellipse(px, py, 10, 10);
     }
     noFill();

@@ -11,11 +11,11 @@ Tensor2D image2Tensor2D(PImage image, int x, int y, int w, int h) {
 }
 
 PImage Tensor2D2Image(Tensor2D m) {
-  PImage result = createImage(m.colCount(), m.rowCount(), RGB);
+  PImage result = createImage(m.shape[1], m.shape[0], RGB);
   result.loadPixels();
-  for(int i = 0; i < m.rowCount(); i++) {
-    for(int j = 0; j < m.colCount(); j++) {
-      result.pixels[i * m.colCount() + j] = color(map(m.get(i, j), -0.5, 0.5, 0, 255));
+  for(int i = 0; i < m.shape[0]; i++) {
+    for(int j = 0; j < m.shape[1]; j++) {
+      result.pixels[i * m.shape[1] + j] = color(map(m.get(i, j), -0.5, 0.5, 0, 255));
     }
   }
   result.updatePixels();

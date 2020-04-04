@@ -16,7 +16,7 @@ public class Conv2DBuilder extends LayerBuilder<Conv2D> {
         this.channels = 8;
         this.initializer = new GlorotUniformInitializer();
         this.regularizer = null;
-        this.paddingValid = false;
+        this.paddingValid = true;
     }
 
     public Conv2D build() {
