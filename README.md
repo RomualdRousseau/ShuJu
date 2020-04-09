@@ -1,4 +1,6 @@
 # ShuJu
+![Build](https://github.com/RomualdRousseau/ShuJu/workflows/Build/badge.svg)
+![Test](https://github.com/RomualdRousseau/ShuJu/workflows/Test/badge.svg)
 
 This project aims to collect and implement various statistics and machine learning algorithms. So far, the following algorithms have been implemented:
 
