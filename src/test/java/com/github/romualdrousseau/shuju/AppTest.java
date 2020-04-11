@@ -16,7 +16,7 @@ import com.github.romualdrousseau.shuju.columns.NumericColumn;
 import com.github.romualdrousseau.shuju.columns.StringColumn;
 import com.github.romualdrousseau.shuju.math.Blas;
 import com.github.romualdrousseau.shuju.math.Linalg;
-import com.github.romualdrousseau.shuju.math.Marray;
+//import com.github.romualdrousseau.shuju.math.Marray;
 import com.github.romualdrousseau.shuju.math.Tensor2D;
 import com.github.romualdrousseau.shuju.math.Tensor3D;
 import com.github.romualdrousseau.shuju.math.Tensor1D;
@@ -29,22 +29,22 @@ import com.github.romualdrousseau.shuju.util.*;
 
 public class AppTest {
 
-    @Test public void testMarray() {
-        Marray M = new Marray(2, 4, 4).arrange();
-        Marray N = new Marray(1, 1, 4).arrange();
-        Marray V = new Marray(4).arrange();
-        System.out.println(M);
-        System.out.println();
-        System.out.println(M.transpose(0, 2, 1));
-        System.out.println();
-        System.out.println(N);
-        System.out.println();
-        System.out.println(M.iadd(N).iadd(0.5f));
-        System.out.println();
-        System.out.println(V.reshape(1, 4).transpose());
-        System.out.println();
-        System.out.println(M.transpose());
-    }
+    // @Test public void testMarray() {
+    //     Marray M = new Marray(2, 4, 4).arrange();
+    //     Marray N = new Marray(1, 1, 4).arrange();
+    //     Marray V = new Marray(4).arrange();
+    //     System.out.println(M);
+    //     System.out.println();
+    //     System.out.println(M.transpose(0, 2, 1));
+    //     System.out.println();
+    //     System.out.println(N);
+    //     System.out.println();
+    //     System.out.println(M.iadd(N).iadd(0.5f));
+    //     System.out.println();
+    //     System.out.println(V.reshape(1, 4).transpose());
+    //     System.out.println();
+    //     System.out.println(M.transpose());
+    // }
 
     // @Test
     // public void testSpeed() {
@@ -134,7 +134,7 @@ public class AppTest {
         }
         long end = System.currentTimeMillis();
         int time = (int) ((end - start) / 10);
-        assertTrue("fgemm(false, false) took " + time + "ms", time < 200);
+        assertTrue("fgemm(false, false) took " + time + "ms", time < 500);
 
         start = System.currentTimeMillis();
         for (int i = 0; i < 10; i++) {
@@ -142,7 +142,7 @@ public class AppTest {
         }
         end = System.currentTimeMillis();
         time = (int) ((end - start) / 10);
-        assertTrue("fgemm(false, true) took " + time + "ms", time < 200);
+        assertTrue("fgemm(false, true) took " + time + "ms", time < 500);
 
         start = System.currentTimeMillis();
         for (int i = 0; i < 10; i++) {
@@ -150,7 +150,7 @@ public class AppTest {
         }
         end = System.currentTimeMillis();
         time = (int) ((end - start) / 10);
-        assertTrue("fgemm(true, false) took " + time + "ms", time < 200);
+        assertTrue("fgemm(true, false) took " + time + "ms", time < 500);
 
         start = System.currentTimeMillis();
         for (int i = 0; i < 10; i++) {
@@ -158,7 +158,7 @@ public class AppTest {
         }
         end = System.currentTimeMillis();
         time = (int) ((end - start) / 10);
-        assertTrue("fgemm(true, true) took " + time + "ms", time < 200);
+        assertTrue("fgemm(true, true) took " + time + "ms", time < 500);
     }
 
     @Test
