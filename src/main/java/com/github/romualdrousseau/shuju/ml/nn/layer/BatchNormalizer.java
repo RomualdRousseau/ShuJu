@@ -60,7 +60,7 @@ public class BatchNormalizer extends Layer {
     }
 
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
-        final float N_inv = 1.0f / d_L_d_out.shape[0];
+        final float N = d_L_d_out.shape[0];
 
         this.gamma.G.add(d_L_d_out.flatten(0));
 
@@ -68,9 +68,9 @@ public class BatchNormalizer extends Layer {
 
         final Tensor2D dva2 = d_L_d_out.copy().mul(this.gamma.W);
         final Tensor2D dstd_inv = x_mu.copy().mul(dva2).flatten(0);
-        final Tensor2D dvar = dstd_inv.mul(-0.5f).mul(std_inv).mul(std_inv).mul(std_inv);
-        final Tensor2D dxmu = dva2.mul(std_inv).add(x_mu.copy().mul(dvar).mul(2.0f * N_inv));
-        final Tensor2D dmu = dxmu.flatten(0).mul(-N_inv);
+        final Tensor2D dvar = dstd_inv.mul(-0.5f).mul(std_inv.copy().pow(3));
+        final Tensor2D dxmu = dva2.mul(std_inv).add(x_mu.copy().mul(dvar).mul(2.0f / N));
+        final Tensor2D dmu = dxmu.flatten(0).mul(-1.0f / N);
         return dxmu.add(dmu);
     }
 

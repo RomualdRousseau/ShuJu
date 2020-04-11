@@ -19,7 +19,7 @@ public class Conv2D extends Layer {
         super(inputUnits, inputChannels, paddingValid ? (inputUnits - filters + 1) : inputUnits, inputChannels * channels, bias);
 
         this.n_filters = filters;
-        this.n_pads = paddingValid ? 0 : (filters / 2);
+        this.n_pads = paddingValid ? 0 : ((filters - 1) / 2);
         this.initializer = initializer;
         this.regularizer = regularizer;
         this.filters = new Parameters3D(inputChannels, filters * filters, channels);
@@ -38,6 +38,7 @@ public class Conv2D extends Layer {
             this.filters.reset();
             this.biases.reset();
             this.initializer.apply(this.filters.W).div(this.inputUnits - this.units + 1);
+            this.biases.W.zero();
         }
     }
 

@@ -50,14 +50,12 @@ class Brain_ {
         Layer output = this.model.model(input);
         Loss loss = this.criterion.loss(output, target);
 
-        if(sumMean > 0.001) {
+        if (output.detach().argmax(0, 0) == target.argmax(0, 0)) {
+          sumAccu++;
+        } else {
           this.optimizer.minimize(loss);
         }
         
-        if (output.detach().argmax(0, 0) == target.argmax(0, 0)) {
-          sumAccu++;
-        }
-
         sumMean += loss.getValue().flatten(0, 0);
 
         if (Float.isNaN(sumMean)) {
@@ -90,7 +88,7 @@ class Brain_ {
       .setActivation(new LeakyRelu()));
 
     this.model.add(new DenseBuilder()
-      .setUnits(BRAIN_HIDDEN_NEURONS));
+      .setUnits(BRAIN_HIDDEN_NEURONS * 2));
 
     this.model.add(new BatchNormalizerBuilder());
 

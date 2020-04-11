@@ -12,47 +12,47 @@ public class Scalar {
         Scalar.randomGenerator = new Random(System.currentTimeMillis());
     }
 
-    public static float sign(float x) {
+    public static float sign(final float x) {
         return x >= 0 ? 1.0f : -1.0f;
     }
 
-    public static float abs(float x) {
+    public static float abs(final float x) {
         return (float) Math.abs(x);
     }
 
-    public static float tanh(float x) {
+    public static float tanh(final float x) {
         return (float) Math.tanh(x);
     }
 
-    public static float sqrt(float x) {
+    public static float sqrt(final float x) {
         return (float) Math.sqrt(x);
     }
 
-    public static float pow(float x, float n) {
+    public static float pow(final float x, final float n) {
         return (float) Math.pow(x, n);
     }
 
-    public static float exp(float x) {
+    public static float exp(final float x) {
         return (float) Math.exp(x);
     }
 
-    public static float log(float x) {
+    public static float log(final float x) {
         return (float) Math.log(x);
     }
 
-    public static float min(float a, float b) {
+    public static float min(final float a, final float b) {
         return (float) Math.min(a, b);
     }
 
-    public static float max(float a, float b) {
+    public static float max(final float a, final float b) {
         return (float) Math.max(a, b);
     }
 
-    public static float random(float a) {
+    public static float random(final float a) {
         return Scalar.random(0, a);
     }
 
-    public static float random(float a, float b) {
+    public static float random(final float a, final float b) {
         return randomGenerator.nextFloat() * (b - a) + a;
     }
 
@@ -60,24 +60,25 @@ public class Scalar {
         return (float) randomGenerator.nextGaussian();
     }
 
-    public static float sgn(float x) {
+    public static float sgn(final float x) {
         return (x > 0.0f) ? 1.0f : ((x < 0.0f) ? -1.0f : 0.0f);
     }
 
-    public static float map(float t, float start1, float stop1, float start2, float stop2) {
+    public static float map(final float t, final float start1, final float stop1, final float start2,
+            final float stop2) {
         final float m = (stop2 - start2) / (stop1 - start1);
         return m * (t - start1) + start2;
     }
 
-    public static float unlerp(float a, float b, float v) {
+    public static float unlerp(final float a, final float b, final float v) {
         return (v - a) / (b - a);
     }
 
-    public static float constrain(float x, float a, float b) {
+    public static float constrain(final float x, final float a, final float b) {
         return (x < a) ? a : ((x > b) ? b : x);
     }
 
-    public static float if_lt_then(float x, float p, float a, float b) {
+    public static float if_lt_then(final float x, final float p, final float a, final float b) {
         return (x < p) ? a : b;
     }
 }

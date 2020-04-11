@@ -77,11 +77,14 @@ void buildModel() {
 
   model.add(new DenseBuilder()
     .setInputUnits(4)
-    .setUnits(64));
+    .setUnits(128));
     
   model.add(new ActivationBuilder()
     .setActivation(new Tanh()));
-
+    
+  model.add(new DropOutBuilder()
+    .setRate(0.25));
+    
   model.add(new DenseBuilder()
     .setUnits(3));
 
@@ -160,14 +163,20 @@ void draw() {
     for(int j = 0; j < trainingInputs.length; j += miniBatch) {
       optimizer.zeroGradients();
       for(int k = j; k < Math.min(trainingInputs.length, j + miniBatch); k++) {
-        optimizer.minimize(loss.loss(model.model(trainingInputs[k]), trainingTargets[k]));
+        Layer output = model.model(trainingInputs[k]);
+        loss.loss(output, trainingTargets[k]);
+        
+        error += loss.getValue().flatten(0, 0);
+        
+        if (loss.getValue().flatten(0, 0) > 0.001) {
+          optimizer.minimize(loss);
+        }
       }
       optimizer.step();
     }
     epochs++;
-    error += loss.getValue().flatten(0, 0);
   }
-  error /= iterationCount;
+  error /= (iterationCount * trainingInputs.length);
   model.setTrainingMode(false);
 
   timeLine1.append(error);

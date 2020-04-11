@@ -6,14 +6,6 @@ String getClassInfo(Object o) {
   return m[1];
 }
 
-int lerpColor3(int c1, int c2, int c3, float amt) {
-  if (amt < 0.5) {
-    return lerpColor(c1, c2, map(amt, 0, 0.5, 0, 1));
-  } else {
-    return lerpColor(c2, c3, map(amt, 0.5, 1, 0, 1));
-  }
-}
-
 static class Action {
   short keyCode;
   String keyString;

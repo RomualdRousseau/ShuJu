@@ -13,13 +13,7 @@ public class DropOut extends Layer {
         super(inputUnits, inputChannels, inputUnits, inputChannels, 1.0f);
 
         this.rate = Scalar.map(rate, 0.0f, 1.0f, -0.5f, 0.5f);
-        this.U = new Tensor2D(this.inputUnits, this.inputChannels);
-
-        if(rate < 1.0f) {
-            this.scale = 1.0f / (1.0f - rate);
-        } else {
-            this.scale = 0.0f;
-        }
+        this.scale = (rate > 0.0f) ? 1.0f / (1.0f - rate) : 0.0f;
 
         this.reset(false);
     }
@@ -29,8 +23,8 @@ public class DropOut extends Layer {
 
     public Tensor2D callForward(final Tensor2D input) {
         if (this.training) {
-            this.U.randomize(0.5f).if_lt_then(this.rate, 0.0f, this.scale);
-            return input.mul(this.U);
+            this.noise = new Tensor2D(input.shape[0], input.shape[1]).randomize(0.5f).if_lt_then(this.rate, 0.0f, this.scale);
+            return input.mul(this.noise);
         } else {
             return input;
         }
@@ -40,7 +34,7 @@ public class DropOut extends Layer {
     }
 
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
-        return d_L_d_out.mul(this.U);
+        return d_L_d_out.mul(this.noise);
     }
 
     public void completeBackward(final Optimizer optimizer) {
@@ -57,5 +51,5 @@ public class DropOut extends Layer {
     private float rate;
     private float scale;
     // cache
-    private Tensor2D U;
+    private Tensor2D noise;
 }

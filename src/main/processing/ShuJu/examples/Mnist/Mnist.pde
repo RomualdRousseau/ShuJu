@@ -79,14 +79,14 @@ void buildModel() {
     .setInputUnits(MnistImageSize)
     .setInputChannels(1)
     .setFilters(3)
-    .setChannels(16));
+    .setChannels(32));
 
   model.add(new ActivationBuilder()
     .setActivation(new Relu()));
 
   model.add(new Conv2DBuilder()
     .setFilters(3)
-    .setChannels(32));
+    .setChannels(2));
 
   model.add(new ActivationBuilder()
     .setActivation(new Relu()));
@@ -94,10 +94,10 @@ void buildModel() {
   model.add(new MaxPooling2DBuilder()
     .setSize(2));
 
-  //model.add(new DropOutBuilder()
-  //  .setRate(0.25));
-
   model.add(new FlattenBuilder());
+
+  model.add(new DropOutBuilder()
+    .setRate(0.25));
 
   model.add(new DenseBuilder()
     .setUnits(128));
@@ -105,8 +105,8 @@ void buildModel() {
   model.add(new ActivationBuilder()
     .setActivation(new Relu()));
 
-  //model.add(new DropOutBuilder()
-  //  .setRate(0.5));
+  model.add(new DropOutBuilder()
+    .setRate(0.5));
 
   model.add(new DenseBuilder()
     .setUnits(MnistLabelSize));
@@ -135,11 +135,12 @@ void testModel(int epoch, boolean showVisual) {
 
     Layer output = this.model.model(x);
     loss.loss(output, y);
+    
     final boolean isGood = output.detach().argmax(0, 0) == y.argmax(0, 0);
 
-    sumAccu += isGood ? 1 : 0;
     sumMean += loss.getValue().flatten(0, 0);
-
+    sumAccu += isGood ? 1 : 0;
+    
     if (showVisual) {
       if (isGood) {
         fill(0, 255, 0, 128);
@@ -166,8 +167,6 @@ void fitModel() {
   float sumAccu = 0;
   float sumMean = 0;
 
-  model.setTrainingMode(true);
-
   for (int k = 0; k < epochCount * oneEpoch; k++) {
 
     print(".");
@@ -179,37 +178,42 @@ void fitModel() {
       sumMean = 0;
     }
     
-    if (k > 0 && (k % oneEpoch) == 0) {
-      testModel(k / oneEpoch, false);
+    if ((k % oneEpoch) == (oneEpoch - 1)) {
+      testModel(k / oneEpoch + 1, false);
       shuffleData();
     }
     
+    model.setTrainingMode(true);
+    
     optimizer.zeroGradients();
-    for (int i = batchStart; i < batchStart + batchSize; i++) {
+    for (int i = batchStart; i < Math.min(batchStart + batchSize, trainingCount); i++) {
       final int imgx = shuffler[i][0];
       final int imgy = shuffler[i][1];
 
       Tensor2D x = image2Tensor2D(trainingImages, imgx, imgy, MnistImageSize, MnistImageSize).reshape(MnistImageSize * MnistImageSize, 1);
-      Tensor2D y = new Tensor2D(new Tensor1D(MnistLabelSize).oneHot(trainingLabels[imgx][imgy]), false);
+      Tensor2D y = new Tensor2D(MnistLabelSize, 1).oneHot(trainingLabels[imgx][imgy]);
 
       Layer output = this.model.model(x);
       loss.loss(output, y);
+      
+      sumMean += loss.getValue().flatten(0, 0);
 
       if (output.detach().argmax(0, 0) == y.argmax(0, 0)) {
         sumAccu++;
       } else {
         optimizer.minimize(loss);
       }
-
-      sumMean += loss.getValue().flatten(0, 0);
     }
     optimizer.step();
-
-    batchStart = (batchStart + batchSize) % trainingCount;
+    
+    model.setTrainingMode(false);
+    
+    batchStart += batchSize;
+    if(batchStart >= trainingCount) {
+      batchStart = 0;
+    }
   }
   println();
-
-  model.setTrainingMode(false);
 }
 
 void setup() {
@@ -218,6 +222,7 @@ void setup() {
   noLoop();
 
   loadData();
+  shuffleData();
 
   buildModel();
 
