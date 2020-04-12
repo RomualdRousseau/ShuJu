@@ -28,13 +28,14 @@ import com.github.romualdrousseau.shuju.ml.knn.*;
 import com.github.romualdrousseau.shuju.ml.nn.layer.*;
 import com.github.romualdrousseau.shuju.ml.naivebayes.*;
 
-final int epochCount = 12;
+final int epochCount = 20;
 final int trainingCount = 60000;
 final int testCount = 10000;
 
 int trainingPerRow;
 PImage trainingImages;
 int[][] trainingLabels;
+int[][] shuffler =  new int[trainingCount][2];
 
 int testPerRow;
 PImage testImages;
@@ -43,7 +44,6 @@ int[][] testLabels;
 Model model;
 Optimizer optimizer;
 Loss loss;
-int[][] shuffler =  new int[trainingCount][2];
 
 void loadData() {
   trainingPerRow = ceil(sqrt(trainingCount));
@@ -86,7 +86,7 @@ void buildModel() {
 
   model.add(new Conv2DBuilder()
     .setFilters(3)
-    .setChannels(2));
+    .setChannels(64));
 
   model.add(new ActivationBuilder()
     .setActivation(new Relu()));
@@ -120,7 +120,11 @@ void buildModel() {
   loss = new Loss(new SoftmaxCrossEntropy());
 }
 
-void testModel(int epoch, boolean showVisual) {
+void testModel() {
+  testModel(0, false);
+}
+
+void testModel(int epoch, boolean trainingMode) {
   final int w = width / testPerRow;
   final int h = height / testPerRow;
   float sumAccu = 0;
@@ -131,18 +135,18 @@ void testModel(int epoch, boolean showVisual) {
     final int imgy = i / testPerRow;
 
     Tensor2D x = image2Tensor2D(testImages, imgx, imgy, MnistImageSize, MnistImageSize).reshape(MnistImageSize * MnistImageSize, 1);
-    Tensor2D y = new Tensor2D(new Tensor1D(MnistLabelSize).oneHot(testLabels[imgx][imgy]), false);
-
-    Layer output = this.model.model(x);
-    loss.loss(output, y);
+    Tensor2D y = new Tensor2D(MnistLabelSize, 1).oneHot(testLabels[imgx][imgy]);
+  
+    Layer yhat = this.model.model(x);
+    loss.loss(yhat, y);
     
-    final boolean isGood = output.detach().argmax(0, 0) == y.argmax(0, 0);
+    final boolean isAccurate = yhat.detach().argmax(0, 0) == y.argmax(0, 0);
 
     sumMean += loss.getValue().flatten(0, 0);
-    sumAccu += isGood ? 1 : 0;
+    sumAccu += isAccurate ? 1 : 0;
     
-    if (showVisual) {
-      if (isGood) {
+    if (!trainingMode) {
+      if (isAccurate) {
         fill(0, 255, 0, 128);
         noStroke();
         ellipse((imgx + 0.5) * w, (imgy + 0.5) * h, w, h);
@@ -152,12 +156,16 @@ void testModel(int epoch, boolean showVisual) {
         ellipse((imgx + 0.5) * w, (imgy + 0.5) * h, w, h);
         fill(255);
         stroke(255);
-        text(output.detach().argmax(0, 0), (imgx) * w, (imgy + 1) * h);
+        text(yhat.detach().argmax(0, 0), (imgx) * w, (imgy + 1) * h);
       }
     }
   }
 
-  println(String.format("Epoch %d/%d: Average Loss: %.3f | Accuracy: %.3f%%", epoch, epochCount, sumMean / testCount, sumAccu * 100 / testCount));
+  if (trainingMode) {
+    println(String.format("Epoch %d/%d: Average Loss: %.3f | Accuracy: %.3f%%", epoch, epochCount, sumMean / testCount, sumAccu * 100 / testCount));
+  } else {
+    println(String.format("Test: Average Loss: %.3f | Accuracy: %.3f%%", sumMean / testCount, sumAccu * 100 / testCount));
+  }
 }
 
 void fitModel() {
@@ -168,20 +176,6 @@ void fitModel() {
   float sumMean = 0;
 
   for (int k = 0; k < epochCount * oneEpoch; k++) {
-
-    print(".");
-    
-    if ((k % 100) == 99) {
-      println();
-      println(String.format("[Step %d] Past 100 steps: Average Loss: %.3f | Accuracy: %.3f%%", (k % oneEpoch) + 1, sumMean / (batchSize * 100), sumAccu / batchSize));
-      sumAccu = 0;
-      sumMean = 0;
-    }
-    
-    if ((k % oneEpoch) == (oneEpoch - 1)) {
-      testModel(k / oneEpoch + 1, false);
-      shuffleData();
-    }
     
     model.setTrainingMode(true);
     
@@ -193,16 +187,16 @@ void fitModel() {
       Tensor2D x = image2Tensor2D(trainingImages, imgx, imgy, MnistImageSize, MnistImageSize).reshape(MnistImageSize * MnistImageSize, 1);
       Tensor2D y = new Tensor2D(MnistLabelSize, 1).oneHot(trainingLabels[imgx][imgy]);
 
-      Layer output = this.model.model(x);
-      loss.loss(output, y);
+      Layer yhat = this.model.model(x);
+      loss.loss(yhat, y);
       
       sumMean += loss.getValue().flatten(0, 0);
 
-      if (output.detach().argmax(0, 0) == y.argmax(0, 0)) {
+      if (yhat.detach().argmax(0, 0) == y.argmax(0, 0)) {
         sumAccu++;
-      } else {
-        optimizer.minimize(loss);
       }
+      
+      optimizer.minimize(loss);
     }
     optimizer.step();
     
@@ -211,6 +205,20 @@ void fitModel() {
     batchStart += batchSize;
     if(batchStart >= trainingCount) {
       batchStart = 0;
+    }
+    
+    print(".");
+    
+    if ((k % 100) == 99) {
+      println();
+      println(String.format("[Step %d] Past 100 steps: Average Loss: %.3f | Accuracy: %.3f%%", (k % oneEpoch) + 1, sumMean / (batchSize * 100), sumAccu / batchSize));
+      sumAccu = 0;
+      sumMean = 0;
+    }
+    
+    if ((k % oneEpoch) == (oneEpoch - 1)) {
+      testModel(k / oneEpoch + 1, true);
+      shuffleData();
     }
   }
   println();
@@ -223,16 +231,13 @@ void setup() {
 
   loadData();
   shuffleData();
-
   buildModel();
-
   fitModel();
 }
 
 void draw() {
   background(51);
-
   image(testImages, 0, 0, width, height);
-
-  testModel(epochCount, true);
+  
+  testModel();
 }

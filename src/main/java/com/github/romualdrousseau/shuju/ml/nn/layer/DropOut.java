@@ -48,8 +48,10 @@ public class DropOut extends Layer {
         return json;
     }
 
+    // Hyper-parameters
     private float rate;
     private float scale;
-    // cache
+
+    // Cache
     private Tensor2D noise;
 }

@@ -16,7 +16,8 @@ public class Dense extends Layer {
 
         this.initializer = initializer;
         this.regularizer = regularizer;
-        this.weights = new Parameters2D(inputUnits, units);
+
+        this.kernel = new Parameters2D(inputUnits, units);
         this.biases = new Parameters2D(units);
 
         this.reset(false);
@@ -24,56 +25,59 @@ public class Dense extends Layer {
 
     public void reset(final boolean parametersOnly) {
         if (parametersOnly) {
-            this.weights.M.zero();
-            this.weights.V.zero();
+            this.kernel.M.zero();
+            this.kernel.V.zero();
             this.biases.M.zero();
             this.biases.V.zero();
         } else {
-            this.weights.reset();
+            this.kernel.reset();
             this.biases.reset();
-            this.initializer.apply(this.weights.W);
+            this.initializer.apply(this.kernel.W);
         }
     }
 
     public Tensor2D callForward(final Tensor2D input) {
-        return this.weights.W.matmul(input).add(this.biases.W);
+        return this.kernel.W.matmul(input).add(this.biases.W);
     }
 
     public void startBackward(final Optimizer optimizer) {
-        this.weights.G.zero();
+        this.kernel.G.zero();
         this.biases.G.zero();
     }
 
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
-        this.weights.G.fma(d_L_d_out, this.lastInput, false, true);
+        this.kernel.G.fma(d_L_d_out, this.lastInput, false, true);
         this.biases.G.fma(d_L_d_out, this.bias);
-        return this.weights.W.matmul(d_L_d_out, true, false);
+        return this.kernel.W.matmul(d_L_d_out, true, false);
     }
 
     public void completeBackward(final Optimizer optimizer) {
         if(this.regularizer != null) {
-            this.weights.G.add(this.regularizer.apply(this.weights.W));
+            this.kernel.G.add(this.regularizer.apply(this.kernel.W));
         }
-        this.weights.W.sub(optimizer.computeGradients(this.weights));
+        this.kernel.W.sub(optimizer.computeGradients(this.kernel));
         this.biases.W.sub(optimizer.computeGradients(this.biases));
     }
 
     public void fromJSON(final JSONObject json) {
-        this.weights.fromJSON(json.getJSONObject("weights"));
+        this.kernel.fromJSON(json.getJSONObject("weights"));
         this.biases.fromJSON(json.getJSONObject("biases"));
         this.bias = json.getFloat("bias");
     }
 
     public JSONObject toJSON() {
         final JSONObject json = JSON.newJSONObject();
-        json.setJSONObject("weights", this.weights.toJSON());
+        json.setJSONObject("weights", this.kernel.toJSON());
         json.setJSONObject("biases", this.biases.toJSON());
         json.setFloat("bias", this.bias);
         return json;
     }
 
-    private final Parameters2D weights;
-    private final Parameters2D biases;
+    // Hyper-parameters
     private final InitializerFunc initializer;
     private final RegularizerFunc regularizer;
+
+    // Parameters
+    private final Parameters2D kernel;
+    private final Parameters2D biases;
 }

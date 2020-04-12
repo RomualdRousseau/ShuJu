@@ -24,7 +24,7 @@ public class MaxPooling2D extends Layer {
 
     public Tensor2D callForward(final Tensor2D input) {
         final Tensor3D input_res = input.transpose().reshape(this.inputChannels, this.inputUnits, -1);
-        final Tensor3D output = Helper.Img2Conv(input_res, this.size, this.size, 0).max(0);
+        final Tensor3D output = Helper.Im2Col(input_res, this.size, this.size, 0).max(1);
         return output.reshape(this.channels, -1).transpose();
     }
 
@@ -50,5 +50,6 @@ public class MaxPooling2D extends Layer {
         return json;
     }
 
+    // Hyper-parameters
     private final int size;
 }

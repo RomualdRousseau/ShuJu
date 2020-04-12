@@ -48,5 +48,6 @@ public class Activation extends Layer {
         return json;
     }
 
+    // Hyper-parameters
     private final ActivationFunc activation;
 }

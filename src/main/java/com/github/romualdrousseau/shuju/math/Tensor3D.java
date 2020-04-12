@@ -234,8 +234,45 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
         return this;
     }
 
+    public Tensor3D flatten(int axis) {
+		if (axis == 0) {
+            final Tensor3D result = new Tensor3D(1, this.shape[1], this.shape[2]);
+            for (int k = 0; k < this.shape[1]; k++) {
+                for (int i = 0; i < this.shape[2]; i++) {
+                    result.data[0][k][i] += this.data[0][k][i];
+                }
+            }
+            return result;
+        }
+        else if (axis == 1) {
+            final Tensor3D result = new Tensor3D(this.shape[0], 1, this.shape[2]);
+            for (int k = 0; k < this.shape[0]; k++) {
+                for (int i = 0; i < this.shape[2]; i++) {
+                    result.data[k][0][i] += this.data[k][0][i];
+                }
+            }
+            return result;
+        } else {
+            final Tensor3D result = new Tensor3D(this.shape[0], this.shape[1], 1);
+            for (int k = 0; k < this.shape[0]; k++) {
+                for (int i = 0; i < this.shape[1]; i++) {
+                    result.data[k][i][0] += this.data[k][i][0];
+                }
+            }
+            return result;
+        }
+	}
+
     public float max(final int k, final int idx, final int axis) {
         if (axis == 0) {
+            float maxValue = this.data[0][k][idx];
+            for (int i = 1; i < this.shape[0]; i++) {
+                if (this.data[i][k][idx] > maxValue) {
+                    maxValue = this.data[i][k][idx];
+                }
+            }
+            return maxValue;
+        } else if (axis == 1) {
             float maxValue = this.data[k][0][idx];
             for (int i = 1; i < this.shape[1]; i++) {
                 if (this.data[k][i][idx] > maxValue) {
@@ -256,10 +293,19 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
 
     public Tensor3D max(int axis) {
         if (axis == 0) {
+            final Tensor3D result = new Tensor3D(1, this.shape[1], this.shape[2]);
+            for (int k = 0; k < this.shape[1]; k++) {
+                for (int i = 0; i < this.shape[2]; i++) {
+                    result.data[0][k][i] = this.max(k, i, 0);
+                }
+            }
+            return result;
+        }
+        else if (axis == 1) {
             final Tensor3D result = new Tensor3D(this.shape[0], 1, this.shape[2]);
             for (int k = 0; k < this.shape[0]; k++) {
                 for (int i = 0; i < this.shape[2]; i++) {
-                    result.data[k][0][i] = this.max(k, i, 0);
+                    result.data[k][0][i] = this.max(k, i, 1);
                 }
             }
             return result;
@@ -267,7 +313,7 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
             final Tensor3D result = new Tensor3D(this.shape[0], this.shape[1], 1);
             for (int k = 0; k < this.shape[0]; k++) {
                 for (int i = 0; i < this.shape[1]; i++) {
-                    result.data[k][i][0] = this.max(k, i, 1);
+                    result.data[k][i][0] = this.max(k, i, 2);
                 }
             }
             return result;
@@ -276,30 +322,47 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
 
     public float min(final int k, final int idx, final int axis) {
         if (axis == 0) {
-            float minValue = this.data[k][0][idx];
+            float maxValue = this.data[0][k][idx];
+            for (int i = 1; i < this.shape[0]; i++) {
+                if (this.data[i][k][idx] < maxValue) {
+                    maxValue = this.data[i][k][idx];
+                }
+            }
+            return maxValue;
+        } else if (axis == 1) {
+            float maxValue = this.data[k][0][idx];
             for (int i = 1; i < this.shape[1]; i++) {
-                if (this.data[k][i][idx] < minValue) {
-                    minValue = this.data[k][i][idx];
+                if (this.data[k][i][idx] < maxValue) {
+                    maxValue = this.data[k][i][idx];
                 }
             }
-            return minValue;
+            return maxValue;
         } else {
-            float minValue = this.data[k][idx][0];
+            float maxValue = this.data[k][idx][0];
             for (int i = 1; i < this.shape[2]; i++) {
-                if (this.data[k][idx][i] < minValue) {
-                    minValue = this.data[k][idx][i];
+                if (this.data[k][idx][i] < maxValue) {
+                    maxValue = this.data[k][idx][i];
                 }
             }
-            return minValue;
+            return maxValue;
         }
     }
 
     public Tensor3D min(int axis) {
         if (axis == 0) {
+            final Tensor3D result = new Tensor3D(1, this.shape[1], this.shape[2]);
+            for (int k = 0; k < this.shape[1]; k++) {
+                for (int i = 0; i < this.shape[2]; i++) {
+                    result.data[0][k][i] = this.min(k, i, 0);
+                }
+            }
+            return result;
+        }
+        else if (axis == 1) {
             final Tensor3D result = new Tensor3D(this.shape[0], 1, this.shape[2]);
             for (int k = 0; k < this.shape[0]; k++) {
                 for (int i = 0; i < this.shape[2]; i++) {
-                    result.data[k][0][i] = this.min(k, i, 0);
+                    result.data[k][0][i] = this.min(k, i, 1);
                 }
             }
             return result;
@@ -307,7 +370,7 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
             final Tensor3D result = new Tensor3D(this.shape[0], this.shape[1], 1);
             for (int k = 0; k < this.shape[0]; k++) {
                 for (int i = 0; i < this.shape[1]; i++) {
-                    result.data[k][i][0] = this.min(k, i, 1);
+                    result.data[k][i][0] = this.min(k, i, 2);
                 }
             }
             return result;
@@ -316,6 +379,12 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
 
     public float avg(final int k, final int idx, final int axis) {
         if (axis == 0) {
+            float sum = 0.0f;
+            for (int i = 0; i < this.shape[0]; i++) {
+                sum += this.data[i][k][idx];
+            }
+            return sum / (float) this.shape[0];
+        } else if (axis == 1) {
             float sum = 0.0f;
             for (int i = 0; i < this.shape[1]; i++) {
                 sum += this.data[k][i][idx];
@@ -332,10 +401,18 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
 
     public Tensor3D avg(int axis) {
         if (axis == 0) {
+            final Tensor3D result = new Tensor3D(1, this.shape[1], this.shape[2]);
+            for (int k = 0; k < this.shape[1]; k++) {
+                for (int i = 0; i < this.shape[2]; i++) {
+                    result.data[k][0][i] = this.avg(k, i, 0);
+                }
+            }
+            return result;
+        } else if (axis == 1) {
             final Tensor3D result = new Tensor3D(this.shape[0], 1, this.shape[2]);
             for (int k = 0; k < this.shape[0]; k++) {
                 for (int i = 0; i < this.shape[2]; i++) {
-                    result.data[k][0][i] = this.avg(k, i, 0);
+                    result.data[k][0][i] = this.avg(k, i, 1);
                 }
             }
             return result;
@@ -343,7 +420,7 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
             final Tensor3D result = new Tensor3D(this.shape[0], this.shape[1], 1);
             for (int k = 0; k < this.shape[0]; k++) {
                 for (int i = 0; i < this.shape[1]; i++) {
-                    result.data[k][i][0] = this.avg(k, i, 1);
+                    result.data[k][i][0] = this.avg(k, i, 2);
                 }
             }
             return result;
@@ -383,32 +460,6 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
                 final float[] m_ij = m_i[j];
                 for (int k = 0; k < this.shape[2]; k++) {
                     m_ij[k] += n;
-                }
-            }
-        }
-        return this;
-    }
-
-    public Tensor3D add(final Tensor1D a, final int axis) {
-        if (axis == 0) {
-            assert (this.shape[2] == a.shape[0]);
-            for (int i = 0; i < this.shape[0]; i++) {
-                final float[][] m_i = this.data[i];
-                for (int j = 0; j < this.shape[1]; j++) {
-                    final float[] m_ij = m_i[j];
-                    for (int k = 0; k < this.shape[2]; k++) {
-                        m_ij[k] += a.data[k];
-                    }
-                }
-            }
-        } else {
-            assert (this.shape[1] == a.shape[0]);
-            for (int i = 0; i < this.shape[0]; i++) {
-                final float[][] m_i = this.data[i];
-                for (int k = 0; k < this.shape[2]; k++) {
-                    for (int j = 0; j < this.shape[1]; j++) {
-                        m_i[j][k] += a.data[k];
-                    }
                 }
             }
         }

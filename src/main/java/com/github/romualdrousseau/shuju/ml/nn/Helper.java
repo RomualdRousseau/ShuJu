@@ -5,7 +5,7 @@ import com.github.romualdrousseau.shuju.math.Tensor3D;
 
 public class Helper {
 
-    public static Tensor3D Img2Conv(final Tensor3D m, final int size, final int stride, final int pad) {
+    public static Tensor3D Im2Col(final Tensor3D m, final int size, final int stride, final int pad) {
         final int rows_m = m.shape[1];
         final int cols_m = m.shape[2];
         final int rows_r = 1 + pad * 2 + (rows_m - size) / stride;
@@ -46,7 +46,7 @@ public class Helper {
         return result;
     }
 
-    public static Tensor3D Conv2Img(final Tensor3D m, final int rows, final int cols, final int size, final int stride, final int pad) {
+    public static Tensor3D Col2Im(final Tensor3D m, final int rows, final int cols, final int size, final int stride, final int pad) {
         final int rows_n = 1 + (rows + pad * 2 - size) / stride;
         final int cols_n = 1 + (cols + pad * 2 - size) / stride;
 

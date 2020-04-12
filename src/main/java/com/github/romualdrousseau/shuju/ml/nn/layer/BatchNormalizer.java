@@ -95,11 +95,13 @@ public class BatchNormalizer extends Layer {
         return json;
     }
 
-    private final Parameters2D gamma;
-    private final Parameters2D beta;
+    // Parameters
     private Tensor2D mu_run;
     private Tensor2D var_run;
-    // cache
+    private final Parameters2D gamma;
+    private final Parameters2D beta;
+
+    // Cache
     private Tensor2D std_inv;
     private Tensor2D x_mu;
     private Tensor2D x_hat;

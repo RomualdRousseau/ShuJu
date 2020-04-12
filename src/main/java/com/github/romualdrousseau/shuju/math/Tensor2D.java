@@ -724,6 +724,41 @@ public class Tensor2D extends AbstractTensor<float[][]> {
         }
     }
 
+    public Tensor3D repeat(int n, int axis) {
+		if (axis == 0) {
+            final Tensor3D result = new Tensor3D(n, this.shape[0], this.shape[1]);
+            for (int k = 0; k < n; k++) {
+                for (int i = 0; i < this.shape[0]; i++) {
+                    for (int j = 0; j < this.shape[1]; j++) {
+                        result.data[k][i][j] = this.data[i][j];
+                    }
+                }
+            }
+            return result;
+        }
+        else if (axis == 1) {
+            final Tensor3D result = new Tensor3D(this.shape[0], n, this.shape[1]);
+            for (int k = 0; k < n; k++) {
+                for (int i = 0; i < this.shape[0]; i++) {
+                    for (int j = 0; j < this.shape[1]; j++) {
+                        result.data[i][k][j] = this.data[i][j];
+                    }
+                }
+            }
+            return result;
+        } else {
+            final Tensor3D result = new Tensor3D(this.shape[0], this.shape[1], n);
+            for (int k = 0; k < n; k++) {
+                for (int i = 0; i < this.shape[0]; i++) {
+                    for (int j = 0; j < this.shape[1]; j++) {
+                        result.data[i][j][k] = this.data[i][j];
+                    }
+                }
+            }
+            return result;
+        }
+	}
+
     public float flatten(final int idx, final int axis) {
         if (axis == 0) {
             float sum = 0.0f;
