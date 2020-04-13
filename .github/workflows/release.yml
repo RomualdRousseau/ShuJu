@@ -6,8 +6,8 @@ on:
             - shuju-*
 
 jobs:
-    if: github.event.base_ref == 'refs/heads/master'
     build:
+        if: github.event.base_ref == 'refs/heads/master'
         runs-on: [ubuntu-latest]
 
         steps:
@@ -17,6 +17,7 @@ jobs:
                 run: mvn -B test --file pom.xml
 
     release:
+        if: github.event.base_ref == 'refs/heads/master'
         runs-on: [ubuntu-latest]
 
         steps:
@@ -32,6 +33,7 @@ jobs:
                     prerelease: false
 
     deploy:
+        if: github.event.base_ref == 'refs/heads/master'
         runs-on: [ubuntu-latest]
 
         steps:
