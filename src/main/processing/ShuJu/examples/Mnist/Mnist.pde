@@ -114,7 +114,7 @@ void buildModel() {
   model.add(new ActivationBuilder()
     .setActivation(new Softmax()));
 
-  optimizer = new OptimizerAdamBuilder()
+  optimizer = new OptimizerAdaDeltaBuilder()
     .build(model);
 
   loss = new Loss(new SoftmaxCrossEntropy());
@@ -136,15 +136,15 @@ void testModel(int epoch, boolean trainingMode) {
 
     Tensor2D x = image2Tensor2D(testImages, imgx, imgy, MnistImageSize, MnistImageSize).reshape(MnistImageSize * MnistImageSize, 1);
     Tensor2D y = new Tensor2D(MnistLabelSize, 1).oneHot(testLabels[imgx][imgy]);
-  
+
     Layer yhat = this.model.model(x);
     loss.loss(yhat, y);
-    
+
     final boolean isAccurate = yhat.detach().argmax(0, 0) == y.argmax(0, 0);
 
     sumMean += loss.getValue().flatten(0, 0);
     sumAccu += isAccurate ? 1 : 0;
-    
+
     if (!trainingMode) {
       if (isAccurate) {
         fill(0, 255, 0, 128);
@@ -176,9 +176,9 @@ void fitModel() {
   float sumMean = 0;
 
   for (int k = 0; k < epochCount * oneEpoch; k++) {
-    
+
     model.setTrainingMode(true);
-    
+
     optimizer.zeroGradients();
     for (int i = batchStart; i < Math.min(batchStart + batchSize, trainingCount); i++) {
       final int imgx = shuffler[i][0];
@@ -189,33 +189,33 @@ void fitModel() {
 
       Layer yhat = this.model.model(x);
       loss.loss(yhat, y);
-      
+
       sumMean += loss.getValue().flatten(0, 0);
 
       if (yhat.detach().argmax(0, 0) == y.argmax(0, 0)) {
         sumAccu++;
       }
-      
+
       optimizer.minimize(loss);
     }
     optimizer.step();
-    
+
     model.setTrainingMode(false);
-    
+
     batchStart += batchSize;
     if(batchStart >= trainingCount) {
       batchStart = 0;
     }
-    
+
     print(".");
-    
+
     if ((k % 100) == 99) {
       println();
       println(String.format("[Step %d] Past 100 steps: Average Loss: %.3f | Accuracy: %.3f%%", (k % oneEpoch) + 1, sumMean / (batchSize * 100), sumAccu / batchSize));
       sumAccu = 0;
       sumMean = 0;
     }
-    
+
     if ((k % oneEpoch) == (oneEpoch - 1)) {
       testModel(k / oneEpoch + 1, true);
       shuffleData();
@@ -238,6 +238,6 @@ void setup() {
 void draw() {
   background(51);
   image(testImages, 0, 0, width, height);
-  
+
   testModel();
 }
