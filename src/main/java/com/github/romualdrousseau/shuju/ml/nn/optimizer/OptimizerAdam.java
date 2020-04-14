@@ -27,8 +27,7 @@ public class OptimizerAdam extends Optimizer {
         p.V.expAvg(p.G.copy().pow(2.0f), this.b2);
 
         return p.M.copy().map(new TensorFunction<Tensor2D>() {
-            public final float apply(float a_ij, int[] ij, Tensor2D V) {
-                final float m_ij = p.M.get(ij[0], ij[1]);
+            public final float apply(float m_ij, int[] ij, Tensor2D V) {
                 final float v_ij = p.V.get(ij[0], ij[1]);
                 return lr * m_ij / Scalar.sqrt(v_ij + Scalar.EPSILON);
             }
@@ -42,8 +41,7 @@ public class OptimizerAdam extends Optimizer {
         p.V.expAvg(p.G.copy().pow(2.0f), this.b2);
 
         return p.M.copy().map(new TensorFunction<Tensor3D>() {
-            public final float apply(float a_ij, int[] ijk, Tensor3D V) {
-                final float m_ij = p.M.get(ijk[0], ijk[1], ijk[2]);
+            public final float apply(float m_ij, int[] ijk, Tensor3D V) {
                 final float v_ij = p.V.get(ijk[0], ijk[1], ijk[2]);
                 return lr * m_ij / Scalar.sqrt(v_ij + Scalar.EPSILON);
             }

@@ -1415,6 +1415,17 @@ public class Tensor2D extends AbstractTensor<float[][]> {
                 }
             }
         } else { // 'F'
+            final int r_stride1 = result.shape[2] * result.shape[1];
+            final int r_stride2 = result.shape[2];
+            for (int i = 0; i < this.shape[0]; i++) {
+                for (int j = 0; j < this.shape[1]; j++) {
+                    final int m_off1 = this.shape[0] * j + i;
+                    final float[][] r_i = result.data[m_off1 / r_stride1];
+                    final int m_off2 = m_off1 % r_stride1;
+                    final float[] r_ij = r_i[m_off2 / r_stride2];
+                    r_ij[m_off2 % r_stride2] = this.data[i][j];
+                }
+            }
         }
         return result;
     }
