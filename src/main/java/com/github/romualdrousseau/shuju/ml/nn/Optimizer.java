@@ -6,24 +6,25 @@ import com.github.romualdrousseau.shuju.math.Tensor2D;
 import com.github.romualdrousseau.shuju.math.Tensor3D;
 
 public abstract class Optimizer {
+
     protected Model model;
     protected LearningRateScheduler scheduler;
 
     public float learningRate0;
     public float learningRate;
-    public int epoch;
+    public int time;
 
     public Optimizer(Model model, float learningRate, LearningRateScheduler scheduler) {
         this.model = model;
         this.learningRate0 = learningRate;
         this.learningRate = learningRate;
-        this.epoch = 1;
+        this.time = 0;
         this.scheduler = scheduler;
     }
 
     public void reset() {
         this.learningRate = this.learningRate0;
-        this.epoch = 1;
+        this.time = 0;
         this.model.reset();
     }
 
@@ -56,7 +57,7 @@ public abstract class Optimizer {
             }
         });
 
-        this.epoch++;
+        this.time++;
 
         if (this.scheduler != null) {
             this.scheduler.apply(this);

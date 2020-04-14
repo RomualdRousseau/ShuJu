@@ -11,10 +11,6 @@ import com.github.romualdrousseau.shuju.ml.nn.LearningRateScheduler;
 public class OptimizerSgd extends Optimizer {
     private float momemtum;
 
-    public OptimizerSgd(Model model, float learningRate, LearningRateScheduler scheduler) {
-        this(model, learningRate, scheduler, 0.9f);
-      }
-
     public OptimizerSgd(Model model, float learningRate, LearningRateScheduler scheduler, float momentum) {
       super(model, learningRate, scheduler);
       this.momemtum = momentum;
@@ -22,13 +18,13 @@ public class OptimizerSgd extends Optimizer {
 
     public Tensor2D computeGradients(Parameters2D p) {
       final float lr = this.learningRate;
-      p.M.mul(this.momemtum).fma(p.G, 1.0f - this.momemtum);
+      p.M.expAvg(p.G, this.momemtum);
       return p.M.copy().mul(lr);
     }
 
     public Tensor3D computeGradients(Parameters3D p) {
         final float lr = this.learningRate;
-        p.M.mul(this.momemtum).fma(p.G, 1.0f - this.momemtum);
+        p.M.expAvg(p.G, this.momemtum);
         return p.M.copy().mul(lr);
       }
   }

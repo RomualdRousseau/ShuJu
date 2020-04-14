@@ -18,20 +18,26 @@ public class BatchNormalizer extends Layer {
         this.mu_run = new Tensor2D(1, inputChannels).zero();
         this.var_run = new Tensor2D(1, inputChannels).ones();
 
-        this.reset(false);
+        this.reset();
     }
 
-    public void reset(final boolean parametersOnly) {
-        if (parametersOnly) {
-            this.gamma.M.zero();
-            this.gamma.V.zero();
-            this.beta.M.zero();
-            this.beta.V.zero();
-        } else {
-            this.gamma.reset();
-            this.gamma.W.ones();
-            this.beta.reset();
-        }
+    private BatchNormalizer(BatchNormalizer parent) {
+        super(parent);
+
+        this.gamma = parent.gamma.clone();
+        this.beta = parent.beta.clone();
+        this.mu_run = parent.mu_run.copy();
+        this.var_run = parent.var_run.copy();
+    }
+
+    public Layer clone() {
+        return new BatchNormalizer(this);
+    }
+
+    public void reset() {
+        this.gamma.reset();
+        this.gamma.W.ones();
+        this.beta.reset();
     }
 
     public Tensor2D callForward(final Tensor2D input) {

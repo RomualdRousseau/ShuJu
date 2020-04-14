@@ -10,11 +10,17 @@ public class Flatten extends Layer {
 
     public Flatten(int inputUnits, int inputChannels) {
         super(inputUnits, inputChannels, inputUnits * inputUnits * inputChannels, 1, 1.0f);
-
-        this.reset(false);
     }
 
-    public void reset(boolean parametersOnly) {
+    private Flatten(Flatten parent) {
+        super(parent);
+    }
+
+    public Layer clone() {
+        return new Flatten(this);
+    }
+
+    public void reset() {
     }
 
     public Tensor2D callForward(Tensor2D input) {

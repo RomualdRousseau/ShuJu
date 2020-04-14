@@ -621,6 +621,34 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
         return this;
     }
 
+    public Tensor3D expAvg(Tensor3D a, float n) {
+        for (int i = 0; i < this.shape[0]; i++) {
+            final float[][] a_i = a.data[i];
+            final float[][] m_i = this.data[i];
+            for (int j = 0; j < this.shape[1]; j++) {
+                final float[] a_ij = a_i[j];
+                final float[] m_ij = m_i[j];
+                for (int k = 0; k < this.shape[2]; k++) {
+                    m_ij[k] = n * m_ij[k] +  (1.0f - n) * a_ij[k];
+                }
+            }
+        }
+        return this;
+    }
+
+    public Tensor3D if_lt_then(final float p, final float a, final float b) {
+		for (int i = 0; i < this.shape[0]; i++) {
+            final float[][] m_i = this.data[i];
+            for (int j = 0; j < this.shape[1]; j++) {
+                final float[] m_ij = m_i[j];
+                for (int k = 0; k < this.shape[2]; k++) {
+                    m_ij[k] = Scalar.if_lt_then( m_ij[k], p, a, b);
+                }
+            }
+        }
+        return this;
+	}
+
     public Tensor3D map(final TensorFunction<Tensor3D> fn) {
         for (int i = 0; i < this.shape[0]; i++) {
             final float[][] m_i = this.data[i];

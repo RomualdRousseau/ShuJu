@@ -1,8 +1,6 @@
 package com.github.romualdrousseau.shuju.ml.nn;
 
 public abstract class OptimizerBuilder<T extends Optimizer> {
-    protected float learningRate;
-    protected LearningRateScheduler scheduler;
 
     public OptimizerBuilder() {
         this.learningRate = 0.001f;
@@ -20,4 +18,7 @@ public abstract class OptimizerBuilder<T extends Optimizer> {
     }
 
     public abstract T build(Model model);
+
+    protected float learningRate;
+    protected LearningRateScheduler scheduler;
 }

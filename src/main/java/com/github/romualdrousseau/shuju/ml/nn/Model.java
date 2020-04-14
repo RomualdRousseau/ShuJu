@@ -11,6 +11,16 @@ public class Model {
     public Model() {
     }
 
+    private Model(Model parent) {
+        for(Layer layer : parent.layers) {
+            this.add(layer.clone());
+        }
+    }
+
+    public Model clone() {
+        return new Model(this);
+    }
+
     public Layer model(Tensor2D input) {
         for(Layer layer : this.layers) {
             layer.output = layer.callForward(input);
@@ -36,7 +46,7 @@ public class Model {
 
     public void reset() {
         for(Layer layer : this.layers) {
-            layer.reset(false);
+            layer.reset();
         }
     }
 

@@ -131,8 +131,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D(final JSONObject json) {
-        this(json.getInt("rows"), json.getInt("cols"));
-        //this(json.getInt("shape[0]"), json.getInt("shape[1]"));
+        this(json.getInt("shape[0]"), json.getInt("shape[1]"));
         final JSONArray jsonData = json.getJSONArray("data");
         for (int i = 0; i < this.shape[0]; i++) {
             final JSONArray jsonRow = jsonData.getJSONArray(i);

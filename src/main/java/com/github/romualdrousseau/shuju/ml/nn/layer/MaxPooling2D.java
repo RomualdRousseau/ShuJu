@@ -15,11 +15,19 @@ public class MaxPooling2D extends Layer {
         assert (inputUnits == this.units * size);
 
         this.size = size;
-
-        this.reset(false);
     }
 
-    public void reset(final boolean parametersOnly) {
+    private MaxPooling2D(MaxPooling2D parent) {
+        super(parent);
+
+        this.size = parent.size;
+    }
+
+    public Layer clone() {
+        return new MaxPooling2D(this);
+    }
+
+    public void reset() {
     }
 
     public Tensor2D callForward(final Tensor2D input) {

@@ -16,7 +16,7 @@ public class ExponentialScheduler implements LearningRateScheduler {
     }
 
     public void apply(Optimizer optimizer) {
-      int a = optimizer.epoch / this.step;
-      optimizer.learningRate = Scalar.max(this.minRate, optimizer.learningRate0 * Scalar.exp(-this.decay * a));
+      int epoch = optimizer.time / this.step;
+      optimizer.learningRate = Scalar.max(this.minRate, optimizer.learningRate0 * Scalar.exp(-this.decay * epoch));
     }
   }

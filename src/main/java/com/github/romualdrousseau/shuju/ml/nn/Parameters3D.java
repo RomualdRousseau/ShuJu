@@ -18,6 +18,17 @@ public class Parameters3D {
       this.V = W.copy().zero();
     }
 
+    private Parameters3D(Parameters3D parent) {
+        this.W = parent.W.copy();
+        this.G = W.copy().zero();
+        this.M = W.copy().zero();
+        this.V = W.copy().zero();
+    }
+
+    public Parameters3D clone() {
+        return new Parameters3D(this);
+    }
+
     public void reset() {
       this.W.zero();
       this.G.zero();

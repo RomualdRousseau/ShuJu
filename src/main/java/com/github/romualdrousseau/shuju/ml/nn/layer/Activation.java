@@ -14,11 +14,19 @@ public class Activation extends Layer {
         super(inputUnits, inputChannels, inputUnits, inputChannels, 1.0f);
 
         this.activation = (activation == null) ? new Linear() : activation;
-
-        this.reset(false);
     }
 
-    public void reset(final boolean parametersOnly) {
+    private Activation(Activation parent) {
+        super(parent);
+
+        this.activation = parent.activation;
+    }
+
+    public Layer clone() {
+        return new Activation(this);
+    }
+
+    public void reset() {
     }
 
     public Tensor2D callForward(final Tensor2D input) {

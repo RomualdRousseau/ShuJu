@@ -14,11 +14,20 @@ public class DropOut extends Layer {
 
         this.rate = Scalar.map(rate, 0.0f, 1.0f, -0.5f, 0.5f);
         this.scale = (rate > 0.0f) ? 1.0f / (1.0f - rate) : 0.0f;
-
-        this.reset(false);
     }
 
-    public void reset(final boolean parametersOnly) {
+    private DropOut(DropOut parent) {
+        super(parent);
+
+        this.rate = parent.rate;
+        this.scale = parent.scale;
+    }
+
+    public Layer clone() {
+        return new DropOut(this);
+    }
+
+    public void reset() {
     }
 
     public Tensor2D callForward(final Tensor2D input) {

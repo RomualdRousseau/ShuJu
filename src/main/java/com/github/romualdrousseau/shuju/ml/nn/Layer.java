@@ -38,11 +38,17 @@ public abstract class Layer {
         this.output = null;
     }
 
+    protected Layer(Layer parent) {
+        this(parent.inputUnits, parent.inputChannels, parent.units, parent.channels, parent.bias);
+    }
+
     public Tensor2D detach() {
         return this.output;
     }
 
-    public abstract void reset(boolean parametersOnly);
+    public abstract Layer clone();
+
+    public abstract void reset();
 
     public abstract Tensor2D callForward(Tensor2D input);
 

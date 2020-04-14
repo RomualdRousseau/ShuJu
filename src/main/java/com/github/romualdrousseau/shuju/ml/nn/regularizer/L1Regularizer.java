@@ -7,12 +7,10 @@ import com.github.romualdrousseau.shuju.ml.nn.RegularizerFunc;
 
 public class L1Regularizer implements RegularizerFunc {
     public Tensor2D apply(Tensor2D w) {
-        Tensor2D tmp = w.copy().abs().add(Scalar.EPSILON);
-        return w.copy().mul(Scalar.LAM).div(tmp);
+        return w.copy().if_lt_then(0.0f, -Scalar.LAM, Scalar.LAM);
     }
 
     public Tensor3D apply(Tensor3D w) {
-        Tensor3D tmp = w.copy().abs().add(Scalar.EPSILON);
-        return w.copy().mul(Scalar.LAM).div(tmp);
+        return w.copy().if_lt_then(0.0f, -Scalar.LAM, Scalar.LAM);
     }
 }

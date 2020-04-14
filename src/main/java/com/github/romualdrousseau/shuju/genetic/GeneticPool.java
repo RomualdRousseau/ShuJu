@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-class Genetic {
-    public Genetic() {
+public class GeneticPool {
+
+    public GeneticPool() {
         this.pool = new ArrayList<Individual>();
     }
 
@@ -17,11 +18,11 @@ class Genetic {
         this.pool.add(one);
     }
 
-    public void samplePool() {
-        this.samplePool((int) Math.floor(Math.random() * this.pool.size()));
+    public void sample() {
+        this.sample((int) Math.floor(Math.random() * this.pool.size()));
     }
 
-    public void samplePool(int sampleCount) {
+    public void sample(int sampleCount) {
         sampleCount = Math.max(1, sampleCount);
 
         Collections.sort(this.pool, Collections.reverseOrder(new Comparator<Individual>() {
@@ -38,7 +39,7 @@ class Genetic {
         }
     }
 
-    public void normalizePool() {
+    public void normalize() {
         float sum = 0;
         for (int i = 0; i < this.pool.size(); i++) {
             Individual individual = this.pool.get(i);
@@ -62,6 +63,10 @@ class Genetic {
         bestIndex--;
 
         return pool.get(bestIndex);
+    }
+
+    public Individual spawn() {
+        return this.selectParent().clone().mutate();
     }
 
     private ArrayList<Individual> pool;

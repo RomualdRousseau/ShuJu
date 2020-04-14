@@ -9,13 +9,14 @@ import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
 import com.github.romualdrousseau.shuju.ml.nn.Parameters2D;
 import com.github.romualdrousseau.shuju.ml.nn.RegularizerFunc;
 
-public class Dense extends Layer {
+public class Genetic extends Layer {
 
-    public Dense(final int inputUnits, final int units, final float bias, final InitializerFunc initializer, final RegularizerFunc regularizer) {
+    public Genetic(final int inputUnits, final int units, final float bias, final InitializerFunc initializer, final RegularizerFunc regularizer, final float mutationRate) {
         super(inputUnits, units, bias);
 
         this.initializer = initializer;
         this.regularizer = regularizer;
+        this.mutationRate = mutationRate;
 
         this.kernel = new Parameters2D(inputUnits, units);
         this.biases = new Parameters2D(units);
@@ -23,18 +24,19 @@ public class Dense extends Layer {
         this.reset();
     }
 
-    private Dense(Dense parent) {
+    private Genetic(Genetic parent) {
         super(parent);
 
         this.initializer = parent.initializer;
         this.regularizer = parent.regularizer;
+        this.mutationRate = parent.mutationRate;
 
         this.kernel = parent.kernel.clone();
         this.biases = parent.biases.clone();
     }
 
     public Layer clone() {
-        return new Dense(this);
+        return new Genetic(this);
     }
 
     public void reset() {
@@ -53,17 +55,12 @@ public class Dense extends Layer {
     }
 
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
-        this.kernel.G.fma(d_L_d_out, this.lastInput, false, true);
-        this.biases.G.fma(d_L_d_out, this.bias);
         return this.kernel.W.matmul(d_L_d_out, true, false);
     }
 
     public void completeBackward(final Optimizer optimizer) {
-        if(this.regularizer != null) {
-            this.kernel.G.add(this.regularizer.apply(this.kernel.W));
-        }
-        this.kernel.W.sub(optimizer.computeGradients(this.kernel));
-        this.biases.W.sub(optimizer.computeGradients(this.biases));
+        this.kernel.W.mutate(optimizer.learningRate, this.mutationRate);
+        this.biases.W.mutate(optimizer.learningRate, this.mutationRate);
     }
 
     public void fromJSON(final JSONObject json) {
@@ -83,6 +80,7 @@ public class Dense extends Layer {
     // Hyper-parameters
     private final InitializerFunc initializer;
     private final RegularizerFunc regularizer;
+    private final float mutationRate;
 
     // Parameters
     private final Parameters2D kernel;

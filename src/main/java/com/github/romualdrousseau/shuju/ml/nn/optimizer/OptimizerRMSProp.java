@@ -21,30 +21,26 @@ public class OptimizerRMSProp extends Optimizer {
     public Tensor2D computeGradients(Parameters2D p) {
         final float lr = this.learningRate;
 
-        final TensorFunction<Tensor2D> fn = new TensorFunction<Tensor2D>() {
-            public final float apply(float m, int[] ij, Tensor2D cache) {
-                float v = cache.get(ij[0], ij[1]);
-                return lr * m / (Scalar.sqrt(v) + Scalar.EPSILON);
+        p.V.expAvg(p.G.copy().pow(2.0f), this.b);
+
+        return p.G.copy().map(new TensorFunction<Tensor2D>() {
+            public final float apply(float a_ij, int[] ij, Tensor2D V) {
+                final float v_ij = p.V.get(ij[0], ij[1]);
+                return lr * a_ij / Scalar.sqrt(v_ij + Scalar.EPSILON);
             }
-        };
-
-        p.V.mul(this.b).fma(p.G.copy().pow(2.0f), 1.0f - this.b);
-
-        return p.G.copy().map(fn, p.V);
+        });
     }
 
     public Tensor3D computeGradients(Parameters3D p) {
         final float lr = this.learningRate;
 
-        final TensorFunction<Tensor3D> fn = new TensorFunction<Tensor3D>() {
-            public final float apply(float m, int[] ijk, Tensor3D cache) {
-                float v = cache.get(ijk[0], ijk[1], ijk[2]);
-                return lr * m / (Scalar.sqrt(v) + Scalar.EPSILON);
+        p.V.expAvg(p.G.copy().pow(2.0f), this.b);
+
+        return p.G.copy().map(new TensorFunction<Tensor3D>() {
+            public final float apply(float a_ij, int[] ijk, Tensor3D V) {
+                final float v_ij = p.V.get(ijk[0], ijk[1], ijk[2]);
+                return lr * a_ij / Scalar.sqrt(v_ij + Scalar.EPSILON);
             }
-        };
-
-        p.V.mul(this.b).fma(p.G.copy().pow(2.0f), 1.0f - this.b);
-
-        return p.G.copy().map(fn, p.V);
+        });
     }
 }

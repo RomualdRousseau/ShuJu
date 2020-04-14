@@ -26,20 +26,29 @@ public class Conv2D extends Layer {
         this.kernel = new Parameters3D(inputChannels, filters * filters, channels);
         this.biases = new Parameters2D(channels);
 
-        this.reset(false);
+        this.reset();
     }
 
-    public void reset(final boolean parametersOnly) {
-        if (parametersOnly) {
-            this.kernel.M.zero();
-            this.kernel.V.zero();
-            this.biases.M.zero();
-            this.biases.V.zero();
-        } else {
-            this.kernel.reset();
-            this.biases.reset();
-            this.initializer.apply(this.kernel.W).div(this.inputUnits - this.units + 1);
-        }
+    private Conv2D(Conv2D parent) {
+        super(parent);
+
+        this.n_filters = parent.n_filters;
+        this.n_pads = parent.n_pads;
+        this.initializer = parent.initializer;
+        this.regularizer = parent.regularizer;
+
+        this.kernel = parent.kernel.clone();
+        this.biases = parent.biases.clone();
+    }
+
+    public Layer clone() {
+        return new Conv2D(this);
+    }
+
+    public void reset() {
+        this.kernel.reset();
+        this.biases.reset();
+        this.initializer.apply(this.kernel.W).div(this.inputUnits - this.units + 1);
     }
 
     public Tensor2D callForward(final Tensor2D input) {
