@@ -56,3 +56,6 @@ jobs:
                     key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
             -   name: Deploy project snapshot
                 run: mvn -B deploy -Dmaven.test.skip=true --file pom.xml -s settings.xml
+                env:
+                    MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+                    MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
