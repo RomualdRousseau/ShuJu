@@ -28,7 +28,7 @@ import com.github.romualdrousseau.shuju.ml.knn.*;
 import com.github.romualdrousseau.shuju.ml.nn.layer.*;
 import com.github.romualdrousseau.shuju.ml.naivebayes.*;
 
-final int epochCount = 100;
+final int epochCount = 12;
 final int trainingCount = 60000;
 final int testCount = 10000;
 
