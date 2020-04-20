@@ -21,6 +21,6 @@ public class Sigmoid implements ActivationFunc {
         return y * (1.0f - y);
       }
     };
-    return output.copy().map(fn);
+    return output.map(fn);
   }
 }

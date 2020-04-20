@@ -10,7 +10,8 @@ public class OptimizerAdaDeltaBuilder extends OptimizerBuilder<OptimizerAdaDelta
 
     public OptimizerAdaDeltaBuilder() {
         super();
-        this.b = 0.9f;
+        this.learningRate = 1.0f;
+        this.b = 0.95f;
     }
 
     public OptimizerAdaDelta build(Model model) {

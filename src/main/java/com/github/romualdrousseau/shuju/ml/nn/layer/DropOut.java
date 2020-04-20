@@ -33,7 +33,7 @@ public class DropOut extends Layer {
     public Tensor2D callForward(final Tensor2D input) {
         if (this.training) {
             this.noise = new Tensor2D(input.shape[0], input.shape[1]).randomize(0.5f).if_lt_then(this.rate, 0.0f, this.scale);
-            return input.mul(this.noise);
+            return input.copy().mul(this.noise);
         } else {
             return input;
         }
@@ -43,7 +43,7 @@ public class DropOut extends Layer {
     }
 
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
-        return d_L_d_out.mul(this.noise);
+        return d_L_d_out.copy().mul(this.noise);
     }
 
     public void completeBackward(final Optimizer optimizer) {

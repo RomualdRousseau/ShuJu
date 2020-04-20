@@ -9,6 +9,6 @@ public class Linear implements ActivationFunc {
     }
 
     public Tensor2D derivate(Tensor2D output) {
-        return output.copy().ones();
+        return output.ones();
     }
 }

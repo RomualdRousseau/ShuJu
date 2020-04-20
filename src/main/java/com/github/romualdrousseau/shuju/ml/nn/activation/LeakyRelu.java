@@ -20,6 +20,6 @@ public class LeakyRelu implements ActivationFunc {
           return (y <= 0.0f) ? 0.01f : 1.0f;
         }
       };
-      return output.copy().map(fn);
+      return output.map(fn);
     }
   }

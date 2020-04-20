@@ -30,14 +30,14 @@ public class Activation extends Layer {
     }
 
     public Tensor2D callForward(final Tensor2D input) {
-        return this.activation.apply(input);
+        return this.activation.apply(input.copy());
     }
 
     public void startBackward(final Optimizer optimizer) {
     }
 
     public Tensor2D callBackward(final Tensor2D d_L_d_out) {
-        final Tensor2D f_l_d_f = this.activation.derivate(this.output);
+        final Tensor2D f_l_d_f = this.activation.derivate(this.output.copy());
         if (d_L_d_out.shape[1] == f_l_d_f.shape[1]) {
             return f_l_d_f.mul(d_L_d_out);
         } else {

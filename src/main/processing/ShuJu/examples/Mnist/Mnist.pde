@@ -28,7 +28,7 @@ import com.github.romualdrousseau.shuju.ml.knn.*;
 import com.github.romualdrousseau.shuju.ml.nn.layer.*;
 import com.github.romualdrousseau.shuju.ml.naivebayes.*;
 
-final int epochCount = 20;
+final int epochCount = 100;
 final int trainingCount = 60000;
 final int testCount = 10000;
 
@@ -137,10 +137,10 @@ void testModel(int epoch, boolean trainingMode) {
     Tensor2D x = image2Tensor2D(testImages, imgx, imgy, MnistImageSize, MnistImageSize).reshape(MnistImageSize * MnistImageSize, 1);
     Tensor2D y = new Tensor2D(MnistLabelSize, 1).oneHot(testLabels[imgx][imgy]);
 
-    Layer yhat = this.model.model(x);
-    loss.loss(yhat, y);
+    Layer y_pred = this.model.model(x);
+    loss.loss(y_pred, y);
 
-    final boolean isAccurate = yhat.detach().argmax(0, 0) == y.argmax(0, 0);
+    final boolean isAccurate = y_pred.detach().argmax(0, 0) == y.argmax(0, 0);
 
     sumMean += loss.getValue().flatten(0, 0);
     sumAccu += isAccurate ? 1 : 0;
@@ -156,7 +156,7 @@ void testModel(int epoch, boolean trainingMode) {
         ellipse((imgx + 0.5) * w, (imgy + 0.5) * h, w, h);
         fill(255);
         stroke(255);
-        text(yhat.detach().argmax(0, 0), (imgx) * w, (imgy + 1) * h);
+        text(y_pred.detach().argmax(0, 0), (imgx) * w, (imgy + 1) * h);
       }
     }
   }
@@ -187,12 +187,11 @@ void fitModel() {
       Tensor2D x = image2Tensor2D(trainingImages, imgx, imgy, MnistImageSize, MnistImageSize).reshape(MnistImageSize * MnistImageSize, 1);
       Tensor2D y = new Tensor2D(MnistLabelSize, 1).oneHot(trainingLabels[imgx][imgy]);
 
-      Layer yhat = this.model.model(x);
-      loss.loss(yhat, y);
+      Layer y_pred = this.model.model(x);
+      loss.loss(y_pred, y);
 
       sumMean += loss.getValue().flatten(0, 0);
-
-      if (yhat.detach().argmax(0, 0) == y.argmax(0, 0)) {
+      if (y_pred.detach().argmax(0, 0) == y.argmax(0, 0)) {
         sumAccu++;
       }
 

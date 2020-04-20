@@ -21,6 +21,6 @@ public class Tanh implements ActivationFunc {
                 return 1.0f - y * y;
             }
         };
-        return output.copy().map(fn);
+        return output.map(fn);
     }
 }
