@@ -34,10 +34,9 @@ GeneticPool BirdPool = new GeneticPool();
 class Bird extends Entity implements Individual {
   Model brain;
   ArrayList<Particle> smoke = new ArrayList<Particle>();
-  float altitude = 0;
   float brainFitness = -1;
   float bonus = 0;
-  
+
   Bird() {
     super();
 
@@ -47,7 +46,7 @@ class Bird extends Entity implements Individual {
       .setUnits(8)
       .setMutationRate(MUTATION_RATE));
     this.brain.add(new ActivationBuilder()
-      .setActivation(new Tanh()));  
+      .setActivation(new Tanh()));
     this.brain.add(new GeneticBuilder()
       .setUnits(2)
       .setMutationRate(MUTATION_RATE));
@@ -68,7 +67,7 @@ class Bird extends Entity implements Individual {
       .setUnits(8)
       .setMutationRate(MUTATION_RATE));
     this.brain.add(new ActivationBuilder()
-      .setActivation(new Tanh()));  
+      .setActivation(new Tanh()));
     this.brain.add(new GeneticBuilder()
       .setUnits(2)
       .setMutationRate(MUTATION_RATE));
@@ -123,14 +122,14 @@ class Bird extends Entity implements Individual {
     }
 
     float r = BIRD_MASS / 4; // Roughly the hit box, somehow generous. hey! I want meet my baby
-    float d = closest.bottom.x - this.position.x; // Negative is important here because the position of the pillar is relative to the center of the bird
+    float dx = closest.bottom.x - this.position.x; // Negative is important here because the position of the pillar is relative to the center of the bird
 
-    if (d < r && d > -(PILLAR_SIZE + r)) {
-      if (this.position.y < closest.bottom.y + r || this.position.y > (closest.top.y - r)) {
+    if (dx < r && dx > -(PILLAR_SIZE + r)) {
+      float dy = this.position.y - closest.bottom.y;
+      if (dy < r || dy > (PILLAR_SPACING - r)) {
         return true;
       } else {
-        altitude = 0.9 * altitude + 0.1 * abs(this.position.y - closest.bottom.y);
-        bonus = 0.9 * bonus + 0.1 / (1.0 + abs(this.position.y - (closest.bottom.y + PILLAR_SPACING / 2)));
+        bonus = 0.9 * bonus + 0.1 / (1.0 + abs(this.position.y - closest.bottom.y + PILLAR_SPACING / 2));
         return false;
       }
     } else {
@@ -149,10 +148,10 @@ class Bird extends Entity implements Individual {
     }
 
     Tensor2D input = new Tensor2D(new float[] {
-      this.position.y / HEIGHT, 
-      this.velocity.y / BIRD_MAX_SPEED, 
-      (closest.top.x - this.position.x) / WIDTH, 
-      (closest.top.y - this.position.y) / HEIGHT, 
+      this.position.y / HEIGHT,
+      this.velocity.y / BIRD_MAX_SPEED,
+      (closest.top.x - this.position.x) / WIDTH,
+      (closest.top.y - this.position.y) / HEIGHT,
       (closest.bottom.y - this.position.y) / HEIGHT
       }, false);
     Tensor2D output = this.brain.model(input).detach();

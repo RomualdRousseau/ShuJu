@@ -18,13 +18,13 @@ public abstract class Optimizer {
         this.model = model;
         this.learningRate0 = learningRate;
         this.learningRate = learningRate;
-        this.time = 0;
+        this.time = 1;
         this.scheduler = scheduler;
     }
 
     public void reset() {
         this.learningRate = this.learningRate0;
-        this.time = 0;
+        this.time = 1;
         this.model.reset();
     }
 
