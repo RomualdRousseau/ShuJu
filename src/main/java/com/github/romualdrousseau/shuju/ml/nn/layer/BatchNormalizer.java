@@ -15,8 +15,8 @@ public class BatchNormalizer extends Layer {
 
         this.gamma = new Parameters2D(inputChannels, 1);
         this.beta = new Parameters2D(inputChannels, 1);
-        this.mu_run = new Tensor2D(1, inputChannels).zero();
-        this.var_run = new Tensor2D(1, inputChannels).ones();
+        this.mu_run = new Tensor2D(1, inputChannels);
+        this.var_run = new Tensor2D(1, inputChannels);
 
         this.reset();
     }
@@ -38,6 +38,8 @@ public class BatchNormalizer extends Layer {
         this.gamma.reset();
         this.gamma.W.ones();
         this.beta.reset();
+        this.mu_run.zero();
+        this.var_run.ones();
     }
 
     public Tensor2D callForward(final Tensor2D input) {

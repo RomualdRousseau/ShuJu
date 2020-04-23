@@ -94,10 +94,10 @@ void buildModel() {
   model.add(new MaxPooling2DBuilder()
     .setSize(2));
 
-  model.add(new FlattenBuilder());
-
   model.add(new DropOutBuilder()
     .setRate(0.25));
+
+  model.add(new FlattenBuilder());
 
   model.add(new DenseBuilder()
     .setUnits(128));
@@ -140,13 +140,13 @@ void testModel(int epoch, boolean trainingMode) {
     Layer y_pred = this.model.model(x);
     loss.loss(y_pred, y);
 
-    final boolean isAccurate = y_pred.detach().argmax(0, 0) == y.argmax(0, 0);
+    final boolean isCorrect = y_pred.detach().argmax(0, 0) == y.argmax(0, 0);
 
     sumMean += loss.getValue().flatten(0, 0);
-    sumAccu += isAccurate ? 1 : 0;
+    sumAccu += isCorrect ? 1 : 0;
 
     if (!trainingMode) {
-      if (isAccurate) {
+      if (isCorrect) {
         fill(0, 255, 0, 128);
         noStroke();
         ellipse((imgx + 0.5) * w, (imgy + 0.5) * h, w, h);
@@ -204,6 +204,7 @@ void fitModel() {
     batchStart += batchSize;
     if(batchStart >= trainingCount) {
       batchStart = 0;
+      shuffleData();
     }
 
     print(".");
@@ -217,7 +218,6 @@ void fitModel() {
 
     if ((k % oneEpoch) == (oneEpoch - 1)) {
       testModel(k / oneEpoch + 1, true);
-      shuffleData();
     }
   }
   println();
