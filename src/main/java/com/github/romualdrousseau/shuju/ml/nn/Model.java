@@ -22,7 +22,12 @@ public class Model {
     }
 
     public Layer model(Tensor2D input) {
+        return this.model(input, false);
+    }
+
+    public Layer model(Tensor2D input, boolean training) {
         for(Layer layer : this.layers) {
+            layer.training = training;
             layer.output = layer.callForward(input);
             layer.lastInput = input;
             input = layer.output;
@@ -36,12 +41,6 @@ public class Model {
 
     public int getLastChannels() {
         return this.layers.getLast().channels;
-    }
-
-    public void setTrainingMode(boolean training) {
-        for(Layer layer : this.layers) {
-            layer.training = training;
-        }
     }
 
     public void reset() {
