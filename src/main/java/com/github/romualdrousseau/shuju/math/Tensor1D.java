@@ -281,12 +281,12 @@ public class Tensor1D extends AbstractTensor<float[]> {
         final float c = -this.data[this.argmax()];
 
         float sum = 0.0f;
-        for (int k = 0; k < this.rowCount(); k++) {
+        for (int k = 0; k < this.shape[0]; k++) {
             sum += Scalar.exp(this.data[k] + c);
         }
         final float w = 1.0f / sum;
 
-        for (int k = 0; k < this.rowCount(); k++) {
+        for (int k = 0; k < this.shape[0]; k++) {
             this.data[k] = Scalar.exp(this.data[k] + c) * w;
         }
 

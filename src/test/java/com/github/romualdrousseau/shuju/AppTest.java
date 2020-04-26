@@ -16,9 +16,11 @@ import com.github.romualdrousseau.shuju.columns.NumericColumn;
 import com.github.romualdrousseau.shuju.columns.StringColumn;
 import com.github.romualdrousseau.shuju.math.Blas;
 import com.github.romualdrousseau.shuju.math.Linalg;
-//import com.github.romualdrousseau.shuju.math.Marray;
+import com.github.romualdrousseau.shuju.math.MArray;
+import com.github.romualdrousseau.shuju.math.Scalar;
 import com.github.romualdrousseau.shuju.math.Tensor2D;
 import com.github.romualdrousseau.shuju.math.Tensor3D;
+import com.github.romualdrousseau.shuju.math.UFunc0;
 import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.transforms.*;
 import com.github.romualdrousseau.shuju.ml.knn.*;
@@ -29,22 +31,71 @@ import com.github.romualdrousseau.shuju.util.*;
 
 public class AppTest {
 
-    // @Test public void testMarray() {
-    //     Marray M = new Marray(2, 4, 4).arrange();
-    //     Marray N = new Marray(1, 1, 4).arrange();
-    //     Marray V = new Marray(4).arrange();
-    //     System.out.println(M);
-    //     System.out.println();
-    //     System.out.println(M.transpose(0, 2, 1));
-    //     System.out.println();
-    //     System.out.println(N);
-    //     System.out.println();
-    //     System.out.println(M.iadd(N).iadd(0.5f));
-    //     System.out.println();
-    //     System.out.println(V.reshape(1, 4).transpose());
-    //     System.out.println();
-    //     System.out.println(M.transpose());
-    // }
+    @Test public void testMarray() {
+        // MArray M = new MArray(2, 4, 4).arrange();
+        // MArray N = new MArray(1, 1, 4).arrange();
+        // MArray V = new MArray(4).arrange();
+        // System.out.println(M);
+        // System.out.println();
+        // System.out.println(M.transpose(0, 2, 1));
+        // System.out.println();
+        // System.out.println(N);
+        // System.out.println();
+        // System.out.println(M.iadd(N).iadd(0.5f));
+        // System.out.println();
+        // System.out.println(V.reshape(1, 4).transpose());
+        // System.out.println();
+        // System.out.println(M.transpose());
+        // System.out.println();
+        // System.out.println(new MArray(32).arrange().reshape(2, 4, 4));
+        // System.out.println();
+        // System.out.println(new MArray(32).arrange().reshape(2, 4, 4).max(0));
+        // System.out.println();
+        // System.out.println(new MArray(32).arrange().reshape(2, 4, 4).max(1));
+        // System.out.println();
+        // System.out.println(new MArray(32).arrange().reshape(2, 4, 4).max(2));
+        // System.out.println();
+
+        UFunc0 magSq = new UFunc0((x, y) -> (x - y) * (x - y));
+        UFunc0 sum = new UFunc0((x, y) -> x + y);
+        UFunc0 sqrt = new UFunc0((x, y) -> Scalar.sqrt(x));
+        UFunc0 mul = new UFunc0((x, y) -> x * y);
+        UFunc0 div = new UFunc0((x, y) -> x / y);
+        UFunc0 pow2 = new UFunc0((x, y) -> x * x);
+
+        MArray M1 = new MArray(32).arrange().reshape(2, 4, 4);
+        MArray M2 = new MArray(4).ones().reshape(1, 1, 4);
+        System.out.println(M1);
+        System.out.println(M2);
+        System.out.println();
+
+        MArray M3 = magSq.inner(M1, M2, null);
+        MArray M4 = sum.reduce(M3, 1, null);
+        MArray M5 = sqrt.call(M4, null).reshape(1, 4, 2);
+        System.out.println(M3);
+        System.out.println(M4);
+        System.out.println(M5);
+        System.out.println();
+
+        MArray M6 = mul.inner(M1, M5.transpose(), null);
+        MArray M7 = sum.reduce(M6, 1, null).reshape(4, 2);
+        System.out.println(M6);
+        System.out.println(M7);
+        System.out.println();
+
+        MArray M8 = sum.reduce(M1, 1, null);
+        MArray M9 = new UFunc0((x, y) -> x / (float) M8.shape[1]).call(M8, null);
+        System.out.println(M8);
+        System.out.println(M9);
+        System.out.println();
+
+        MArray M10 = pow2.call(M2.reshape(4), null);
+        MArray M11 = sum.reduce(M10, 0, null);
+        MArray M12 = div.inner(M10, M11, null);
+        System.out.println(M10);
+        System.out.println(M11);
+        System.out.println(M12);
+    }
 
     // @Test
     // public void testSpeed() {
