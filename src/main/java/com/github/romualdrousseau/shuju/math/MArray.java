@@ -1,21 +1,81 @@
 package com.github.romualdrousseau.shuju.math;
 
+import java.util.Arrays;
+
 public class MArray {
 
     public int size;
     public int[] shape;
     public int[] stride;
     public float[] data;
-    public boolean transposed;
     public boolean copied;
+
+    public static final UFunc0 Full = new UFunc0((x, y) -> y);
+
+    public static final UFunc0 Random = new UFunc0((x, y) -> Scalar.random(y));
+
+    public static final UFunc0 Chop = new UFunc0((x, y) -> (Scalar.abs(x) < y) ? 0.0f : x);
+
+    public static final UFunc0 Add = new UFunc0((x, y) -> x + y);
+
+    public static final UFunc0 Sub = new UFunc0((x, y) -> x - y);
+
+    public static final UFunc0 Mul = new UFunc0((x, y) -> x * y);
+
+    public static final UFunc0 Div = new UFunc0((x, y) -> x / y);
+
+    public static final UFunc0 Max = new UFunc0((x, y) -> x > y ? x : y);
+
+    public static final UFunc0 Min = new UFunc0((x, y) -> x < y ? x : y);
+
+    public static final UFunc0 Sqrt = new UFunc0((x, y) -> Scalar.sqrt(x));
+
+    public static final UFunc0 InvSqrt = new UFunc0((x, y) -> 1.0f / (Scalar.sqrt(x) + Scalar.EPSILON));
+
+    public static final UFunc0 Pow2 = new UFunc0((x, y) -> Scalar.pow(x, y));
+
+    public static final UFunc0 MagSq = new UFunc0((x, y) -> Scalar.pow(x - y, 2));
+
+    public MArray() {
+    }
 
     public MArray(final int... shape) {
         this.shape = shape.clone();
         this.updateSize();
         this.updateStrides();
         this.data = new float[this.size];
-        this.transposed = false;
         this.copied = false;
+    }
+
+    public boolean isNull() {
+        return this.shape.length == 0;
+    }
+
+    public float[] getFloats() {
+        return this.data;
+    }
+
+    public float getItem(int i) {
+        return this.data[i];
+    }
+
+    public MArray setItem(int i, float v) {
+        this.data[i] = v;
+        return this;
+    }
+
+    public boolean equals(final MArray v) {
+        return this.size == v.size && Arrays.equals(this.data, v.data);
+    }
+
+    public boolean equals(final MArray v, final float e) {
+        boolean result = this.size == v.size;
+        for (int i = 0; i < this.size && result; i++) {
+            float a = this.data[i];
+            float b = v.data[i];
+            result &= Math.abs(a - b) < e;
+        }
+        return result;
     }
 
     public MArray reshape(final int... shape) {
@@ -57,62 +117,6 @@ public class MArray {
         }
 
         return this;
-    }
-
-    public MArray zero() {
-        return new UFunc0((x, y) -> 0.0f).call(this, this);
-    }
-
-    public MArray ones() {
-        return new UFunc0((x, y) -> 1.0f).call(this, this);
-    }
-
-    public MArray arrange() {
-        return new UFunc0((x, y) -> 1.0f).accumulate(this, 0, this);
-    }
-
-    public MArray iadd(final float v) {
-        return new UFunc0((x, y) -> x + v).call(this, this);
-    }
-
-    public MArray iadd(final MArray m) {
-        return new UFunc0((x, y) -> x + y).inner(this, m, this);
-    }
-
-    public MArray isub(final float v) {
-        return new UFunc0((x, y) -> x - v).call(this, this);
-    }
-
-    public MArray isub(final MArray m) {
-        return new UFunc0((x, y) -> x - y).inner(this, m, this);
-    }
-
-    public MArray imul(final float v) {
-        return new UFunc0((x, y) -> x * v).call(this, this);
-    }
-
-    public MArray imul(final MArray m) {
-        return new UFunc0((x, y) -> x * y).inner(this, m, this);
-    }
-
-    public MArray idiv(final float v) {
-        return new UFunc0((x, y) -> x / v).call(this, this);
-    }
-
-    public MArray idiv(final MArray m) {
-        return new UFunc0((x, y) -> x / y).inner(this, m, this);
-    }
-
-    public MArray max(int axis) {
-        return new UFunc0((x, y) -> x > y ? x : y).reduce(this, axis, null);
-    }
-
-    public MArray min(int axis) {
-        return new UFunc0((x, y) -> x < y ? x : y).reduce(this, axis, null);
-    }
-
-    public MArray sum(int axis) {
-        return new UFunc0((x, y) -> x + y).reduce(this, axis, null);
     }
 
     public String toString() {
