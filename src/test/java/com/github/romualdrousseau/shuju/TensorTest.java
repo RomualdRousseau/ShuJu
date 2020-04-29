@@ -2,7 +2,6 @@ package com.github.romualdrousseau.shuju;
 
 import org.junit.Test;
 
-import com.github.romualdrousseau.shuju.math.MArray;
 import com.github.romualdrousseau.shuju.math.Tensor;
 
 public class TensorTest {
@@ -15,7 +14,7 @@ public class TensorTest {
         Tensor M2 = new Tensor(1, 1, 1).ones();
         System.out.println(M2);
 
-        Tensor M3 = new Tensor(2, 4, 4).arrange();
+        Tensor M3 = new Tensor(2, 4, 4).arrange(1.0f);
         System.out.println(M3);
 
         Tensor M4 = M3.add(M2);
@@ -24,7 +23,11 @@ public class TensorTest {
         System.out.println(M5);
         System.out.println(M5.equals(M4));
 
-        System.out.println(MArray.Add.reduce(M5, 0.0f, -1, null));
+        System.out.println(new Tensor(2, 4, 4).arrange(1.0f));
+        System.out.println(new Tensor(2, 4, 4).arrange(1.0f).norm(1));
+        System.out.println(new Tensor(2, 4, 4).arrange(1.0f).avg(1));
+        System.out.println(new Tensor(4).arrange(1.0f).norm(-1));
+        System.out.println(new Tensor(4).arrange(1.0f).dot(new Tensor(4).arrange(1.0f), -1));
     }
 
     // @Test

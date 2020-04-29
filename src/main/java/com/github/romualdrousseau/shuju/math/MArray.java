@@ -36,6 +36,8 @@ public class MArray {
 
     public static final UFunc0 MagSq = new UFunc0((x, y) -> Scalar.pow(x - y, 2));
 
+    public static final UFunc0 Norm = new UFunc0((x, y) -> x * x + y);
+
     public MArray() {
     }
 
