@@ -56,26 +56,26 @@ public class Tensor extends MArray {
     }
 
     public Tensor zeros() {
-        return (Tensor) MFuncs.Full.outer(this.dupDataIf(this.copied, true), 0.0f, this);
+        return (Tensor) MFuncs.Full.outer(this, 0.0f, this);
     }
 
     public Tensor ones() {
-        return (Tensor) MFuncs.Full.outer(this.dupDataIf(this.copied, true), 1.0f, this);
+        return (Tensor) MFuncs.Full.outer(this, 1.0f, this);
     }
 
     public Tensor full(final float v) {
-        return (Tensor) MFuncs.Full.outer(this.dupDataIf(this.copied, true), v, this);
+        return (Tensor) MFuncs.Full.outer(this, v, this);
     }
 
     public Tensor arrange(final int start, final int step, final int axis) {
         if (step == 1) {
-            return ((Tensor) MFuncs.Inc.accumulate(this.dupDataIf(this.copied, true), start - 1, axis, this));
+            return ((Tensor) MFuncs.Inc.accumulate(this, start - 1, axis, this));
         }
         if (step == -1) {
-            return ((Tensor) MFuncs.Dec.accumulate(this.dupDataIf(this.copied, true), start + 1, axis, this));
+            return ((Tensor) MFuncs.Dec.accumulate(this, start + 1, axis, this));
         }
         if(step != 0) {
-            MFuncs.Inc.accumulate(this.dupDataIf(this.copied, true), 0, axis, this);
+            MFuncs.Inc.accumulate(this, -step / Math.abs(step), axis, this);
             this.imul(step);
         }
         if(start != 0) {
@@ -85,15 +85,15 @@ public class Tensor extends MArray {
     }
 
     public Tensor chop(final float e) {
-        return (Tensor) MFuncs.Chop.outer(this.dupDataIf(this.copied, true), e, this);
+        return (Tensor) MFuncs.Chop.outer(this, e, this);
     }
 
     public Tensor iadd(final float v) {
-        return (Tensor) MFuncs.Add.outer(this.dupDataIf(this.copied, true), v, this);
+        return (Tensor) MFuncs.Add.outer(this, v, this);
     }
 
     public Tensor iadd(final Tensor m) {
-        return (Tensor) MFuncs.Add.outer(this.dupDataIf(this.copied, true), m, this);
+        return (Tensor) MFuncs.Add.outer(this, m, this);
     }
 
     public Tensor add(final float v) {
@@ -105,11 +105,11 @@ public class Tensor extends MArray {
     }
 
     public Tensor isub(float v) {
-        return (Tensor) MFuncs.Sub.outer(this.dupDataIf(this.copied, true), v, this);
+        return (Tensor) MFuncs.Sub.outer(this, v, this);
     }
 
     public Tensor isub(Tensor m) {
-        return (Tensor) MFuncs.Sub.outer(this.dupDataIf(this.copied, true), m, this);
+        return (Tensor) MFuncs.Sub.outer(this, m, this);
     }
 
     public Tensor sub(final float v) {
@@ -121,11 +121,11 @@ public class Tensor extends MArray {
     }
 
     public Tensor imul(final float v) {
-        return (Tensor) MFuncs.Mul.outer(this.dupDataIf(this.copied, true), v, this);
+        return (Tensor) MFuncs.Mul.outer(this, v, this);
     }
 
     public Tensor imul(final Tensor m) {
-        return (Tensor) MFuncs.Mul.outer(this.dupDataIf(this.copied, true), m, this);
+        return (Tensor) MFuncs.Mul.outer(this, m, this);
     }
 
     public Tensor mul(final float v) {
@@ -137,11 +137,11 @@ public class Tensor extends MArray {
     }
 
     public Tensor idiv(final float v) {
-        return (Tensor) MFuncs.Div.outer(this.dupDataIf(this.copied, true), v, this);
+        return (Tensor) MFuncs.Div.outer(this, v, this);
     }
 
     public Tensor idiv(final Tensor m) {
-        return (Tensor) MFuncs.Div.outer(this.dupDataIf(this.copied, true), m, this);
+        return (Tensor) MFuncs.Div.outer(this, m, this);
     }
 
     public Tensor div(final float v) {
@@ -153,7 +153,7 @@ public class Tensor extends MArray {
     }
 
     public Tensor isqrt() {
-        return (Tensor) MFuncs.Sqrt.outer(this.dupDataIf(this.copied, true), 0.0f, this);
+        return (Tensor) MFuncs.Sqrt.outer(this, 0.0f, this);
     }
 
     public Tensor sqrt() {
@@ -161,7 +161,7 @@ public class Tensor extends MArray {
     }
 
     public Tensor ipow(final float n) {
-        return (Tensor) MFuncs.Sqrt.outer(this.dupDataIf(this.copied, true), n, this);
+        return (Tensor) MFuncs.Sqrt.outer(this, n, this);
     }
 
     public Tensor pow(final float n) {
@@ -176,9 +176,30 @@ public class Tensor extends MArray {
         return new Tensor(MFuncs.Mul.outer(this, m, null));
     }
 
+    public Tensor sum(final int axis) {
+        return new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, null));
+    }
+
     public Tensor avg(final int axis) {
         final float b = (axis == -1) ? this.size : this.shape[axis];
-        return new Tensor(MFuncs.Div.inner(this, b, 0.0f, axis, null));
+        return this.sum(axis).idiv(b);
+    }
+
+    public Tensor var(final int axis) {
+        final float n = (axis == -1) ? this.size : this.shape[axis];
+        final Tensor avg = this.avg(axis);
+        final Tensor var = new Tensor(MFuncs.MagSq.inner(this, avg, 0.0f, axis, null));
+        return var.idiv(n - 1);
+    }
+
+    public Tensor cov(final Tensor v, final int axis) {
+        final float n = (axis == -1) ? this.size : this.shape[axis];
+        final Tensor avg1 = this.avg(axis);
+        final Tensor tmp1 = this.sub(avg1);
+        final Tensor avg2 = v.avg(axis);
+        final Tensor tmp2 = v.sub(avg2);
+        final Tensor cov = new Tensor(MFuncs.Mul.inner(tmp1, tmp2, 0.0f, axis, null));
+        return cov.idiv(n - 1);
     }
 
     public Tensor normSq(final int axis) {

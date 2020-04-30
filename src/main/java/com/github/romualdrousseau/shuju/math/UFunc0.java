@@ -26,6 +26,8 @@ public class UFunc0 extends UFunc {
                 }
                 out = new MArray(newShape);
             }
+        } else if(a == out) {
+            out = a.dupDataIf(a.copied, true);
         }
 
         if (axis == -1 && a.base == 0) {
@@ -47,6 +49,8 @@ public class UFunc0 extends UFunc {
 
         if (out == null) {
             out = new MArray(a.shape);
+        } else if(a == out) {
+            out = a.dupDataIf(a.copied, true);
         }
 
         this._accumulate(0, a, a.base, initital, axis, out, out.base);
@@ -58,6 +62,8 @@ public class UFunc0 extends UFunc {
     public MArray outer(final MArray a, final float b, MArray out) {
         if (out == null) {
             out = new MArray(a.shape);
+        } else if(a == out) {
+            out = a.dupDataIf(a.copied, true);
         }
 
         if (a.base == 0) {
@@ -82,6 +88,8 @@ public class UFunc0 extends UFunc {
                 newShape[i] = Math.max(a.shape[i], b.shape[i]);
             }
             out = new MArray(newShape);
+        } else if(a == out) {
+            out = a.dupDataIf(a.copied, true);
         }
 
         this._outer(0, a, a.base, b, b.base, out, out.base);

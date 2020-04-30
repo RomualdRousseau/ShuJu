@@ -109,8 +109,22 @@ public class TensorTest {
     @Test
     public void testMag() {
         Tensor M1 = new Tensor(4).arrange(1, 1, 0);
-        Tensor M2 = new Tensor(4).arrange(1, 1, 0).imul(2.0f);
+        Tensor M2 = new Tensor(4).arrange(2, 2, 0);
         assertTrue("M1.distance(M2) = [ 5.477f ]", M1.mag(M2, -1).equals(5.477f, 0.001f));
+    }
+
+    @Test
+    public void testVar() {
+        Tensor M1 = new Tensor(4).arrange(1, 1, 0);
+        assertTrue("M1.var() = [ 1.667f ]", M1.var(-1).equals(1.667f, 0.001f));
+    }
+
+    @Test
+    public void testCov() {
+        Tensor M1 = new Tensor(4).arrange(1, 1, 0);
+        Tensor M2 = new Tensor(4).arrange(2, 2, 0);
+        assertTrue("M1.cov(M1) = [ 1.667f ]", M1.cov(M1, -1).equals(1.667f, 0.001f));
+        assertTrue("M1.cov(M2) = [ 3.333f ]", M1.cov(M2, -1).equals(3.333f, 0.001f));
     }
 
     // @Test
