@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 public class MArray {
 
+    public static final int None = -1;
+
     public int size;
     public int[] shape;
     public int[] stride;
@@ -19,7 +21,7 @@ public class MArray {
         this.updateSize();
         this.updateStrides();
         this.data = new float[this.size];
-        this.base = 0;
+        this.base = None;
         this.copied = false;
     }
 
@@ -66,7 +68,7 @@ public class MArray {
     public MArray setFloats(final float... data) {
         assert (this.size == data.length);
         this.dupDataIf(this.copied, false);
-        System.arraycopy(data, 0, this.data, this.base, data.length);
+        System.arraycopy(data, 0, this.data, Math.max(this.base, 0), data.length);
         return this;
     }
 
@@ -80,11 +82,11 @@ public class MArray {
     }
 
     public float item(int off) {
-        return this.data[this.base + off];
+        return this.data[Math.max(this.base, 0) + off];
     }
 
     public MArray setItem(int off, float v) {
-        this.data[this.base + off] = v;
+        this.data[Math.max(this.base, 0) + off] = v;
         return this;
     }
 
@@ -122,7 +124,7 @@ public class MArray {
     }
 
     public boolean equals(final float b, final float e) {
-        return this._equals(0, this.base, b, e);
+        return this._equals(0, Math.max(this.base, 0), b, e);
     }
 
     public boolean equals(final MArray v) {
@@ -133,15 +135,15 @@ public class MArray {
         if (this.size != v.size || !Arrays.equals(this.shape, v.shape)) {
             return false;
         }
-        if (this.base == 0 && v.base == 0 && Arrays.equals(this.stride, v.stride)) {
+        if (this.base == None && v.base == None && Arrays.equals(this.stride, v.stride)) {
             return Arrays.equals(this.data, v.data);
         } else {
-            return this._equals(0, this.base, v, v.base, e);
+            return this._equals(0, Math.max(this.base, 0), v, Math.max(v.base, 0), e);
         }
     }
 
     public MArray resize(final int... shape) {
-        this.dupDataIf(this.base > 0, true);
+        this.dupDataIf(this.base >= 0, true);
         this.shape = shape.clone();
         this.updateStrides();
         return this;
@@ -160,12 +162,12 @@ public class MArray {
 
         final int[] done = new int[indices.length];
         for (int i = 0; i < indices.length; i++) {
-            done[i] = -1;
+            done[i] = None;
         }
 
         for (int i = 0; i < indices.length; i++) {
             final int j = indices[i];
-            if (j != i && done[j] == -1) {
+            if (j != i && done[j] == None) {
                 swp = this.shape[i];
                 this.shape[i] = this.shape[j];
                 this.shape[j] = swp;
@@ -188,37 +190,31 @@ public class MArray {
 
     public MArray dup() {
         MArray out = new MArray(this);
-        this._dup(0, this.base, out, out.base);
+        this._dup(0, Math.max(this.base, 0), out, Math.max(out.base, 0));
         return out;
     }
 
     public MArray dupData(boolean copy) {
         float[] data = new float[this.size];
         if (copy) {
-            System.arraycopy(this.data, this.base, data, 0, this.size);
+            System.arraycopy(this.data, Math.max(this.base, 0), data, 0, this.size);
         }
         this.data = data;
-        this.base = 0;
+        this.base = None;
         this.copied = false;
         return this;
     }
 
     public MArray dupDataIf(boolean cond, boolean copy) {
         if (cond) {
-            float[] data = new float[this.size];
-            if (copy) {
-                System.arraycopy(this.data, this.base, data, 0, this.size);
-            }
-            this.data = data;
-            this.base = 0;
-            this.copied = false;
+            this.dupData(copy);
         }
         return this;
     }
 
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        this._toString(0, this.base, sb, false, "%1$10.3f");
+        this._toString(0, Math.max(this.base, 0), sb, false, "%1$10.3f");
         return sb.toString();
     }
 

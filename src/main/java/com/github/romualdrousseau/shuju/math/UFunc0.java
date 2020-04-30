@@ -4,7 +4,9 @@ import java.util.function.BiFunction;
 
 public class UFunc0 extends UFunc {
 
-    public BiFunction<Float, Float, Float> func;
+    public static final int None = MArray.None;
+
+    public final BiFunction<Float, Float, Float> func;
 
     public UFunc0(BiFunction<Float, Float, Float> func) {
         this.func = func;
@@ -12,10 +14,10 @@ public class UFunc0 extends UFunc {
 
     @Override
     public MArray reduce(MArray a, final float initital, final int axis, MArray out) {
-        assert (axis == -1 || axis >= 0 && axis < a.shape.length) : "axis must be less than dimension";
+        assert axis == None || axis >= 0 && axis < a.shape.length;
 
         if (out == null) {
-            if (a.shape.length == 1 || axis == -1) {
+            if (a.shape.length == 1 || axis == None) {
                 out = new MArray(1);
             } else {
                 int[] newShape = new int[a.shape.length - 1];
@@ -26,18 +28,18 @@ public class UFunc0 extends UFunc {
                 }
                 out = new MArray(newShape);
             }
-        } else if(a == out) {
+        } else if (a == out) {
             out = a.dupDataIf(a.copied, true);
         }
 
-        if (axis == -1 && a.base == 0) {
+        if (axis == None && a.base == None) {
             float acc = initital;
             for (int i = 0; i < a.size; i++) {
                 acc = func.apply(acc, a.data[i]);
                 out.data[0] = acc;
             }
         } else {
-            this._reduce(0, 0, a, a.base, initital, axis, out, out.base);
+            this._reduce(0, 0, a, Math.max(a.base, 0), initital, axis, out, Math.max(out.base, 0));
         }
 
         return out;
@@ -45,15 +47,15 @@ public class UFunc0 extends UFunc {
 
     @Override
     public MArray accumulate(final MArray a, final float initital, final int axis, MArray out) {
-        assert (axis >= 0 && axis < a.shape.length) : "axis must be less than dimension";
+        assert axis >= 0 && axis < a.shape.length;
 
         if (out == null) {
             out = new MArray(a.shape);
-        } else if(a == out) {
+        } else if (a == out) {
             out = a.dupDataIf(a.copied, true);
         }
 
-        this._accumulate(0, a, a.base, initital, axis, out, out.base);
+        this._accumulate(0, a, Math.max(a.base, 0), initital, axis, out, Math.max(out.base, 0));
 
         return out;
     }
@@ -62,16 +64,16 @@ public class UFunc0 extends UFunc {
     public MArray outer(final MArray a, final float b, MArray out) {
         if (out == null) {
             out = new MArray(a.shape);
-        } else if(a == out) {
+        } else if (a == out) {
             out = a.dupDataIf(a.copied, true);
         }
 
-        if (a.base == 0) {
+        if (a.base == None) {
             for (int i = 0; i < a.size; i++) {
                 out.data[i] = this.func.apply(b, a.data[i]);
             }
         } else {
-            this._outer(0, a, a.base, b, out, out.base);
+            this._outer(0, a, Math.max(a.base, 0), b, out, Math.max(out.base, 0));
         }
 
         return out;
@@ -79,7 +81,7 @@ public class UFunc0 extends UFunc {
 
     @Override
     public MArray outer(final MArray a, final MArray b, MArray out) {
-        assert (a.shape.length == b.shape.length) : "Arrays must be same dimensions";
+        assert a.shape.length == b.shape.length;
 
         if (out == null) {
             int newShapeLen = a.shape.length;
@@ -88,11 +90,11 @@ public class UFunc0 extends UFunc {
                 newShape[i] = Math.max(a.shape[i], b.shape[i]);
             }
             out = new MArray(newShape);
-        } else if(a == out) {
+        } else if (a == out) {
             out = a.dupDataIf(a.copied, true);
         }
 
-        this._outer(0, a, a.base, b, b.base, out, out.base);
+        this._outer(0, a, Math.max(a.base, 0), b, Math.max(b.base, 0), out, Math.max(out.base, 0));
 
         return out;
     }
@@ -110,7 +112,7 @@ public class UFunc0 extends UFunc {
         float acc;
         boolean terminated = false;
 
-        if (axis == -1 || n1 == axis) {
+        if (axis == None || n1 == axis) {
             bstr_i = 0;
             n2_i = n2;
         } else {
@@ -142,7 +144,7 @@ public class UFunc0 extends UFunc {
                 final int astr_ij = a.stride[n1 + 1];
                 final int bstr_ij;
 
-                if (axis == -1 || n1 + 1 == axis) {
+                if (axis == None || n1 + 1 == axis) {
                     bstr_ij = 0;
                 } else {
                     bstr_ij = b.stride[n2_i];
@@ -267,8 +269,7 @@ public class UFunc0 extends UFunc {
         }
     }
 
-    private void _outer(final int n, final MArray a, final int aoff, final float b, final MArray c,
-            final int coff) {
+    private void _outer(final int n, final MArray a, final int aoff, final float b, final MArray c, final int coff) {
         final int cnt = a.shape.length - 1;
         final int adim_i = a.shape[n];
         final int cdim_i = c.shape[n];

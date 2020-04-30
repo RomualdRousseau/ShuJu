@@ -25,8 +25,12 @@ public class Tensor extends MArray {
         super(other);
     }
 
+    public Tensor ravel() {
+        return new Tensor(this.clone().resize(this.size));
+    }
+
     public Tensor reshape(final int... shape) {
-        return new Tensor(super.resize(shape));
+        return new Tensor(super.clone().resize(shape));
     }
 
     @Override
@@ -80,6 +84,18 @@ public class Tensor extends MArray {
         }
         if(start != 0) {
             this.iadd(start);
+        }
+        return this;
+    }
+
+    public Tensor eye() {
+        this.zeros();
+        int[] indices = new int[this.shape.length];
+        for(int i = 0; i < this.shape[0]; i++) {
+            for(int j = 0; j < this.shape.length; j++) {
+                indices[j] = i;
+            }
+            this.setItem(this.offset(indices), 1);
         }
         return this;
     }
