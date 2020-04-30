@@ -2,95 +2,115 @@ package com.github.romualdrousseau.shuju;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+
 import com.github.romualdrousseau.shuju.math.Tensor;
 
 public class TensorTest {
 
     @Test
-    public void testCreate() {
-        Tensor M1 = new Tensor(2, 4, 4).zeros();
-        System.out.println(M1);
-
-        Tensor M2 = new Tensor(1, 1, 1).ones();
-        System.out.println(M2);
-
-        Tensor M3 = new Tensor(2, 4, 4).arrange(1.0f);
-        System.out.println(M3);
-
-        Tensor M4 = M3.add(M2);
-        Tensor M5 = M2.add(M3);
-        System.out.println(M4);
-        System.out.println(M5);
-        System.out.println(M5.equals(M4));
-
-        System.out.println(new Tensor(2, 4, 4).arrange(1.0f));
-        System.out.println(new Tensor(2, 4, 4).arrange(1.0f).norm(1));
-        System.out.println(new Tensor(2, 4, 4).arrange(1.0f).avg(1));
-        System.out.println(new Tensor(4).arrange(1.0f).norm(-1));
-        System.out.println(new Tensor(4).arrange(1.0f).dot(new Tensor(4).arrange(1.0f), -1));
+    public void testNull() {
+        Tensor M1 = Tensor.Null;
+        Tensor M2 = new Tensor(4).zeros();
+        assertTrue("M1 is Null", M1.isNull());
+        assertTrue("M2 is not Null", !M2.isNull());
     }
 
-    // @Test
-    // public void testMarray() {
-    // MArray M = new MArray(2, 4, 4).arrange();
-    // MArray N = new MArray(1, 1, 4).arrange();
-    // MArray V = new MArray(4).arrange();
-    // System.out.println(M);
-    // System.out.println();
-    // System.out.println(M.transpose(0, 2, 1));
-    // System.out.println();
-    // System.out.println(N);
-    // System.out.println();
-    // System.out.println(M.iadd(N).iadd(0.5f));
-    // System.out.println();
-    // System.out.println(V.reshape(1, 4).transpose());
-    // System.out.println();
-    // System.out.println(M.transpose());
-    // System.out.println();
-    // System.out.println(new MArray(32).arrange().reshape(2, 4, 4));
-    // System.out.println();
-    // System.out.println(new MArray(32).arrange().reshape(2, 4, 4).max(0));
-    // System.out.println();
-    // System.out.println(new MArray(32).arrange().reshape(2, 4, 4).max(1));
-    // System.out.println();
-    // System.out.println(new MArray(32).arrange().reshape(2, 4, 4).max(2));
-    // System.out.println();
+    @Test
+    public void testZero() {
+        Tensor M = new Tensor(4).zeros();
+        assertTrue("M = [ 0.0f, 0.0f, 0.0f, 00f ]", M.equals(0.0f));
+        assertTrue("M != [ 1.0f, 1.0f, 1.0f, 1.0f ]", !M.equals(1.0f));
+    }
 
-    // MArray M1 = new MArray(32);
-    // M1 = MArray.Ones.accumulate(M1, 0, M1).reshape(2, 4, 4);
-    // MArray M2 = new MArray(4);
-    // M2 = MArray.Ones.call(M2, M2).reshape(1, 1, 4);
-    // System.out.println(M1);
-    // System.out.println(M2);
-    // System.out.println();
+    @Test
+    public void testOne() {
+        Tensor M = new Tensor(4).ones();
+        assertTrue("M = [ 1.0f, 1.0f, 1.0f, 1.0f ]", M.equals(1.0f));
+        assertTrue("M != [ 0.0f, 0.0f, 0.0f, 0.0f ]", !M.equals(0.0f));
+    }
 
-    // MArray M3 = MArray.MagSq.inner(M1, M2, null);
-    // MArray M4 = MArray.Add.reduce(M3, 1, null);
-    // MArray M5 = MArray.Sqrt.call(M4, null).reshape(1, 4, 2);
-    // System.out.println(M3);
-    // System.out.println(M4);
-    // System.out.println(M5);
-    // System.out.println();
+    @Test
+    public void testArrange() {
+        Tensor M1 = new Tensor(4).create(1.0f, 2.0f, 3.0f, 4.0f);
+        Tensor M2 = new Tensor(4).arrange(1, 1, 0);
+        assertTrue("M1 = [ 1.0f, 2.0f, 3.0f, 4.0f ]", M1.equals(M2));
+        assertTrue("M1 != [ 0.0f, 0.0f, 0.0f, 0.0f ]", !M1.equals(0.0f));
+        assertTrue("M1 != [ 1.0f, 1.0f, 1.0f, 1.0f ]", !M1.equals(1.0f));
+    }
 
-    // MArray M6 = MArray.Mul.inner(M1, M5.transpose(), null);
-    // MArray M7 = MArray.Add.reduce(M6, 1, null).reshape(4, 2);
-    // System.out.println(M6);
-    // System.out.println(M7);
-    // System.out.println();
+    @Test
+    public void testTranspose() {
+        Tensor M1 = new Tensor(16).arrange(1, 1, 0).reshape(4, 4);
+        Tensor M2 = new Tensor(4, 4).create(new float[][] {
+            { 1.0f, 5.0f, 9.0f, 13.0f },
+            { 2.0f, 6.0f, 10.0f, 14.0f },
+            { 3.0f, 7.0f, 11.0f, 15.0f },
+            { 4.0f, 8.0f, 12.0f, 16.0f }
+        });
+        assertTrue("M1.T = M2", M2.equals(M1.T()));
+        assertTrue("M1.T.T = M1", M1.equals(M1.T().T()));
+    }
 
-    // MArray M8 = MArray.Add.reduce(M1, 1, null);
-    // MArray M9 = new UFunc0((x, y) -> x / (float) M8.shape[1]).call(M8, null);
-    // System.out.println(M8);
-    // System.out.println(M9);
-    // System.out.println();
+    @Test
+    public void testView() {
+        Tensor M = new Tensor(32).arrange(1, 1, 0).reshape(2, 4, 4);
+        Tensor V = M.get(0, 1, 1, 2, 2, 2).iadd(1.0f);
+        System.out.println(V);
+        System.out.println(V.arrange(1, 1, 2));
+        System.out.println(V.reshape(2, 1, 4).arrange(1, 1, 2).reshape(2, 2, 2));
+        System.out.println(M.copy().iadd(1.0f));
+        System.out.println(M);
 
-    // MArray M10 = MArray.Pow2.call(M2.reshape(4), null);
-    // MArray M11 = MArray.Add.reduce(M10, 0, null);
-    // MArray M12 = MArray.Div.inner(M10, M11, null);
-    // System.out.println(M10);
-    // System.out.println(M11);
-    // System.out.println(M12);
-    // }
+    }
+
+    @Test
+    public void testAdd() {
+        Tensor M1 = new Tensor(1).full(1.0f);
+        Tensor M2 = new Tensor(4).arrange(1, 1, 0);
+        Tensor M3 = new Tensor(4).create(2.0f, 3.0f, 4.0f, 5.0f);
+        assertTrue("M1 + M2 = [ 2.0f, 3.0f, 4.0f, 5.0f ]", M1.add(M2).equals(M3));
+        assertTrue("M2 + M1 = [ 2.0f, 3.0f, 4.0f, 5.0f ]", M2.add(M1).equals(M3));
+    }
+
+    @Test
+    public void testNorm() {
+        Tensor M = new Tensor(4, 4).arrange(1, 1, 1);
+        assertTrue("M.norm(1) = [ 5.477f, 5.477f, 5.477f, 5.477f ]", M.norm(1).equals(5.477f, 0.001f));
+    }
+
+    @Test
+    public void testAvg() {
+        Tensor M = new Tensor(4, 4).arrange(1, 1, 1);
+        assertTrue("M.avg(1) = [ 2.5f, 2.5f ,2.5f ,2.5f ]", M.avg(1).equals(2.5f));
+    }
+
+    @Test
+    public void testDot() {
+        Tensor M1 = new Tensor(4).arrange(1, 1, 0);
+        Tensor M2 = new Tensor(4).arrange(1, 1, 0);
+        assertTrue("M1.M2 = [ 30.0f ]", M1.dot(M2, -1).equals(30.0f));
+    }
+
+    @Test
+    public void testOuter() {
+        Tensor M1 = new Tensor(4).arrange(1, 1, 0).reshape(4, 1);
+        Tensor M2 = new Tensor(4).arrange(1, 1, 0).reshape(1, 4);
+        Tensor M3 = new Tensor(4, 4).create(new float[][] {
+            { 1.0f, 2.0f, 3.0f, 4.0f },
+            { 2.0f, 4.0f, 6.0f, 8.0f },
+            { 3.0f, 6.0f, 9.0f, 12.0f },
+            { 4.0f, 8.0f, 12.0f, 16.0f }
+        });
+        assertTrue("M1xM2 = " + M3, M1.outer(M2).equals(M3));
+    }
+
+    @Test
+    public void testMag() {
+        Tensor M1 = new Tensor(4).arrange(1, 1, 0);
+        Tensor M2 = new Tensor(4).arrange(1, 1, 0).imul(2.0f);
+        assertTrue("M1.distance(M2) = [ 5.477f ]", M1.mag(M2, -1).equals(5.477f, 0.001f));
+    }
 
     // @Test
     // public void testSpeed() {
