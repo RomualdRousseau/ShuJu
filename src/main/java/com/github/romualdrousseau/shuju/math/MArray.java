@@ -103,10 +103,12 @@ public class MArray {
 
         result[0] = 0;
         for (int i = 0; i < n; i++) {
-            result[0] += this.stride[i] * slice[i];
+            result[0] += this.stride[i] * slice[i * 2];
         }
 
-        System.arraycopy(slice, n, result, 1, n);
+        for (int i = 0; i < n; i++) {
+            result[1 + i] = slice[1 + i * 2];
+        }
 
         return result;
     }

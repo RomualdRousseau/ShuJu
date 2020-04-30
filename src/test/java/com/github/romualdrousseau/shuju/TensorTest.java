@@ -54,14 +54,15 @@ public class TensorTest {
 
     @Test
     public void testView() {
-        Tensor M = new Tensor(32).arrange(1, 1, 0).reshape(2, 4, 4);
-        Tensor V = M.get(0, 1, 1, 2, 2, 2).iadd(1.0f);
-        System.out.println(V);
-        System.out.println(V.arrange(1, 1, 2));
-        System.out.println(V.reshape(2, 1, 4).arrange(1, 1, 2).reshape(2, 2, 2));
-        System.out.println(M.copy().iadd(1.0f));
-        System.out.println(M);
-
+        Tensor M1 = new Tensor(16).arrange(1, 1, 0).reshape(4, 4);
+        M1.get(1,2, 1,2).iadd(1.0f);
+        Tensor M3 = new Tensor(4, 4).create(new float[][] {
+            { 1.0f, 2.0f, 3.0f, 4.0f },
+            { 5.0f, 7.0f, 8.0f, 8.0f },
+            { 9.0f, 11.0f, 12.0f, 12.0f },
+            { 13.0f, 14.0f, 15.0f, 16.0f }
+        });
+        assertTrue("M1[1:2, 1:2] + 1 = M3", M1.equals(M3));
     }
 
     @Test
