@@ -1,80 +1,107 @@
 package com.github.romualdrousseau.shuju.math;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 
 public class MArray {
 
     public static final int None = -1;
 
+    public enum Flag {
+        CONTINUOUS, OWNDATA;
+
+        public static final EnumSet<Flag> NONE = EnumSet.noneOf(Flag.class);
+        public static final EnumSet<Flag> ALL = EnumSet.allOf(Flag.class);
+    }
+
     public int size;
     public int[] shape;
     public int[] stride;
     public float[] data;
-    public boolean copied;
     public int base;
+    public EnumSet<Flag> flags;
 
     public MArray() {
+        this.shape = new int[1];
+
+        this.updateStrides();
+
+        this.updateSize();
+        this.data = new float[this.size];
+        this.base = 0;
+
+        this.flags = Flag.ALL;
     }
 
     public MArray(final int... shape) {
         this.shape = shape.clone();
-        this.updateSize();
+
         this.updateStrides();
-        this.data = new float[this.size];
-        this.base = None;
-        this.copied = false;
-    }
 
-    public MArray(MArray parent, final int... slice) {
-        this.shape = Arrays.copyOfRange(slice, 1, slice.length);
         this.updateSize();
+        this.data = new float[this.size];
+        this.base = 0;
 
-        this.stride = new int[this.shape.length];
-        for (int i = 0; i < this.shape.length; i++) {
-            this.stride[i] = parent.stride[i];
-        }
-
-        this.data = parent.data;
-        this.base = slice[0];
-        this.copied = false;
+        this.flags = Flag.ALL;
     }
 
     public MArray(MArray other) {
         this(other, false);
     }
 
-    public MArray(MArray other, boolean copy) {
+    private MArray(MArray parent, final int... args) {
+        this(parent, args[0], Arrays.copyOfRange(args, 1, args.length));
+    }
+
+    private MArray(MArray parent, final int base, final int... shape) {
+        this.shape = shape;
+
+        this.stride = parent.stride.clone();
+
+        this.size = parent.size;
+        this.data = parent.data;
+        this.base = base;
+
+        this.flags = EnumSet.of(Flag.OWNDATA);
+    }
+
+    private MArray(MArray other, boolean copy) {
         if (copy) {
             this.shape = other.shape.clone();
-            this.size = other.size;
+
             this.stride = other.stride.clone();
+
+            this.size = other.size;
             this.data = other.data;
             this.base = other.base;
-            this.copied = true;
+
+            this.flags = other.flags.clone();
+            this.flags.remove(Flag.OWNDATA);
         } else {
             this.shape = other.shape;
-            this.size = other.size;
+
             this.stride = other.stride;
+
+            this.size = other.size;
             this.data = other.data;
             this.base = other.base;
-            this.copied = other.copied;
+
+            this.flags = other.flags;
         }
     }
 
-    public float[] floats() {
+    public float[] items() {
         return this.data;
     }
 
-    public MArray setFloats(final float... data) {
-        assert (this.size == data.length);
-        this.dupDataIf(this.copied, false);
-        System.arraycopy(data, 0, this.data, Math.max(this.base, 0), data.length);
+    public MArray setItems(final float... data) {
+        this.require(Flag.OWNDATA, false);
+        System.arraycopy(data, 0, this.data, this.base, data.length);
         return this;
     }
 
-    public MArray setFloats(final float[][] data) {
-        assert (this.size == data.length * data[0].length);
-        this.dupDataIf(this.copied, false);
+    public MArray setItems(final float[][] data) {
+        this.require(Flag.OWNDATA, false);
         for (int i = 0; i < data.length; i++) {
             System.arraycopy(data[i], 0, this.data, i * data[0].length, data[0].length);
         }
@@ -82,82 +109,233 @@ public class MArray {
     }
 
     public float item(int off) {
-        return this.data[Math.max(this.base, 0) + off];
+        return this.data[this.base + off];
     }
 
     public MArray setItem(int off, float v) {
-        this.data[Math.max(this.base, 0) + off] = v;
+        this.data[this.base + off] = v;
         return this;
     }
 
     public int offset(int... indices) {
-        int result = 0;
+        int sum = 0;
         for (int i = 0; i < indices.length; i++) {
-            result += this.stride[i] * indices[i];
+            sum += this.stride[i] * indices[i];
         }
-        return result;
+        return sum;
     }
 
-    public int[] slicer(final int... slice) {
-        final int n = slice.length / 2;
+    public int[] slicer(final int... args) {
+        final int n = args.length / 2;
 
         int[] result = new int[1 + n];
 
+        // Calculate offset
+
         result[0] = 0;
         for (int i = 0; i < n; i++) {
-            result[0] += this.stride[i] * slice[i * 2];
+            result[0] += this.stride[i] * args[i * 2];
         }
 
+        // Extract shape
+
         for (int i = 0; i < n; i++) {
-            result[1 + i] = slice[1 + i * 2];
+            int shape = args[1 + i * 2];
+            result[1 + i] = (shape < 0) ? this.shape[i] : shape;
         }
 
         return result;
     }
 
     public boolean isNull() {
-        return this.shape == null || this.shape.length == 0;
+        return this.size == 0;
     }
 
-    public boolean equals(final float b) {
-        return this.equals(b, 0.0f);
+    public boolean isAligned(final MArray v) {
+        return this.flags.contains(Flag.CONTINUOUS) && v.flags.contains(Flag.CONTINUOUS)
+                && Arrays.equals(this.stride, v.stride);
+    }
+
+    public boolean dimEquals(final MArray v) {
+        return this.size == v.size && Arrays.equals(this.shape, v.shape);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof MArray) {
+            return this.equals((MArray) o, 0.0f);
+        } else if (o instanceof Float) {
+            return this.equals((float) o, 0.0f);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean equals(Object o, float e) {
+        if (o instanceof MArray) {
+            return this.equals((MArray) o, e);
+        } else if (o instanceof Float) {
+            return this.equals((float) o, e);
+        } else {
+            return false;
+        }
     }
 
     public boolean equals(final float b, final float e) {
-        return this._equals(0, Math.max(this.base, 0), b, e);
-    }
-
-    public boolean equals(final MArray v) {
-        return this.equals(v, 0.0f);
+        return this._equals(0, this.base, b, e);
     }
 
     public boolean equals(final MArray v, final float e) {
-        if (this.size != v.size || !Arrays.equals(this.shape, v.shape)) {
+        if (!this.dimEquals(v)) {
             return false;
         }
-        if (this.base == None && v.base == None && Arrays.equals(this.stride, v.stride)) {
+        if (this.isAligned(v) && e == 0.0f) {
             return Arrays.equals(this.data, v.data);
         } else {
-            return this._equals(0, Math.max(this.base, 0), v, Math.max(v.base, 0), e);
+            return this._equals(0, this.base, v, v.base, e);
         }
     }
 
-    public MArray resize(final int... shape) {
-        this.dupDataIf(this.base >= 0, true);
+    public MArray ravel() {
+        return this.reshape(-1);
+    }
+
+    public MArray squeeze() {
+        int newShapeSize = 0;
+        for (int i = 0; i < this.shape.length; i++) {
+            if (this.shape[i] != 1) {
+                newShapeSize++;
+            }
+        }
+
+        int[] newShape = new int[newShapeSize];
+        for (int i = 0, j = 0; i < this.shape.length; i++) {
+            if (this.shape[i] != 1) {
+                newShape[j++] = this.shape[i];
+            }
+        }
+
+        return this.reshape(newShape);
+    }
+
+    public MArray reshape(final int... shape) {
+
+        // Check if some dimension should be infered i.e. missing (= -1)
+
+        int size = 1;
+        int infered = 0;
+        for (int i = 0; i < shape.length; i++) {
+            if (shape[i] < 0) {
+                infered++;
+            } else {
+                size *= shape[i];
+            }
+        }
+
+        // Sanity checks
+
+        assert infered < 2 : "only one dimension can be infered";
+        assert infered == 0 && size == this.size || infered == 1 && size < this.size : "incompatible shapes";
+
+        if (infered == 1) {
+
+            // Infere the missing dimension
+
+            int delta = this.size;
+            for (int i = 0; i < shape.length; i++) {
+                if (shape[i] > 0) {
+                    delta /= shape[i];
+                }
+            }
+            if (delta > 0) {
+                for (int i = 0; i < shape.length; i++) {
+                    if (shape[i] < 0) {
+                        shape[i] = delta;
+                    }
+                }
+            }
+        }
+
+        this.require(Flag.CONTINUOUS, true);
+        // this.requireOwnDataIf(this.isview, true);
         this.shape = shape.clone();
         this.updateStrides();
         return this;
     }
 
     public MArray transpose() {
+
+        // Inverse all dimensions
+
         final int[] indices = new int[this.shape.length];
         for (int i = 0; i < indices.length; i++) {
             indices[i] = indices.length - i - 1;
         }
-        return this.transpose(indices);
+
+        return this._swapaxes(indices);
     }
 
     public MArray transpose(final int... indices) {
+        return this._swapaxes(indices);
+    }
+
+    public MArray view() {
+        return new MArray(this, 0, this.shape.clone());
+    }
+
+    public MArray view(final int... slice) {
+        return new MArray(this, this.slicer(slice));
+    }
+
+    public MArray copy() {
+        return new MArray(this, true);
+    }
+
+    public MArray asContinuousArray() {
+        MArray out = new MArray(this.shape);
+        this._deepcopy(0, this.base, out, out.base);
+        return out;
+    }
+
+    public MArray require(Flag flag, boolean copy) {
+        if (flag.equals(Flag.CONTINUOUS) && !this.flags.contains(Flag.CONTINUOUS)) {
+            final float[] data;
+            if (copy) {
+                data = this.asContinuousArray().data;
+            } else {
+                data = new float[this.size];
+            }
+
+            this.data = data;
+            this.base = 0;
+
+            this.flags.add(Flag.CONTINUOUS);
+        } else if (flag.equals(Flag.OWNDATA) && !this.flags.contains(Flag.OWNDATA)) {
+            final float[] data;
+            if (copy) {
+                data = this.data.clone();
+            } else {
+                data = new float[this.size];
+            }
+
+            this.data = data;
+            this.base = 0;
+
+            this.flags.add(Flag.OWNDATA);
+        }
+        return this;
+    }
+
+    public String toString() {
+        if (this.isNull()) {
+            return "[ ]";
+        }
+        final StringBuilder sb = new StringBuilder();
+        this._toString(0, this.base, sb, false, "%1$10.3f");
+        return sb.toString();
+    }
+
+    private MArray _swapaxes(final int... indices) {
         int swp;
 
         final int[] done = new int[indices.length];
@@ -184,41 +362,7 @@ public class MArray {
         return this;
     }
 
-    public MArray clone() {
-        return new MArray(this, true);
-    }
-
-    public MArray dup() {
-        MArray out = new MArray(this);
-        this._dup(0, Math.max(this.base, 0), out, Math.max(out.base, 0));
-        return out;
-    }
-
-    public MArray dupData(boolean copy) {
-        float[] data = new float[this.size];
-        if (copy) {
-            System.arraycopy(this.data, Math.max(this.base, 0), data, 0, this.size);
-        }
-        this.data = data;
-        this.base = None;
-        this.copied = false;
-        return this;
-    }
-
-    public MArray dupDataIf(boolean cond, boolean copy) {
-        if (cond) {
-            this.dupData(copy);
-        }
-        return this;
-    }
-
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        this._toString(0, Math.max(this.base, 0), sb, false, "%1$10.3f");
-        return sb.toString();
-    }
-
-    private void _dup(final int n, int off, final MArray b, int boff) {
+    private void _deepcopy(final int n, int off, final MArray b, int boff) {
         if (this.shape.length - n == 1) {
             for (int i = 0; i < this.shape[n]; i++) {
                 b.data[boff] = this.data[off];
@@ -227,7 +371,7 @@ public class MArray {
             }
         } else {
             for (int i = 0; i < this.shape[n]; i++) {
-                this._dup(n + 1, off, b, boff);
+                this._deepcopy(n + 1, off, b, boff);
                 off += this.stride[n];
                 boff += b.stride[n];
             }
@@ -295,8 +439,8 @@ public class MArray {
 
     private void updateSize() {
         this.size = 1;
-        for (final int s : this.shape) {
-            this.size *= s;
+        for (int i = 0; i < this.shape.length; i++) {
+            this.size *= this.shape[i];
         }
     }
 

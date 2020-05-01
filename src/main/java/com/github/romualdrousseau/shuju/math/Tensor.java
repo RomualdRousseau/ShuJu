@@ -6,14 +6,6 @@ public class Tensor extends MArray {
 
     public static final Tensor Null = new Tensor();
 
-    private Tensor _T = null;
-    public Tensor T() {
-        if(this._T == null) {
-            this._T = new Tensor(this.clone().transpose());
-        }
-        return this._T;
-    }
-
     public Tensor() {
     }
 
@@ -25,67 +17,90 @@ public class Tensor extends MArray {
         super(other);
     }
 
-    public Tensor ravel() {
-        return new Tensor(this.clone().resize(this.size));
+    public Tensor T() {
+        return (Tensor) super.transpose();
     }
 
+    @Override
+    public Tensor ravel() {
+        return (Tensor) super.ravel();
+    }
+
+    @Override
+    public Tensor squeeze() {
+        return (Tensor) super.squeeze();
+    }
+
+    @Override
     public Tensor reshape(final int... shape) {
-        return new Tensor(super.clone().resize(shape));
+        return (Tensor) super.reshape(shape);
     }
 
     @Override
     public Tensor transpose() {
-        return new Tensor(super.transpose());
+        return new Tensor(super.view().transpose());
     }
 
     @Override
     public Tensor transpose(final int... indices) {
-        return new Tensor(super.transpose(indices));
+        return new Tensor(super.view().transpose(indices));
     }
 
+    @Override
+    public Tensor view() {
+        return new Tensor(super.view());
+    }
+
+    @Override
+    public Tensor view(final int... slice) {
+        return new Tensor(super.view(slice));
+    }
+
+    @Override
     public Tensor copy() {
-        return new Tensor(this.clone());
-    }
-
-    public Tensor get(final int... slice) {
-        return new Tensor(new MArray(this, this.slicer(slice)));
-    }
-
-    public Tensor create(final float... data) {
-        return new Tensor(this.setFloats(data));
-    }
-
-    public Tensor create(final float[][] data) {
-        return new Tensor(this.setFloats(data));
+        return new Tensor(super.copy());
     }
 
     public Tensor zeros() {
-        return (Tensor) MFuncs.Full.outer(this, 0.0f, this);
+        return this.fill(0.0f);
     }
 
     public Tensor ones() {
-        return (Tensor) MFuncs.Full.outer(this, 1.0f, this);
+        return this.fill(1.0f);
     }
 
-    public Tensor full(final float v) {
-        return (Tensor) MFuncs.Full.outer(this, v, this);
-    }
-
-    public Tensor arrange(final int start, final int step, final int axis) {
-        if (step == 1) {
-            return ((Tensor) MFuncs.Inc.accumulate(this, start - 1, axis, this));
-        }
-        if (step == -1) {
-            return ((Tensor) MFuncs.Dec.accumulate(this, start + 1, axis, this));
-        }
-        if(step != 0) {
-            MFuncs.Inc.accumulate(this, -step / Math.abs(step), axis, this);
-            this.imul(step);
-        }
-        if(start != 0) {
-            this.iadd(start);
+    public Tensor fill(final float v) {
+        for(int i = 0; i < this.size; i++) {
+            this.setItem(i, v);
         }
         return this;
+    }
+
+    public Tensor fill(final float... data) {
+        return (Tensor) this.setItems(data);
+    }
+
+    public Tensor fill(final float[][] data) {
+        return (Tensor) this.setItems(data);
+    }
+
+    public Tensor repeat(final int n) {
+        int[] newShape = this.shape.clone();
+        newShape[0] *= n;
+        Tensor rep = new Tensor(n, 1).ones();
+        return rep.mul(this.copy().ravel()).reshape(newShape);
+    }
+
+    public Tensor arange(final float start, final float step) {
+        for(int i = 0; i < this.size; i++) {
+            this.setItem(i, start + i * step);
+        }
+        return this;
+    }
+
+    public Tensor linspace(final float start, final float stop) {
+        float step = (stop - start) / (float) (this.size - 1);
+        return arange(start, step);
     }
 
     public Tensor eye() {
@@ -245,7 +260,7 @@ public class Tensor extends MArray {
     }
 
     public Tensor similarity(final Tensor v, final int axis) {
-        if(this.sparsity(axis).equals(1.0f) || v.sparsity(axis).equals(1.0f)) {
+        if(this.sparsity(axis).equals(1.0f, 0.0f) || v.sparsity(axis).equals(1.0f, 0.0f)) {
             return new Tensor(this.shape).zeros();
         } else {
             return this.dot(v, axis).div(this.norm(axis).mul(v.norm(axis)));

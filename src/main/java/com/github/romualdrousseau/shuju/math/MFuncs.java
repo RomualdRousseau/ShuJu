@@ -2,10 +2,6 @@ package com.github.romualdrousseau.shuju.math;
 
 public class MFuncs {
 
-    public static final UFunc0 Full = new UFunc0((x, y) -> x);
-
-    public static final UFunc0 Random = new UFunc0((x, y) -> Scalar.random(x));
-
     public static final UFunc0 Chop = new UFunc0((x, y) -> (Scalar.abs(y) < x) ? 0.0f : x);
 
     public static final UFunc0 Inc = new UFunc0((x, y) -> x + 1.0f);

@@ -2,22 +2,16 @@ package com.github.romualdrousseau.shuju.math;
 
 import java.util.function.BiFunction;
 
-public class UFunc0 extends UFunc {
-
-    public static final int None = MArray.None;
-
-    public final BiFunction<Float, Float, Float> func;
+public class UFunc0 extends UFunc<Float> {
 
     public UFunc0(BiFunction<Float, Float, Float> func) {
-        this.func = func;
+        super(func);
     }
 
     @Override
     public MArray reduce(MArray a, final float initital, final int axis, MArray out) {
-        assert axis == None || axis >= 0 && axis < a.shape.length;
-
         if (out == null) {
-            if (a.shape.length == 1 || axis == None) {
+            if (axis == MArray.None || a.shape.length == 1) {
                 out = new MArray(1);
             } else {
                 int[] newShape = new int[a.shape.length - 1];
@@ -28,34 +22,24 @@ public class UFunc0 extends UFunc {
                 }
                 out = new MArray(newShape);
             }
-        } else if (a == out) {
-            out = a.dupDataIf(a.copied, true);
+        } else {
+            out.require(MArray.Flag.OWNDATA, false);
         }
 
-        if (axis == None && a.base == None) {
-            float acc = initital;
-            for (int i = 0; i < a.size; i++) {
-                acc = func.apply(acc, a.data[i]);
-                out.data[0] = acc;
-            }
-        } else {
-            this._reduce(0, 0, a, Math.max(a.base, 0), initital, axis, out, Math.max(out.base, 0));
-        }
+        this._reduce(0, 0, a, a.base, initital, axis, out, out.base);
 
         return out;
     }
 
     @Override
     public MArray accumulate(final MArray a, final float initital, final int axis, MArray out) {
-        assert axis >= 0 && axis < a.shape.length;
-
         if (out == null) {
             out = new MArray(a.shape);
-        } else if (a == out) {
-            out = a.dupDataIf(a.copied, true);
+        } else {
+            out.require(MArray.Flag.OWNDATA, false);
         }
 
-        this._accumulate(0, a, Math.max(a.base, 0), initital, axis, out, Math.max(out.base, 0));
+        this._accumulate(0, a, a.base, initital, axis, out, out.base);
 
         return out;
     }
@@ -64,37 +48,57 @@ public class UFunc0 extends UFunc {
     public MArray outer(final MArray a, final float b, MArray out) {
         if (out == null) {
             out = new MArray(a.shape);
-        } else if (a == out) {
-            out = a.dupDataIf(a.copied, true);
+        } else {
+            out.require(MArray.Flag.OWNDATA, false);
         }
 
-        if (a.base == None) {
-            for (int i = 0; i < a.size; i++) {
-                out.data[i] = this.func.apply(b, a.data[i]);
-            }
-        } else {
-            this._outer(0, a, Math.max(a.base, 0), b, out, Math.max(out.base, 0));
-        }
+        this._outer(0, a, a.base, b, out, out.base);
 
         return out;
     }
 
     @Override
     public MArray outer(final MArray a, final MArray b, MArray out) {
-        assert a.shape.length == b.shape.length;
-
-        if (out == null) {
-            int newShapeLen = a.shape.length;
-            int[] newShape = new int[newShapeLen];
-            for (int i = 0; i < newShapeLen; i++) {
-                newShape[i] = Math.max(a.shape[i], b.shape[i]);
-            }
-            out = new MArray(newShape);
-        } else if (a == out) {
-            out = a.dupDataIf(a.copied, true);
+        if(b.size == 1) {
+            return this.outer(a, b.item(0), out);
         }
 
-        this._outer(0, a, Math.max(a.base, 0), b, Math.max(b.base, 0), out, Math.max(out.base, 0));
+        MArray aa = a;
+        MArray bb = b;
+        int off = a.shape.length - b.shape.length;
+
+        if(off > 0) {
+
+            // Adjust shape of B by prepending ones as missing shapes
+
+            int[] newShape = new int[a.shape.length];
+            for (int i = 0; i < a.shape.length; i++) {
+                newShape[i] = (i < off) ? 1 : b.shape[i - off];
+            }
+            bb = b.view().reshape(newShape);
+        } else if (off < 0) {
+
+            // Adjust shape of A by prepending ones as missing shapes
+
+            off = -off;
+            int[] newShape = new int[b.shape.length];
+            for (int i = 0; i < b.shape.length; i++) {
+                newShape[i] = (i < off) ? 1 : a.shape[i - off];
+            }
+            aa = a.view().reshape(newShape);
+        }
+
+        if (out == null) {
+            int[] newShape = new int[aa.shape.length];
+            for (int i = 0; i < aa.shape.length; i++) {
+                newShape[i] = Math.max(aa.shape[i], bb.shape[i]);
+            }
+            out = new MArray(newShape);
+        } else {
+            out.require(MArray.Flag.OWNDATA, false);
+        }
+
+        this._outer(0, aa, aa.base, bb, bb.base, out, out.base);
 
         return out;
     }
@@ -112,7 +116,7 @@ public class UFunc0 extends UFunc {
         float acc;
         boolean terminated = false;
 
-        if (axis == None || n1 == axis) {
+        if (axis == MArray.None || n1 == axis) {
             bstr_i = 0;
             n2_i = n2;
         } else {
@@ -144,7 +148,7 @@ public class UFunc0 extends UFunc {
                 final int astr_ij = a.stride[n1 + 1];
                 final int bstr_ij;
 
-                if (axis == None || n1 + 1 == axis) {
+                if (axis == MArray.None || n1 + 1 == axis) {
                     bstr_ij = 0;
                 } else {
                     bstr_ij = b.stride[n2_i];
@@ -269,73 +273,6 @@ public class UFunc0 extends UFunc {
         }
     }
 
-    private void _outer(final int n, final MArray a, final int aoff, final float b, final MArray c, final int coff) {
-        final int cnt = a.shape.length - 1;
-        final int adim_i = a.shape[n];
-        final int cdim_i = c.shape[n];
-        final int astr_i;
-        final int cstr_i = c.stride[n];
-        int aoff_i = aoff;
-        int coff_i = coff;
-        boolean terminated = false;
-
-        if (adim_i == 1) {
-            astr_i = 0;
-        } else {
-            astr_i = a.stride[n];
-        }
-
-        switch (cnt - n + 1) {
-            case 1:
-
-                // Case for vector
-
-                for (int i = 0; i < cdim_i; i++) {
-                    c.data[coff_i] = func.apply(b, a.data[aoff_i]);
-                    aoff_i += astr_i;
-                    coff_i += cstr_i;
-                }
-
-                terminated = true;
-                break;
-
-            case 2:
-
-                // Case for Matrix
-
-                if (a.shape[n] == 1 && a.shape[n + 1] == 1) {
-                    final int cdim_ij = c.shape[n + 1];
-                    final int astr_ij = a.stride[n + 1];
-                    final int cstr_ij = c.stride[n + 1];
-                    for (int i = 0; i < cdim_i; i++) {
-                        int aoff_ij = aoff_i;
-                        int coff_ij = coff_i;
-                        for (int j = 0; j < cdim_ij; j++) {
-                            c.data[coff_ij] = func.apply(b, a.data[aoff_ij]);
-                            aoff_ij += astr_ij;
-                            coff_ij += cstr_ij;
-                        }
-                        aoff_i += astr_i;
-                        coff_i += cstr_i;
-                    }
-
-                    terminated = true;
-                }
-                break;
-        }
-
-        if (!terminated) {
-
-            // Recursively broadcast
-
-            for (int i = 0; i < cdim_i; i++) {
-                this._outer(n + 1, a, aoff_i, b, c, coff_i);
-                aoff_i += astr_i;
-                coff_i += cstr_i;
-            }
-        }
-    }
-
     private void _outer(final int n, final MArray a, final int aoff, final MArray b, final int boff, final MArray c,
             final int coff) {
         final int cnt = a.shape.length - 1;
@@ -378,30 +315,42 @@ public class UFunc0 extends UFunc {
 
             case 2:
 
-                // Case for Matrix
+                // Case for Matrix of same dimensions
 
-                if (a.shape[n] == b.shape[n] && a.shape[n + 1] == b.shape[n + 1]) {
-                    final int cdim_ij = c.shape[n + 1];
-                    final int astr_ij = a.stride[n + 1];
-                    final int bstr_ij = b.stride[n + 1];
-                    final int cstr_ij = c.stride[n + 1];
-                    for (int i = 0; i < cdim_i; i++) {
-                        int aoff_ij = aoff_i;
-                        int boff_ij = boff_i;
-                        int coff_ij = coff_i;
-                        for (int j = 0; j < cdim_ij; j++) {
-                            c.data[coff_ij] = func.apply(b.data[boff_ij], a.data[aoff_ij]);
-                            aoff_ij += astr_ij;
-                            boff_ij += bstr_ij;
-                            coff_ij += cstr_ij;
-                        }
-                        aoff_i += astr_i;
-                        boff_i += bstr_i;
-                        coff_i += cstr_i;
-                    }
+                final int adim_ij = a.shape[n + 1];
+                final int bdim_ij = b.shape[n + 1];
+                final int cdim_ij = c.shape[n + 1];
+                final int astr_ij;
+                final int bstr_ij;
+                final int cstr_ij = c.stride[n + 1];
 
-                    terminated = true;
+                if (bdim_ij < adim_ij) {
+                    astr_ij = a.stride[n + 1];
+                    bstr_ij = 0;
+                } else if (bdim_ij > adim_ij) {
+                    astr_ij = 0;
+                    bstr_ij = b.stride[n + 1];
+                } else {
+                    astr_ij = a.stride[n + 1];
+                    bstr_ij = b.stride[n + 1];
                 }
+
+                for (int i = 0; i < cdim_i; i++) {
+                    int aoff_ij = aoff_i;
+                    int boff_ij = boff_i;
+                    int coff_ij = coff_i;
+                    for (int j = 0; j < cdim_ij; j++) {
+                        c.data[coff_ij] = func.apply(b.data[boff_ij], a.data[aoff_ij]);
+                        aoff_ij += astr_ij;
+                        boff_ij += bstr_ij;
+                        coff_ij += cstr_ij;
+                    }
+                    aoff_i += astr_i;
+                    boff_i += bstr_i;
+                    coff_i += cstr_i;
+                }
+
+                terminated = true;
                 break;
         }
 
@@ -413,6 +362,43 @@ public class UFunc0 extends UFunc {
                 this._outer(n + 1, a, aoff_i, b, boff_i, c, coff_i);
                 aoff_i += astr_i;
                 boff_i += bstr_i;
+                coff_i += cstr_i;
+            }
+        }
+    }
+
+    private void _outer(final int n, final MArray a, final int aoff, final float b, final MArray c,
+            final int coff) {
+        final int cnt = a.shape.length - 1;
+        final int adim_i = a.shape[n];
+        final int cdim_i = c.shape[n];
+        final int astr_i;
+        final int cstr_i = c.stride[n];
+        int aoff_i = aoff;
+        int coff_i = coff;
+
+        if (adim_i == 1) {
+            astr_i = 0;
+        } else {
+            astr_i = a.stride[n];
+        }
+
+        if(cnt == n) {
+
+                // Case for vector
+
+                for (int i = 0; i < cdim_i; i++) {
+                    c.data[coff_i] = func.apply(b, a.data[aoff_i]);
+                    aoff_i += astr_i;
+                    coff_i += cstr_i;
+                }
+        } else {
+
+            // Recursively broadcast
+
+            for (int i = 0; i < cdim_i; i++) {
+                this._outer(n + 1, a, aoff_i, b, c, coff_i);
+                aoff_i += astr_i;
                 coff_i += cstr_i;
             }
         }
