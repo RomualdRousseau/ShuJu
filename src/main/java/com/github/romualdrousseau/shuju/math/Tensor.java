@@ -85,6 +85,7 @@ public class Tensor extends MArray {
     }
 
     public Tensor repeat(final int n) {
+        // TODO: faster repeat
         int[] newShape = this.shape.clone();
         newShape[0] *= n;
         Tensor rep = new Tensor(n, 1).ones();

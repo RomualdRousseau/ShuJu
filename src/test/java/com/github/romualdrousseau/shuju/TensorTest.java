@@ -63,10 +63,13 @@ public class TensorTest {
     @Test
     public void testView() {
         Tensor M1 = new Tensor(16).arange(1, 1).reshape(4, 4);
-        Tensor M2 = new Tensor(4, 4).fill(new float[][] { { 1.0f, 2.0f, 3.0f, 4.0f }, { 5.0f, 7.0f, 8.0f, 8.0f },
-                { 9.0f, 11.0f, 12.0f, 12.0f }, { 13.0f, 14.0f, 15.0f, 16.0f } });
-        assertEquals(M2.view(1, 2, 1, 2), M1.view(1, 2, 1, 2).iadd(1.0f));
-        assertEquals(M2, M1);
+        Tensor M2 = new Tensor(4, 4).fill(new float[][] {
+            { 1.0f, 2.0f, 3.0f, 4.0f },
+            { 5.0f, 7.0f, 8.0f, 8.0f },
+            { 9.0f, 11.0f, 12.0f, 12.0f },
+            { 13.0f, 14.0f, 15.0f, 16.0f } });
+        assertThat(M1.view(1, 2, 1, 2).iadd(1.0f), equalTo(M2.view(1, 2, 1, 2), 0.0f));
+        assertThat(M1, equalTo(M2, 0.0f));
     }
 
     @Test
@@ -134,37 +137,40 @@ public class TensorTest {
     public void testDot() {
         Tensor M1 = new Tensor(4).arange(1, 1);
         Tensor M2 = new Tensor(4).arange(1, 1);
-        assertTrue("M1.M2 = [ 30.0f ]", M1.dot(M2, 0).equals(30.0f, 0.0f));
+        assertThat(M1.dot(M2, 0), equalTo(30.0f, 0.0f));
     }
 
     @Test
     public void testOuter() {
         Tensor M1 = new Tensor(4, 1).arange(1, 1);
         Tensor M2 = new Tensor(4).arange(1, 1);
-        Tensor M3 = new Tensor(4, 4).fill(new float[][] { { 1.0f, 2.0f, 3.0f, 4.0f }, { 2.0f, 4.0f, 6.0f, 8.0f },
-                { 3.0f, 6.0f, 9.0f, 12.0f }, { 4.0f, 8.0f, 12.0f, 16.0f } });
-        assertTrue("M1xM2 = " + M3, M1.outer(M2).equals(M3));
+        Tensor M3 = new Tensor(4, 4).fill(new float[][] {
+            { 1.0f, 2.0f, 3.0f, 4.0f },
+            { 2.0f, 4.0f, 6.0f, 8.0f },
+            { 3.0f, 6.0f, 9.0f, 12.0f },
+            { 4.0f, 8.0f, 12.0f, 16.0f } });
+        assertThat(M1.outer(M2), equalTo(M3, 0.0f));
     }
 
     @Test
     public void testMag() {
         Tensor M1 = new Tensor(4).arange(1, 1);
         Tensor M2 = new Tensor(4).arange(2, 2);
-        assertTrue("M1.distance(M2) = [ 5.477f ]", M1.mag(M2, 0).equals(5.477f, 0.001f));
+        assertThat(M1.mag(M2, 0), equalTo(5.477f, 0.001f));
     }
 
     @Test
     public void testVar() {
         Tensor M1 = new Tensor(4).arange(1, 1);
-        assertTrue("M1.var() = [ 1.667f ]", M1.var(0).equals(1.667f, 0.001f));
+        assertThat(M1.var(0), equalTo(1.667f, 0.001f));
     }
 
     @Test
     public void testCov() {
         Tensor M1 = new Tensor(4).arange(1, 1);
         Tensor M2 = new Tensor(4).arange(2, 2);
-        assertTrue("M1.cov(M1) = [ 1.667f ]", M1.cov(M1, 0).equals(1.667f, 0.001f));
-        assertTrue("M1.cov(M2) = [ 3.333f ]", M1.cov(M2, 0).equals(3.333f, 0.001f));
+        assertThat(M1.cov(M1, 0), equalTo(1.667f, 0.001f));
+        assertThat(M1.cov(M2, 0), equalTo(3.333f, 0.001f));
     }
 
     // @Test
@@ -236,19 +242,19 @@ public class TensorTest {
         };
     }
 
-    private static Matcher<Tensor> notEqualTo(final Tensor expectedTensor, final float epsilon) {
-        return new BaseMatcher<Tensor>() {
-            @Override
-            public boolean matches(Object item) {
-                return !((Tensor) item).equals(expectedTensor, epsilon);
-            }
+    // private static Matcher<Tensor> notEqualTo(final Tensor expectedTensor, final float epsilon) {
+    //     return new BaseMatcher<Tensor>() {
+    //         @Override
+    //         public boolean matches(Object item) {
+    //             return !((Tensor) item).equals(expectedTensor, epsilon);
+    //         }
 
-            @Override
-            public void describeTo(Description description) {
-                description.appendText(expectedTensor.toString());
-            }
-        };
-    }
+    //         @Override
+    //         public void describeTo(Description description) {
+    //             description.appendText(expectedTensor.toString());
+    //         }
+    //     };
+    // }
 
     private static Matcher<Tensor> equalTo(final float expectedValue, final float epsilon) {
         return new BaseMatcher<Tensor>() {
