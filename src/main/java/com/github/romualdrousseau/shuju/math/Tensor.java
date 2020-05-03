@@ -18,7 +18,7 @@ public class Tensor extends MArray {
     }
 
     public Tensor T() {
-        return (Tensor) super.transpose();
+        return new Tensor(super.view().transpose());
     }
 
     @Override
@@ -38,12 +38,12 @@ public class Tensor extends MArray {
 
     @Override
     public Tensor transpose() {
-        return new Tensor(super.view().transpose());
+        return (Tensor) super.transpose();
     }
 
     @Override
     public Tensor transpose(final int... indices) {
-        return new Tensor(super.view().transpose(indices));
+        return (Tensor) super.transpose(indices);
     }
 
     @Override
@@ -220,6 +220,14 @@ public class Tensor extends MArray {
 
     public Tensor outer(final Tensor m) {
         return new Tensor(MFuncs.Mul.outer(this, m, null));
+    }
+
+    public Tensor argmax(final int axis) {
+        return new Tensor(MFuncs.ArgMax.reduce(this, Float.MIN_VALUE, axis, null));
+    }
+
+    public Tensor argmin(final int axis) {
+        return new Tensor(MFuncs.ArgMin.reduce(this, Float.MIN_VALUE, axis, null));
     }
 
     public Tensor max(final int axis) {

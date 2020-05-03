@@ -4,10 +4,16 @@ import java.util.function.BiFunction;
 
 public abstract class UFunc<T> {
 
-    public final BiFunction<T, T, T> func;
+    protected final BiFunction<T, T, T> func;
+    protected final boolean outputIndices;
 
     public UFunc(BiFunction<T, T, T> func) {
+        this(func, false);
+    }
+
+    public UFunc(BiFunction<T, T, T> func, boolean outputIndices) {
         this.func = func;
+        this.outputIndices = outputIndices;
     }
 
     public MArray inner(final MArray a, final float b, final float initital, final int axis, MArray out) {
@@ -25,6 +31,4 @@ public abstract class UFunc<T> {
     public abstract MArray outer(final MArray a, final float b,  MArray out);
 
     public abstract MArray outer(final MArray a, final MArray b, MArray out);
-
-
 }

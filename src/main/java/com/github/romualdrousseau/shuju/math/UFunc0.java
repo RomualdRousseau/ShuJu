@@ -8,6 +8,10 @@ public class UFunc0 extends UFunc<Float> {
         super(func);
     }
 
+    public UFunc0(BiFunction<Float, Float, Float> func, boolean outputIndices) {
+        super(func, outputIndices);
+    }
+
     @Override
     public MArray reduce(MArray a, final float initital, final int axis, MArray out) {
         if (out == null) {
@@ -34,16 +38,12 @@ public class UFunc0 extends UFunc<Float> {
 
             // Reduce the array as flatten
 
-            float acc = initital;
-            for (int i = 0; i < a.size; i++) {
-                acc = func.apply(acc, a.data[i]);
-                out.data[0] = acc;
-            }
+            this.applyAccFunc(a.size, a, 0, 1, out, 0, 0, initital);
         } else {
 
             // Reduce on one axis
 
-            this._reduceOnAxis(0, 0, a, a.base, initital, axis, out, out.base);
+            this.reduceOnAxis(0, 0, a, a.base, initital, axis, out, out.base);
         }
 
         return out;
@@ -55,7 +55,7 @@ public class UFunc0 extends UFunc<Float> {
             out = new MArray(a.shape);
         }
 
-        this._accumulateOnAxis(0, a, a.base, initital, axis, out, out.base);
+        this.accumulateOnAxis(0, a, a.base, initital, axis, out, out.base);
 
         return out;
     }
@@ -66,7 +66,7 @@ public class UFunc0 extends UFunc<Float> {
             out = new MArray(a.shape);
         }
 
-        this._outerScalar(0, a, a.base, b, out, out.base);
+        this.outerScalar(0, a, a.base, b, out, out.base);
 
         return out;
     }
@@ -80,7 +80,7 @@ public class UFunc0 extends UFunc<Float> {
             return this.outer(a, b.item(0), out);
         }
 
-        // Ensure both array has same shape by prepending ones
+        // Ensure both array has same shape
 
         MArray aa = a;
         MArray bb = b;
@@ -89,12 +89,12 @@ public class UFunc0 extends UFunc<Float> {
 
             // Expand shape of B by prepending ones as missing shapes
 
-            bb = b.view().expandDims(a.shape.length);
+            bb = b.view().expandShape(a.shape.length);
         } else if (b.shape.length > a.shape.length) {
 
             // Expand shape of A by prepending ones as missing shapes
 
-            aa = a.view().expandDims(b.shape.length);
+            aa = a.view().expandShape(b.shape.length);
         }
 
         if (out == null) {
@@ -105,136 +105,122 @@ public class UFunc0 extends UFunc<Float> {
             for (int i = 0; i < aa.shape.length; i++) {
                 newShape[i] = Math.max(aa.shape[i], bb.shape[i]);
             }
+
             out = new MArray(newShape);
         }
 
-        this._outerArray(0, aa, aa.base, bb, bb.base, out, out.base);
+        this.outerArray(0, aa, aa.base, bb, bb.base, out, out.base);
 
         return out;
     }
 
-    private void _reduceOnAxis(final int n1, final int n2, final MArray a, int aoff, final float initial, int axis,
+    private void reduceOnAxis(final int n1, final int n2, final MArray a, int aoff, final float initial, int axis,
             final MArray b, int boff) {
         final int cnt = a.shape.length - 1;
-        final int n1_i = n1 + 1;
-        final int n2_i;
-        final int dim_i;
-        final int astr_i;
-        final int bstr_i;
-        float acc;
+        final int n2_plus1;
+        final int dim;
+        final int astr;
+        final int bstr;
+
+        // Swap axis with the last dimension and then reduce the last dimension
 
         if (axis == n1) {
-            dim_i = a.shape[cnt];
-            astr_i = a.stride[cnt];
-            bstr_i = b.stride[b.shape.length - 1];
-            n2_i = n2;
+            dim = a.shape[cnt];
+            astr = a.stride[cnt];
+            bstr = b.stride[b.shape.length - 1];
+            n2_plus1 = n2;
         } else if (n1 == cnt) {
-            dim_i = a.shape[axis];
-            astr_i = a.stride[axis];
-            bstr_i = 0;
-            n2_i = n2;
+            dim = a.shape[axis];
+            astr = a.stride[axis];
+            bstr = 0;
+            n2_plus1 = n2;
         } else {
-            dim_i = a.shape[n1];
-            astr_i = a.stride[n1];
-            bstr_i = b.stride[n2];
-            n2_i = n2 + 1;
+            dim = a.shape[n1];
+            astr = a.stride[n1];
+            bstr = b.stride[n2];
+            n2_plus1 = n2 + 1;
         }
+
+        // Optimize vector and matrix, then recursively broadcast
 
         switch (cnt - n1 + 1) {
             case 1:
 
                 // Case for vector
 
-                acc = initial;
-                for (int i = 0; i < dim_i; i++) {
-                    acc = func.apply(acc, a.data[aoff]);
-                    b.data[boff] = acc;
-                    aoff += astr_i;
-                }
-
+                this.applyAccFunc(dim, a, aoff, astr, b, boff, 0, initial);
                 break;
 
             case 2:
 
                 // Case for matrix
 
-                final int dim_ij;
-                final int astr_ij;
-                final int bstr_ij;
+                final int dim_j;
+                final int astr_j;
+                final int bstr_j;
+
+                // Swap axis with the last dimension and then reduce the last dimension
 
                 if (cnt == n1 + 1) {
-                    dim_ij = a.shape[axis];
-                    astr_ij = a.stride[axis];
-                    bstr_ij = 0;
+                    dim_j = a.shape[axis];
+                    astr_j = a.stride[axis];
+                    bstr_j = 0;
                 } else {
-                    dim_ij = a.shape[n1 + 1];
-                    astr_ij = a.stride[n1 + 1];
-                    bstr_ij = b.stride[n2 + 1];
+                    dim_j = a.shape[n1 + 1];
+                    astr_j = a.stride[n1 + 1];
+                    bstr_j = b.stride[n2 + 1];
                 }
 
-                for (int i = 0; i < dim_i; i++) {
-                    int aoff_ij = aoff;
-                    int boff_ij = boff;
-                    acc = initial;
-                    for (int j = 0; j < dim_ij; j++) {
-                        acc = func.apply(acc, a.data[aoff_ij]);
-                        b.data[boff_ij] = acc;
-                        aoff_ij += astr_ij;
-                        boff_ij += bstr_ij;
-                    }
-                    aoff += astr_i;
-                    boff += bstr_i;
+                for (int i = 0; i < dim; i++) {
+                    this.applyAccFunc(dim_j, a, aoff, astr_j, b, boff, bstr_j, initial);
+                    aoff += astr;
+                    boff += bstr;
                 }
-
                 break;
 
             default:
 
                 // Recursively broadcast
 
-                for (int i = 0; i < dim_i; i++) {
-                    this._reduceOnAxis(n1_i, n2_i, a, aoff, initial, axis, b, boff);
-                    aoff += astr_i;
-                    boff += bstr_i;
+                for (int i = 0; i < dim; i++) {
+                    this.reduceOnAxis(n1 + 1, n2_plus1, a, aoff, initial, axis, b, boff);
+                    aoff += astr;
+                    boff += bstr;
                 }
         }
     }
 
-    private void _accumulateOnAxis(final int n, final MArray a, int aoff, final float initial, final int axis,
+    private void accumulateOnAxis(final int n, final MArray a, int aoff, final float initial, final int axis,
             final MArray b, int boff) {
         final int cnt = a.shape.length - 1;
-        final int dim_i;
-        final int astr_i;
-        final int bstr_i;
-        float acc;
+        final int dim;
+        final int astr;
+        final int bstr;
+
+        // Swap axis with the last dimension and then accumulate the last dimension
 
         if (axis < cnt && n == axis) {
-            dim_i = a.shape[cnt];
-            astr_i = a.stride[cnt];
-            bstr_i = b.stride[cnt];
+            dim = a.shape[cnt];
+            astr = a.stride[cnt];
+            bstr = b.stride[cnt];
         } else if (axis < cnt && n == cnt) {
-            dim_i = a.shape[axis];
-            astr_i = a.stride[axis];
-            bstr_i = b.stride[axis];
+            dim = a.shape[axis];
+            astr = a.stride[axis];
+            bstr = b.stride[axis];
         } else {
-            dim_i = a.shape[n];
-            astr_i = a.stride[n];
-            bstr_i = b.stride[n];
+            dim = a.shape[n];
+            astr = a.stride[n];
+            bstr = b.stride[n];
         }
+
+        // Optimize vector and matrix, then recursively broadcast
 
         switch (cnt - n + 1) {
             case 1:
 
                 // Case for vector
 
-                acc = initial;
-                for (int i = 0; i < dim_i; i++) {
-                    acc = func.apply(acc, a.data[aoff]);
-                    b.data[boff] = acc;
-                    aoff += astr_i;
-                    boff += bstr_i;
-                }
-
+                this.applyAccFunc(dim, a, aoff, astr, b, boff, bstr, initial);
                 break;
 
             case 2:
@@ -244,6 +230,8 @@ public class UFunc0 extends UFunc<Float> {
                 final int dim_ij;
                 final int astr_ij;
                 final int bstr_ij;
+
+                // Swap axis with the last dimension and then accumulate the last dimension
 
                 if (axis < cnt && n + 1 == cnt) {
                     dim_ij = a.shape[axis];
@@ -255,84 +243,73 @@ public class UFunc0 extends UFunc<Float> {
                     bstr_ij = b.stride[n + 1];
                 }
 
-                for (int i = 0; i < dim_i; i++) {
-                    int aoff_ij = aoff;
-                    int boff_ij = boff;
-                    acc = 0.0f;
-                    for (int j = 0; j < dim_ij; j++) {
-                        acc = func.apply(acc, a.data[aoff_ij]);
-                        b.data[boff_ij] = acc;
-                        aoff_ij += astr_ij;
-                        boff_ij += bstr_ij;
-                    }
-                    aoff += astr_i;
-                    boff += bstr_i;
+                for (int i = 0; i < dim; i++) {
+                    this.applyAccFunc(dim_ij, a, aoff, astr_ij, b, boff, bstr_ij, initial);
+                    aoff += astr;
+                    boff += bstr;
                 }
-
                 break;
 
             default:
 
                 // Recursively broadcast
 
-                for (int i = 0; i < dim_i; i++) {
-                    this._accumulateOnAxis(n + 1, a, aoff, initial, axis, b, boff);
-                    aoff += astr_i;
-                    boff += bstr_i;
+                for (int i = 0; i < dim; i++) {
+                    this.accumulateOnAxis(n + 1, a, aoff, initial, axis, b, boff);
+                    aoff += astr;
+                    boff += bstr;
                 }
         }
     }
 
-    private void _outerScalar(final int n, final MArray a, int aoff, final float b, final MArray c, int coff) {
+    private void outerScalar(final int n, final MArray a, int aoff, final float b, final MArray c, int coff) {
         final int cnt = a.shape.length - 1;
-        final int adim_i = a.shape[n];
-        final int cdim_i = c.shape[n];
-        final int astr_i;
-        final int cstr_i = c.stride[n];
-        if (adim_i == 1) {
-            astr_i = 0;
+        final int adim = a.shape[n];
+        final int cdim = c.shape[n];
+        final int astr;
+        final int cstr = c.stride[n];
+
+        // Calculate the right stride to avoid modulo in the loops
+        // Array dimensions must be broadcastable, i.e. same or 1
+
+        if (adim == 1) {
+            astr = 0;
         } else {
-            astr_i = a.stride[n];
+            astr = a.stride[n];
         }
+
+        // Optimize vector and matrix, then recursively broadcast
 
         switch (cnt - n + 1) {
             case 1:
 
                 // Case for vector
 
-                for (int i = 0; i < cdim_i; i++) {
-                    c.data[coff] = func.apply(b, a.data[aoff]);
-                    aoff += astr_i;
-                    coff += cstr_i;
-                }
-
+                this.applyFunc(cdim, a, aoff, astr, b, c, coff, cstr);
                 break;
 
             case 2:
 
                 // Case for Matrix
 
-                final int adim_ij = a.shape[n + 1];
-                final int cdim_ij = c.shape[n + 1];
-                final int astr_ij;
-                final int cstr_ij = c.stride[n + 1];
+                final int adim_j = a.shape[n + 1];
+                final int cdim_j = c.shape[n + 1];
+                final int astr_j;
+                final int cstr_j = c.stride[n + 1];
 
-                if (adim_ij == 1) {
-                    astr_ij = 0;
+                // Calculate the right stride to avoid modulo in the loops
+                // Array dimensions must be broadcastable, i.e. same or 1
+
+                if (adim_j == 1) {
+                    astr_j = 0;
                 } else {
-                    astr_ij = a.stride[n + 1];
+                    astr_j = a.stride[n + 1];
                 }
 
-                for (int i = 0; i < cdim_i; i++) {
-                    int aoff_ij = aoff;
-                    int coff_ij = coff;
-                    for (int j = 0; j < cdim_ij; j++) {
-                        c.data[coff_ij] = func.apply(b, a.data[aoff_ij]);
-                        aoff_ij += astr_ij;
-                        coff_ij += cstr_ij;
-                    }
-                    aoff += astr_i;
-                    coff += cstr_i;
+                for (int i = 0; i < cdim; i++) {
+                    this.applyFunc(cdim_j, a, aoff, astr_j, b, c, coff, cstr_j);
+                    aoff += astr;
+                    coff += cstr;
                 }
 
                 break;
@@ -341,98 +318,139 @@ public class UFunc0 extends UFunc<Float> {
 
                 // Recursively broadcast
 
-                for (int i = 0; i < cdim_i; i++) {
-                    this._outerScalar(n + 1, a, aoff, b, c, coff);
-                    aoff += astr_i;
-                    coff += cstr_i;
+                for (int i = 0; i < cdim; i++) {
+                    this.outerScalar(n + 1, a, aoff, b, c, coff);
+                    aoff += astr;
+                    coff += cstr;
                 }
         }
     }
 
-    private void _outerArray(final int n, final MArray a, int aoff, final MArray b, int boff, final MArray c,
-            int coff) {
+    private void outerArray(final int n, final MArray a, int aoff, final MArray b, int boff, final MArray c, int coff) {
         final int cnt = a.shape.length - 1;
-        final int adim_i = a.shape[n];
-        final int bdim_i = b.shape[n];
-        final int cdim_i = c.shape[n];
-        final int astr_i;
-        final int bstr_i;
-        final int cstr_i = c.stride[n];
+        final int adim = a.shape[n];
+        final int bdim = b.shape[n];
+        final int cdim = c.shape[n];
+        final int astr;
+        final int bstr;
+        final int cstr = c.stride[n];
 
-        if (bdim_i < adim_i) {
-            astr_i = a.stride[n];
-            bstr_i = 0;
-        } else if (bdim_i > adim_i) {
-            astr_i = 0;
-            bstr_i = b.stride[n];
+        // Calculate the right strides to avoid modulo in the loops
+        // Array dimensions must be broadcastable, i.e. same or 1
+
+        if (adim == 1) {
+            astr = 0;
+            bstr = b.stride[n];
+        } else if (bdim == 1) {
+            astr = a.stride[n];
+            bstr = 0;
         } else {
-            astr_i = a.stride[n];
-            bstr_i = b.stride[n];
+            astr = a.stride[n];
+            bstr = b.stride[n];
         }
+
+        // Optimize vector and matrix, then recursively broadcast
 
         switch (cnt - n + 1) {
             case 1:
 
                 // Case for vector
 
-                for (int i = 0; i < cdim_i; i++) {
-                    c.data[coff] = func.apply(b.data[boff], a.data[aoff]);
-                    aoff += astr_i;
-                    boff += bstr_i;
-                    coff += cstr_i;
-                }
-
+                this.applyFunc(cdim, a, aoff, astr, b, boff, bstr, c, coff, cstr);
                 break;
 
             case 2:
 
                 // Case for Matrix
 
-                final int adim_ij = a.shape[n + 1];
-                final int bdim_ij = b.shape[n + 1];
-                final int cdim_ij = c.shape[n + 1];
-                final int astr_ij;
-                final int bstr_ij;
-                final int cstr_ij = c.stride[n + 1];
+                final int adim_j = a.shape[n + 1];
+                final int bdim_j = b.shape[n + 1];
+                final int cdim_j = c.shape[n + 1];
+                final int astr_j;
+                final int bstr_j;
+                final int cstr_j = c.stride[n + 1];
 
-                if (bdim_ij < adim_ij) {
-                    astr_ij = a.stride[n + 1];
-                    bstr_ij = 0;
-                } else if (bdim_ij > adim_ij) {
-                    astr_ij = 0;
-                    bstr_ij = b.stride[n + 1];
+                // Calculate the right strides to avoid modulo in the loops
+                // Array dimensions must be broadcastable, i.e. same or 1
+
+                if (adim_j == 1) {
+                    astr_j = 0;
+                    bstr_j = b.stride[n + 1];
+                } else if (bdim_j == 1) {
+                    astr_j = a.stride[n + 1];
+                    bstr_j = 0;
                 } else {
-                    astr_ij = a.stride[n + 1];
-                    bstr_ij = b.stride[n + 1];
+                    astr_j = a.stride[n + 1];
+                    bstr_j = b.stride[n + 1];
                 }
 
-                for (int i = 0; i < cdim_i; i++) {
-                    int aoff_ij = aoff;
-                    int boff_ij = boff;
-                    int coff_ij = coff;
-                    for (int j = 0; j < cdim_ij; j++) {
-                        c.data[coff_ij] = func.apply(b.data[boff_ij], a.data[aoff_ij]);
-                        aoff_ij += astr_ij;
-                        boff_ij += bstr_ij;
-                        coff_ij += cstr_ij;
-                    }
-                    aoff += astr_i;
-                    boff += bstr_i;
-                    coff += cstr_i;
+                for (int i = 0; i < cdim; i++) {
+                    this.applyFunc(cdim_j, a, aoff, astr_j, b, boff, bstr_j, c, coff, cstr_j);
+                    aoff += astr;
+                    boff += bstr;
+                    coff += cstr;
                 }
-
                 break;
 
             default:
 
                 // Recursively broadcast
 
-                for (int i = 0; i < cdim_i; i++) {
-                    this._outerArray(n + 1, a, aoff, b, boff, c, coff);
-                    aoff += astr_i;
-                    boff += bstr_i;
-                    coff += cstr_i;
+                for (int i = 0; i < cdim; i++) {
+                    this.outerArray(n + 1, a, aoff, b, boff, c, coff);
+                    aoff += astr;
+                    boff += bstr;
+                    coff += cstr;
                 }
+        }
+    }
+
+    private void applyAccFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff,
+            final int bstr, float acc) {
+        if (this.outputIndices) {
+
+            // Apply func but output indices
+
+            int iacc = aoff;
+            for (int i = 0; i < dim; i++) {
+                final float oacc = acc;
+                acc = this.func.apply(acc, a.data[aoff]);
+                if (acc != oacc) {
+                    iacc = aoff;
+                }
+                b.data[boff] = iacc;
+                aoff += astr;
+                boff += bstr;
+            }
+        } else {
+
+            // Apply func
+
+            for (int i = 0; i < dim; i++) {
+                acc = func.apply(acc, a.data[aoff]);
+                b.data[boff] = acc;
+                aoff += astr;
+                boff += bstr;
+            }
+        }
+    }
+
+    private void applyFunc(final int dim, final MArray a, int aoff, final int astr, final float b, final MArray c,
+            int coff, final int cstr) {
+        for (int i = 0; i < dim; i++) {
+            c.data[coff] = func.apply(b, a.data[aoff]);
+            aoff += astr;
+            coff += cstr;
+        }
+    }
+
+    private void applyFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff,
+            final int bstr, final MArray c, int coff, final int cstr) {
+        for (int i = 0; i < dim; i++) {
+            c.data[coff] = func.apply(b.data[boff], a.data[aoff]);
+            aoff += astr;
+            boff += bstr;
+            coff += cstr;
         }
     }
 }

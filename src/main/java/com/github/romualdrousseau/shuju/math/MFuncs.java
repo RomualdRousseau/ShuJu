@@ -20,6 +20,10 @@ public class MFuncs {
 
     public static final UFunc0 Min = new UFunc0((x, y) -> x < y ? x : y);
 
+    public static final UFunc0 ArgMax = new UFunc0((x, y) -> x > y ? x : y, true);
+
+    public static final UFunc0 ArgMin = new UFunc0((x, y) -> x < y ? x : y, true);
+
     public static final UFunc0 Sqrt = new UFunc0((x, y) -> Scalar.sqrt(y));
 
     public static final UFunc0 InvSqrt = new UFunc0((x, y) -> 1.0f / (Scalar.sqrt(y) + Scalar.EPSILON));

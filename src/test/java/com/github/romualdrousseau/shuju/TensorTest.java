@@ -150,6 +150,16 @@ public class TensorTest {
     }
 
     @Test
+    public void testMin() {
+        Tensor M1 = new Tensor(4, 4).arange(1, 1);
+        Tensor M2 = new Tensor(4).fill(1, 2, 3, 4);
+        Tensor M3 = new Tensor(4).fill(1, 5, 9, 13);
+        assertThat(M1.min(-1), equalTo(1.0f, 0.0f));
+        assertThat(M1.min(0), equalTo(M2, 0.0f));
+        assertThat(M1.min(1), equalTo(M3, 0.0f));
+    }
+
+    @Test
     public void testMax() {
         Tensor M1 = new Tensor(4, 4).arange(1, 1);
         Tensor M2 = new Tensor(4).fill(13, 14, 15, 16);
@@ -160,14 +170,25 @@ public class TensorTest {
     }
 
     @Test
-    public void testMin() {
+    public void testArgMin() {
         Tensor M1 = new Tensor(4, 4).arange(1, 1);
-        Tensor M2 = new Tensor(4).fill(1, 2, 3, 4);
-        Tensor M3 = new Tensor(4).fill(1, 5, 9, 13);
-        assertThat(M1.min(-1), equalTo(1.0f, 0.0f));
-        assertThat(M1.min(0), equalTo(M2, 0.0f));
-        assertThat(M1.min(1), equalTo(M3, 0.0f));
+        Tensor M2 = new Tensor(4).fill(0, 1, 2, 3);
+        Tensor M3 = new Tensor(4).fill(0, 4, 8, 12);
+        assertThat(M1.argmin(-1), equalTo(0.0f, 0.0f));
+        assertThat(M1.argmin(0), equalTo(M2, 0.0f));
+        assertThat(M1.argmin(1), equalTo(M3, 0.0f));
     }
+
+    @Test
+    public void testArgMax() {
+        Tensor M1 = new Tensor(4, 4).arange(1, 1);
+        Tensor M2 = new Tensor(4).fill(12, 13, 14, 15);
+        Tensor M3 = new Tensor(4).fill(3, 7, 11, 15);
+        assertThat(M1.argmax(-1), equalTo(15.0f, 0.0f));
+        assertThat(M1.argmax(0), equalTo(M2, 0.0f));
+        assertThat(M1.argmax(1), equalTo(M3, 0.0f));
+    }
+
 
     @Test
     public void testAvg() {

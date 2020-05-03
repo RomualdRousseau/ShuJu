@@ -129,6 +129,22 @@ public class MArray {
         return sum;
     }
 
+    public int[] unravelOffset(final int offset) {
+        int[] result = new int[this.stride.length];
+        int rem = offset;
+        int j = this.stride.length - 1;
+        for (int i = this.stride.length - 1; i >= 0; i--) {
+            if(this.stride[i] > 1) {
+                // squeeze if stride of 1
+                result[j--] = rem % this.stride[i];
+            }
+            rem /= this.stride[i];
+
+        }
+        result[j] = rem;
+        return result;
+    }
+
     public int[] slicer(final int... args) {
         final int n = args.length / 2;
 
@@ -222,7 +238,7 @@ public class MArray {
         return this.reshape(newShape);
     }
 
-    public MArray expandDims(final int n) {
+    public MArray expandShape(final int n) {
         int delta = n - this.shape.length;
         if(delta <= 0) {
             return this;
