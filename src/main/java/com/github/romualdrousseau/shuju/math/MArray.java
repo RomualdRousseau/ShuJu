@@ -62,7 +62,11 @@ public class MArray {
         this.data = parent.data;
         this.base = base;
 
-        this.flags = EnumSet.of(Flag.OWNDATA);
+        if (this.base == 0) {
+            this.flags = EnumSet.of(Flag.CONTINUOUS);
+        } else {
+            this.flags = Flag.NONE;
+        }
     }
 
     private MArray(MArray other, boolean copy) {
@@ -218,6 +222,20 @@ public class MArray {
         return this.reshape(newShape);
     }
 
+    public MArray expandDims(final int n) {
+        int delta = n - this.shape.length;
+        if(delta <= 0) {
+            return this;
+        }
+
+        int[] newShape = new int[n];
+        for (int i = 0; i < n; i++) {
+            newShape[i] = (i < delta) ? 1 : this.shape[i - delta];
+        }
+
+        return this.reshape(newShape);
+    }
+
     public MArray reshape(final int... shape) {
 
         // Check if some dimension should be infered i.e. missing (= -1)
@@ -257,7 +275,6 @@ public class MArray {
         }
 
         this.require(Flag.CONTINUOUS, true);
-        // this.requireOwnDataIf(this.isview, true);
         this.shape = shape.clone();
         this.updateStrides();
         return this;

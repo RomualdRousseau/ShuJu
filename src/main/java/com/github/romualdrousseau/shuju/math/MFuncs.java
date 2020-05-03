@@ -16,9 +16,9 @@ public class MFuncs {
 
     public static final UFunc0 Div = new UFunc0((x, y) -> y / x);
 
-    public static final UFunc0 Max = new UFunc0((x, y) -> y > x ? y : x);
+    public static final UFunc0 Max = new UFunc0((x, y) -> x > y ? x : y);
 
-    public static final UFunc0 Min = new UFunc0((x, y) -> y < x ? y : x);
+    public static final UFunc0 Min = new UFunc0((x, y) -> x < y ? x : y);
 
     public static final UFunc0 Sqrt = new UFunc0((x, y) -> Scalar.sqrt(y));
 

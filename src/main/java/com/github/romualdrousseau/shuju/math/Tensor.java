@@ -104,14 +104,28 @@ public class Tensor extends MArray {
         return arange(start, step);
     }
 
-    public Tensor eye() {
-        this.zeros();
-        int[] indices = new int[this.shape.length];
+    public Tensor eye(final int k) {
+        assert (this.shape.length == 2);
         for(int i = 0; i < this.shape[0]; i++) {
-            for(int j = 0; j < this.shape.length; j++) {
-                indices[j] = i;
+            for(int j = 0; j < this.shape[1]; j++) {
+                if (i == j - k) {
+                    this.setItem(this.offset(i, j), 1);
+                } else {
+                    this.setItem(this.offset(i, j), 0);
+                }
             }
-            this.setItem(this.offset(indices), 1);
+        }
+        return this;
+    }
+
+    public Tensor oneHot(final int n) {
+        assert (this.shape.length == 1);
+        for(int i = 0; i < this.shape[0]; i++) {
+            if (i == n) {
+                this.setItem(i, 1);
+            } else {
+                this.setItem(i, 0);
+            }
         }
         return this;
     }
@@ -206,6 +220,14 @@ public class Tensor extends MArray {
 
     public Tensor outer(final Tensor m) {
         return new Tensor(MFuncs.Mul.outer(this, m, null));
+    }
+
+    public Tensor max(final int axis) {
+        return new Tensor(MFuncs.Max.reduce(this, Float.MIN_VALUE, axis, null));
+    }
+
+    public Tensor min(final int axis) {
+        return new Tensor(MFuncs.Min.reduce(this, Float.MAX_VALUE, axis, null));
     }
 
     public Tensor sum(final int axis) {

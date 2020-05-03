@@ -1,17 +1,19 @@
 package com.github.romualdrousseau.shuju;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.is;
 
 import com.github.romualdrousseau.shuju.math.Scalar;
 import com.github.romualdrousseau.shuju.math.Tensor;
+
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.junit.Test;
 
 public class TensorTest {
 
@@ -29,14 +31,29 @@ public class TensorTest {
     public void testZero() {
         Tensor M = new Tensor(4).zeros();
         assertThat(M, equalTo(0.0f, 0.0f));
-        assertThat(M, notEqualTo(1.0f, 0.0f));
+        assertThat(M, not(equalTo(1.0f, 0.0f)));
     }
 
     @Test
     public void testOne() {
         Tensor M = new Tensor(4).ones();
         assertThat(M, equalTo(1.0f, 0.0f));
-        assertThat(M, notEqualTo(0.0f, 0.0f));
+        assertThat(M, not(equalTo(0.0f, 0.0f)));
+    }
+
+    @Test
+    public void testEqual() {
+        Tensor M1 = new Tensor(4).arange(1, 1);
+        Tensor M2 = new Tensor(4).arange(1, 1);
+        Tensor M3 = new Tensor(4).ones();
+        Tensor M4 = new Tensor(4, 4).arange(1, 1);
+        assertThat(M1, equalTo(M1, 0.0f));
+        assertThat(M1, equalTo(M2, 0.0f));
+        assertThat(M2, equalTo(M1, 0.0f));
+        assertThat(M1, not(equalTo(M3, 0.0f)));
+        assertThat(M3, not(equalTo(M1, 0.0f)));
+        assertThat(M1, not(equalTo(M4, 0.0f)));
+        assertThat(M4, not(equalTo(M1, 0.0f)));
     }
 
     @Test
@@ -44,8 +61,8 @@ public class TensorTest {
         Tensor M1 = new Tensor(4).arange(1, 1);
         Tensor M2 = new Tensor(4).fill(1.0f, 2.0f, 3.0f, 4.0f);
         assertThat(M1, equalTo(M2, 0.0f));
-        assertThat(M1, notEqualTo(0.0f, 0.0f));
-        assertThat(M1, notEqualTo(1.0f, 0.0f));
+        assertThat(M1, is(not(equalTo(0.0f, 0.0f))));
+        assertThat(M1, is(not(equalTo(1.0f, 0.0f))));
     }
 
     @Test
@@ -118,13 +135,38 @@ public class TensorTest {
 
         assertEquals(M13, M9.add(M4));
         assertEquals(M13, M4.add(M9));
-
     }
 
     @Test
-    public void testNorm() {
-        Tensor M = new Tensor(1, 4).arange(1, 1).repeat(4);
-        assertThat(M.norm(1), equalTo(5.477f, 0.001f));
+    public void testSum() {
+        Tensor M1 = new Tensor(2, 2, 4).arange(1, 1);
+        Tensor M2 = new Tensor(2, 4).fill(10, 12, 14, 16, 18, 20, 22, 24);
+        Tensor M3 = new Tensor(2, 4).fill(6, 8, 10, 12, 22, 24, 26, 28);
+        Tensor M4 = new Tensor(2, 2).fill(10, 26, 42, 58);
+        assertThat(M1.sum(-1), equalTo(136.0f, 0.0f));
+        assertThat(M1.sum(0), equalTo(M2, 0.0f));
+        assertThat(M1.sum(1), equalTo(M3, 0.0f));
+        assertThat(M1.sum(2), equalTo(M4, 0.0f));
+    }
+
+    @Test
+    public void testMax() {
+        Tensor M1 = new Tensor(4, 4).arange(1, 1);
+        Tensor M2 = new Tensor(4).fill(13, 14, 15, 16);
+        Tensor M3 = new Tensor(4).fill(4, 8, 12, 16);
+        assertThat(M1.max(-1), equalTo(16.0f, 0.0f));
+        assertThat(M1.max(0), equalTo(M2, 0.0f));
+        assertThat(M1.max(1), equalTo(M3, 0.0f));
+    }
+
+    @Test
+    public void testMin() {
+        Tensor M1 = new Tensor(4, 4).arange(1, 1);
+        Tensor M2 = new Tensor(4).fill(1, 2, 3, 4);
+        Tensor M3 = new Tensor(4).fill(1, 5, 9, 13);
+        assertThat(M1.min(-1), equalTo(1.0f, 0.0f));
+        assertThat(M1.min(0), equalTo(M2, 0.0f));
+        assertThat(M1.min(1), equalTo(M3, 0.0f));
     }
 
     @Test
@@ -150,6 +192,12 @@ public class TensorTest {
             { 3.0f, 6.0f, 9.0f, 12.0f },
             { 4.0f, 8.0f, 12.0f, 16.0f } });
         assertThat(M1.outer(M2), equalTo(M3, 0.0f));
+    }
+
+    @Test
+    public void testNorm() {
+        Tensor M = new Tensor(1, 4).arange(1, 1).repeat(4);
+        assertThat(M.norm(1), equalTo(5.477f, 0.001f));
     }
 
     @Test
@@ -242,39 +290,11 @@ public class TensorTest {
         };
     }
 
-    // private static Matcher<Tensor> notEqualTo(final Tensor expectedTensor, final float epsilon) {
-    //     return new BaseMatcher<Tensor>() {
-    //         @Override
-    //         public boolean matches(Object item) {
-    //             return !((Tensor) item).equals(expectedTensor, epsilon);
-    //         }
-
-    //         @Override
-    //         public void describeTo(Description description) {
-    //             description.appendText(expectedTensor.toString());
-    //         }
-    //     };
-    // }
-
     private static Matcher<Tensor> equalTo(final float expectedValue, final float epsilon) {
         return new BaseMatcher<Tensor>() {
             @Override
             public boolean matches(Object item) {
                 return ((Tensor) item).equals(expectedValue, epsilon);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("[" + String.format("%1$10.3f", expectedValue).toString() + " ... ]");
-            }
-        };
-    }
-
-    private static Matcher<Tensor> notEqualTo(final float expectedValue, final float epsilon) {
-        return new BaseMatcher<Tensor>() {
-            @Override
-            public boolean matches(Object item) {
-                return !((Tensor) item).equals(expectedValue, epsilon);
             }
 
             @Override
