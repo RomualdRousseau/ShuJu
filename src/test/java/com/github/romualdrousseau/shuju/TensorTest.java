@@ -240,6 +240,11 @@ public class TensorTest {
         Tensor M2 = new Tensor(4).arange(2, 2);
         assertThat(M1.cov(M1, 0), equalTo(1.667f, 0.001f));
         assertThat(M1.cov(M2, 0), equalTo(3.333f, 0.001f));
+
+        Tensor X = new Tensor(3, 3).fill(0, 3, 4, 1, 2, 4, 3, 4, 5);
+        System.out.println(X);
+        System.out.println(X.cov(X, 0));
+        System.out.println(X.cov2(0));
     }
 
     // @Test

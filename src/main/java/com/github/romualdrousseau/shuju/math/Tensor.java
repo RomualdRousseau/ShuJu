@@ -264,6 +264,14 @@ public class Tensor extends MArray {
         return cov.idiv(n - 1);
     }
 
+    public Tensor cov2(final int axis) {
+        final float n = this.size;
+        final Tensor avg1 = this.avg(axis);
+        final Tensor tmp1 = this.sub(avg1);
+        final Tensor cov = new Tensor(MFuncs.Mul.outer(tmp1, tmp1.T(), null));
+        return cov.idiv(n - 1);
+    }
+
     public Tensor normSq(final int axis) {
         return new Tensor(MFuncs.SumSq.reduce(this, 0.0f, axis, null));
     }
