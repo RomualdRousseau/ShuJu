@@ -337,6 +337,31 @@ public class MArray {
         return new MArray(this, this.slicer(slice));
     }
 
+    public MArray repeat(final int n) {
+        int[] newShape = this.shape.clone();
+        newShape[0] *= n;
+
+        MArray newArray = new MArray(newShape);
+
+        for (int i = 0; i < n; i++) {
+            System.arraycopy(this.data, 0, newArray.data, i * this.data.length, this.data.length);
+        }
+
+        return newArray;
+    }
+
+    public MArray stack(final MArray m) {
+        int[] newShape = this.shape.clone();
+        newShape[0] += m.shape[0];
+
+        MArray newArray = new MArray(newShape);
+
+        System.arraycopy(this.data, 0, newArray.data, 0, this.data.length);
+        System.arraycopy(m.data, 0, newArray.data, this.data.length, m.data.length);
+
+        return newArray;
+    }
+
     public MArray copy() {
         return new MArray(this, true);
     }

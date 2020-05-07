@@ -57,6 +57,16 @@ public class Tensor extends MArray {
     }
 
     @Override
+    public Tensor repeat(final int n) {
+        return new Tensor(super.repeat(n));
+    }
+
+    @Override
+    public Tensor stack(final MArray v) {
+        return new Tensor(super.stack(v));
+    }
+
+    @Override
     public Tensor copy() {
         return new Tensor(super.copy());
     }
@@ -84,14 +94,6 @@ public class Tensor extends MArray {
         return (Tensor) this.setItems(data);
     }
 
-    public Tensor repeat(final int n) {
-        // TODO: faster repeat
-        int[] newShape = this.shape.clone();
-        newShape[0] *= n;
-        Tensor rep = new Tensor(n, 1).ones();
-        return rep.mul(this.copy().ravel()).reshape(newShape);
-    }
-
     public Tensor arange(final float start, final float step) {
         for(int i = 0; i < this.size; i++) {
             this.setItem(i, start + i * step);
@@ -105,7 +107,7 @@ public class Tensor extends MArray {
     }
 
     public Tensor eye(final int k) {
-        assert (this.shape.length == 2);
+        assert (this.shape.length == 2) : "Illegal shape";
         for(int i = 0; i < this.shape[0]; i++) {
             for(int j = 0; j < this.shape[1]; j++) {
                 if (i == j - k) {
@@ -119,7 +121,7 @@ public class Tensor extends MArray {
     }
 
     public Tensor oneHot(final int n) {
-        assert (this.shape.length == 1);
+        assert (this.shape.length == 1) : "Illegal shape";
         for(int i = 0; i < this.shape[0]; i++) {
             if (i == n) {
                 this.setItem(i, 1);
@@ -263,6 +265,8 @@ public class Tensor extends MArray {
     }
 
     public Tensor cov(final Tensor v, final int axis, final float ddof) {
+        assert (this.shape.length == v.shape.length) : "Illegal shape";
+
         final float n1 = (axis == -1) ? this.size : this.shape[axis];
         final Tensor avg1 = new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, true, null)).idiv(n1);
         final Tensor tmp1 = this.sub(avg1);
@@ -281,6 +285,8 @@ public class Tensor extends MArray {
     }
 
     public Tensor cov2(final Tensor v, final int axis, final float ddof) {
+        assert (this.shape.length == v.shape.length) : "Illegal shape";
+
         final float n1 = (axis == -1) ? this.size : this.shape[axis];
         final Tensor avg1 = new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, true, null)).idiv(n1);
         final Tensor tmp1 = this.sub(avg1);

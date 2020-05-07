@@ -1,6 +1,5 @@
 package com.github.romualdrousseau.shuju;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -107,34 +106,34 @@ public class TensorTest {
         Tensor M12 = new Tensor(4, 4).arange(2, 1);
         Tensor M13 = new Tensor(2, 4, 4).arange(2, 1);
 
-        assertEquals(M10, M6.add(M1));
-        assertEquals(M10, M1.add(M6));
-        assertEquals(M11, M7.add(M1));
-        assertEquals(M11, M1.add(M7));
-        assertEquals(M12, M8.add(M1));
-        assertEquals(M12, M1.add(M8));
-        assertEquals(M13, M9.add(M1));
-        assertEquals(M13, M1.add(M9));
+        assertThat(M6.add(M1), equalTo(M10, 0.0f));
+        assertThat(M1.add(M6), equalTo(M10, 0.0f));
+        assertThat(M7.add(M1), equalTo(M11, 0.0f));
+        assertThat(M1.add(M7), equalTo(M11, 0.0f));
+        assertThat(M8.add(M1), equalTo(M12, 0.0f));
+        assertThat(M1.add(M8), equalTo(M12, 0.0f));
+        assertThat(M9.add(M1), equalTo(M13, 0.0f));
+        assertThat(M1.add(M9), equalTo(M13, 0.0f));
 
-        assertEquals(M11, M7.add(M2));
-        assertEquals(M11, M2.add(M7));
-        assertEquals(M12, M8.add(M2));
-        assertEquals(M12, M2.add(M8));
-        assertEquals(M13, M9.add(M2));
-        assertEquals(M13, M2.add(M9));
+        assertThat(M7.add(M2), equalTo(M11, 0.0f));
+        assertThat(M2.add(M7), equalTo(M11, 0.0f));
+        assertThat(M8.add(M2), equalTo(M12, 0.0f));
+        assertThat(M2.add(M8), equalTo(M12, 0.0f));
+        assertThat(M9.add(M2), equalTo(M13, 0.0f));
+        assertThat(M2.add(M9), equalTo(M13, 0.0f));
 
-        assertEquals(M12, M8.add(M2a));
-        assertEquals(M12, M2a.add(M8));
-        assertEquals(M13, M9.add(M2a));
-        assertEquals(M13, M2a.add(M9));
+        assertThat(M8.add(M2a), equalTo(M12, 0.0f));
+        assertThat(M2a.add(M8), equalTo(M12, 0.0f));
+        assertThat(M9.add(M2a), equalTo(M13, 0.0f));
+        assertThat(M2a.add(M9), equalTo(M13, 0.0f));
 
-        assertEquals(M12, M8.add(M3));
-        assertEquals(M12, M3.add(M8));
-        assertEquals(M13, M9.add(M3));
-        assertEquals(M13, M3.add(M9));
+        assertThat(M8.add(M3), equalTo(M12, 0.0f));
+        assertThat(M3.add(M8), equalTo(M12, 0.0f));
+        assertThat(M9.add(M3), equalTo(M13, 0.0f));
+        assertThat(M3.add(M9), equalTo(M13, 0.0f));
 
-        assertEquals(M13, M9.add(M4));
-        assertEquals(M13, M4.add(M9));
+        assertThat(M9.add(M4), equalTo(M13, 0.0f));
+        assertThat(M4.add(M9), equalTo(M13, 0.0f));
     }
 
     @Test
@@ -238,17 +237,13 @@ public class TensorTest {
     public void testCov() {
         Tensor M1 = new Tensor(4).arange(1, 1);
         Tensor M2 = new Tensor(4).arange(2, 2);
+        Tensor M3 = new Tensor(2, 3).fill(-2.1f, -1, 4.3f, 3, 1.1f,  0.12f);
+        Tensor M4 = new Tensor(3, 3).fill(13.005f, 5.355f, -10.659f, 5.355f, 2.205f, -4.389f, -10.659f, -4.389f, 8.736f);
+        Tensor M5 = new Tensor(2, 2).fill(11.71f, -4.286f, -4.286f, 2.144f);
         assertThat(M1.cov(M1, 0, 1), equalTo(1.667f, 0.001f));
         assertThat(M1.cov(M2, 0, 1), equalTo(3.333f, 0.001f));
-
-        Tensor X = new Tensor(2, 3).fill(-2.1f, -1, 4.3f, 3, 1.1f,  0.12f);
-        System.out.println(X.cov(X, 1, 1));
-        System.out.println(X.cov2(X, 1, 1));
-        System.out.println(X.var(1, 1));
-
-        System.out.println(X.cov(X, 0, 1));
-        System.out.println(X.cov2(X, 0, 1));
-        System.out.println(X.var(0, 1));
+        assertThat(M3.cov2(M3, 0, 1), equalTo(M4, 0.001f));
+        assertThat(M3.cov2(M3, 1, 1), equalTo(M5, 0.001f));
     }
 
     @Test
