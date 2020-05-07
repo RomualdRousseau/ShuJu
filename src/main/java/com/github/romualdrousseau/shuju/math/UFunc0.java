@@ -4,8 +4,8 @@ import java.util.function.BiFunction;
 
 public class UFunc0 extends UFunc<Float> {
 
-    public UFunc0(BiFunction<Float, Float, Float> func) {
-        super(func);
+    public UFunc0(final BiFunction<Float, Float, Float> func) {
+        super(func, 1);
     }
 
     @Override

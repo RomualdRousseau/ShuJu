@@ -239,14 +239,31 @@ public class MArray {
     }
 
     public MArray expandShape(final int n) {
+        return this.expandShape(n, false);
+    }
+
+    public MArray expandShape(final int n, boolean append) {
         int delta = n - this.shape.length;
         if(delta <= 0) {
             return this;
         }
 
         int[] newShape = new int[n];
-        for (int i = 0; i < n; i++) {
-            newShape[i] = (i < delta) ? 1 : this.shape[i - delta];
+
+        if (append) {
+            for (int i = 0; i < this.shape.length; i++) {
+                newShape[i] = this.shape[i];
+            }
+            for (int i = this.shape.length; i < n; i++) {
+                newShape[i] = 1;
+            }
+        } else {
+            for (int i = 0; i < delta; i++) {
+                newShape[i] = 1;
+            }
+            for (int i = delta; i < n; i++) {
+                newShape[i] = this.shape[i - delta];
+            }
         }
 
         return this.reshape(newShape);

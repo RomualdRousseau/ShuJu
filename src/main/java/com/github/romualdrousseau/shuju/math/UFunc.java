@@ -6,6 +6,7 @@ import java.util.function.BiFunction;
 public abstract class UFunc<T> {
 
     protected final BiFunction<T, T, T> func;
+    protected final int minShape;
 
     protected abstract void applyAccFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff, final int bstr, final float initital);
 
@@ -13,14 +14,15 @@ public abstract class UFunc<T> {
 
     protected abstract void applyFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff, final int bstr, final MArray c, int coff, final int cstr);
 
-    public UFunc(BiFunction<T, T, T> func) {
+    public UFunc(final BiFunction<T, T, T> func, final int minShape) {
         this.func = func;
+        this.minShape = minShape;
     }
 
-    public MArray reduce(MArray a, final float initital, final int axis, MArray out) {
+    public MArray reduce(MArray a, final float initital, final int axis, final boolean keepShape, MArray out) {
         assert (axis == MArray.None || axis >= 0 && axis < a.shape.length) : "Illegal axis";
 
-        int[] outShape = this.reduceShape(a, axis);
+        int[] outShape = this.reduceShape(a, axis, keepShape);
         assert (out == null || Arrays.equals(out.shape, outShape)) : "Illegal out shape";
 
         if (out == null) {
@@ -68,6 +70,13 @@ public abstract class UFunc<T> {
     }
 
     public MArray outer(final MArray a, final MArray b, MArray out) {
+        if (a.size == 1) {
+
+            // Outer with a scalar if a has only one item
+
+            return this.outer(b, a.item(0), out);
+        }
+
         if (b.size == 1) {
 
             // Outer with a scalar if b has only one item
@@ -80,16 +89,32 @@ public abstract class UFunc<T> {
         MArray aa = a;
         MArray bb = b;
 
-        if (a.shape.length > b.shape.length) {
-
-            // Expand shape of B by prepending ones as missing shapes
-
-            bb = b.view().expandShape(a.shape.length);
-        } else if (b.shape.length > a.shape.length) {
+        if (aa.shape.length < this.minShape) {
 
             // Expand shape of A by prepending ones as missing shapes
 
-            aa = a.view().expandShape(b.shape.length);
+            aa = aa.view().expandShape(2, false);
+        }
+
+        if (bb.shape.length < this.minShape) {
+
+            // Expand shape of B by appending ones as missing shapes
+
+            bb = bb.view().expandShape(2, true);
+        }
+
+        if (aa.shape.length < bb.shape.length) {
+
+            // Expand shape of A by prepending ones as missing shapes
+
+            aa = aa.view().expandShape(bb.shape.length,  false);
+        }
+
+        if (bb.shape.length < aa.shape.length) {
+
+            // Expand shape of B by prepending ones as missing shapes
+
+            bb = bb.view().expandShape(aa.shape.length, false);
         }
 
         int[] outShape = outerShape(aa, bb);
@@ -104,16 +129,23 @@ public abstract class UFunc<T> {
         return out;
     }
 
-    public MArray inner(final MArray a, final float b, final float initital, final int axis, MArray out) {
-        return MFuncs.Add.reduce(this.outer(a, b, null), initital, axis, out);
+    public MArray inner(final MArray a, final float b, final float initital, final int axis, final boolean keepShape, MArray out) {
+        return MFuncs.Add.reduce(this.outer(a, b, null), initital, axis, keepShape, out);
     }
 
-    public MArray inner(final MArray a, final MArray b, final float initital, final int axis, MArray out) {
-        return MFuncs.Add.reduce(this.outer(a, b, null), initital, axis, out);
+    public MArray inner(final MArray a, final MArray b, final float initital, final int axis, final boolean keepShape, MArray out) {
+        return MFuncs.Add.reduce(this.outer(a, b, null), initital, axis, keepShape, out);
     }
 
-    private int[] reduceShape(MArray a, int axis) {
-        if (axis == MArray.None || a.shape.length == 1) {
+    private int[] reduceShape(final MArray a, final int axis, final boolean keepShape) {
+        if(keepShape) {
+
+            // shape axis is simply put at 1
+
+            int[] newShape = a.shape.clone();
+            newShape[axis] = 1;
+            return newShape;
+        } else if (axis == MArray.None || a.shape.length == 1) {
 
             // shape is reduced to one dimension
 

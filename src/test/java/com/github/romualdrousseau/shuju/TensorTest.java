@@ -231,89 +231,33 @@ public class TensorTest {
     @Test
     public void testVar() {
         Tensor M1 = new Tensor(4).arange(1, 1);
-        assertThat(M1.var(0), equalTo(1.667f, 0.001f));
+        assertThat(M1.var(0, 1), equalTo(1.667f, 0.001f));
     }
 
     @Test
     public void testCov() {
         Tensor M1 = new Tensor(4).arange(1, 1);
         Tensor M2 = new Tensor(4).arange(2, 2);
-        assertThat(M1.cov(M1, 0), equalTo(1.667f, 0.001f));
-        assertThat(M1.cov(M2, 0), equalTo(3.333f, 0.001f));
+        assertThat(M1.cov(M1, 0, 1), equalTo(1.667f, 0.001f));
+        assertThat(M1.cov(M2, 0, 1), equalTo(3.333f, 0.001f));
 
-        Tensor X = new Tensor(3, 3).fill(0, 3, 4, 1, 2, 4, 3, 4, 5);
-        System.out.println(X);
-        System.out.println(X.cov(X, 0));
-        System.out.println(X.cov2(0));
+        Tensor X = new Tensor(2, 3).fill(-2.1f, -1, 4.3f, 3, 1.1f,  0.12f);
+        System.out.println(X.cov(X, 1, 1));
+        System.out.println(X.cov2(X, 1, 1));
+        System.out.println(X.var(1, 1));
+
+        System.out.println(X.cov(X, 0, 1));
+        System.out.println(X.cov2(X, 0, 1));
+        System.out.println(X.var(0, 1));
     }
 
-    // @Test
-    // public void testSpeed() {
-    // final int w = 1024;
-    // float[] a = new float[w * w];
-    // float[] b = new float[w * w];
-    // float[] c = new float[w * w];
-
-    // long start = System.currentTimeMillis();
-    // for(int k = 0; k < 10; k++) {
-    // for(int i = 0; i < w; i++) {
-    // for(int j = 0; j < w; j++) {
-    // for(int l = 0; l < w; l++) {
-    // c[i * w + j] = Math.fma(a[i * w + j], b[l * w + j], c[i * w + j]);
-    // }
-    // }
-    // }
-    // }
-    // long end = System.currentTimeMillis();
-    // float time = (float) (end - start) / 10.0f;
-    // System.out.println("loop took " + time + "ms");
-
-    // start = System.currentTimeMillis();
-    // for(int k = 0; k < 10; k++) {
-    // for(int i = 0; i < w; i++) {
-    // for(int l = 0; l < w; l++) {
-    // fmav(w, a, i * w, b, l * w, c, i * w);
-    // }
-    // }
-    // }
-    // end = System.currentTimeMillis();
-    // time = (float) (end - start) / 10.0f;
-    // System.out.println("loop took " + time + "ms");
-    // }
-
-    // private void fmav(final int n, final float[] a, final int oa, final float[]
-    // b, final int ob, final float c[], final int oc) {
-    // final float[] tmpA = new float[8];
-    // final float[] tmpB = new float[8];
-    // final float[] tmpC = new float[8];
-    // for(int j = 0; j < n; j+=8) {
-    // System.arraycopy(a, oa + j, tmpA, 0, 8);
-    // System.arraycopy(b, ob + j, tmpB, 0, 8);
-    // System.arraycopy(c, oc + j, tmpC, 0, 8);
-    // tmpC[0] = Math.fma(tmpA[0], tmpB[0], tmpC[0]);
-    // tmpC[1] = Math.fma(tmpA[1], tmpB[1], tmpC[1]);
-    // tmpC[2] = Math.fma(tmpA[2], tmpB[2], tmpC[2]);
-    // tmpC[3] = Math.fma(tmpA[3], tmpB[3], tmpC[3]);
-    // tmpC[4] = Math.fma(tmpA[4], tmpB[4], tmpC[4]);
-    // tmpC[5] = Math.fma(tmpA[5], tmpB[5], tmpC[5]);
-    // tmpC[6] = Math.fma(tmpA[6], tmpB[5], tmpC[6]);
-    // tmpC[7] = Math.fma(tmpA[7], tmpB[5], tmpC[7]);
-    // System.arraycopy(tmpC, 0, c, oc + j, 8);
-    // }
-    // }
-
-    private static Matcher<Tensor> equalTo(final Tensor expectedTensor, final float epsilon) {
-        return new BaseMatcher<Tensor>() {
-            @Override
-            public boolean matches(Object item) {
-                return ((Tensor) item).equals(expectedTensor, epsilon);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText(expectedTensor.toString());
-            }
-        };
+    @Test
+    public void testMatMul() {
+        Tensor M1 = new Tensor(2, 3).fill(1, 2, 3, 4, 5, 6).repeat(2).reshape(2, 2, 3);
+        Tensor M2 = new Tensor(3, 3).fill(1, 1, 1, 0, 1, 0, 1, 1, 1);
+        Tensor M3 = new Tensor(2, 2, 3).fill(4, 6, 4, 10, 15, 10, 4, 6, 4, 10, 15, 10);
+        assertThat(M1.matmul(new Tensor(3, 3).eye(0)), equalTo(M1, 0.0f));
+        assertThat(M1.matmul(M2), equalTo(M3, 0.0f));
     }
 
     private static Matcher<Tensor> equalTo(final float expectedValue, final float epsilon) {
@@ -326,6 +270,20 @@ public class TensorTest {
             @Override
             public void describeTo(Description description) {
                 description.appendText("[" + String.format("%1$10.3f", expectedValue).toString() + " ... ]");
+            }
+        };
+    }
+
+    private static Matcher<Tensor> equalTo(final Tensor expectedTensor, final float epsilon) {
+        return new BaseMatcher<Tensor>() {
+            @Override
+            public boolean matches(Object item) {
+                return ((Tensor) item).equals(expectedTensor, epsilon);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(expectedTensor.toString());
             }
         };
     }

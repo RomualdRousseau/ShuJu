@@ -13,7 +13,7 @@ public class Tensor extends MArray {
         super(shape);
     }
 
-    private Tensor(MArray other) {
+    public Tensor(MArray other) {
         super(other);
     }
 
@@ -206,6 +206,14 @@ public class Tensor extends MArray {
         return new Tensor(MFuncs.Sqrt.outer(this, 0.0f, null));
     }
 
+    public Tensor isquare() {
+        return (Tensor) MFuncs.Square.outer(this, 0.0f, this);
+    }
+
+    public Tensor square() {
+        return new Tensor(MFuncs.Square.outer(this, 0.0f, null));
+    }
+
     public Tensor ipow(final float n) {
         return (Tensor) MFuncs.Sqrt.outer(this, n, this);
     }
@@ -215,7 +223,7 @@ public class Tensor extends MArray {
     }
 
     public Tensor dot(final Tensor m, final int axis) {
-        return new Tensor(MFuncs.Mul.inner(this, m, 0.0f, axis, null));
+        return new Tensor(MFuncs.Mul.inner(this, m, 0.0f, axis, false, null));
     }
 
     public Tensor outer(final Tensor m) {
@@ -223,23 +231,23 @@ public class Tensor extends MArray {
     }
 
     public Tensor argmax(final int axis) {
-        return new Tensor(MFuncs.ArgMax.reduce(this, Float.MIN_VALUE, axis, null));
+        return new Tensor(MFuncs.ArgMax.reduce(this, Float.MIN_VALUE, axis, false, null));
     }
 
     public Tensor argmin(final int axis) {
-        return new Tensor(MFuncs.ArgMin.reduce(this, Float.MIN_VALUE, axis, null));
+        return new Tensor(MFuncs.ArgMin.reduce(this, Float.MIN_VALUE, axis, false, null));
     }
 
     public Tensor max(final int axis) {
-        return new Tensor(MFuncs.Max.reduce(this, Float.MIN_VALUE, axis, null));
+        return new Tensor(MFuncs.Max.reduce(this, Float.MIN_VALUE, axis, false, null));
     }
 
     public Tensor min(final int axis) {
-        return new Tensor(MFuncs.Min.reduce(this, Float.MAX_VALUE, axis, null));
+        return new Tensor(MFuncs.Min.reduce(this, Float.MAX_VALUE, axis, false, null));
     }
 
     public Tensor sum(final int axis) {
-        return new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, null));
+        return new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, false, null));
     }
 
     public Tensor avg(final int axis) {
@@ -247,33 +255,57 @@ public class Tensor extends MArray {
         return this.sum(axis).idiv(b);
     }
 
-    public Tensor var(final int axis) {
+    public Tensor var(final int axis, final float ddof) {
         final float n = (axis == -1) ? this.size : this.shape[axis];
-        final Tensor avg = this.avg(axis);
-        final Tensor var = new Tensor(MFuncs.MagSq.inner(this, avg, 0.0f, axis, null));
-        return var.idiv(n - 1);
+        final Tensor avg = new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, true, null)).idiv(n);
+        final Tensor var = new Tensor(MFuncs.MagSq.inner(this, avg, 0.0f, axis, false, null));
+        return var.idiv(n - ddof);
     }
 
-    public Tensor cov(final Tensor v, final int axis) {
-        final float n = (axis == -1) ? this.size : this.shape[axis];
-        final Tensor avg1 = this.avg(axis);
+    public Tensor cov(final Tensor v, final int axis, final float ddof) {
+        final float n1 = (axis == -1) ? this.size : this.shape[axis];
+        final Tensor avg1 = new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, true, null)).idiv(n1);
         final Tensor tmp1 = this.sub(avg1);
-        final Tensor avg2 = v.avg(axis);
-        final Tensor tmp2 = v.sub(avg2);
-        final Tensor cov = new Tensor(MFuncs.Mul.inner(tmp1, tmp2, 0.0f, axis, null));
-        return cov.idiv(n - 1);
+
+        final Tensor tmp2;
+        if (this == v) {
+            tmp2 = tmp1;
+        } else {
+            final float n2 = (axis == -1) ? v.size : v.shape[axis];
+            final Tensor avg2 = new Tensor(MFuncs.Add.reduce(v, 0.0f, axis, true, null)).idiv(n2);
+            tmp2 = v.sub(avg2);
+        }
+
+        final Tensor cov = new Tensor(MFuncs.Mul.inner(tmp1, tmp2, 0.0f, axis, false, null));
+        return cov.idiv(n1 - ddof);
     }
 
-    public Tensor cov2(final int axis) {
-        final float n = this.size;
-        final Tensor avg1 = this.avg(axis);
+    public Tensor cov2(final Tensor v, final int axis, final float ddof) {
+        final float n1 = (axis == -1) ? this.size : this.shape[axis];
+        final Tensor avg1 = new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, true, null)).idiv(n1);
         final Tensor tmp1 = this.sub(avg1);
-        final Tensor cov = new Tensor(MFuncs.Mul.outer(tmp1, tmp1.T(), null));
-        return cov.idiv(n - 1);
+        if (axis == 0) {
+            tmp1.transpose();
+        }
+
+        final Tensor tmp2;
+        if (this == v) {
+            tmp2 = tmp1.T();
+        } else {
+            final float n2 = (axis == -1) ? v.size : v.shape[axis];
+            final Tensor avg2 = new Tensor(MFuncs.Add.reduce(v, 0.0f, axis, true, null)).idiv(n2);
+            tmp2 = v.sub(avg2);
+            if (axis == 1) {
+                tmp2.transpose();
+            }
+        }
+
+        final Tensor cov = tmp1.matmul(tmp2);
+        return cov.idiv(n1 - ddof);
     }
 
     public Tensor normSq(final int axis) {
-        return new Tensor(MFuncs.SumSq.reduce(this, 0.0f, axis, null));
+        return new Tensor(MFuncs.SumSq.reduce(this, 0.0f, axis, false, null));
     }
 
     public Tensor norm(final int axis) {
@@ -281,11 +313,15 @@ public class Tensor extends MArray {
     }
 
     public Tensor magSq(final Tensor m, final int axis) {
-        return new Tensor(MFuncs.MagSq.inner(this, m, 0.0f, axis, null));
+        return new Tensor(MFuncs.MagSq.inner(this, m, 0.0f, axis, false, null));
     }
 
     public Tensor mag(final Tensor m, final int axis) {
         return this.magSq(m, axis).isqrt();
+    }
+
+    public Tensor matmul(final Tensor m) {
+        return new Tensor(MFuncs.MatMul.outer(this, m, null));
     }
 
     public boolean isSimilar(final Tensor v, final float e) {
@@ -294,7 +330,7 @@ public class Tensor extends MArray {
 
     public Tensor sparsity(final int axis) {
         final float b = (axis == -1) ? this.size : this.shape[axis];
-        MArray tmp = MFuncs.SumSparse.reduce(this, 0.0f, axis, null);
+        MArray tmp = MFuncs.SumSparse.reduce(this, 0.0f, axis, false, null);
         return new Tensor(MFuncs.Div.outer(tmp, b, tmp));
     }
 
