@@ -28,6 +28,8 @@ public class MFuncs {
 
     public static final UFunc<Float> InvSqrt = new UFunc0((x, y) -> 1.0f / (Scalar.sqrt(y) + Scalar.EPSILON));
 
+    public static final UFunc<Float> Inv = new UFunc0((x, y) -> 1.0f / (y + Scalar.EPSILON));
+
     public static final UFunc<Float> Square = new UFunc0((x, y) -> y * y);
 
     public static final UFunc<Float> Pow = new UFunc0((x, y) -> Scalar.pow(y, x));
@@ -39,4 +41,8 @@ public class MFuncs {
     public static final UFunc<Float> SumSparse = new UFunc0((x, y) -> ((y == 0.0f) ? 1.0f : 0.0f) + x);
 
     public static final UFunc<Float> MatMul = new MatMul((x, y) -> x * y);
+
+    public static final UFunc<Float> Mutate = new UFunc0((x, y) -> x * Scalar.randomGaussian());
+
+    public static final UFunc<Float> Randomize = new UFunc0((x, y) -> Scalar.random(-x, x));
 }

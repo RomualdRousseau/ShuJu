@@ -3,6 +3,8 @@ package com.github.romualdrousseau.shuju.math;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
+import com.github.romualdrousseau.shuju.math.MArray.Flag;
+
 public abstract class UFunc<T> {
 
     protected final BiFunction<T, T, T> func;
@@ -64,7 +66,11 @@ public abstract class UFunc<T> {
             out = new MArray(a.shape);
         }
 
-        this.outerScalar(0, a, a.base, b, out, out.base);
+        if (a.flags.contains(Flag.CONTINUOUS)) {
+            this.applyFunc(a.size, a, 0, 1, b, out, 0, 1);
+        } else {
+            this.outerScalar(0, a, a.base, b, out, out.base);
+        }
 
         return out;
     }
