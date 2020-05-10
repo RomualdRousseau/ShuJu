@@ -21,26 +21,26 @@ public abstract class UFunc<T> {
         this.minShape = minShape;
     }
 
-    public MArray reduce(MArray a, final float initital, final int axis, final boolean keepShape, MArray out) {
+    public MArray reduce(MArray a, final float initial, final int axis, final boolean keepShape, MArray out) {
         assert (axis == MArray.None || axis >= 0 && axis < a.shape.length) : "Illegal axis";
 
         int[] outShape = this.reduceShape(a, axis, keepShape);
-        assert (out == null || Arrays.equals(out.shape, outShape)) : "Illegal out shape";
+        assert (out == null || Arrays.equals(out.shape, outShape)) : "Illegal output shape";
 
         if (out == null) {
             out = new MArray(outShape);
         }
 
-        if (axis == MArray.None) {
+        if (axis == MArray.None && a.flags.contains(Flag.CONTINUOUS)) {
 
             // Reduce the flatten array
 
-            this.applyAccFunc(a.size, a, 0, 1, out, 0, 0, initital);
+            this.applyAccFunc(a.size, a, 0, 1, out, 0, 0, initial);
         } else {
 
             // Reduce on one axis
 
-            this.reduceOnOneAxis(0, 0, a, a.base, initital, axis, out, out.base);
+            this.reduceOnOneAxis(0, 0, a, a.base, initial, axis, out, out.base);
         }
 
         return out;
@@ -48,7 +48,7 @@ public abstract class UFunc<T> {
 
     public MArray accumulate(final MArray a, final float initital, final int axis, MArray out) {
         assert (axis >= 0 && axis < a.shape.length) : "Illegal axis";
-        assert (out == null || Arrays.equals(out.shape, a.shape)) : "Illegal out shape";
+        assert (out == null || Arrays.equals(out.shape, a.shape)) : "Illegal output shape";
 
         if (out == null) {
             out = new MArray(a.shape);
@@ -60,7 +60,7 @@ public abstract class UFunc<T> {
     }
 
     public MArray outer(final MArray a, final float b, MArray out) {
-        assert (out == null || Arrays.equals(out.shape, a.shape)) : "Illegal out shape";
+        assert (out == null || Arrays.equals(out.shape, a.shape)) : "Illegal output shape";
 
         if (out == null) {
             out = new MArray(a.shape);
@@ -135,12 +135,12 @@ public abstract class UFunc<T> {
         return out;
     }
 
-    public MArray inner(final MArray a, final float b, final float initital, final int axis, final boolean keepShape, MArray out) {
-        return MFuncs.Add.reduce(this.outer(a, b, null), initital, axis, keepShape, out);
+    public MArray inner(final MArray a, final float b, final float initial, final int axis, final boolean keepShape, MArray out) {
+        return MFuncs.Add.reduce(this.outer(a, b, null), initial, axis, keepShape, out);
     }
 
-    public MArray inner(final MArray a, final MArray b, final float initital, final int axis, final boolean keepShape, MArray out) {
-        return MFuncs.Add.reduce(this.outer(a, b, null), initital, axis, keepShape, out);
+    public MArray inner(final MArray a, final MArray b, final float initial, final int axis, final boolean keepShape, MArray out) {
+        return MFuncs.Add.reduce(this.outer(a, b, null), initial, axis, keepShape, out);
     }
 
     private int[] reduceShape(final MArray a, final int axis, final boolean keepShape) {

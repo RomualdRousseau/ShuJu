@@ -71,139 +71,131 @@ public class Tensor extends MArray {
         return new Tensor(super.copy());
     }
 
-    public Tensor zeros() {
-        return this.fill(0.0f);
+    public static Tensor empty(final int... shape) {
+        return new Tensor(shape);
     }
 
-    public Tensor ones() {
-        return this.fill(1.0f);
+    public static Tensor zeros(final int... shape) {
+        return (Tensor) new Tensor(shape).setItems(0.0f);
     }
 
-    // TODO: Use UFunc ?
-    public Tensor fill(final float v) {
-        for(int i = 0; i < this.size; i++) {
-            this.setItem(i, v);
+    public static Tensor ones(final int... shape) {
+        return (Tensor) new Tensor(shape).setItems(1.0f);
+    }
+
+    public static Tensor full(final float v, final int... shape) {
+        return (Tensor) new Tensor(shape).setItems(v);
+    }
+
+    public static Tensor empty_like(final Tensor m) {
+        return Tensor.empty(m.shape);
+    }
+
+    public static Tensor zeros_like(final Tensor m) {
+        return Tensor.zeros(m.shape);
+    }
+
+    public static Tensor ones_like(final Tensor m) {
+        return Tensor.ones(m.shape);
+    }
+
+    public static Tensor full_like(final float v, final Tensor m) {
+        return Tensor.full(v, m.shape);
+    }
+
+    public static Tensor create(final float... data) {
+        return (Tensor) new Tensor(data.length).setItems(data);
+    }
+
+    public static Tensor create(final float[][] data) {
+        return (Tensor) new Tensor(data.length, data[0].length).setItems(data);
+    }
+
+    public static Tensor arange(final float start, final float stop, final float step) {
+        final int size = (int) ((stop - start) / step);
+        final Tensor result = new Tensor(size);
+        result.data[0] = start;
+        for (int i = 1; i < result.size; i++) {
+            result.data[i] = result.data[i - 1] + step;
         }
-        return this;
+        return result;
     }
 
-    public Tensor fill(final float... data) {
-        return (Tensor) this.setItems(data);
+    public static Tensor linspace(final float start, final float stop, final int num) {
+        final float step = (stop - start) / (float) (num - 1);
+        return Tensor.arange(start, stop, step);
     }
 
-    public Tensor fill(final float[][] data) {
-        return (Tensor) this.setItems(data);
-    }
-
-    // TODO: Use UFunc
-    public Tensor arange(final float start, final float step) {
-        for(int i = 0; i < this.size; i++) {
-            this.setItem(i, start + i * step);
-        }
-        return this;
-    }
-
-    public Tensor linspace(final float start, final float stop) {
-        final float step = (stop - start) / (float) (this.size - 1);
-        return arange(start, step);
-    }
-
-    public Tensor eye(final int k) {
-        assert (this.shape.length == 2) : "Illegal shape";
-        for(int i = 0; i < this.shape[0]; i++) {
-            for(int j = 0; j < this.shape[1]; j++) {
-                if (i == j - k) {
-                    this.setItem(this.offset(i, j), 1);
-                } else {
-                    this.setItem(this.offset(i, j), 0);
-                }
+    public static Tensor eye(final int rows, int cols, final int k) {
+        final Tensor result = new Tensor(rows, cols);
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                final int off = result.offset(i, j);
+                result.data[off] = (i == j - k) ? 1 : 0;
             }
         }
-        return this;
+        return result;
     }
 
-    public Tensor oneHot(final int n) {
-        assert (this.shape.length == 1) : "Illegal shape";
-        for(int i = 0; i < this.shape[0]; i++) {
-            if (i == n) {
-                this.setItem(i, 1);
-            }
-        }
-        return this;
+    public static Tensor oneHot(final int n, final int size) {
+        return (Tensor) Tensor.zeros(size).setItem(n, 1);
     }
 
-    public <T extends Enum<T>> Tensor oneHot(T e) {
-        this.zeros();
+    public static <T extends Enum<T>> Tensor oneHot(T e, final int size) {
+        final Tensor result = Tensor.zeros(size);
         if (e != null) {
-            this.oneHot(e.ordinal());
+            result.setItem(e.ordinal(), 1);
         }
-        return this;
+        return result;
     }
 
-    public <T extends Enum<T>> Tensor oneHot(T[] s) {
-        this.zeros();
+    public static <T extends Enum<T>> Tensor oneHot(T[] s) {
+        final Tensor result = Tensor.zeros(s.length);
         if (s != null) {
             for (int i = 0; i < s.length; i++) {
-                this.oneHot(s[i].ordinal());
+                result.setItem(s[i].ordinal(), 1);
             }
         }
-        return this;
+        return result;
     }
 
-    public Tensor softmax() {
-        assert (this.shape.length == 1) : "Illegal shape";
-
-        final float c = -this.data[(int) this.argmax(-1).item(0)];
-
-        float sum = 0.0f;
-        for (int i = 0; i < this.shape[0]; i++) {
-            sum += Scalar.exp(this.item(i) + c);
-        }
-        final float w = 1.0f / sum;
-
-        for (int i = 0; i < this.shape[0]; i++) {
-            this.setItem(i, Scalar.exp(this.item(i) + c) * w);
-        }
-
-        return this;
-    }
-
-    // TODO: Use UFunc
     public Tensor mutate(float rate, final float variance) {
-        for (int i = 0; i < this.size; i++) {
+        final UFunc<Float> fn = new UFunc0((x, y) -> {
             if (Scalar.random(1.0f) < rate) {
-                this.setItem(i, Scalar.randomGaussian() * variance);
+                return Scalar.randomGaussian() * variance;
+            } else {
+                return y;
             }
-        }
-        return this;
+        });
+        return (Tensor) fn.outer(this, 0.0f, this);
     }
 
     public Tensor randomize() {
-        return new Tensor(MFuncs.Randomize.outer(this, 1.0f, null));
+        return this.randomize(1.0f);
     }
 
     public Tensor randomize(final float n) {
-        return new Tensor(MFuncs.Randomize.outer(this, n, null));
+        return this.randomize(-n, n);
     }
 
-    // TODO: Use UFunc
-    public Tensor constrain(float a, float b) {
-        for (int i = 0; i < this.size; i++) {
-            this.setItem(i, Scalar.constrain(this.data[i], a, b));
-        }
-        return this;
+    public Tensor randomize(final float a, final float b) {
+        final UFunc<Float> fn = new UFunc0((x, y) -> Scalar.random(a, b));
+        return (Tensor) fn.outer(this, 0.0f, this);
     }
 
-    // TODO: Use UFunc
-    public Tensor if_lt_then(float p, float a, float b) {
-        for (int i = 0; i < this.size; i++) {
-            this.setItem(i, Scalar.if_lt_then(this.item(i), p, a, b));
-        }
-        return this;
+    public Tensor constrain(final float a, final float b) {
+        final UFunc<Float> fn = new UFunc0((x, y) -> Scalar.constrain(y, a, b));
+        return (Tensor) fn.outer(this, 0.0f, this);
+    }
+
+    public Tensor if_lt_then(final float p, final float a, final float b) {
+        final UFunc<Float> fn = new UFunc0((x, y) -> Scalar.if_lt_then(y, p, a, b));
+        return (Tensor) fn.outer(this, 0.0f, this);
     }
 
     public Tensor chop(final float e) {
-        return (Tensor) MFuncs.Chop.outer(this, e, this);
+        final UFunc<Float> fn = new UFunc0((x, y) -> (Scalar.abs(y) < e) ? 0.0f : y);
+        return (Tensor) fn.outer(this, 0.0f, this);
     }
 
     public Tensor iadd(final float v) {
@@ -342,25 +334,25 @@ public class Tensor extends MArray {
         return new Tensor(MFuncs.SumSq.reduce(this, 0.0f, axis, false, null));
     }
 
-    public Tensor norm(final int axis) {
-        return this.normSq(axis).isqrt();
-    }
-
     public Tensor magSq(final Tensor m, final int axis) {
         return new Tensor(MFuncs.MagSq.inner(this, m, 0.0f, axis, false, null));
-    }
-
-    public Tensor mag(final Tensor m, final int axis) {
-        return this.magSq(m, axis).isqrt();
     }
 
     public Tensor matmul(final Tensor m) {
         return new Tensor(MFuncs.MatMul.outer(this, m, null));
     }
 
+    public Tensor norm(final int axis) {
+        return this.normSq(axis).isqrt();
+    }
+
+    public Tensor mag(final Tensor m, final int axis) {
+        return this.magSq(m, axis).isqrt();
+    }
+
     public Tensor avg(final int axis) {
-        final float b = (axis == -1) ? this.size : this.shape[axis];
-        return this.sum(axis).idiv(b);
+        final float n = (axis == -1) ? this.size : this.shape[axis];
+        return this.sum(axis).idiv(n);
     }
 
     public Tensor var(final int axis, final float ddof) {
@@ -370,49 +362,54 @@ public class Tensor extends MArray {
         return var.idiv(n - ddof);
     }
 
-    public Tensor cov(final Tensor v, final int axis, final float ddof) {
-        assert (this.shape.length == v.shape.length) : "Illegal shape";
+    // public Tensor cov(final Tensor v, final int axis, final float ddof) {
+    // assert (this.shape.length == v.shape.length) : "Illegal shape";
 
-        final float n1 = (axis == -1) ? this.size : this.shape[axis];
+    // final float n1 = (axis == -1) ? this.size : this.shape[axis];
+    // final Tensor avg1 = new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, true,
+    // null)).idiv(n1);
+    // final Tensor step1 = this.sub(avg1);
+
+    // final Tensor step2;
+    // if (this == v) {
+    // step2 = step1;
+    // } else {
+    // final float n2 = (axis == -1) ? v.size : v.shape[axis];
+    // final Tensor avg2 = new Tensor(MFuncs.Add.reduce(v, 0.0f, axis, true,
+    // null)).idiv(n2);
+    // step2 = v.sub(avg2);
+    // }
+
+    // final Tensor cov = new Tensor(MFuncs.Mul.inner(step1, step2, 0.0f, axis,
+    // false, null));
+    // return cov.idiv(n1 - ddof);
+    // }
+
+    public Tensor cov(final Tensor v, final boolean rowvar, final float ddof) {
+        assert (this.shape.length <= 2 && this.shape.length == v.shape.length) : "Illegal shape";
+
+        final int axis = rowvar ? 0 : 1;
+
+        final float n1 = this.shape[axis];
         final Tensor avg1 = new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, true, null)).idiv(n1);
-        final Tensor tmp1 = this.sub(avg1);
-
-        final Tensor tmp2;
-        if (this == v) {
-            tmp2 = tmp1;
-        } else {
-            final float n2 = (axis == -1) ? v.size : v.shape[axis];
-            final Tensor avg2 = new Tensor(MFuncs.Add.reduce(v, 0.0f, axis, true, null)).idiv(n2);
-            tmp2 = v.sub(avg2);
-        }
-
-        final Tensor cov = new Tensor(MFuncs.Mul.inner(tmp1, tmp2, 0.0f, axis, false, null));
-        return cov.idiv(n1 - ddof);
-    }
-
-    public Tensor cov2(final Tensor v, final int axis, final float ddof) {
-        assert (this.shape.length == v.shape.length) : "Illegal shape";
-
-        final float n1 = (axis == -1) ? this.size : this.shape[axis];
-        final Tensor avg1 = new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, true, null)).idiv(n1);
-        final Tensor tmp1 = this.sub(avg1);
+        final Tensor step1 = this.sub(avg1);
         if (axis == 0) {
-            tmp1.transpose();
+            step1.transpose();
         }
 
-        final Tensor tmp2;
+        final Tensor step2;
         if (this == v) {
-            tmp2 = tmp1.T();
+            step2 = step1.T();
         } else {
-            final float n2 = (axis == -1) ? v.size : v.shape[axis];
+            final float n2 = v.shape[axis];
             final Tensor avg2 = new Tensor(MFuncs.Add.reduce(v, 0.0f, axis, true, null)).idiv(n2);
-            tmp2 = v.sub(avg2);
+            step2 = v.sub(avg2);
             if (axis == 1) {
-                tmp2.transpose();
+                step2.transpose();
             }
         }
 
-        final Tensor cov = tmp1.matmul(tmp2);
+        final Tensor cov = new Tensor(MFuncs.MatMul.outer(step1, step2, null));
         return cov.idiv(n1 - ddof);
     }
 
@@ -437,10 +434,28 @@ public class Tensor extends MArray {
     }
 
     public Tensor similarity(final Tensor v, final int axis) {
-        if(this.sparsity(axis).equals(1.0f, 0.0f) || v.sparsity(axis).equals(1.0f, 0.0f)) {
-            return new Tensor(this.shape).zeros();
+        if (this.sparsity(axis).equals(1.0f, 0.0f) || v.sparsity(axis).equals(1.0f, 0.0f)) {
+            return Tensor.zeros(this.shape);
         } else {
             return this.dot(v, axis).div(this.norm(axis).mul(v.norm(axis)));
         }
+    }
+
+    public Tensor softmax() {
+        assert (this.shape.length == 1) : "Illegal shape";
+
+        final float c = -this.data[(int) this.argmax(-1).item(0)];
+
+        float sum = 0.0f;
+        for (int i = 0; i < this.size; i++) {
+            sum += Scalar.exp(this.item(i) + c);
+        }
+        final float w = 1.0f / sum;
+
+        for (int i = 0; i < this.size; i++) {
+            this.setItem(i, Scalar.exp(this.item(i) + c) * w);
+        }
+
+        return this;
     }
 }

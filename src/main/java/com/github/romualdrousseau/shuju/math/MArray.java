@@ -98,6 +98,13 @@ public class MArray {
         return this.data;
     }
 
+    public MArray setItems(final float v) {
+        for(int i = 0; i < this.size; i++) {
+            this.data[i] = v;
+        }
+        return this;
+    }
+
     public MArray setItems(final float... data) {
         this.require(Flag.OWNDATA, false);
         System.arraycopy(data, 0, this.data, this.base, data.length);
@@ -314,6 +321,10 @@ public class MArray {
     }
 
     public MArray transpose() {
+
+        if(this.shape.length == 1) {
+            return this;
+        }
 
         // Inverse all dimensions
 

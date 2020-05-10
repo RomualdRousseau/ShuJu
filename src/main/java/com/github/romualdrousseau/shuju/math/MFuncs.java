@@ -2,11 +2,11 @@ package com.github.romualdrousseau.shuju.math;
 
 public class MFuncs {
 
-    public static final UFunc<Float> Chop = new UFunc0((x, y) -> (Scalar.abs(y) < x) ? 0.0f : x);
-
     public static final UFunc<Float> Inc = new UFunc0((x, y) -> x + 1.0f);
 
     public static final UFunc<Float> Dec = new UFunc0((x, y) -> x - 1.0f);
+
+    public static final UFunc<Float> SumSparse = new UFunc0((x, y) -> x + ((y == 0.0f) ? 1.0f : 0.0f));
 
     public static final UFunc<Float> Add = new UFunc0((x, y) -> y + x);
 
@@ -34,15 +34,9 @@ public class MFuncs {
 
     public static final UFunc<Float> Pow = new UFunc0((x, y) -> Scalar.pow(y, x));
 
-    public static final UFunc<Float> SumSq = new UFunc0((x, y) -> y * y + x);
+    public static final UFunc<Float> SumSq = new UFunc0((x, y) -> x + y * y);
 
     public static final UFunc<Float> MagSq = new UFunc0((x, y) -> (y - x) * (y - x));
 
-    public static final UFunc<Float> SumSparse = new UFunc0((x, y) -> ((y == 0.0f) ? 1.0f : 0.0f) + x);
-
     public static final UFunc<Float> MatMul = new MatMul((x, y) -> x * y);
-
-    public static final UFunc<Float> Mutate = new UFunc0((x, y) -> x * Scalar.randomGaussian());
-
-    public static final UFunc<Float> Randomize = new UFunc0((x, y) -> Scalar.random(-x, x));
 }
