@@ -19,7 +19,7 @@ public class TensorTest {
     @Test
     public void testNull() {
         Tensor M1 = Tensor.Null;
-        Tensor M2 = new Tensor(0);
+        Tensor M2 = Tensor.empty(0);
         Tensor M3 = Tensor.zeros(1);
         assertTrue(M1 + " was expected Null", M1.isNull());
         assertTrue(M2 + " was expected Null", M2.isNull());

@@ -34,6 +34,10 @@ public class MFuncs {
 
     public static final UFunc<Float> Pow = new UFunc0((x, y) -> Scalar.pow(y, x));
 
+    public static final UFunc<Float> Exp = new UFunc0((x, y) -> Scalar.exp(y));
+
+    public static final UFunc<Float> Log = new UFunc0((x, y) -> Scalar.log(y));
+
     public static final UFunc<Float> SumSq = new UFunc0((x, y) -> x + y * y);
 
     public static final UFunc<Float> MagSq = new UFunc0((x, y) -> (y - x) * (y - x));

@@ -6,69 +6,15 @@ public class Tensor extends MArray {
 
     public static final Tensor Null = new Tensor();
 
-    public Tensor() {
+    private Tensor() {
     }
 
-    public Tensor(final int... shape) {
+    private Tensor(final int... shape) {
         super(shape);
     }
 
-    public Tensor(MArray other) {
+    private Tensor(MArray other) {
         super(other);
-    }
-
-    public Tensor T() {
-        return new Tensor(super.view().transpose());
-    }
-
-    @Override
-    public Tensor ravel() {
-        return (Tensor) super.ravel();
-    }
-
-    @Override
-    public Tensor squeeze() {
-        return (Tensor) super.squeeze();
-    }
-
-    @Override
-    public Tensor reshape(final int... shape) {
-        return (Tensor) super.reshape(shape);
-    }
-
-    @Override
-    public Tensor transpose() {
-        return (Tensor) super.transpose();
-    }
-
-    @Override
-    public Tensor transpose(final int... indices) {
-        return (Tensor) super.transpose(indices);
-    }
-
-    @Override
-    public Tensor view() {
-        return new Tensor(super.view());
-    }
-
-    @Override
-    public Tensor view(final int... slice) {
-        return new Tensor(super.view(slice));
-    }
-
-    @Override
-    public Tensor repeat(final int n) {
-        return new Tensor(super.repeat(n));
-    }
-
-    @Override
-    public Tensor stack(final MArray v) {
-        return new Tensor(super.stack(v));
-    }
-
-    @Override
-    public Tensor copy() {
-        return new Tensor(super.copy());
     }
 
     public static Tensor empty(final int... shape) {
@@ -157,6 +103,60 @@ public class Tensor extends MArray {
             }
         }
         return result;
+    }
+
+    public Tensor T() {
+        return new Tensor(super.view().transpose());
+    }
+
+    @Override
+    public Tensor ravel() {
+        return (Tensor) super.ravel();
+    }
+
+    @Override
+    public Tensor squeeze() {
+        return (Tensor) super.squeeze();
+    }
+
+    @Override
+    public Tensor reshape(final int... shape) {
+        return (Tensor) super.reshape(shape);
+    }
+
+    @Override
+    public Tensor transpose() {
+        return (Tensor) super.transpose();
+    }
+
+    @Override
+    public Tensor transpose(final int... indices) {
+        return (Tensor) super.transpose(indices);
+    }
+
+    @Override
+    public Tensor view() {
+        return new Tensor(super.view());
+    }
+
+    @Override
+    public Tensor view(final int... slice) {
+        return new Tensor(super.view(slice));
+    }
+
+    @Override
+    public Tensor repeat(final int n) {
+        return new Tensor(super.repeat(n));
+    }
+
+    @Override
+    public Tensor stack(final MArray v) {
+        return new Tensor(super.stack(v));
+    }
+
+    @Override
+    public Tensor copy() {
+        return new Tensor(super.copy());
     }
 
     public Tensor mutate(float rate, final float variance) {
@@ -302,6 +302,22 @@ public class Tensor extends MArray {
         return new Tensor(MFuncs.Pow.outer(this, n, null));
     }
 
+    public Tensor iexp() {
+        return (Tensor) MFuncs.Exp.outer(this, 0.0f, this);
+    }
+
+    public Tensor exp() {
+        return new Tensor(MFuncs.Exp.outer(this, 0.0f, null));
+    }
+
+    public Tensor ilog() {
+        return (Tensor) MFuncs.Log.outer(this, 0.0f, this);
+    }
+
+    public Tensor log() {
+        return new Tensor(MFuncs.Log.outer(this, 0.0f, null));
+    }
+
     public Tensor dot(final Tensor m, final int axis) {
         return new Tensor(MFuncs.Mul.inner(this, m, 0.0f, axis, false, null));
     }
@@ -362,29 +378,6 @@ public class Tensor extends MArray {
         return var.idiv(n - ddof);
     }
 
-    // public Tensor cov(final Tensor v, final int axis, final float ddof) {
-    // assert (this.shape.length == v.shape.length) : "Illegal shape";
-
-    // final float n1 = (axis == -1) ? this.size : this.shape[axis];
-    // final Tensor avg1 = new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, true,
-    // null)).idiv(n1);
-    // final Tensor step1 = this.sub(avg1);
-
-    // final Tensor step2;
-    // if (this == v) {
-    // step2 = step1;
-    // } else {
-    // final float n2 = (axis == -1) ? v.size : v.shape[axis];
-    // final Tensor avg2 = new Tensor(MFuncs.Add.reduce(v, 0.0f, axis, true,
-    // null)).idiv(n2);
-    // step2 = v.sub(avg2);
-    // }
-
-    // final Tensor cov = new Tensor(MFuncs.Mul.inner(step1, step2, 0.0f, axis,
-    // false, null));
-    // return cov.idiv(n1 - ddof);
-    // }
-
     public Tensor cov(final Tensor v, final boolean rowvar, final float ddof) {
         assert (this.shape.length <= 2 && this.shape.length == v.shape.length) : "Illegal shape";
 
@@ -423,6 +416,13 @@ public class Tensor extends MArray {
         return this.isub(avg).imul(invvar).imul(a).iadd(b);
     }
 
+    public Tensor softmax(final int axis) {
+        final Tensor c = this.max(axis);
+        new UFunc0((x, y) -> Scalar.exp(y - x)).outer(this, c, this);
+        final Tensor sum = this.sum(axis);
+        return this.idiv(sum);
+    }
+
     public boolean isSimilar(final Tensor v, final float e) {
         return Arrays.equals(this.shape, v.shape) && (1.0f - Scalar.abs(this.similarity(v, -1).item(0)) <= e);
     }
@@ -439,23 +439,5 @@ public class Tensor extends MArray {
         } else {
             return this.dot(v, axis).div(this.norm(axis).mul(v.norm(axis)));
         }
-    }
-
-    public Tensor softmax() {
-        assert (this.shape.length == 1) : "Illegal shape";
-
-        final float c = -this.data[(int) this.argmax(-1).item(0)];
-
-        float sum = 0.0f;
-        for (int i = 0; i < this.size; i++) {
-            sum += Scalar.exp(this.item(i) + c);
-        }
-        final float w = 1.0f / sum;
-
-        for (int i = 0; i < this.size; i++) {
-            this.setItem(i, Scalar.exp(this.item(i) + c) * w);
-        }
-
-        return this;
     }
 }

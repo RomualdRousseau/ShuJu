@@ -35,7 +35,7 @@ public abstract class UFunc<T> {
 
             // Reduce the flatten array
 
-            this.applyAccFunc(a.size, a, 0, 1, out, 0, 0, initial);
+            this.applyAccFunc(a.size, a, a.base, 1, out, out.base, 0, initial);
         } else {
 
             // Reduce on one axis
@@ -67,7 +67,7 @@ public abstract class UFunc<T> {
         }
 
         if (a.flags.contains(Flag.CONTINUOUS)) {
-            this.applyFunc(a.size, a, 0, 1, b, out, 0, 1);
+            this.applyFunc(a.size, a, a.base, 1, b, out, out.base, 1);
         } else {
             this.outerScalar(0, a, a.base, b, out, out.base);
         }
