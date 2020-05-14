@@ -1,7 +1,7 @@
 # ShuJu
 ![Build](https://github.com/RomualdRousseau/ShuJu/workflows/Build/badge.svg)
 
-It is an enterprise grade Java API for linear algebra, statictic and machine learning algorithms.
+It is an enterprise grade Java API for real linear algebra, statistic and machine learning algorithms.
 
 Strongly influenced by Numpy and Tensorflow, ShuJu aims to provide a solid mathematical and scientific library for Java. Despite the success of python and various new languages, Java is still largely used in enterprise and mobile solutions because of its ubiquity and foundations in most of professional platforms.
 
@@ -11,41 +11,54 @@ The core of the linear algebra is (like Numpy) an implementation of multi dimens
 
 So far, the following algorithms have been implemented:
 
-    * Math library
-        * Scalar
-        * Tensor (Including Vector, Matrix, ...)
-        * Linear Algebra algorithms (LU, QR, HouseGHolder, Hessenberg, Cholesky, Gaussian Elimination, Linear Solve, Eigens, PCA, SVD)
-    * Neural Network
-        * Full connected multiple layers (Dense)
-        * Convolution layers
-        * DropOut layers
-        * Batch Normlization Layers
-        * Flatten layers
-        * Pooling Layers
-        * Genetic Layers
-        * Gradient descent back propagation
-        * Activation functions (LeakyRelu, Linaer, Relu, Sigmoid, Softmax, Tanh)
-        * Loss function (Huber, Hinge, MeanSquare, SoftmaxCrossEntropy)
-        * Initializers (Glorot, He, Lecun)
-        * Regularizers (L1, L2)
-        * Optimizers (Adam, AdaDelta, RMSProp, Sgd)
-        * Schedulers (Exponential)
+### Math library
+
+    * Scalar
+    * Tensor (Including Vector, Matrix, ...)
+    * Linear Algebra algorithms (LU, QR, HouseGHolder, Hessenberg, Cholesky, Gaussian Elimination, Linear Solve, Eigens, PCA, SVD)
+
+### Neural Network
+
+    * Full connected multiple layers (Dense)
+    * Convolution layers
+    * DropOut layers
+    * Batch Normlization Layers
+    * Flatten layers
+    * Pooling Layers
+    * Genetic Layers
+    * Gradient descent back propagation
+    * Activation functions (LeakyRelu, Linaer, Relu, Sigmoid, Softmax, Tanh)
+    * Loss function (Huber, Hinge, MeanSquare, SoftmaxCrossEntropy)
+    * Initializers (Glorot, He, Lecun)
+    * Regularizers (L1, L2)
+    * Optimizers (Adam, AdaDelta, RMSProp, Sgd)
+    * Schedulers (Exponential)
+
+### Machine Learnings
+
     * Kmean
     * K-Nearest Neighbor
     * Naive Bayes
     * Simple Linear Regression
-    * NLP
-        * Tokenizers (ngram, shingle)
-        * Word 2 vect
-        * Regular Expression
-        * Stop words
-    * CV
-        * Image convolution filter
-        * Shape extractors (rectangle by hough transformation)
-    * Genetic
-        * Pool with selection
-        * Mutation interface
-    * DataSet management with transformation framework such as normalization, standardization ...
+
+### NLP
+
+    * Tokenizers (ngram, shingle)
+    * Word 2 vect
+    * Regular Expression
+    * Stop words
+
+### CV
+
+    * Image convolution filter
+    * Shape extractors (rectangle by hough transformation)
+
+### Genetic
+
+    * Pool with selection
+    * Mutation interface
+
+### DataSet management with transformation framework such as normalization, standardization ...
 
 ## Project Documentation
 https://romualdrousseau.github.io/ShuJu/
