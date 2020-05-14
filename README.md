@@ -15,7 +15,17 @@ So far, the following algorithms have been implemented:
 
     * Scalar
     * Tensor (Including Vector, Matrix, ...)
-    * Linear Algebra algorithms (LU, QR, HouseGHolder, Hessenberg, Cholesky, Gaussian Elimination, Linear Solve, Eigens, PCA, SVD)
+    * Linear Algebra algorithms
+        * LU
+        * QR
+        * HouseGHolder
+        * Hessenberg
+        * Cholesky
+        * Gaussian Elimination
+        * Linear Solver
+        * Eigens
+        * PCA
+        * SVD
 
 ### Neural Network
 
@@ -58,7 +68,9 @@ So far, the following algorithms have been implemented:
     * Pool with selection
     * Mutation interface
 
-### DataSet management with transformation framework such as normalization, standardization ...
+### DataSet management
+
+With transformation framework such as normalization, standardization ...
 
 ## Project Documentation
 https://romualdrousseau.github.io/ShuJu/
