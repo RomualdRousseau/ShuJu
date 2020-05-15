@@ -14,7 +14,11 @@ public class JSONJacksonObject implements JSONObject {
 
     public JSONJacksonObject(ObjectMapper mapper, JsonNode node) {
         this.mapper = mapper;
-        this.objectNode = (ObjectNode) node;
+        if (node == null) {
+            this.objectNode = mapper.createObjectNode();
+        } else {
+            this.objectNode = (ObjectNode) node;
+        }
     }
 
     public Iterable<String> keys() {

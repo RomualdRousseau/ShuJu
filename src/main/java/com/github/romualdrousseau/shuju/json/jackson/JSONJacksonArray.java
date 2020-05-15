@@ -12,7 +12,11 @@ public class JSONJacksonArray implements JSONArray {
 
     public JSONJacksonArray(ObjectMapper mapper, JsonNode node) {
         this.mapper = mapper;
-        this.arrayNode = (ArrayNode) node;
+        if (node == null) {
+            this.arrayNode = mapper.createArrayNode();
+        } else {
+            this.arrayNode = (ArrayNode) node;
+        }
     }
 
     public int size() {
