@@ -57,6 +57,11 @@ public class Tensor extends MArray {
         return (Tensor) new Tensor(data.length, data[0].length).setItems(data);
     }
 
+    public static Tensor linspace(final float start, final float stop, final int num) {
+        final float step = (stop - start) / (float) (num - 1);
+        return Tensor.arange(start, stop, step);
+    }
+
     public static Tensor arange(final float start, final float stop, final float step) {
         final int size = (int) ((stop - start) / step);
         final Tensor result = new Tensor(size);
@@ -67,18 +72,14 @@ public class Tensor extends MArray {
         return result;
     }
 
-    public static Tensor linspace(final float start, final float stop, final int num) {
-        final float step = (stop - start) / (float) (num - 1);
-        return Tensor.arange(start, stop, step);
-    }
-
     public static Tensor eye(final int rows, int cols, final int k) {
         final Tensor result = new Tensor(rows, cols);
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                final int off = result.offset(i, j);
-                result.data[off] = (i == j - k) ? 1 : 0;
-            }
+        final int r = Math.max(0, -k);
+        final int c = Math.max(0, k);
+        final int m = Math.min(rows - r, cols - c);
+        for (int i = 0; i < m; i++) {
+            final int off = result.offset(i + r, i + c);
+            result.data[off] = 1;
         }
         return result;
     }
@@ -159,15 +160,8 @@ public class Tensor extends MArray {
         return new Tensor(super.copy());
     }
 
-    public Tensor mutate(float rate, final float variance) {
-        final UFunc<Float> fn = new UFunc0((x, y) -> {
-            if (Scalar.random(1.0f) < rate) {
-                return Scalar.randomGaussian() * variance;
-            } else {
-                return y;
-            }
-        });
-        return (Tensor) fn.outer(this, 0.0f, this);
+    public Tensor mutate(final float rate, final float variance) {
+        return (Tensor) MFuncs.mutate.apply(rate, variance).outer(this, 0.0f, this);
     }
 
     public Tensor randomize() {
@@ -179,23 +173,19 @@ public class Tensor extends MArray {
     }
 
     public Tensor randomize(final float a, final float b) {
-        final UFunc<Float> fn = new UFunc0((x, y) -> Scalar.random(a, b));
-        return (Tensor) fn.outer(this, 0.0f, this);
+        return (Tensor) MFuncs.randomize.apply(a, b).outer(this, 0.0f, this);
     }
 
     public Tensor constrain(final float a, final float b) {
-        final UFunc<Float> fn = new UFunc0((x, y) -> Scalar.constrain(y, a, b));
-        return (Tensor) fn.outer(this, 0.0f, this);
+        return (Tensor) MFuncs.constrain.apply(a, b).outer(this, 0.0f, this);
     }
 
     public Tensor if_lt_then(final float p, final float a, final float b) {
-        final UFunc<Float> fn = new UFunc0((x, y) -> Scalar.if_lt_then(y, p, a, b));
-        return (Tensor) fn.outer(this, 0.0f, this);
+        return (Tensor) MFuncs.if_lt_then.apply(p, a, b).outer(this, 0.0f, this);
     }
 
     public Tensor chop(final float e) {
-        final UFunc<Float> fn = new UFunc0((x, y) -> (Scalar.abs(y) < e) ? 0.0f : y);
-        return (Tensor) fn.outer(this, 0.0f, this);
+        return (Tensor) MFuncs.chop.apply(e).outer(this, 0.0f, this);
     }
 
     public Tensor iadd(final float v) {

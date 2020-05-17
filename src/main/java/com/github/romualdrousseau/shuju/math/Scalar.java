@@ -60,6 +60,14 @@ public class Scalar {
         return (float) randomGenerator.nextGaussian();
     }
 
+    public static float mutate(final float rate, final float variance, final float x) {
+        if (Scalar.random(1.0f) < rate) {
+            return Scalar.randomGaussian() * variance;
+        } else {
+            return x;
+        }
+	}
+
     public static float sgn(final float x) {
         return (x > 0.0f) ? 1.0f : ((x < 0.0f) ? -1.0f : 0.0f);
     }

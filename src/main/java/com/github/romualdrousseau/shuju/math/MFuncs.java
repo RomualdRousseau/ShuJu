@@ -43,4 +43,14 @@ public class MFuncs {
     public static final UFunc<Float> MagSq = new UFunc0((x, y) -> (y - x) * (y - x));
 
     public static final UFunc<Float> MatMul = new MatMul((x, y) -> x * y);
+
+    public static final UFunc.Uni<Float> chop = e -> new UFunc0((x, y) -> (Scalar.abs(y) < e) ? 0.0f : y);
+
+    public static final UFunc.Bi<Float> mutate = (r, v) -> new UFunc0((x, y) -> Scalar.mutate(r, v, y));
+
+    public static final UFunc.Bi<Float> randomize = (a, b) -> new UFunc0((x, y) -> Scalar.random(a, b));
+
+    public static final UFunc.Bi<Float> constrain = (a, b) -> new UFunc0((x, y) -> Scalar.constrain(y, a, b));
+
+    public static final UFunc.Tri<Float> if_lt_then = (p, a, b) -> new UFunc0((x, y) -> Scalar.if_lt_then(y, p, a, b));
 }

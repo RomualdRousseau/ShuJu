@@ -10,15 +10,30 @@ public abstract class UFunc<T> {
     protected final BiFunction<T, T, T> func;
     protected final int minShape;
 
-    protected abstract void applyAccFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff, final int bstr, final float initital);
+    protected abstract void applyAccFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b,
+            int boff, final int bstr, final float initital);
 
-    protected abstract void applyFunc(final int dim, final MArray a, int aoff, final int astr, final float b, final MArray c, int coff, final int cstr);
+    protected abstract void applyFunc(final int dim, final MArray a, int aoff, final int astr, final float b,
+            final MArray c, int coff, final int cstr);
 
-    protected abstract void applyFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff, final int bstr, final MArray c, int coff, final int cstr);
+    protected abstract void applyFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff,
+            final int bstr, final MArray c, int coff, final int cstr);
 
     public UFunc(final BiFunction<T, T, T> func, final int minShape) {
         this.func = func;
         this.minShape = minShape;
+    }
+
+    public interface Uni<T> {
+        UFunc<T> apply(T a);
+    }
+
+    public interface Bi<T> {
+        UFunc<T> apply(T a, T b);
+    }
+
+    public interface Tri<T> {
+        UFunc<T> apply(T a, T b, T c);
     }
 
     public MArray reduce(MArray a, final float initial, final int axis, final boolean keepShape, MArray out) {
@@ -113,7 +128,7 @@ public abstract class UFunc<T> {
 
             // Expand shape of A by prepending ones as missing shapes
 
-            aa = aa.view().expandShape(bb.shape.length,  false);
+            aa = aa.view().expandShape(bb.shape.length, false);
         }
 
         if (bb.shape.length < aa.shape.length) {
@@ -135,16 +150,18 @@ public abstract class UFunc<T> {
         return out;
     }
 
-    public MArray inner(final MArray a, final float b, final float initial, final int axis, final boolean keepShape, MArray out) {
+    public MArray inner(final MArray a, final float b, final float initial, final int axis, final boolean keepShape,
+            MArray out) {
         return MFuncs.Add.reduce(this.outer(a, b, null), initial, axis, keepShape, out);
     }
 
-    public MArray inner(final MArray a, final MArray b, final float initial, final int axis, final boolean keepShape, MArray out) {
+    public MArray inner(final MArray a, final MArray b, final float initial, final int axis, final boolean keepShape,
+            MArray out) {
         return MFuncs.Add.reduce(this.outer(a, b, null), initial, axis, keepShape, out);
     }
 
     private int[] reduceShape(final MArray a, final int axis, final boolean keepShape) {
-        if(keepShape) {
+        if (keepShape) {
 
             // shape axis is simply put at 1
 
@@ -391,7 +408,8 @@ public abstract class UFunc<T> {
         }
     }
 
-    protected void outerArray(final int n, final MArray a, int aoff, final MArray b, int boff, final MArray c, int coff) {
+    protected void outerArray(final int n, final MArray a, int aoff, final MArray b, int boff, final MArray c,
+            int coff) {
         final int cnt = a.shape.length - 1;
         final int adim = a.shape[n];
         final int bdim = b.shape[n];
