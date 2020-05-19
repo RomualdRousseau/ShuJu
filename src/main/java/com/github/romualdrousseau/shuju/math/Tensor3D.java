@@ -17,7 +17,7 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
     }
 
     public Tensor3D(final JSONObject json) {
-        this(json.getInt("shape0"), json.getInt("shape1"), json.getInt("shape2"));
+        this(json.getInt("shape[0]"), json.getInt("shape[1]"), json.getInt("shape[2]"));
         final JSONArray jsonData = json.getJSONArray("data");
         for (int i = 0; i < this.shape[0]; i++) {
             final JSONArray json_s0 = jsonData.getJSONArray(i);
@@ -739,9 +739,9 @@ public class Tensor3D extends AbstractTensor<float[][][]> {
             jsonData.append(json_s0);
         }
 
-        json.setInt("shape0", this.shape[0]);
-        json.setInt("shape1", this.shape[1]);
-        json.setInt("shape2", this.shape[2]);
+        json.setInt("shape[0]", this.shape[0]);
+        json.setInt("shape[1]", this.shape[1]);
+        json.setInt("shape[2]", this.shape[2]);
         json.setJSONArray("data", jsonData);
         return json;
     }

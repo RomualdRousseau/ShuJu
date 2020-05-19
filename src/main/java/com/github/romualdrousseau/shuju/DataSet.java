@@ -1,7 +1,9 @@
 package com.github.romualdrousseau.shuju;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.github.romualdrousseau.shuju.json.JSON;
@@ -178,6 +180,32 @@ public class DataSet {
                 });
                 Tensor1D y = new Tensor1D(labels).oneHot(i);
                 result.addRow(new DataRow().addFeature(x).setLabel(y));
+            }
+        }
+
+        return result;
+    }
+
+    public DataSet augment(Function<DataRow, DataRow> func) {
+        final DataSet result = new DataSet();
+
+        final HashMap<String, Integer> countPerClass = new HashMap<String, Integer>();
+        int maxCnt = 0;
+        for (DataRow row : this.rows) {
+            int cnt = countPerClass.getOrDefault(row.label().toString(), 0);
+            cnt++;
+            if (cnt > maxCnt) {
+                maxCnt = cnt;
+            }
+            countPerClass.put(row.label().toString(), cnt);
+
+            result.addRow(row);
+        }
+
+        for (DataRow row : this.rows) {
+            final int remaining = maxCnt / countPerClass.get(row.label().toString()) - 1;
+            for (int i = 0; i < remaining; i++) {
+                result.addRow(func.apply(row), false);
             }
         }
 

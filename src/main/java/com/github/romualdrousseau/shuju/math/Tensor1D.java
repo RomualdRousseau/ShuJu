@@ -34,7 +34,7 @@ public class Tensor1D extends AbstractTensor<float[]> {
     }
 
     public Tensor1D(JSONObject json) {
-        this(json.getInt("rows"));
+        this(json.getInt("shape[0]"));
         JSONArray jsonData = json.getJSONArray("data");
         for (int i = 0; i < this.shape[0]; i++) {
             this.data[i] = jsonData.getFloat(i);
@@ -544,7 +544,7 @@ public class Tensor1D extends AbstractTensor<float[]> {
             jsonData.append(this.data[i]);
         }
 
-        json.setInt("rows", this.shape[0]);
+        json.setInt("shape[0]", this.shape[0]);
         json.setJSONArray("data", jsonData);
         return json;
     }
