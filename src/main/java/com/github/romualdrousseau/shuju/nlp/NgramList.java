@@ -47,6 +47,12 @@ public class NgramList implements BaseList {
                 this.lexicon.add(word);
             }
         }
+
+        if (this.n == NgramList.SHINGLE) {
+            this.tokenizer = new ShingleTokenizer(this.ngrams, this.lexicon);
+        } else {
+            this.tokenizer = new NgramTokenizer(this.ngrams, this.n);
+        }
     }
 
     public NgramList(int n, int vectorSize, String[] ngrams, String[] lexicon) {
@@ -102,6 +108,7 @@ public class NgramList implements BaseList {
             }
 
             this.ngrams.add(s);
+            this.tokenizer.add(s);
             if (this.ngrams.size() >= this.vectorSize) {
                 throw new IndexOutOfBoundsException();
             }
@@ -138,7 +145,6 @@ public class NgramList implements BaseList {
         json.setInt("n", this.n);
         json.setInt("maxVectorSize", this.vectorSize);
         json.setJSONArray("ngrams", jsonNgrams);
-        json.setJSONArray("lexicon", jsonLexicon);
         return json;
     }
 

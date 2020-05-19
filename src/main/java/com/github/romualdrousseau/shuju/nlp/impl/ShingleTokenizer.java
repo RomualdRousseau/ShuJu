@@ -16,11 +16,17 @@ public class ShingleTokenizer implements ITokenizer {
         this.lexicon = lexicon;
     }
 
+    @Override
+    public void add(String s) {
+        this.shingles.add(s);
+    }
+
+    @Override
     public String[] tokenize(String w) {
         String s = StringUtility.normalizeWhiteSpaces(w);
 
         // Split using a lexicon of known words if any
-        if (this.lexicon.size() > 0) {
+        if (this.lexicon != null && this.lexicon.size() > 0) {
             String slc = s.toLowerCase();
             for (String lexem : this.lexicon) {
                 if (slc.contains(lexem)) {
@@ -43,12 +49,13 @@ public class ShingleTokenizer implements ITokenizer {
         return result.toArray(new String[result.size()]);
     }
 
+    @Override
     public Tensor1D word2vec(String s, Tensor1D outVector) {
         String[] tokens = this.tokenize(s);
         for (int i = 0; i < tokens.length; i++) {
             String token = tokens[i];
             for (int j = 0; j < this.shingles.size(); j++) {
-                if (this.similarity(token, this.shingles.get(j)) > 0.95f) {
+                if (this.similarity(token, this.shingles.get(j)) > 0.99f) {
                     outVector.set(j, 1.0f);
                 }
             }

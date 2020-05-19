@@ -15,6 +15,12 @@ public class NgramTokenizer implements ITokenizer {
         this.n = n;
     }
 
+    @Override
+    public void add(String s) {
+        this.ngrams.add(s);
+    }
+
+    @Override
     public String[] tokenize(String s) {
         s = StringUtility.normalizeWhiteSpaces(s);
 
@@ -30,6 +36,7 @@ public class NgramTokenizer implements ITokenizer {
         return result.toArray(new String[result.size()]);
     }
 
+    @Override
     public Tensor1D word2vec(String s, Tensor1D outVector) {
         String[] tokens = this.tokenize(s);
         for (int i = 0; i < tokens.length; i++) {
