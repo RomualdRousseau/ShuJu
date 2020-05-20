@@ -46,6 +46,9 @@ public class StringList implements BaseList {
     }
 
     public String get(int i) {
+        if (i >= this.strings.size()) {
+            return null;
+        }
         return this.strings.get(i);
     }
 

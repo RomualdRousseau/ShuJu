@@ -209,7 +209,7 @@ public class DataSet {
             }
         }
 
-        return result;
+        return result.purgeConflicts();
     }
 
     public String toString() {

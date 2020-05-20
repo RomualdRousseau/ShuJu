@@ -68,6 +68,9 @@ public class RegexList implements BaseList {
     }
 
     public String get(int i) {
+        if (i >= this.types.size()) {
+            return null;
+        }
         return this.types.get(i);
     }
 
