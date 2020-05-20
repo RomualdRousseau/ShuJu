@@ -88,15 +88,13 @@ public class DataSet {
     }
 
     public DataSet filter(Predicate<DataRow> predicate) {
-        DataSet result = new DataSet();
-
+        List<DataRow> temp = new ArrayList<DataRow>();
         for (DataRow row : this.rows) {
             if (predicate.test(row)) {
-                result.addRow(row);
+                temp.add(row);
             }
         }
-
-        return result;
+        return new DataSet(temp);
     }
 
     public DataSet transform(ITransform transfomer, int partIndex, int colIndex) {
