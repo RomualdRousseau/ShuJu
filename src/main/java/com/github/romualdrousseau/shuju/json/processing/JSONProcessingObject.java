@@ -17,6 +17,9 @@ public class JSONProcessingObject implements JSONObject {
 
     public Object get(String k) {
         Object o = this.jo.get(k);
+        if (o == null) {
+            return null;
+        }
         if(o instanceof processing.data.JSONObject) {
             return new JSONProcessingObject((processing.data.JSONObject) o);
         } else if(o instanceof processing.data.JSONArray) {

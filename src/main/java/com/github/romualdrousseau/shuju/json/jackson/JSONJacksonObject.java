@@ -27,6 +27,9 @@ public class JSONJacksonObject implements JSONObject {
 
     public Object get(String k) {
         JsonNode node = this.objectNode.get(k);
+        if (node == null) {
+            return null;
+        }
         if (node.isObject()) {
             return new JSONJacksonObject(this.mapper, node);
         } else if (node.isArray()) {
