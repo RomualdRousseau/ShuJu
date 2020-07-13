@@ -59,7 +59,9 @@ jobs:
                 env:
                     GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
             -   name: Deploy project
-                run: mvn -B deploy -P release -Dmaven.test.skip=true --file pom.xml -s settings.xml
+                run: |
+                    export GPG_TTY=$(tty)
+                    mvn -B deploy -P release -Dmaven.test.skip=true --file pom.xml -s settings.xml
                 env:
                     MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
                     MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
