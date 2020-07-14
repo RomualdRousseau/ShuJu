@@ -78,8 +78,11 @@ public class StringUtility
 			return null;
 		}
         s = StringUtility.normalizeWhiteSpaces(s);
-		s = StringUtility.singleWhiteSpaces(s);
-		s = StringUtility.trim(s, StringUtility.WHITE_SPACES + "\"");
+        s = StringUtility.singleWhiteSpaces(s);
+        s = StringUtility.trim(s, StringUtility.WHITE_SPACES);
+        if (s.startsWith("\"") && s.endsWith("\"")) {
+            s = StringUtility.trim(s, StringUtility.WHITE_SPACES + "\"");
+        }
 		return s;
     }
 
