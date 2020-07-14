@@ -82,7 +82,7 @@ https://github.com/RomualdRousseau/ShuJu/wiki
 	* Set environement variable PROCESSING_USER_LIBRARIES to the Processing User libraries
 	* mvn clean install
 
-## Deployment
+## Manual Deployment
 
 ### Deploy snapshot
 ```bash
@@ -99,3 +99,11 @@ mvn scm:update
 ```bash
 mvn clean site deploy -P documentation
 ```
+
+## Automatic Deployment
+
+### Deploy snapshot
+Every time a change on master is made (push, merge, etc) a deployment on the snapshot repository is made.
+
+### Deploy release
+Simply creating a release on github will trigger a deployment on the official repo as well as generate the associated javadoc.
