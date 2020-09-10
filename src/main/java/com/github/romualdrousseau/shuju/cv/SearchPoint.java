@@ -153,10 +153,6 @@ public class SearchPoint {
     }
 
     public static List<SearchPoint[]> TrimInX(List<SearchPoint[]> shapes, ISearchBitmap bitmap) {
-        if (shapes.size() < 2) {
-            return shapes;
-        }
-
         for (SearchPoint[] shape : shapes) {
             for (int i = shape[0].getX(); i <= shape[1].getX(); i++) {
                 if (SearchPoint.columnIsEmpty(shape, i, bitmap)) {
@@ -179,10 +175,6 @@ public class SearchPoint {
     }
 
     public static List<SearchPoint[]> TrimInY(List<SearchPoint[]> shapes, ISearchBitmap bitmap) {
-        if (shapes.size() < 2) {
-            return shapes;
-        }
-
         for (SearchPoint[] shape : shapes) {
             for (int i = shape[0].getY(); i <= shape[1].getY(); i++) {
                 if (rowIsEmpty(shape, i, bitmap)) {
@@ -205,10 +197,6 @@ public class SearchPoint {
     }
 
     public static List<SearchPoint[]> ExpandInX(List<SearchPoint[]> shapes, ISearchBitmap bitmap) {
-        if (shapes.size() < 2) {
-            return shapes;
-        }
-
         for (SearchPoint[] shape : shapes) {
             for (int i = shape[0].getX() - 1; i > 0; i--) {
                 if (!SearchPoint.columnIsEmpty(shape, i, bitmap)) {
@@ -231,10 +219,6 @@ public class SearchPoint {
     }
 
     public static List<SearchPoint[]> ExpandInY(List<SearchPoint[]> shapes, ISearchBitmap bitmap) {
-        if (shapes.size() < 2) {
-            return shapes;
-        }
-
         for (SearchPoint[] shape : shapes) {
             for (int i = shape[0].getY() - 1; i > 0; i--) {
                 if (!SearchPoint.rowIsEmpty(shape, i, bitmap)) {
