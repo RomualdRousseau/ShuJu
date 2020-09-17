@@ -1,4 +1,5 @@
 # ShuJu
+
 ![Build](https://github.com/RomualdRousseau/ShuJu/workflows/Build/badge.svg)
 
 It is an enterprise grade Java API for real linear algebra, statistic and machine learning algorithms.
@@ -7,103 +8,113 @@ Strongly influenced by Numpy and Tensorflow, ShuJu aims to provide a solid mathe
 
 Each implemented algorithm is not trivial to avoid for example calculation issues as rounding. Also a great care is given to optimization and tests.
 
-The core of the linear algebra is (like Numpy) an implementation of multi dimensional arrays with the notion of universal functions (lamda calculus). The implementation tries to avoid most of copies during tanspose, reshape and views and use packed java arrays to be friendly with CPU vectorization instructions or GPU. Fast computations is ensured by using BLAS subroutines.
+The core of the linear algebra is (ala Numpy) an implementation of multi dimensional arrays with the notion of universal functions (lamda calculus). The implementation tries to avoid most of copies during tanspose, reshape and views and use packed java arrays to be friendly with CPU vectorization instructions or GPU. Fast computations is ensured by using BLAS subroutines (Experimental).
 
 So far, the following algorithms have been implemented:
 
-### Math library
+## Math library
 
-    * Scalar
-    * Tensor (Including Vector, Matrix, ...)
-    * Linear Algebra algorithms
-        * LU
-        * QR
-        * HouseGHolder
-        * Hessenberg
-        * Cholesky
-        * Gaussian Elimination
-        * Linear Solver
-        * Eigens
-        * PCA
-        * SVD
+* Scalar
+* Tensor (Including Vector, Matrix, ...)
+* Linear Algebra algorithms
+  * LU
+  * QR
+  * HouseGHolder
+  * Hessenberg
+  * Cholesky
+  * Gaussian Elimination
+  * Linear Solver
+  * Eigens
+  * PCA
+  * SVD
 
-### Neural Network
+## Neural Network
 
-    * Full connected multiple layers (Dense)
-    * Convolution layers
-    * DropOut layers
-    * Batch Normlization Layers
-    * Flatten layers
-    * Pooling Layers
-    * Genetic Layers
-    * Gradient descent back propagation
-    * Activation functions (LeakyRelu, Linaer, Relu, Sigmoid, Softmax, Tanh)
-    * Loss function (Huber, Hinge, MeanSquare, SoftmaxCrossEntropy)
-    * Initializers (Glorot, He, Lecun)
-    * Regularizers (L1, L2)
-    * Optimizers (Adam, AdaDelta, RMSProp, Sgd)
-    * Schedulers (Exponential)
+* Full connected multiple layers (Dense)
+* Convolution layers
+* DropOut layers
+* Batch Normlization Layers
+* Flatten layers
+* Pooling Layers
+* Genetic Layers
+* Gradient descent back propagation
+* Activation functions (LeakyRelu, Linaer, Relu, Sigmoid, Softmax, Tanh)
+* Loss function (Huber, Hinge, MeanSquare, SoftmaxCrossEntropy)
+* Initializers (Glorot, He, Lecun)
+* Regularizers (L1, L2)
+* Optimizers (Adam, AdaDelta, RMSProp, Sgd)
+* Schedulers (Exponential)
 
-### Machine Learnings
+## Machine Learnings
 
-    * Kmean
-    * K-Nearest Neighbor
-    * Naive Bayes
-    * Simple Linear Regression
+* Kmean
+* K-Nearest Neighbor
+* Naive Bayes
+* Simple Linear Regression
 
-### NLP
+## NLP
 
-    * Tokenizers (ngram, shingle)
-    * Word 2 vect
-    * Regular Expression
-    * Stop words
+* Tokenizers (ngram, shingle)
+* Word 2 vect
+* Regular Expression
+* Stop words
 
-### CV
+## CV
 
-    * Image convolution filter
-    * Shape extractors (rectangle by hough transformation)
+* Image convolution filter
+* Shape extractors (rectangle by hough transformation)
 
-### Genetic
+## Genetic
 
-    * Pool with selection
-    * Mutation interface
+* Pool with selection
+* Mutation interface
 
-### DataSet management
+## DataSet management
 
 With transformation framework such as normalization, standardization ...
 
 ## Project Documentation
+
 https://romualdrousseau.github.io/ShuJu/
 
 ## User Guide
+
 https://github.com/RomualdRousseau/ShuJu/wiki
 
 ## Install Processing examples
-	* Set environement variable PROCESSING_USER_LIBRARIES to the Processing User libraries
-	* mvn clean install
+
+* Set environement variable PROCESSING_USER_LIBRARIES to the Processing User libraries
+* mvn clean install
 
 ## Manual Deployment
 
-### Deploy snapshot
+### Manually Deploy snapshot
+
 ```bash
 mvn clean deploy
 ```
 
-### Deploy release
+### Manually Deploy release
+
 ```bash
 mvn clean site -Dmessage="<commit_log_here>" scm:checkin -P release
 mvn scm:update
 ```
 
-### Deploy documentation
-```bash
-mvn clean site deploy -P documentation
-```
-
 ## Automatic Deployment
 
 ### Deploy snapshot
+
 Every time a change on master is made (push, merge, etc) a deployment on the snapshot repository is made.
 
 ### Deploy release
-Simply creating a release on github will trigger a deployment on the official repo as well as generate the associated javadoc.
+
+* Edit the pom.xml to set the release version and push
+* Create a release on github will trigger a deployment on the official repo as well as generate the associated javadoc.
+* Edit the pom.xml to set the snapshot version and push
+
+## Deploy documentation
+
+```bash
+mvn clean site deploy -P documentation
+```
