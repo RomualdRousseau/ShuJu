@@ -3,7 +3,7 @@
     <groupId>com.github.romualdrousseau</groupId>
     <artifactId>shuju</artifactId>
     <packaging>jar</packaging>
-    <version>1.10-SNAPSHOT</version>
+    <version>1.10</version>
     <name>ShuJu</name>
     <description>Framework for Advanced Statistics and Data Sciences</description>
     <url>https://github.com/romualdrousseau/shuju</url>
