@@ -54,6 +54,11 @@ public class NgramTokenizer implements ITokenizer {
         // Join by space and underscore
         s = s.replaceAll("[\\s_]+", "").trim();
 
+        // Fill up with ? to have at least one token
+        while (s.length() < n) {
+            s += "?";
+        }
+
         ArrayList<String> result = new ArrayList<String>();
         for (int i = 0; i < s.length() - this.n + 1; i++) {
             String w = s.substring(i, i + this.n);
