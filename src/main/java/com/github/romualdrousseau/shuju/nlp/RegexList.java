@@ -109,9 +109,15 @@ public class RegexList implements BaseList {
         }
 
         result = w;
+        int order = this.types.size();
         for (Entry<String, Pattern> pattern : this.compiledPatterns.entrySet()) {
             Matcher m = pattern.getValue().matcher(w);
-            result = m.replaceAll(this.patterns.get(pattern.getKey()));
+            if (m.find()) {
+                String type = this.patterns.get(pattern.getKey());
+                if (this.types.indexOf(type) < order) {
+                    result = m.replaceAll(type);
+                }
+            }
         }
 
         return result;
