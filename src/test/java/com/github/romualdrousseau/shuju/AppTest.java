@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.romualdrousseau.shuju.columns.NumericColumn;
