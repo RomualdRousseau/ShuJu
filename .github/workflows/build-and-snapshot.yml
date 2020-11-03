@@ -47,6 +47,7 @@ jobs:
         outputs:
             is_snapshot: ${{ steps.check_version.outputs.is_snapshot }}
         steps:
+            -   uses: actions/checkout@v2
             -   name: Check if that version is a snapshot
                 id: check_version
                 run: |
