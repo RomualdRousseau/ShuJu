@@ -44,6 +44,12 @@ jobs:
 
         steps:
             -   uses: actions/checkout@v2
+
+            -   name: Abort if that version is a snapshot
+                run: |
+                    declare version=$(cat pom.xml  | grep -i "<version>" | head -n 1 | sed -E 's@[ \t]*.version.(.*)./version.@\1@g')
+                    if [[ $version == *"SNAPSHOT"* ]]; then exit 0; else echo "Not a snapshot. All good." fi
+
             -   name: Set up JDK 1.8
                 uses: actions/setup-java@v1
                 with:
