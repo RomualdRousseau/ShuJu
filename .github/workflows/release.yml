@@ -38,7 +38,7 @@ jobs:
                 run: mvn -B test --file pom.xml
 
     check-version-is-snapshot:
-        needs: test
+        needs: [build, test]
         runs-on: [ubuntu-latest]
         outputs:
             is_snapshot: ${{ steps.check_version.outputs.is_snapshot }}
@@ -50,8 +50,8 @@ jobs:
                     if [[ $version == *"SNAPSHOT"* ]]; then echo "::set-output name=is_snapshot::1"; else echo "::set-output name=is_snapshot::0"; fi
 
     deploy:
-        needs: [build, test]
-        if: is_snapshot == 0 # deploy only if the version isn't a snapshot
+        needs: [check-version-is-snapshot]
+        if: needs.check-version-is-snapshot.outputs.is_snapshot == 0 # deploy only if the version isn't a snapshot
         runs-on: [ubuntu-latest]
 
         steps:
