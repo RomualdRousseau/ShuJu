@@ -95,14 +95,14 @@ public class SearchPoint {
             }
         });
 
-        ArrayList<SearchPoint[]> result = new ArrayList<SearchPoint[]>();
+        List<SearchPoint[]> result = new ArrayList<SearchPoint[]>();
         result.addAll(shapes);
         for (SearchPoint[] shape1 : shapes) {
             ArrayList<SearchPoint[]> tmp = new ArrayList<SearchPoint[]>();
             for (SearchPoint[] shape2 : result) {
                 tmp.addAll(SearchPoint.Clipping(shape1, shape2));
             }
-            result = tmp;
+            result = SearchPoint.RemoveDuplicates(tmp);
         }
 
         return SearchPoint.RemoveDuplicates(result);
