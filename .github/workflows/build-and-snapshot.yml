@@ -41,8 +41,21 @@ jobs:
             -   name: Test project
                 run: mvn -B test --file pom.xml
 
+    check-version-is-snapshot:
+        needs: test
+        runs-on: [ubuntu-latest]
+        outputs:
+            is_snapshot: ${{ steps.check_version.outputs.is_snapshot }}
+        steps:
+            -   name: Check if that version is a snapshot
+                id: check_version
+                run: |
+                    declare version=$(cat pom.xml  | grep -i "<version>" | head -n 1 | sed -E 's@[ \t]*.version.(.*)./version.@\1@g')
+                    if [[ $version == *"SNAPSHOT"* ]]; then echo "::set-output name=is_snapshot::1"; else echo "::set-output name=is_snapshot::0"; fi
+
     release_snapshot:
         needs: [build, test]
+        if: is_snapshot == 1 # deploy only if the version is a snapshot
         runs-on: [ubuntu-latest]
         steps:
             -   uses: actions/checkout@v2
