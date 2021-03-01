@@ -23,25 +23,19 @@ public class MArray {
 
     public MArray() {
         this.shape = new int[1];
-
-        this.updateStrides();
-
-        this.updateSize();
+        this._updateStrides();
+        this._updateSize();
         this.data = new float[this.size];
         this.base = 0;
-
         this.flags = Flag.ALL;
     }
 
     public MArray(final int... shape) {
         this.shape = shape.clone();
-
-        this.updateStrides();
-
-        this.updateSize();
+        this._updateStrides();
+        this._updateSize();
         this.data = new float[this.size];
         this.base = 0;
-
         this.flags = Flag.ALL;
     }
 
@@ -55,13 +49,10 @@ public class MArray {
 
     private MArray(MArray parent, final int base, final int... shape) {
         this.shape = shape;
-
         this.stride = parent.stride.clone();
-
         this.size = parent.size;
         this.data = parent.data;
         this.base = base;
-
         if (this.base == 0) {
             this.flags = EnumSet.of(Flag.CONTINUOUS);
         } else {
@@ -72,24 +63,18 @@ public class MArray {
     private MArray(MArray other, boolean copy) {
         if (copy) {
             this.shape = other.shape.clone();
-
             this.stride = other.stride.clone();
-
             this.size = other.size;
             this.data = other.data;
             this.base = other.base;
-
             this.flags = other.flags.clone();
             this.flags.remove(Flag.OWNDATA);
         } else {
             this.shape = other.shape;
-
             this.stride = other.stride;
-
             this.size = other.size;
             this.data = other.data;
             this.base = other.base;
-
             this.flags = other.flags;
         }
     }
@@ -146,7 +131,6 @@ public class MArray {
                 result[j--] = rem % this.stride[i];
             }
             rem /= this.stride[i];
-
         }
         result[j] = rem;
         return result;
@@ -316,7 +300,7 @@ public class MArray {
 
         this.require(Flag.CONTINUOUS, true);
         this.shape = shape.clone();
-        this.updateStrides();
+        this._updateStrides();
         return this;
     }
 
@@ -394,7 +378,6 @@ public class MArray {
 
             this.data = data;
             this.base = 0;
-
             this.flags.add(Flag.CONTINUOUS);
         } else if (flag.equals(Flag.OWNDATA) && !this.flags.contains(Flag.OWNDATA)) {
             final float[] data;
@@ -406,7 +389,6 @@ public class MArray {
 
             this.data = data;
             this.base = 0;
-
             this.flags.add(Flag.OWNDATA);
         }
         return this;
@@ -523,14 +505,14 @@ public class MArray {
         sb.append(']');
     }
 
-    private void updateSize() {
+    private void _updateSize() {
         this.size = 1;
         for (int i = 0; i < this.shape.length; i++) {
             this.size *= this.shape[i];
         }
     }
 
-    private void updateStrides() {
+    private void _updateStrides() {
         this.stride = new int[this.shape.length];
         this.stride[this.stride.length - 1] = 1;
         for (int i = this.stride.length - 2; i >= 0; i--) {
