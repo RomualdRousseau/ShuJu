@@ -13,16 +13,16 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D(final int rows, final int cols, final boolean transpose) {
-        this(transpose ? rows : cols, transpose ? cols : rows);
+        this(!transpose ? rows : cols, !transpose ? cols : rows);
     }
 
     public Tensor2D(final float[] v) {
-        this(v, true);
+        this(v, false);
     }
 
     public Tensor2D(final float[] v, final boolean transpose) {
         this(1, v.length, transpose);
-        if (transpose) {
+        if (!transpose) {
             System.arraycopy(v, 0, this.data[0], 0, this.shape[1]);
         } else {
             for (int i = 0; i < this.shape[0]; i++) {
@@ -32,12 +32,12 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D(final float[][] v) {
-        this(v, true);
+        this(v, false);
     }
 
     public Tensor2D(final float[][] v, final boolean transpose) {
         this(v.length, v[0].length, transpose);
-        if (transpose) {
+        if (!transpose) {
             for (int i = 0; i < this.shape[0]; i++) {
                 System.arraycopy(v[i], 0, this.data[i], 0, this.shape[1]);
             }
@@ -51,12 +51,12 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D(final Float[][] v) {
-        this(v, true);
+        this(v, false);
     }
 
     public Tensor2D(final Float[][] v, final boolean transpose) {
         this(v.length, v[0].length, transpose);
-        if (transpose) {
+        if (!transpose) {
             for (int i = 0; i < this.shape[0]; i++) {
                 for (int j = 0; j < this.shape[1]; j++) {
                     this.data[i][j] = v[i][j];
@@ -72,12 +72,12 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D(final Tensor1D v) {
-        this(v, true);
+        this(v, false);
     }
 
     public Tensor2D(final Tensor1D v, final boolean transpose) {
         this(1, v.shape[0], transpose);
-        if (transpose) {
+        if (!transpose) {
             for (int j = 0; j < this.shape[1]; j++) {
                 this.data[0][j] = v.data[j];
             }
@@ -89,18 +89,18 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D(final Tensor1D[] v) {
-        this(v, true);
+        this(v, false);
     }
 
     public Tensor2D(final Tensor1D[] v, final boolean transpose) {
         this(v.length, v[0].shape[0], transpose);
-        if (transpose) {
+        if (!transpose) {
             for (int i = 0; i < this.shape[0]; i++) {
                 System.arraycopy(v[i].data, 0, this.data[i], 0, this.shape[1]);
             }
         } else {
             for (int i = 0; i < this.shape[0]; i++) {
-                for (int j = 0; i < this.shape[1]; j++) {
+                for (int j = 0; j < this.shape[1]; j++) {
                     this.data[i][j] = v[j].data[i];
                 }
             }
@@ -108,14 +108,14 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     }
 
     public Tensor2D(final Tensor1D v, final int stride) {
-        this(v, stride, true);
+        this(v, stride, false);
     }
 
     public Tensor2D(final Tensor1D v, final int stride, final boolean transpose) {
         this(v.shape[0] / stride, stride, transpose);
         assert (stride > 0);
         int vi = 0;
-        if (transpose) {
+        if (!transpose) {
             for (int i = 0; i < this.shape[0]; i++) {
                 for (int j = 0; j < this.shape[1]; j++) {
                     this.data[i][j] = v.data[vi++];
@@ -123,7 +123,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
             }
         } else {
             for (int j = 0; j < this.shape[1]; j++) {
-                for (int i = 0; i < this.shape[0]; i++) {
+                for (int i = 0; j < this.shape[0]; i++) {
                     this.data[i][j] = v.data[vi++];
                 }
             }
@@ -1708,7 +1708,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     // }
 
     // public Tensor1D toVector(final int idx, final boolean transpose) {
-    // if (transpose) {
+    // if (!transpose) {
     // return this.get(idx);
     // } else {
     // final Tensor1D result = new Tensor1D(this.shape[0]);
@@ -1724,7 +1724,7 @@ public class Tensor2D extends AbstractTensor<float[][]> {
     // }
 
     // public Tensor1D[] toVectorArray(final boolean transpose) {
-    // if (transpose) {
+    // if (!transpose) {
     // final Tensor1D[] result = new Tensor1D[this.shape[0]];
     // for (int i = 0; i < this.shape[0]; i++) {
     // result[i] = this.get(i);
