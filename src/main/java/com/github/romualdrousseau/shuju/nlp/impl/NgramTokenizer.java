@@ -2,7 +2,9 @@ package com.github.romualdrousseau.shuju.nlp.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
@@ -13,6 +15,7 @@ import com.github.romualdrousseau.shuju.util.StringUtility;
 
 public class NgramTokenizer implements ITokenizer {
     private ArrayList<String> ngrams = new ArrayList<String>();
+    private HashMap<String, Integer> ngramsIndex = new HashMap<String, Integer>();
     private int n;
 
     public NgramTokenizer(String[] ngrams, int n) {
@@ -22,6 +25,7 @@ public class NgramTokenizer implements ITokenizer {
     public NgramTokenizer(List<String> ngrams, int n) {
         this.ngrams.addAll(ngrams);
         this.n = n;
+        this.rebuildIndexes();
     }
 
     public NgramTokenizer(JSONObject json) {
@@ -33,6 +37,7 @@ public class NgramTokenizer implements ITokenizer {
             }
         }
         this.n = json.getInt("n");
+        this.rebuildIndexes();
     }
 
     @Override
@@ -42,13 +47,14 @@ public class NgramTokenizer implements ITokenizer {
 
     @Override
     public void add(String s) {
-        if(this.ngrams.indexOf(s) < 0) {
+        if(!this.ngramsIndex.containsKey(s)) {
             this.ngrams.add(s);
         }
+        this.rebuildIndexes();
     }
 
     @Override
-    public String[] tokenize(String s) {
+    public List<String> tokenize(String s) {
         s = StringUtility.normalizeWhiteSpaces(s);
 
         // Join by space and underscore
@@ -65,20 +71,17 @@ public class NgramTokenizer implements ITokenizer {
             result.add(w.toLowerCase());
         }
 
-        return result.toArray(new String[result.size()]);
+        return result;
     }
 
     @Override
     public Tensor1D word2vec(String s, Tensor1D outVector) {
-        String[] tokens = this.tokenize(s);
-        for (int i = 0; i < tokens.length; i++) {
-            String token = tokens[i];
-            for (int j = 0; j < this.ngrams.size(); j++) {
-                if (token.equals(this.ngrams.get(j))) {
-                    outVector.set(j, 1.0f);
-                }
-            }
-        }
+        this.tokenize(s).forEach(token -> {
+            Optional.ofNullable(this.ngramsIndex.get(token))
+                .map(j -> {
+                    return outVector.set(j, 1.0f);
+                });
+        });
         return outVector;
     }
 
@@ -93,5 +96,11 @@ public class NgramTokenizer implements ITokenizer {
         json.setJSONArray("ngrams", jsonNgrams);
         json.setInt("n", this.n);
         return json;
+    }
+
+    private void rebuildIndexes() {
+        for (int i = 0; i < ngrams.size(); i++) {
+            this.ngramsIndex.put(this.ngrams.get(i), i);
+        }
     }
 }

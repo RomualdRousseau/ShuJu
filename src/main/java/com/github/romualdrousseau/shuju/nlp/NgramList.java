@@ -76,15 +76,12 @@ public class NgramList implements BaseList {
         if(StringUtility.isEmpty(w)) {
             return this;
         }
-
-        String[] tokens = this.tokenizer.tokenize(w);
-        for (int i = 0; i < tokens.length; i++) {
-            this.tokenizer.add(tokens[i]);
+        this.tokenizer.tokenize(w).forEach(token -> {
+            this.tokenizer.add(token);
             if (this.size() >= this.vectorSize) {
                 throw new IndexOutOfBoundsException();
             }
-        }
-
+        });
         return this;
     }
 

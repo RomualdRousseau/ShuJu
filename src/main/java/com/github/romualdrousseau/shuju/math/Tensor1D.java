@@ -11,7 +11,7 @@ public class Tensor1D extends AbstractTensor<float[]> {
     public static final Tensor1D Null = new Tensor1D(0);
 
     public Tensor1D(int rows) {
-        super(new int[] { rows}, new float[rows]);
+        super(new int[] {rows}, new float[rows]);
     }
 
     public Tensor1D(int rows, float v) {
