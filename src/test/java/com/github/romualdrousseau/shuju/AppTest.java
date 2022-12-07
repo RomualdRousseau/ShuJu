@@ -179,7 +179,7 @@ public class AppTest {
     @Test
     public void testLinalgSolve() {
         final Tensor2D M1 = new Tensor2D(new float[][] { { 2, 3, 1 }, { 4, 5, 6 }, { 7, 8, 1 } });
-        final Tensor2D M2 = new Tensor2D(new float[] { 3, 5, 6 }, false);
+        final Tensor2D M2 = new Tensor2D(new float[] { 3, 5, 6 }, true);
         final Tensor2D I = new Tensor2D(3, 3).identity();
         assertTrue("Solve(M1, I) = M1-", Linalg.Solve(M1, I).equals(M1.inv(), 1e-2f));
         assertTrue("M1@Solve(M1, M2) = M2", M1.matmul(Linalg.Solve(M1, M2)).equals(M2, 1e-2f));
@@ -444,7 +444,7 @@ public class AppTest {
         assert rows != null;
 
         for (final String[] cells : rows) {
-            fisherSet.addRow(new DataRow().addFeature(c1.valueOf(Float.valueOf(cells[1])))
+            fisherSet.rows().add(new DataRow().addFeature(c1.valueOf(Float.valueOf(cells[1])))
                     .addFeature(c2.valueOf(Float.valueOf(cells[2]))).addFeature(c3.valueOf(Float.valueOf(cells[3])))
                     .addFeature(c4.valueOf(Float.valueOf(cells[4]))).setLabel(c5.valueOf(cells[5])));
         }
@@ -461,7 +461,7 @@ public class AppTest {
         assert rows != null;
 
         for (final String[] cells : rows) {
-            liquidSet.addRow(new DataRow().addFeature(c1.valueOf(Float.valueOf(cells[1])))
+            liquidSet.rows().add(new DataRow().addFeature(c1.valueOf(Float.valueOf(cells[1])))
                     .setLabel(c2.valueOf(Float.valueOf(cells[2]))));
         }
 
