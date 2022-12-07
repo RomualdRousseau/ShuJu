@@ -45,9 +45,9 @@ public class JSONJacksonObject implements JSONObject {
 
     public void set(String k, Object o) {
         if (o instanceof JSONObject) {
-            this.objectNode.set(k, (JsonNode) o);
+            this.objectNode.set(k, (JsonNode) ((JSONJacksonObject) o).objectNode);
         } else if (o instanceof JSONArray) {
-            this.objectNode.set(k, (JsonNode) o);
+            this.objectNode.set(k, (JsonNode) ((JSONJacksonArray) o).arrayNode);
         } else {
             this.objectNode.set(k, this.mapper.convertValue(o, JsonNode.class));
         }

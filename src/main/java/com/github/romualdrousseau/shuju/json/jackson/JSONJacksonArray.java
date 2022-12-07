@@ -40,9 +40,9 @@ public class JSONJacksonArray implements JSONArray {
 
     public void set(int i, Object o) {
         if (o instanceof JSONObject) {
-            this.arrayNode.set(i, (JsonNode) o);
+            this.arrayNode.set(i, (JsonNode) ((JSONJacksonObject) o).objectNode);
         } else if (o instanceof JSONArray) {
-            this.arrayNode.set(i, (JsonNode) o);
+            this.arrayNode.set(i, (JsonNode) ((JSONJacksonArray) o).arrayNode);
         } else {
             this.arrayNode.set(i, this.mapper.convertValue(o, JsonNode.class));
         }
