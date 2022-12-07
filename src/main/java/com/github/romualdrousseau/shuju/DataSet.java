@@ -67,9 +67,10 @@ public class DataSet {
     }
 
     public DataSet filter(final Predicate<DataRow> predicate) {
-        return new DataSet(this.rows.stream()
+        List<DataRow> rows = this.rows.stream()
                 .filter(predicate)
-                .collect(Collectors.toCollection(ArrayList::new)));
+                .collect(Collectors.toCollection(ArrayList::new));
+        return new DataSet(rows);
     }
 
     public DataSet transform(final ITransform transfomer, final int partIndex, final int colIndex) {
@@ -159,14 +160,14 @@ public class DataSet {
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         final long biggerClassCnt = countPerClass.values().stream().max(Long::compare).get();
         final int noiseCnt = Math.round(this.rows.size() * (1.0f / p - 1.0f));
-        final DataSet noise = new DataSet(
-                this.rows.stream()
-                        .flatMap(x -> LongStream.range(0, biggerClassCnt / countPerClass.get(x.label().toString()) - 1)
-                                .mapToObj(i -> func.apply(x)))
-                        .collect(Collectors.toCollection(ArrayList::new)))
-                .shuffle()
-                .subset(0, noiseCnt);
-        return new DataSet(this.rows).join(noise, false).purgeConflicts().shuffle();
+        final List<DataRow> noise = this.rows.stream()
+                .flatMap(x -> LongStream.range(0, biggerClassCnt / countPerClass.get(x.label().toString()) - 1)
+                        .mapToObj(i -> func.apply(x)))
+                .collect(Collectors.toCollection(ArrayList::new));
+        return new DataSet(this.rows)
+                .join(new DataSet(noise).shuffle().subset(0, noiseCnt), false)
+                .purgeConflicts()
+                .shuffle();
     }
 
     public String toString() {
