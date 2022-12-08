@@ -481,6 +481,10 @@ public class Tensor1D extends AbstractTensor<float[]> {
         return result;
     }
 
+    public Tensor1D pad(int n, float p) {
+        return this.concat(new Tensor1D(Math.max(n - this.rowCount(), 0), p));
+    }
+
     public Tensor2D dot(Tensor1D v) {
         assert (this.shape[0] == v.shape[0]);
         Tensor2D result = new Tensor2D(this.shape[0], this.shape[0]);

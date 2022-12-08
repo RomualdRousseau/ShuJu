@@ -120,6 +120,25 @@ public class ShingleTokenizer implements ITokenizer {
     }
 
     @Override
+    public Tensor1D embedding(final String s, final Tensor1D outVector) {
+        this.tokenize(s).forEach(token -> {
+            Optional.ofNullable(this.shinglesIndex.get(token))
+                .map(j -> {
+                    return outVector.concat(new Tensor1D(new Float[] { (float) j }));
+                })
+                .orElseGet(() -> {
+                    for (int j = 0; j < this.shingles.size(); j++) {
+                        if (this.similarity(token, this.shingles.get(j)) > 0.95f) {
+                            outVector.concat(new Tensor1D(new Float[] { (float) j }));
+                        }
+                    }
+                    return outVector;
+                });
+        });
+        return outVector;
+    }
+
+    @Override
     public JSONObject toJSON() {
         JSONArray jsonShingles = JSON.newJSONArray();
         for (String shingle : this.shingles) {

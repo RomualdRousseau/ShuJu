@@ -86,6 +86,17 @@ public class NgramTokenizer implements ITokenizer {
     }
 
     @Override
+    public Tensor1D embedding(String s, Tensor1D outVector) {
+        this.tokenize(s).forEach(token -> {
+            Optional.ofNullable(this.ngramsIndex.get(token))
+                .map(j -> {
+                    return outVector.concat(new Tensor1D(new Float[] { (float) j }));
+                });
+        });
+        return outVector;
+    }
+
+    @Override
     public JSONObject toJSON() {
         JSONArray jsonNgrams = JSON.newJSONArray();
         for (String ngram : this.ngrams) {

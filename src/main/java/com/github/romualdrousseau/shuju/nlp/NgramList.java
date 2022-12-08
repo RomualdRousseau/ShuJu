@@ -98,6 +98,15 @@ public class NgramList implements BaseList {
         }
     }
 
+    public Tensor1D embedding(String w) {
+        Tensor1D result = new Tensor1D(0);
+        if (StringUtility.isEmpty(w)) {
+            return result;
+        } else {
+            return this.tokenizer.embedding(w, result);
+        }
+    }
+
     public JSONObject toJSON() {
         JSONObject json = JSON.newJSONObject();
         json.setInt("n", this.n);
