@@ -20,5 +20,7 @@ public interface BaseList {
 
     Tensor1D word2vec(String w);
 
+    Tensor1D embedding(String w);
+
     JSONObject toJSON();
 }

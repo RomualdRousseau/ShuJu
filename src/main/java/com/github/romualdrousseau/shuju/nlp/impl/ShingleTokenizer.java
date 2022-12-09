@@ -62,8 +62,8 @@ public class ShingleTokenizer implements ITokenizer {
     public void add(String s) {
         if ((s.length() > 1 || Character.isDigit(s.charAt(0))) && !this.shinglesIndex.containsKey(s)) {
             this.shingles.add(s);
+            this.rebuildShinglesIndex();
         }
-        this.rebuildShinglesIndex();
     }
 
     @Override
@@ -104,9 +104,7 @@ public class ShingleTokenizer implements ITokenizer {
     public Tensor1D word2vec(final String s, final Tensor1D outVector) {
         this.tokenize(s).forEach(token -> {
             Optional.ofNullable(this.shinglesIndex.get(token))
-                .map(j -> {
-                    return outVector.set(j, 1.0f);
-                })
+                .map(j -> outVector.set(j, 1.0f))
                 .orElseGet(() -> {
                     for (int j = 0; j < this.shingles.size(); j++) {
                         if (this.similarity(token, this.shingles.get(j)) > 0.95f) {
@@ -120,22 +118,21 @@ public class ShingleTokenizer implements ITokenizer {
     }
 
     @Override
-    public Tensor1D embedding(final String s, final Tensor1D outVector) {
+    public Tensor1D embedding(final String s) {
+        ArrayList<Float> buffer = new ArrayList<Float>();
         this.tokenize(s).forEach(token -> {
             Optional.ofNullable(this.shinglesIndex.get(token))
-                .map(j -> {
-                    return outVector.concat(new Tensor1D(new Float[] { (float) j }));
-                })
+                .map(j -> buffer.add((float) j))
                 .orElseGet(() -> {
                     for (int j = 0; j < this.shingles.size(); j++) {
                         if (this.similarity(token, this.shingles.get(j)) > 0.95f) {
-                            outVector.concat(new Tensor1D(new Float[] { (float) j }));
+                            buffer.add((float) j);
                         }
                     }
-                    return outVector;
+                    return false;
                 });
         });
-        return outVector;
+        return new Tensor1D(buffer.toArray(null));
     }
 
     @Override
@@ -165,6 +162,7 @@ public class ShingleTokenizer implements ITokenizer {
     }
 
     private void rebuildShinglesIndex() {
+        this.shinglesIndex.clear();
         for (int i = 0; i < shingles.size(); i++) {
             this.shinglesIndex.put(this.shingles.get(i), i);
         }

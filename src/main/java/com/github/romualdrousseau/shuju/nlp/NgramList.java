@@ -99,11 +99,10 @@ public class NgramList implements BaseList {
     }
 
     public Tensor1D embedding(String w) {
-        Tensor1D result = new Tensor1D(0);
         if (StringUtility.isEmpty(w)) {
-            return result;
+            return Tensor1D.Null;
         } else {
-            return this.tokenizer.embedding(w, result);
+            return this.tokenizer.embedding(w);
         }
     }
 

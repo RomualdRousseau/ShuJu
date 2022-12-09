@@ -230,7 +230,6 @@ public class Tensor1D extends AbstractTensor<float[]> {
         if (e == null) {
             return this.zero();
         }
-
         return this.oneHot(e.ordinal());
     }
 
@@ -482,7 +481,14 @@ public class Tensor1D extends AbstractTensor<float[]> {
     }
 
     public Tensor1D pad(int n, float p) {
-        return this.concat(new Tensor1D(Math.max(n - this.rowCount(), 0), p));
+        float[] tmp = new float[n];
+        for (int i = 0; i < n; i++) {
+            tmp[i] = p;
+        }
+        System.arraycopy(this.data, 0, tmp, 0, this.shape[0]);
+        this.shape[0] = n;
+        this.data = tmp;
+        return this;
     }
 
     public Tensor2D dot(Tensor1D v) {

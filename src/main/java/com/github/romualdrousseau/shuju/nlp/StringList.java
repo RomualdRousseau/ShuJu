@@ -73,14 +73,17 @@ public class StringList implements BaseList {
 
     public Tensor1D word2vec(String w) {
         Tensor1D result = new Tensor1D(this.vectorSize);
-
         if (StringUtility.isEmpty(w)) {
             return result;
         }
+        return result.oneHot(this.ordinal(w));
+    }
 
-        result.oneHot(this.ordinal(w));
-
-        return result;
+    public Tensor1D embedding(String w) {
+        if (StringUtility.isEmpty(w)) {
+            return Tensor1D.Null;
+        }
+        return new Tensor1D(new Float[] { (float) this.ordinal(w) });
     }
 
     public JSONObject toJSON() {

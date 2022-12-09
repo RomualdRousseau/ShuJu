@@ -142,19 +142,30 @@ public class RegexList implements BaseList {
 
     public Tensor1D word2vec(String w) {
         Tensor1D result = new Tensor1D(this.vectorSize);
-
         if (StringUtility.isEmpty(w)) {
             return result;
         }
-
         for (Entry<String, Pattern> pattern : this.compiledPatterns.entrySet()) {
             Matcher m = pattern.getValue().matcher(w);
             if (m.find()) {
                 result.set(this.ordinal(this.patterns.get(pattern.getKey())), 1.0f);
             }
         }
-
         return result;
+    }
+
+    public Tensor1D embedding(String w) {
+        if (StringUtility.isEmpty(w)) {
+            return Tensor1D.Null;
+        }
+        ArrayList<Float> buffer = new ArrayList<Float>();
+        for (Entry<String, Pattern> pattern : this.compiledPatterns.entrySet()) {
+            Matcher m = pattern.getValue().matcher(w);
+            if (m.find()) {
+                buffer.add((float) this.ordinal(this.patterns.get(pattern.getKey())));
+            }
+        }
+        return new Tensor1D(buffer.toArray(null));
     }
 
     public JSONObject toJSON() {

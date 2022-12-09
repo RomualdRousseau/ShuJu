@@ -49,8 +49,8 @@ public class NgramTokenizer implements ITokenizer {
     public void add(String s) {
         if(!this.ngramsIndex.containsKey(s)) {
             this.ngrams.add(s);
+            this.rebuildIndexes();
         }
-        this.rebuildIndexes();
     }
 
     @Override
@@ -86,14 +86,12 @@ public class NgramTokenizer implements ITokenizer {
     }
 
     @Override
-    public Tensor1D embedding(String s, Tensor1D outVector) {
+    public Tensor1D embedding(String s) {
+        ArrayList<Float> buffer = new ArrayList<Float>();
         this.tokenize(s).forEach(token -> {
-            Optional.ofNullable(this.ngramsIndex.get(token))
-                .map(j -> {
-                    return outVector.concat(new Tensor1D(new Float[] { (float) j }));
-                });
+            Optional.ofNullable(this.ngramsIndex.get(token)).ifPresent(j -> buffer.add((float) j));
         });
-        return outVector;
+        return new Tensor1D(buffer.toArray(null));
     }
 
     @Override
@@ -110,6 +108,7 @@ public class NgramTokenizer implements ITokenizer {
     }
 
     private void rebuildIndexes() {
+        this.ngramsIndex.clear();
         for (int i = 0; i < ngrams.size(); i++) {
             this.ngramsIndex.put(this.ngrams.get(i), i);
         }

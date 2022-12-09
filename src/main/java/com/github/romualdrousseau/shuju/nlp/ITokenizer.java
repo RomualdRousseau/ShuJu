@@ -14,7 +14,7 @@ public interface ITokenizer {
 
     Tensor1D word2vec(String s, Tensor1D outVector);
 
-    Tensor1D embedding(String s, Tensor1D outVector);
+    Tensor1D embedding(String s);
 
     JSONObject toJSON();
 }
