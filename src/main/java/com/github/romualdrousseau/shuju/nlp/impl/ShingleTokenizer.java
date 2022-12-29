@@ -132,7 +132,7 @@ public class ShingleTokenizer implements ITokenizer {
                     return false;
                 });
         });
-        return new Tensor1D(buffer.toArray(null));
+        return new Tensor1D(buffer.toArray(new Float[buffer.size()]));
     }
 
     @Override

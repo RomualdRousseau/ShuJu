@@ -12,19 +12,19 @@ import com.github.romualdrousseau.shuju.util.StringUtility;
 public class NgramList implements BaseList {
     public static final int SHINGLE = 0;
 
-    private int n;
+    private final int n;
     private int vectorSize = 0;
     private ITokenizer tokenizer;
 
-    public NgramList(int n, int vectorSize) {
+    public NgramList(final int n, final int vectorSize) {
         this(n, vectorSize, null, null);
     }
 
-    public NgramList(int n, int vectorSize, String[] ngrams) {
+    public NgramList(final int n, final int vectorSize, final String[] ngrams) {
         this(n, vectorSize, ngrams, null);
     }
 
-    public NgramList(JSONObject json) {
+    public NgramList(final JSONObject json) {
         this(json.getInt("n"), json.getInt("maxVectorSize"), null, null);
         if (this.n == NgramList.SHINGLE) {
             this.tokenizer = new ShingleTokenizer(json.getJSONObject("tokenizer"));
@@ -33,7 +33,7 @@ public class NgramList implements BaseList {
         }
     }
 
-    public NgramList(int n, int vectorSize, String[] ngrams, String[] lexicon) {
+    public NgramList(final int n, final int vectorSize, String[] ngrams, String[] lexicon) {
         this.n = n;
         this.vectorSize = vectorSize;
         if (ngrams == null) {
@@ -49,7 +49,7 @@ public class NgramList implements BaseList {
         }
     }
 
-    public void setCustomTokenizer(ITokenizer tokenizer) {
+    public void setCustomTokenizer(final ITokenizer tokenizer) {
         this.tokenizer = tokenizer;
     }
 
@@ -61,18 +61,18 @@ public class NgramList implements BaseList {
         return this.values().size();
     }
 
-    public String get(int i) {
+    public String get(final int i) {
         if (i >= this.size()) {
             return null;
         }
         return this.values().get(i);
     }
 
-    public int ordinal(String w) {
+    public int ordinal(final String w) {
         return this.values().indexOf(w);
     }
 
-    public NgramList add(String w) {
+    public NgramList add(final String w) {
         if(StringUtility.isEmpty(w)) {
             return this;
         }
@@ -89,8 +89,8 @@ public class NgramList implements BaseList {
         return this.vectorSize;
     }
 
-    public Tensor1D word2vec(String w) {
-        Tensor1D result = new Tensor1D(this.vectorSize);
+    public Tensor1D word2vec(final String w) {
+        final Tensor1D result = new Tensor1D(this.vectorSize);
         if (StringUtility.isEmpty(w)) {
             return result;
         } else {
@@ -98,7 +98,7 @@ public class NgramList implements BaseList {
         }
     }
 
-    public Tensor1D embedding(String w) {
+    public Tensor1D embedding(final String w) {
         if (StringUtility.isEmpty(w)) {
             return Tensor1D.Null;
         } else {
@@ -107,7 +107,7 @@ public class NgramList implements BaseList {
     }
 
     public JSONObject toJSON() {
-        JSONObject json = JSON.newJSONObject();
+        final JSONObject json = JSON.newJSONObject();
         json.setInt("n", this.n);
         json.setInt("maxVectorSize", this.vectorSize);
         json.setJSONObject("tokenizer", this.tokenizer.toJSON());

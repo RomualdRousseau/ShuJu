@@ -91,7 +91,7 @@ public class NgramTokenizer implements ITokenizer {
         this.tokenize(s).forEach(token -> {
             Optional.ofNullable(this.ngramsIndex.get(token)).ifPresent(j -> buffer.add((float) j));
         });
-        return new Tensor1D(buffer.toArray(null));
+        return new Tensor1D(buffer.toArray(new Float[buffer.size()]));
     }
 
     @Override

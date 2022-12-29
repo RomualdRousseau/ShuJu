@@ -165,7 +165,7 @@ public class RegexList implements BaseList {
                 buffer.add((float) this.ordinal(this.patterns.get(pattern.getKey())));
             }
         }
-        return new Tensor1D(buffer.toArray(null));
+        return new Tensor1D(buffer.toArray(new Float[buffer.size()]));
     }
 
     public JSONObject toJSON() {
