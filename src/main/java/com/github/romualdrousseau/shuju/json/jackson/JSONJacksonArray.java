@@ -61,7 +61,7 @@ public class JSONJacksonArray implements JSONArray {
     }
 
     public void setFloat(int i, float f) {
-        this.arrayNode.set(i, this.mapper.convertValue(i, JsonNode.class));
+        this.arrayNode.set(i, this.mapper.convertValue(f, JsonNode.class));
     }
 
     public String getString(int i) {
@@ -69,7 +69,7 @@ public class JSONJacksonArray implements JSONArray {
     }
 
     public void setString(int i, String s) {
-        this.arrayNode.set(i, this.mapper.convertValue(i, JsonNode.class));
+        this.arrayNode.set(i, this.mapper.convertValue(s, JsonNode.class));
     }
 
     public JSONArray getJSONArray(int i) {
