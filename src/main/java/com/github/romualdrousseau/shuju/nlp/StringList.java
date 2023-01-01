@@ -8,7 +8,7 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Tensor1D;
-import com.github.romualdrousseau.shuju.util.StringUtility;
+import com.github.romualdrousseau.shuju.util.StringUtils;
 
 public class StringList implements BaseList {
     private ArrayList<String> strings = new ArrayList<String>();
@@ -57,7 +57,7 @@ public class StringList implements BaseList {
     }
 
     public StringList add(String w) {
-        if(StringUtility.isEmpty(w)) {
+        if(StringUtils.isBLank(w)) {
             return this;
         }
         if(this.strings.indexOf(w) >= 0) {
@@ -73,14 +73,14 @@ public class StringList implements BaseList {
 
     public Tensor1D word2vec(String w) {
         Tensor1D result = new Tensor1D(this.vectorSize);
-        if (StringUtility.isEmpty(w)) {
+        if (StringUtils.isBLank(w)) {
             return result;
         }
         return result.oneHot(this.ordinal(w));
     }
 
     public Tensor1D embedding(String w) {
-        if (StringUtility.isEmpty(w)) {
+        if (StringUtils.isBLank(w)) {
             return Tensor1D.Null;
         }
         return new Tensor1D(new Float[] { (float) this.ordinal(w) });

@@ -12,7 +12,7 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Tensor1D;
-import com.github.romualdrousseau.shuju.util.StringUtility;
+import com.github.romualdrousseau.shuju.util.StringUtils;
 
 public class RegexList implements BaseList {
 
@@ -79,7 +79,7 @@ public class RegexList implements BaseList {
     }
 
     public RegexList add(String w) {
-        if (StringUtility.isEmpty(w)) {
+        if (StringUtils.isBLank(w)) {
             return this;
         }
         if (this.types.indexOf(w) >= 0) {
@@ -104,7 +104,7 @@ public class RegexList implements BaseList {
     public String anonymize(String w) {
         String result = "";
 
-        if (StringUtility.isEmpty(w)) {
+        if (StringUtils.isBLank(w)) {
             return result;
         }
 
@@ -126,7 +126,7 @@ public class RegexList implements BaseList {
     public String find(String w) {
         String result = null;
 
-        if (StringUtility.isEmpty(w)) {
+        if (StringUtils.isBLank(w)) {
             return result;
         }
 
@@ -142,7 +142,7 @@ public class RegexList implements BaseList {
 
     public Tensor1D word2vec(String w) {
         Tensor1D result = new Tensor1D(this.vectorSize);
-        if (StringUtility.isEmpty(w)) {
+        if (StringUtils.isBLank(w)) {
             return result;
         }
         for (Entry<String, Pattern> pattern : this.compiledPatterns.entrySet()) {
@@ -155,7 +155,7 @@ public class RegexList implements BaseList {
     }
 
     public Tensor1D embedding(String w) {
-        if (StringUtility.isEmpty(w)) {
+        if (StringUtils.isBLank(w)) {
             return Tensor1D.Null;
         }
         ArrayList<Float> buffer = new ArrayList<Float>();

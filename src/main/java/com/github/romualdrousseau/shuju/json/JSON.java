@@ -5,9 +5,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.github.romualdrousseau.shuju.json.jackson.JSONJacksonFactory;
-import com.github.romualdrousseau.shuju.util.StringUtility;
+import com.github.romualdrousseau.shuju.util.StringUtils;
 
 public class JSON {
     private static JSONFactory Factory;
@@ -68,7 +71,7 @@ public class JSON {
             reader.mark(1);
             int c = reader.read();
             // if not the BOM, back up to the beginning again
-            if (c != StringUtility.BOM_CHAR) {
+            if (c != StringUtils.BOM_CHAR) {
                 reader.reset();
             }
 
@@ -78,5 +81,49 @@ public class JSON {
         } catch (Exception x) {
             throw new RuntimeException("Error opening " + filePath);
         }
+    }
+
+    public static Stream<JSONObject> StreamJSONObject(final JSONArray a) {
+        Iterable<JSONObject> it = new Iterable<JSONObject>() {
+            @Override
+            public Iterator<JSONObject> iterator() {
+                return new Iterator<JSONObject>() {
+                    private int idx = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return idx < a.size();
+                    }
+
+                    @Override
+                    public JSONObject next() {
+                        return a.getJSONObject(idx++);
+                    } 
+                };
+            }
+        };
+        return StreamSupport.stream(it.spliterator(), false);
+    }
+
+    public static Stream<String> StreamString(final JSONArray a) {
+        Iterable<String> it = new Iterable<String>() {
+            @Override
+            public Iterator<String> iterator() {
+                return new Iterator<String>() {
+                    private int idx = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return idx < a.size();
+                    }
+
+                    @Override
+                    public String next() {
+                        return a.getString(idx++);
+                    } 
+                };
+            }
+        };
+        return StreamSupport.stream(it.spliterator(), false);
     }
 }

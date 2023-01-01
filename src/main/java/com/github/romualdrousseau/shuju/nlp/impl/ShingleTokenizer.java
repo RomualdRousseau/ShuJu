@@ -12,8 +12,8 @@ import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.nlp.ITokenizer;
-import com.github.romualdrousseau.shuju.util.FuzzyString;
-import com.github.romualdrousseau.shuju.util.StringUtility;
+import com.github.romualdrousseau.shuju.util.StringFuzzy;
+import com.github.romualdrousseau.shuju.util.StringUtils;
 
 public class ShingleTokenizer implements ITokenizer {
     private ArrayList<String> shingles = new ArrayList<String>();
@@ -38,14 +38,14 @@ public class ShingleTokenizer implements ITokenizer {
         JSONArray jsonShingles = json.getJSONArray("shingles");
         for (int i = 0; i < jsonShingles.size(); i++) {
             String shingle = jsonShingles.getString(i);
-            if (!StringUtility.isEmpty(shingle)) {
+            if (!StringUtils.isBLank(shingle)) {
                 this.shingles.add(shingle);
             }
         }
         JSONArray jsonLexicon = json.getJSONArray("lexicon");
         for (int i = 0; i < jsonLexicon.size(); i++) {
             String word = jsonLexicon.getString(i);
-            if (!StringUtility.isEmpty(word)) {
+            if (!StringUtils.isBLank(word)) {
                 this.lexicon.add(word);
             }
         }
@@ -68,7 +68,7 @@ public class ShingleTokenizer implements ITokenizer {
 
     @Override
     public List<String> tokenize(String w) {
-        String s = StringUtility.normalizeWhiteSpaces(w);
+        String s = StringUtils.normalizeWhiteSpaces(w);
 
         // Split using a lexicon of known words if any
 
@@ -157,7 +157,7 @@ public class ShingleTokenizer implements ITokenizer {
         if (s1.length() != s2.length()) {
             return 0.0f;
         } else {
-            return FuzzyString.JaroWinkler(s1, s2);
+            return StringFuzzy.JaroWinkler(s1, s2);
         }
     }
 

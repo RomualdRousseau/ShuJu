@@ -11,7 +11,7 @@ import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.nlp.ITokenizer;
-import com.github.romualdrousseau.shuju.util.StringUtility;
+import com.github.romualdrousseau.shuju.util.StringUtils;
 
 public class NgramTokenizer implements ITokenizer {
     private ArrayList<String> ngrams = new ArrayList<String>();
@@ -32,7 +32,7 @@ public class NgramTokenizer implements ITokenizer {
         JSONArray jsonNgrams = json.getJSONArray("ngrams");
         for (int i = 0; i < jsonNgrams.size(); i++) {
             String ngram = jsonNgrams.getString(i);
-            if (!StringUtility.isEmpty(ngram)) {
+            if (!StringUtils.isBLank(ngram)) {
                 this.ngrams.add(ngram);
             }
         }
@@ -55,7 +55,7 @@ public class NgramTokenizer implements ITokenizer {
 
     @Override
     public List<String> tokenize(String s) {
-        s = StringUtility.normalizeWhiteSpaces(s);
+        s = StringUtils.normalizeWhiteSpaces(s);
 
         // Join by space and underscore
         s = s.replaceAll("[\\s_]+", "").trim();

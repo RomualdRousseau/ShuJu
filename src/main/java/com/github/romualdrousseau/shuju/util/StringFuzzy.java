@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FuzzyString {
+public class StringFuzzy {
     public static float Hamming(String s, String t) {
         if(s.length() != t.length()) {
             return 0.0f;
@@ -73,8 +73,8 @@ public class FuzzyString {
     }
 
     public static float Jaccard(String s1, String s2) {
-        return Float.valueOf(FuzzyString.intersect(s1, s2).length())
-                / Float.valueOf(FuzzyString.union(s1, s2).length());
+        return Float.valueOf(StringFuzzy.intersect(s1, s2).length())
+                / Float.valueOf(StringFuzzy.union(s1, s2).length());
     }
 
     public static String union(String s1, String s2) {

@@ -7,7 +7,7 @@ import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Tensor1D;
 import com.github.romualdrousseau.shuju.nlp.impl.NgramTokenizer;
 import com.github.romualdrousseau.shuju.nlp.impl.ShingleTokenizer;
-import com.github.romualdrousseau.shuju.util.StringUtility;
+import com.github.romualdrousseau.shuju.util.StringUtils;
 
 public class NgramList implements BaseList {
     public static final int SHINGLE = 0;
@@ -73,7 +73,7 @@ public class NgramList implements BaseList {
     }
 
     public NgramList add(final String w) {
-        if(StringUtility.isEmpty(w)) {
+        if(StringUtils.isBLank(w)) {
             return this;
         }
         this.tokenizer.tokenize(w).forEach(token -> {
@@ -91,7 +91,7 @@ public class NgramList implements BaseList {
 
     public Tensor1D word2vec(final String w) {
         final Tensor1D result = new Tensor1D(this.vectorSize);
-        if (StringUtility.isEmpty(w)) {
+        if (StringUtils.isBLank(w)) {
             return result;
         } else {
             return this.tokenizer.word2vec(w, result);
@@ -99,7 +99,7 @@ public class NgramList implements BaseList {
     }
 
     public Tensor1D embedding(final String w) {
-        if (StringUtility.isEmpty(w)) {
+        if (StringUtils.isBLank(w)) {
             return Tensor1D.Null;
         } else {
             return this.tokenizer.embedding(w);
