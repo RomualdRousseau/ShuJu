@@ -1,11 +1,14 @@
-package com.github.romualdrousseau.shuju.math;
+package com.github.romualdrousseau.shuju.math.deprecated;
 
 import java.util.Arrays;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
+import com.github.romualdrousseau.shuju.math.Blas;
+import com.github.romualdrousseau.shuju.math.Scalar;
 
+@Deprecated
 public class Tensor3D extends AbstractTensor<float[][][]> {
 
     public Tensor3D(final int... shape) {

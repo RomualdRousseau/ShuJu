@@ -2,8 +2,8 @@ package com.github.romualdrousseau.shuju.ml.nn;
 
 import java.util.function.Consumer;
 
-import com.github.romualdrousseau.shuju.math.Tensor2D;
-import com.github.romualdrousseau.shuju.math.Tensor3D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor2D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor3D;
 
 public abstract class Optimizer {
 

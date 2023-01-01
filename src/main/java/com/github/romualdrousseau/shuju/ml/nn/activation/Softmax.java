@@ -1,8 +1,8 @@
 package com.github.romualdrousseau.shuju.ml.nn.activation;
 
 import com.github.romualdrousseau.shuju.math.Scalar;
-import com.github.romualdrousseau.shuju.math.Tensor2D;
-import com.github.romualdrousseau.shuju.math.TensorFunction;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor2D;
+import com.github.romualdrousseau.shuju.math.deprecated.TensorFunction;
 import com.github.romualdrousseau.shuju.ml.nn.ActivationFunc;
 
 public class Softmax implements ActivationFunc {

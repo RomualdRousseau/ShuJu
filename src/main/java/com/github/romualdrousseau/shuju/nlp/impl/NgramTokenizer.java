@@ -9,7 +9,7 @@ import java.util.Optional;
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Tensor1D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor1D;
 import com.github.romualdrousseau.shuju.nlp.ITokenizer;
 import com.github.romualdrousseau.shuju.util.StringUtils;
 
@@ -32,7 +32,7 @@ public class NgramTokenizer implements ITokenizer {
         JSONArray jsonNgrams = json.getJSONArray("ngrams");
         for (int i = 0; i < jsonNgrams.size(); i++) {
             String ngram = jsonNgrams.getString(i);
-            if (!StringUtils.isBLank(ngram)) {
+            if (!StringUtils.isBlank(ngram)) {
                 this.ngrams.add(ngram);
             }
         }

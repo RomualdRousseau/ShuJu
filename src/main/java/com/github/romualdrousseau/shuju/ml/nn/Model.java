@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
-import com.github.romualdrousseau.shuju.math.Tensor2D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor2D;
 
 public class Model {
     public Model() {

@@ -1,8 +1,8 @@
 package com.github.romualdrousseau.shuju.ml.nn.initializer;
 
 import com.github.romualdrousseau.shuju.math.Scalar;
-import com.github.romualdrousseau.shuju.math.Tensor2D;
-import com.github.romualdrousseau.shuju.math.Tensor3D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor2D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor3D;
 import com.github.romualdrousseau.shuju.ml.nn.InitializerFunc;
 
 public class GlorotUniformInitializer implements InitializerFunc {

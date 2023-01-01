@@ -1,8 +1,8 @@
 package com.github.romualdrousseau.shuju.ml.nn.loss;
 
 import com.github.romualdrousseau.shuju.math.Scalar;
-import com.github.romualdrousseau.shuju.math.Tensor2D;
-import com.github.romualdrousseau.shuju.math.TensorFunction;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor2D;
+import com.github.romualdrousseau.shuju.math.deprecated.TensorFunction;
 import com.github.romualdrousseau.shuju.ml.nn.LossFunc;
 
 public class SoftmaxCrossEntropy implements LossFunc {

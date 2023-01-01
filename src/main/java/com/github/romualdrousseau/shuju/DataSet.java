@@ -13,8 +13,8 @@ import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 import com.github.romualdrousseau.shuju.math.Scalar;
-import com.github.romualdrousseau.shuju.math.Tensor1D;
-import com.github.romualdrousseau.shuju.math.TensorFunction;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor1D;
+import com.github.romualdrousseau.shuju.math.deprecated.TensorFunction;
 
 public class DataSet {
 

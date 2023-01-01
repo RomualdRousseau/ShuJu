@@ -1,11 +1,13 @@
-package com.github.romualdrousseau.shuju.math;
+package com.github.romualdrousseau.shuju.math.deprecated;
 
 import java.util.Arrays;
 
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
+import com.github.romualdrousseau.shuju.math.Scalar;
 
+@Deprecated
 public class Tensor1D extends AbstractTensor<float[]> {
 
     public static final Tensor1D Null = new Tensor1D(0);

@@ -13,7 +13,7 @@ public class StringUtils {
 
     public static final char BOM_CHAR = '\uFEFF';
 
-    public static boolean isBLank(final String s) {
+    public static boolean isBlank(final String s) {
         return s == null || StringUtils.trim(s).equals("");
     }
 
@@ -65,6 +65,18 @@ public class StringUtils {
         return s.replaceAll("[" + whiteSpaces + "]+", " ");
     }
 
+    public static String capitalize(final String s) {
+        if (s == null) {
+            return null;
+        }
+        if (s.length() == 1) {
+            return s.toLowerCase();
+        }
+        else {
+            return Character.toUpperCase(s.charAt(0)) + s.substring(1).toLowerCase();
+        }
+    }
+
     public static boolean checkIfGoodEncoding(final String s) {
         if (s == null) {
             return false;
@@ -87,8 +99,8 @@ public class StringUtils {
 
     public static String ensureCamelStyle(final String s) {
         // Consider _ separated words instead of space 
-        String ss = StringUtils.cleanToken(s.replaceAll("_", " "));
-        if (StringUtils.isBLank(ss)) {
+        String ss = s.replaceAll("_", " ");
+        if (StringUtils.isBlank(ss)) {
             return "";
         }
 
@@ -105,17 +117,5 @@ public class StringUtils {
 
         // Ensure to start by a lower case
         return Character.toLowerCase(ss.charAt(0)) + ss.substring(1);
-    }
-
-    public static String capitalize(final String s) {
-        if (s == null) {
-            return null;
-        }
-        if (s.length() == 1) {
-            return s.toLowerCase();
-        }
-        else {
-            return Character.toUpperCase(s.charAt(0)) + s.substring(1).toLowerCase();
-        }
     }
 }

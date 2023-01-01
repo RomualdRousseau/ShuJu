@@ -1,8 +1,7 @@
 package com.github.romualdrousseau.shuju.ml.nn;
 
 import com.github.romualdrousseau.shuju.json.JSONObject;
-
-import com.github.romualdrousseau.shuju.math.Tensor2D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor2D;
 
 public class Parameters2D {
     public Tensor2D W, G, M, V;

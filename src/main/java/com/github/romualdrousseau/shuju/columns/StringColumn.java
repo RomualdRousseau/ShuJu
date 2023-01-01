@@ -1,7 +1,7 @@
 package com.github.romualdrousseau.shuju.columns;
 
 import com.github.romualdrousseau.shuju.IColumn;
-import com.github.romualdrousseau.shuju.math.Tensor1D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor1D;
 import com.github.romualdrousseau.shuju.nlp.StringList;
 
 public class StringColumn implements IColumn<String> {

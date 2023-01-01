@@ -36,7 +36,7 @@ public class StopWordList  {
     }
 
     public String removeStopWords(String s) {
-        if (StringUtils.isBLank(s)) {
+        if (StringUtils.isBlank(s)) {
             return "";
         }
 

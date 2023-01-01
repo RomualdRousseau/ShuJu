@@ -6,7 +6,7 @@ import java.util.stream.IntStream;
 
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Tensor1D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor1D;
 
 public class DataRow {
     public final static int FEATURES = 0;

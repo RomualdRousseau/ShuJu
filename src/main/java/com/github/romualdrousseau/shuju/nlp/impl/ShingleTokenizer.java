@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
-import com.github.romualdrousseau.shuju.math.Tensor1D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor1D;
 import com.github.romualdrousseau.shuju.nlp.ITokenizer;
 import com.github.romualdrousseau.shuju.util.StringFuzzy;
 import com.github.romualdrousseau.shuju.util.StringUtils;
@@ -38,14 +38,14 @@ public class ShingleTokenizer implements ITokenizer {
         JSONArray jsonShingles = json.getJSONArray("shingles");
         for (int i = 0; i < jsonShingles.size(); i++) {
             String shingle = jsonShingles.getString(i);
-            if (!StringUtils.isBLank(shingle)) {
+            if (!StringUtils.isBlank(shingle)) {
                 this.shingles.add(shingle);
             }
         }
         JSONArray jsonLexicon = json.getJSONArray("lexicon");
         for (int i = 0; i < jsonLexicon.size(); i++) {
             String word = jsonLexicon.getString(i);
-            if (!StringUtils.isBLank(word)) {
+            if (!StringUtils.isBlank(word)) {
                 this.lexicon.add(word);
             }
         }

@@ -1,5 +1,6 @@
-package com.github.romualdrousseau.shuju.math;
+package com.github.romualdrousseau.shuju.math.deprecated;
 
+@Deprecated
 public abstract class AbstractTensor<A> {
 
     public int[] shape;

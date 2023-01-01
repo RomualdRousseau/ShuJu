@@ -1,6 +1,6 @@
 package com.github.romualdrousseau.shuju;
 
-import com.github.romualdrousseau.shuju.math.Tensor1D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor1D;
 
 public class DataStatistics {
     public static int count(DataSummary summary) {

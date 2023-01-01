@@ -1,7 +1,7 @@
 package com.github.romualdrousseau.shuju.columns;
 
 import com.github.romualdrousseau.shuju.IColumn;
-import com.github.romualdrousseau.shuju.math.Tensor1D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor1D;
 
 public class NumericColumn implements IColumn<Float> {
 

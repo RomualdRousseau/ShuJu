@@ -1,9 +1,9 @@
 package com.github.romualdrousseau.shuju.ml.nn.optimizer;
 
 import com.github.romualdrousseau.shuju.math.Scalar;
-import com.github.romualdrousseau.shuju.math.Tensor2D;
-import com.github.romualdrousseau.shuju.math.Tensor3D;
-import com.github.romualdrousseau.shuju.math.TensorFunction;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor2D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor3D;
+import com.github.romualdrousseau.shuju.math.deprecated.TensorFunction;
 import com.github.romualdrousseau.shuju.ml.nn.Model;
 import com.github.romualdrousseau.shuju.ml.nn.Optimizer;
 import com.github.romualdrousseau.shuju.ml.nn.Parameters2D;

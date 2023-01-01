@@ -1,6 +1,6 @@
 package com.github.romualdrousseau.shuju.ml.nn.loss;
 
-import com.github.romualdrousseau.shuju.math.Tensor2D;
+import com.github.romualdrousseau.shuju.math.deprecated.Tensor2D;
 import com.github.romualdrousseau.shuju.ml.nn.LossFunc;
 
 public class MeanSquaredError implements LossFunc {
