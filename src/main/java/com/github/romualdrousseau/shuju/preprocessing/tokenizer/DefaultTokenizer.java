@@ -8,8 +8,8 @@ import com.github.romualdrousseau.shuju.util.StringUtils;
 
 public class DefaultTokenizer implements Text.ITokenizer {
     @Override
-    public List<String> tokenize(String w) {
-        String s = StringUtils.normalizeWhiteSpaces(w);
-        return Arrays.asList(s.split(" "));
+    public List<String> apply(final String w) {
+        final String s = StringUtils.normalizeWhiteSpaces(w).toLowerCase();
+        return Arrays.asList(s.split("\s+"));
     }
 }

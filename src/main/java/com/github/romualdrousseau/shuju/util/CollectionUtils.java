@@ -1,6 +1,7 @@
 package com.github.romualdrousseau.shuju.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CollectionUtils {
@@ -11,5 +12,10 @@ public class CollectionUtils {
             result.add(i);
         }
         return result;
+    }
+
+    public static List<Integer> shuffle(List<Integer> l) {
+        Collections.shuffle(l);
+        return l;
     }
 }

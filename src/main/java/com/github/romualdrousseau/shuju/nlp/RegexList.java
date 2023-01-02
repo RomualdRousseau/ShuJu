@@ -109,7 +109,7 @@ public class RegexList implements BaseList {
         }
 
         result = w;
-        int order = this.types.size();
+        final int order = this.types.size();
         for (Entry<String, Pattern> pattern : this.compiledPatterns.entrySet()) {
             Matcher m = pattern.getValue().matcher(w);
             if (m.find()) {

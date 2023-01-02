@@ -10,12 +10,12 @@ public class NgramTokenizer implements Text.ITokenizer{
 
     private final int n;
 
-    public NgramTokenizer(int n) {
+    public NgramTokenizer(final int n) {
         this.n = n;
     }
 
     @Override
-    public List<String> tokenize(final String w) {
+    public List<String> apply(final String w) {
         String s = StringUtils.normalizeWhiteSpaces(w);
 
         // Join by space and underscore
@@ -26,9 +26,9 @@ public class NgramTokenizer implements Text.ITokenizer{
             s += "?";
         }
 
-        ArrayList<String> result = new ArrayList<String>();
+        final ArrayList<String> result = new ArrayList<String>();
         for (int i = 0; i < s.length() - this.n + 1; i++) {
-            String ss = s.substring(i, i + this.n);
+            final String ss = s.substring(i, i + this.n);
             result.add(ss.toLowerCase());
         }
 

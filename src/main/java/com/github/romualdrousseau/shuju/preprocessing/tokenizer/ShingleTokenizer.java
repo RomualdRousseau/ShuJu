@@ -15,18 +15,18 @@ public class ShingleTokenizer implements Text.ITokenizer{
 
     private final Map<String, Set<String>> variants;
 
-    public ShingleTokenizer(Set<String> lexicon) {
+    public ShingleTokenizer(final Set<String> lexicon) {
         this.variants = Text.get_lexicon(lexicon);
     }
 
     @Override
-    public List<String> tokenize(String w) {
+    public List<String> apply(final String w) {
         String s = StringUtils.normalizeWhiteSpaces(w);
 
         // Split using a lexicon of known words if any
 
-        for (Entry<String, Set<String>> lexem : variants.entrySet()) {
-            for (String variant : lexem.getValue()) {
+        for (final Entry<String, Set<String>> lexem : variants.entrySet()) {
+            for (final String variant : lexem.getValue()) {
                 if (s.toLowerCase().contains(variant)) {
                     s = s.replaceAll("(?i)" + variant, " " + lexem.getKey() + " ");
                     break;
@@ -40,9 +40,9 @@ public class ShingleTokenizer implements Text.ITokenizer{
 
         // Split by space and then by Camel notation words
 
-        ArrayList<String> result = new ArrayList<String>();
-        for (String ss : s.split(" ")) {
-            for (String sss : CAMEL_PATTERN.split(ss)) {
+        final ArrayList<String> result = new ArrayList<String>();
+        for (final String ss : s.split(" ")) {
+            for (final String sss : CAMEL_PATTERN.split(ss)) {
                 if (sss.length() > 0 && (sss.length() > 1 || !Character.isAlphabetic(sss.charAt(0)))) {
                     result.add(sss.toLowerCase());
                 }
