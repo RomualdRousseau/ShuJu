@@ -1,14 +1,8 @@
 package com.github.romualdrousseau.shuju.cv;
 
-import com.github.romualdrousseau.shuju.math.deprecated.Tensor2D;
-
 public class Template {
     public Template(float[][] data) {
         this.data = data;
-    }
-
-    public Template(Tensor2D data) {
-        this.data = data.getFloats();
     }
 
     public int getWidth() {
