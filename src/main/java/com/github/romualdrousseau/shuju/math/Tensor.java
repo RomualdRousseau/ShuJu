@@ -53,6 +53,10 @@ public class Tensor extends MArray {
         return (Tensor) new Tensor(data.length).setItems(data);
     }
 
+    public static Tensor create(final double... data) {
+        return (Tensor) new Tensor(data.length).setItems(data);
+    }
+    
     public static Tensor create(final float[][] data) {
         return (Tensor) new Tensor(data.length, data[0].length).setItems(data);
     }

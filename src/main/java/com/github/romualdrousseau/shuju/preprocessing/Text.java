@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,6 +28,7 @@ public class Text {
 
     public interface IComparer extends BiFunction<String, List<String>, Boolean> {
         String anonymize(String v);
+        Optional<String> find(String v);
     }
 
     public static ITokenizer DefaultTokenizer = new DefaultTokenizer();
@@ -40,12 +41,12 @@ public class Text {
 
     public static Comparator<String> ComparatorByLength = (a, b) -> b.length() - a.length();
 
-    public static Map<String, Set<String>> get_lexicon(Set<String> lexicon) {
+    public static Map<String, List<String>> get_lexicon(List<String> lexicon) {
         return lexicon.stream()
                 .map(w -> Arrays.asList(w.split(",")))
                 .collect(Collectors.toMap(
                         w -> w.get(0),
-                        w -> w.stream().sorted(Text.ComparatorByLength).collect(Collectors.toSet())));
+                        w -> w.stream().distinct().sorted(Text.ComparatorByLength).toList()));
     }
 
     public static List<String> all_words(final List<String> documents) {
@@ -109,13 +110,17 @@ public class Text {
     }
 
     public static List<Integer> mutate_sequence(final List<Integer> sequence) {
-        return Text.mutate_sequence(sequence, 0.1f);
+        return Text.mutate_sequence(sequence, 0.1f, 0);
     }
 
     public static List<Integer> mutate_sequence(final List<Integer> sequence, final float p) {
+        return Text.mutate_sequence(sequence, p, 0);
+    }
+
+    public static List<Integer> mutate_sequence(final List<Integer> sequence, final float p, final int value) {
         final List<Integer> shuffler = CollectionUtils.shuffle(CollectionUtils.mutableRange(0, sequence.size()));
-        final Function<Integer, Integer> mutator = x -> Math.random() < p ? 0 : sequence.get(x);
-        return shuffler.stream().map(mutator).filter(x -> x != 0).toList();
+        final Function<Integer, Integer> mutator = x -> Math.random() < p ? value : sequence.get(x);
+        return shuffler.stream().map(mutator).filter(x -> x != value).toList();
     }
 
     public static JSONArray json_sequence(final List<Integer> sequence) {

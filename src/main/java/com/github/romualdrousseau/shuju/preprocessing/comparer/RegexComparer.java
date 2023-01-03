@@ -2,6 +2,7 @@ package com.github.romualdrousseau.shuju.preprocessing.comparer;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -22,13 +23,18 @@ public class RegexComparer implements Text.IComparer {
         return this.patterns.entrySet().stream()
                 .filter(x -> a.equals(x.getValue()))
                 .map(e -> this.compiledPatterns.get(e.getKey()))
-                .anyMatch(p -> b.stream().anyMatch(v -> p.matcher(v).find()));
+                .anyMatch(p -> b.stream().anyMatch(v -> v != null && p.matcher(v).find()));
     }
 
     @Override
     public String anonymize(final String v) {
-        return this.patterns.entrySet().stream()
+        return (v == null) ? null : this.patterns.entrySet().stream()
             .reduce(Map.entry("", v), (a, e) -> Map.entry("", this.compiledPatterns.get(e.getKey()).matcher(a.getValue()).replaceAll(e.getValue()))).getValue();
+    }
+
+    @Override
+    public Optional<String> find(final String v) {
+        return (v == null) ? null : this.patterns.entrySet().stream().map(e -> this.compiledPatterns.get(e.getKey()).matcher(v)).filter(m -> m.find()).map(m -> m.group()).findFirst();
     }
 
     private Pattern compileRegex(String r) {

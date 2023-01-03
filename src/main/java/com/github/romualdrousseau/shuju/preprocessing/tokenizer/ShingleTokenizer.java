@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.github.romualdrousseau.shuju.preprocessing.Text;
@@ -13,9 +12,9 @@ import com.github.romualdrousseau.shuju.util.StringUtils;
 public class ShingleTokenizer implements Text.ITokenizer{
     private static final Pattern CAMEL_PATTERN = Pattern.compile("(?<!(^|[A-Z/]))(?=[A-Z/])|(?<!^)(?=[A-Z/][a-z/])");
 
-    private final Map<String, Set<String>> variants;
+    private final Map<String, List<String>> variants;
 
-    public ShingleTokenizer(final Set<String> lexicon) {
+    public ShingleTokenizer(final List<String> lexicon) {
         this.variants = Text.get_lexicon(lexicon);
     }
 
@@ -25,7 +24,7 @@ public class ShingleTokenizer implements Text.ITokenizer{
 
         // Split using a lexicon of known words if any
 
-        for (final Entry<String, Set<String>> lexem : variants.entrySet()) {
+        for (final Entry<String, List<String>> lexem : variants.entrySet()) {
             for (final String variant : lexem.getValue()) {
                 if (s.toLowerCase().contains(variant)) {
                     s = s.replaceAll("(?i)" + variant, " " + lexem.getKey() + " ");

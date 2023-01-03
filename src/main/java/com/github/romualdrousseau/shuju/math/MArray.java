@@ -84,6 +84,7 @@ public class MArray {
     }
 
     public MArray setItems(final float v) {
+        this.require(Flag.OWNDATA, false);
         for(int i = 0; i < this.size; i++) {
             this.data[i] = v;
         }
@@ -104,6 +105,25 @@ public class MArray {
         return this;
     }
 
+    public MArray setItems(final double... data) {
+        this.require(Flag.OWNDATA, false);
+        for(int i = 0; i < data.length; i++) {
+            this.data[i] = (float) data[i];
+        }
+        return this;
+        
+    }
+
+    public MArray setItems(final double[][] data) {
+        this.require(Flag.OWNDATA, false);
+        for (int i = 0; i < data.length; i++) {
+            for(int j = 0; i < data[0].length; j++) {
+                this.data[i * data[0].length + j] = (float) data[i][j];
+            }
+        }
+        return this;
+    }
+    
     public float item(int off) {
         return this.data[this.base + off];
     }
