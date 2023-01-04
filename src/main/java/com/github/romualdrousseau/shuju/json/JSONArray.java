@@ -3,7 +3,7 @@ package com.github.romualdrousseau.shuju.json;
 public interface JSONArray {
     int size();
 
-    Object get(int i);
+    <T> T get(int i);
 
     void set(int i, Object o);
 

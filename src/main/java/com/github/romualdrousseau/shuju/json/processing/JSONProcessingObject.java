@@ -1,5 +1,7 @@
 package com.github.romualdrousseau.shuju.json.processing;
 
+import java.util.Optional;
+
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
@@ -15,17 +17,18 @@ public class JSONProcessingObject implements JSONObject {
         return this.jo.keys();
     }
 
-    public Object get(String k) {
+    @SuppressWarnings("unchecked")
+    public <T> Optional<T> get(String k) {
         Object o = this.jo.get(k);
         if (o == null) {
-            return null;
+            return Optional.empty();
         }
         if(o instanceof processing.data.JSONObject) {
-            return new JSONProcessingObject((processing.data.JSONObject) o);
+            return Optional.of((T) new JSONProcessingObject((processing.data.JSONObject) o));
         } else if(o instanceof processing.data.JSONArray) {
-            return new JSONProcessingArray((processing.data.JSONArray) o);
+            return Optional.of((T) new JSONProcessingArray((processing.data.JSONArray) o));
         } else {
-            return o;
+            return Optional.of((T) o);
         }
     }
 

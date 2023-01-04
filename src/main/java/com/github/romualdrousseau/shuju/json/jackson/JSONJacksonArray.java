@@ -23,18 +23,19 @@ public class JSONJacksonArray implements JSONArray {
         return (this.arrayNode == null) ? 0 : this.arrayNode.size();
     }
 
-    public Object get(int i) {
+    @SuppressWarnings("unchecked")
+    public <T> T get(int i) {
         JsonNode node = this.arrayNode.get(i);
         if (node.isObject()) {
-            return new JSONJacksonObject(this.mapper, node);
+            return (T) new JSONJacksonObject(this.mapper, node);
         } else if (node.isArray()) {
-            return new JSONJacksonArray(this.mapper, node);
+            return (T) new JSONJacksonArray(this.mapper, node);
         } else if (node.isInt()) {
-            return node.intValue();
+            return (T) Integer.valueOf(node.intValue());
         } else if (node.isFloat()) {
-            return node.floatValue();
+            return (T) Float.valueOf(node.floatValue());
         } else {
-            return node.textValue();
+            return (T) node.textValue();
         }
     }
 
@@ -53,7 +54,7 @@ public class JSONJacksonArray implements JSONArray {
     }
 
     public void setInt(int i, int n) {
-        this.arrayNode.set(i, this.mapper.convertValue(i, JsonNode.class));
+        this.arrayNode.set(i, n);
     }
 
     public float getFloat(int i) {
@@ -61,7 +62,7 @@ public class JSONJacksonArray implements JSONArray {
     }
 
     public void setFloat(int i, float f) {
-        this.arrayNode.set(i, this.mapper.convertValue(f, JsonNode.class));
+        this.arrayNode.set(i, f);
     }
 
     public String getString(int i) {
@@ -69,7 +70,7 @@ public class JSONJacksonArray implements JSONArray {
     }
 
     public void setString(int i, String s) {
-        this.arrayNode.set(i, this.mapper.convertValue(s, JsonNode.class));
+        this.arrayNode.set(i, s);
     }
 
     public JSONArray getJSONArray(int i) {

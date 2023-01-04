@@ -1,6 +1,7 @@
 package com.github.romualdrousseau.shuju.json.jackson;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,10 +10,10 @@ import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.json.JSONObject;
 
 public class JSONJacksonObject implements JSONObject {
-    private ObjectMapper mapper;
+    private final ObjectMapper mapper;
     protected ObjectNode objectNode;
 
-    public JSONJacksonObject(ObjectMapper mapper, JsonNode node) {
+    public JSONJacksonObject(final ObjectMapper mapper, final JsonNode node) {
         this.mapper = mapper;
         if (node == null) {
             this.objectNode = mapper.createObjectNode();
@@ -22,28 +23,35 @@ public class JSONJacksonObject implements JSONObject {
     }
 
     public Iterable<String> keys() {
-        return this.getIterableFromIterator(this.objectNode.fieldNames());
+        return new Iterable<String>() {
+            @Override
+            public Iterator<String> iterator()
+            {
+                return JSONJacksonObject.this.objectNode.fieldNames();
+            }
+        };
     }
 
-    public Object get(String k) {
-        JsonNode node = this.objectNode.get(k);
+    @SuppressWarnings("unchecked")
+    public <T> Optional<T> get(final String k) {
+        final JsonNode node = this.objectNode.get(k);
         if (node == null) {
-            return null;
+            return Optional.empty();
         }
         if (node.isObject()) {
-            return new JSONJacksonObject(this.mapper, node);
+            return Optional.of((T) new JSONJacksonObject(this.mapper, node));
         } else if (node.isArray()) {
-            return new JSONJacksonArray(this.mapper, node);
+            return Optional.of((T) new JSONJacksonArray(this.mapper, node));
         } else if (node.isInt()) {
-            return node.intValue();
+            return Optional.of((T) Integer.valueOf(node.intValue()));
         } else if (node.isFloat()) {
-            return node.floatValue();
+            return Optional.of((T) Float.valueOf(node.floatValue()));
         } else {
-            return node.textValue();
+            return Optional.of((T) node.textValue());
         }
     }
 
-    public void set(String k, Object o) {
+    public void set(final String k, final Object o) {
         if (o instanceof JSONObject) {
             this.objectNode.set(k, (JsonNode) ((JSONJacksonObject) o).objectNode);
         } else if (o instanceof JSONArray) {
@@ -53,59 +61,48 @@ public class JSONJacksonObject implements JSONObject {
         }
     }
 
-    public int getInt(String k) {
+    public int getInt(final String k) {
         return this.objectNode.get(k).intValue();
     }
 
-    public void setInt(String k, int n) {
-        this.objectNode.set(k, this.mapper.convertValue(n, JsonNode.class));
+    public void setInt(final String k, final int n) {
+        this.objectNode.put(k, n);
     }
 
-    public float getFloat(String k) {
+    public float getFloat(final String k) {
         return this.objectNode.get(k).floatValue();
     }
 
-    public void setFloat(String k, float f) {
-        this.objectNode.set(k, this.mapper.convertValue(f, JsonNode.class));
+    public void setFloat(final String k, final float f) {
+        this.objectNode.put(k, f);
     }
 
-    public String getString(String k) {
+    public String getString(final String k) {
         return this.objectNode.get(k).textValue();
     }
 
-    public void setString(String k, String s) {
-        this.objectNode.set(k, this.mapper.convertValue(s, JsonNode.class));
+    public void setString(final String k, final String s) {
+        this.objectNode.put(k, s);
     }
 
-    public JSONArray getJSONArray(String k) {
+    public JSONArray getJSONArray(final String k) {
         return new JSONJacksonArray(this.mapper, this.objectNode.get(k));
     }
 
-    public void setJSONArray(String k, JSONArray a) {
+    public void setJSONArray(final String k, final JSONArray a) {
         this.objectNode.set(k, ((JSONJacksonArray) a).arrayNode);
     }
 
-    public JSONObject getJSONObject(String k) {
+    public JSONObject getJSONObject(final String k) {
         return new JSONJacksonObject(this.mapper, this.objectNode.get(k));
     }
 
-    public void setJSONObject(String k, JSONObject o) {
+    public void setJSONObject(final String k, final JSONObject o) {
         this.objectNode.set(k, ((JSONJacksonObject) o).objectNode);
     }
 
     @Override
     public String toString() {
         return this.objectNode.toString();
-    }
-
-    private <T> Iterable<T> getIterableFromIterator(Iterator<T> iterator)
-    {
-        return new Iterable<T>() {
-            @Override
-            public Iterator<T> iterator()
-            {
-                return iterator;
-            }
-        };
     }
 }

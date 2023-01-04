@@ -1,9 +1,11 @@
 package com.github.romualdrousseau.shuju.json;
 
+import java.util.Optional;
+
 public interface JSONObject {
     Iterable<String> keys();
 
-    Object get(String k);
+    <T> Optional<T> get(String k);
 
     void set(String k, Object o);
 

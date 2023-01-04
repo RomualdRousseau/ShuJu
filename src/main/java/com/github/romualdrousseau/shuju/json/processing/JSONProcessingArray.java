@@ -14,14 +14,15 @@ public class JSONProcessingArray implements JSONArray {
         return (this.ja == null) ? 0 : this.ja.size();
     }
 
-    public Object get(int i) {
+    @SuppressWarnings("unchecked")
+    public <T> T get(int i) {
         Object o = this.ja.get(i);
         if (o instanceof processing.data.JSONObject) {
-            return new JSONProcessingObject((processing.data.JSONObject) o);
+            return (T) new JSONProcessingObject((processing.data.JSONObject) o);
         } else if (o instanceof processing.data.JSONArray) {
-            return new JSONProcessingArray((processing.data.JSONArray) o);
+            return (T) new JSONProcessingArray((processing.data.JSONArray) o);
         } else {
-            return o;
+            return (T) o;
         }
     }
 

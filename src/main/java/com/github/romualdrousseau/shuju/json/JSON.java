@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -83,11 +85,29 @@ public class JSON {
         }
     }
 
-    public static Stream<JSONObject> StreamJSONObject(final JSONArray a) {
-        Iterable<JSONObject> it = new Iterable<JSONObject>() {
+    @SuppressWarnings("unchecked")
+    public static <T> T query(final Object a, final String q) {
+        final List<String> t = Arrays.asList(q.split("\\."));
+        Object curr = a;
+        int state = 0;
+        while(state < t.size()) {
+            if (curr instanceof JSONArray) {
+                int i = Integer.parseInt(t.get(state));
+                curr = ((JSONArray) curr).get(i);
+            }
+            else if (curr instanceof JSONObject) {
+                curr = ((JSONObject) curr).get(t.get(state)).get();
+            }
+            state++;
+        }
+        return (T) curr;
+    }
+
+    public static <T> Stream<T> Stream(final JSONArray a) {
+        Iterable<T> it = new Iterable<T>() {
             @Override
-            public Iterator<JSONObject> iterator() {
-                return new Iterator<JSONObject>() {
+            public Iterator<T> iterator() {
+                return new Iterator<T>() {
                     private int idx = 0;
 
                     @Override
@@ -96,8 +116,8 @@ public class JSON {
                     }
 
                     @Override
-                    public JSONObject next() {
-                        return a.getJSONObject(idx++);
+                    public T next() {
+                        return a.get(idx++);
                     } 
                 };
             }
@@ -105,25 +125,12 @@ public class JSON {
         return StreamSupport.stream(it.spliterator(), false);
     }
 
-    public static Stream<String> StreamString(final JSONArray a) {
-        Iterable<String> it = new Iterable<String>() {
-            @Override
-            public Iterator<String> iterator() {
-                return new Iterator<String>() {
-                    private int idx = 0;
-
-                    @Override
-                    public boolean hasNext() {
-                        return idx < a.size();
-                    }
-
-                    @Override
-                    public String next() {
-                        return a.getString(idx++);
-                    } 
-                };
-            }
-        };
-        return StreamSupport.stream(it.spliterator(), false);
+    public static <T> Stream<T> queryAsStream(final Object a, final String q) {
+        T o = JSON.query(a, q);
+        if (o instanceof JSONArray) {
+            return JSON.Stream((JSONArray) o);
+        } else {
+            return Stream.empty();
+        }
     }
 }
