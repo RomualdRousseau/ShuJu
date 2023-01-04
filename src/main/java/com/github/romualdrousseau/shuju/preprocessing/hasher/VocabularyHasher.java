@@ -15,6 +15,6 @@ public class VocabularyHasher implements Text.IHasher {
 
     @Override
     public Integer apply(final String w) {
-        return Collections.binarySearch(this.vocabulary, w) + 1;
+        return Math.max(0, Collections.binarySearch(this.vocabulary, w) + 1);
     }
 }
