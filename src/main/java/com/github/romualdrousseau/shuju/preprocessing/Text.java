@@ -75,6 +75,15 @@ public class Text {
         return tokenizer.apply(filters.stream().reduce(text, (a, x) -> a.replaceAll("(?i)" + x, " ")));
     }
 
+    public static List<Integer> to_categorical(final String label, final List<String> classes) {
+        return Text.to_categorical(label, classes, Text.DefaultComparer);
+    }
+
+    public static List<Integer> to_categorical(final String label, final List<String> classes,
+            final IComparer comparer) {
+        return Text.to_categorical(Arrays.asList(label), classes, comparer);
+    }
+
     public static List<Integer> to_categorical(final List<String> labels, final List<String> classes) {
         return Text.to_categorical(labels, classes, Text.DefaultComparer);
     }
