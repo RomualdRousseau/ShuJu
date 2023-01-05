@@ -62,7 +62,7 @@ public class JSONJacksonObject implements JSONObject {
     }
 
     public int getInt(final String k) {
-        return this.objectNode.get(k).intValue();
+        return Optional.ofNullable(this.objectNode.get(k)).map(v -> v.intValue()).orElse(0);
     }
 
     public void setInt(final String k, final int n) {
@@ -70,7 +70,7 @@ public class JSONJacksonObject implements JSONObject {
     }
 
     public float getFloat(final String k) {
-        return this.objectNode.get(k).floatValue();
+        return Optional.ofNullable(this.objectNode.get(k)).map(v -> v.floatValue()).orElse(0.0f);
     }
 
     public void setFloat(final String k, final float f) {
@@ -78,7 +78,7 @@ public class JSONJacksonObject implements JSONObject {
     }
 
     public String getString(final String k) {
-        return this.objectNode.get(k).textValue();
+        return Optional.ofNullable(this.objectNode.get(k)).map(v -> v.textValue()).orElse(null);
     }
 
     public void setString(final String k, final String s) {
