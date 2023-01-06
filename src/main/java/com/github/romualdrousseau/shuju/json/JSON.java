@@ -58,18 +58,6 @@ public class JSON {
         return JSON.Factory.parseJSONArray(object);
     }
 
-    public static <T> JSONArray parseJSONArray(final List<T> l) {
-        final JSONArray array = JSON.newJSONArray();
-        l.forEach(s -> array.append(s));
-        return array;   
-    }
-
-    public static <T> JSONObject parseJSONObject(final Map<String, T> m) {
-        final JSONObject object = JSON.newJSONObject();
-        m.forEach((k, v) -> object.set(k, v));
-        return object;
-    }
-
     public static void saveJSONObject(JSONObject o, String filePath) {
         JSON.Factory.saveJSONObject(o, filePath);
     }
@@ -145,5 +133,22 @@ public class JSON {
         } else {
             return Stream.empty();
         }
+    }
+
+    public static <T> JSONArray toJSONArray(final List<T> l) {
+        final JSONArray array = JSON.newJSONArray();
+        l.forEach(s -> array.append(s));
+        return array;   
+    }
+
+    public static <T> JSONArray toJSONArray(final Map<String, T> m) {
+        final JSONArray array = JSON.newJSONArray();
+        m.forEach((k, v) -> {
+            JSONObject pair = JSON.newJSONObject();
+            pair.set("key", k);
+            pair.set("value", v);
+            array.append(pair);
+        });
+        return array;
     }
 }
