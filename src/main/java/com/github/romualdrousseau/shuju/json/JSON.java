@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -55,6 +56,18 @@ public class JSON {
 
     public static JSONArray parseJSONArray(Object object) {
         return JSON.Factory.parseJSONArray(object);
+    }
+
+    public static <T> JSONArray parseJSONArray(final List<T> l) {
+        final JSONArray array = JSON.newJSONArray();
+        l.forEach(s -> array.append(s));
+        return array;   
+    }
+
+    public static <T> JSONObject parseJSONObject(final Map<String, T> m) {
+        final JSONObject object = JSON.newJSONObject();
+        m.forEach((k, v) -> object.set(k, v));
+        return object;
     }
 
     public static void saveJSONObject(JSONObject o, String filePath) {
