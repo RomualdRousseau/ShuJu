@@ -14,7 +14,7 @@ public class CollectionUtils {
         return result;
     }
 
-    public static List<Integer> shuffle(List<Integer> l) {
+    public static <T> List<T> shuffle(List<T> l) {
         Collections.shuffle(l);
         return l;
     }
