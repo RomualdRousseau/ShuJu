@@ -37,7 +37,7 @@ jobs:
                 id: check_version
                 run: |
                     declare version=$(cat pom.xml  | grep -i "<version>" | head -n 1 | sed -re 's@[ \t]*.version.(.*)./version.@\1@g' | tr [:upper:] [:lower:])
-                    if [[ $version == *"snapshot"* ]]; then echo "::set-output name=is_release::0"; else echo "::set-output name=is_release::1"; fi
+                    if [[ $version == *"snapshot"* ]]; then echo "is_release=0" >> $GITHUB_OUTPUT; else echo "is_release=1" >> $GITHUB_OUTPUT; fi
 
     deploy-dev:
         needs: [check-version-is-release]
