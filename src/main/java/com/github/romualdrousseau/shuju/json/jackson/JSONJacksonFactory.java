@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.File;
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.romualdrousseau.shuju.json.JSONArray;
@@ -18,6 +19,11 @@ public class JSONJacksonFactory implements JSONFactory {
 
     public JSONJacksonFactory() {
         this.mapper = new ObjectMapper();
+        StreamReadConstraints streamReadConstraints = StreamReadConstraints
+            .builder()
+            .maxStringLength(Integer.MAX_VALUE)
+            .build();
+        this.mapper.getFactory().setStreamReadConstraints(streamReadConstraints);
     }
 
     public JSONArray newJSONArray() {
