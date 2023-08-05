@@ -1,6 +1,20 @@
-package com.github.romualdrousseau.shuju.math;
+package com.github.romualdrousseau.shuju.types;
 
 import java.util.Arrays;
+
+import org.tensorflow.ndarray.StdArrays;
+import org.tensorflow.ndarray.buffer.DataBuffers;
+import org.tensorflow.types.TFloat32;
+
+import com.github.romualdrousseau.shuju.core.MArray;
+import com.github.romualdrousseau.shuju.linalg.MatMul;
+import com.github.romualdrousseau.shuju.math.Avg;
+import com.github.romualdrousseau.shuju.math.Cov;
+import com.github.romualdrousseau.shuju.math.MathOps;
+import com.github.romualdrousseau.shuju.math.Var;
+import com.github.romualdrousseau.shuju.nn.BatchNorm;
+import com.github.romualdrousseau.shuju.nn.L2Norm;
+import com.github.romualdrousseau.shuju.nn.Softmax;
 
 public class Tensor extends MArray {
 
@@ -49,16 +63,26 @@ public class Tensor extends MArray {
         return Tensor.full(v, m.shape);
     }
 
-    public static Tensor create(final float... data) {
+    public static Tensor of(final MArray data) {
+        return (Tensor) new Tensor(data);
+    }
+
+    public static Tensor of(final float... data) {
         return (Tensor) new Tensor(data.length).setItems(data);
     }
 
-    public static Tensor create(final double... data) {
+    public static Tensor of(final double... data) {
         return (Tensor) new Tensor(data.length).setItems(data);
     }
-    
-    public static Tensor create(final float[][] data) {
+
+    public static Tensor of(final float[][] data) {
         return (Tensor) new Tensor(data.length, data[0].length).setItems(data);
+    }
+
+    public static Tensor of(final TFloat32 v) {
+        final int[] shape = Arrays.stream(v.shape().asArray()).mapToInt(i -> (int) i).toArray();
+        final double[] data = v.streamOfObjects().mapToDouble(i -> (double) i).toArray();
+        return (Tensor) new Tensor(shape).setItems(data);
     }
 
     public static Tensor linspace(final float start, final float stop, final int num) {
@@ -111,7 +135,7 @@ public class Tensor extends MArray {
     }
 
     public Tensor T() {
-        return new Tensor(super.view().transpose());
+        return Tensor.of(super.view().transpose());
     }
 
     @Override
@@ -141,31 +165,31 @@ public class Tensor extends MArray {
 
     @Override
     public Tensor view() {
-        return new Tensor(super.view());
+        return Tensor.of(super.view());
     }
 
     @Override
     public Tensor view(final int... slice) {
-        return new Tensor(super.view(slice));
+        return Tensor.of(super.view(slice));
     }
 
     @Override
     public Tensor repeat(final int n) {
-        return new Tensor(super.repeat(n));
+        return Tensor.of(super.repeat(n));
     }
 
     @Override
     public Tensor stack(final MArray v) {
-        return new Tensor(super.stack(v));
+        return Tensor.of(super.stack(v));
     }
 
     @Override
     public Tensor copy() {
-        return new Tensor(super.copy());
+        return Tensor.of(super.copy());
     }
 
     public Tensor mutate(final float rate, final float variance) {
-        return (Tensor) MFuncs.mutate.apply(rate, variance).outer(this, 0.0f, this);
+        return (Tensor) MathOps.mutate.apply(rate, variance).outer(this, 0.0f, this);
     }
 
     public Tensor randomize() {
@@ -177,179 +201,179 @@ public class Tensor extends MArray {
     }
 
     public Tensor randomize(final float a, final float b) {
-        return (Tensor) MFuncs.randomize.apply(a, b).outer(this, 0.0f, this);
+        return (Tensor) MathOps.randomize.apply(a, b).outer(this, 0.0f, this);
     }
 
     public Tensor constrain(final float a, final float b) {
-        return (Tensor) MFuncs.constrain.apply(a, b).outer(this, 0.0f, this);
+        return (Tensor) MathOps.constrain.apply(a, b).outer(this, 0.0f, this);
     }
 
     public Tensor if_lt_then(final float p, final float a, final float b) {
-        return (Tensor) MFuncs.if_lt_then.apply(p, a, b).outer(this, 0.0f, this);
+        return (Tensor) MathOps.if_lt_then.apply(p, a, b).outer(this, 0.0f, this);
     }
 
     public Tensor chop(final float e) {
-        return (Tensor) MFuncs.chop.apply(e).outer(this, 0.0f, this);
+        return (Tensor) MathOps.chop.apply(e).outer(this, 0.0f, this);
     }
 
     public Tensor iadd(final float v) {
-        return (Tensor) MFuncs.Add.outer(this, v, this);
+        return (Tensor) MathOps.Add.outer(this, v, this);
     }
 
     public Tensor iadd(final Tensor m) {
-        return (Tensor) MFuncs.Add.outer(this, m, this);
+        return (Tensor) MathOps.Add.outer(this, m, this);
     }
 
     public Tensor add(final float v) {
-        return new Tensor(MFuncs.Add.outer(this, v, null));
+        return Tensor.of(MathOps.Add.outer(this, v, null));
     }
 
     public Tensor add(final Tensor m) {
-        return new Tensor(MFuncs.Add.outer(this, m, null));
+        return Tensor.of(MathOps.Add.outer(this, m, null));
     }
 
     public Tensor isub(float v) {
-        return (Tensor) MFuncs.Sub.outer(this, v, this);
+        return (Tensor) MathOps.Sub.outer(this, v, this);
     }
 
     public Tensor isub(Tensor m) {
-        return (Tensor) MFuncs.Sub.outer(this, m, this);
+        return (Tensor) MathOps.Sub.outer(this, m, this);
     }
 
     public Tensor sub(final float v) {
-        return new Tensor(MFuncs.Sub.outer(this, v, null));
+        return Tensor.of(MathOps.Sub.outer(this, v, null));
     }
 
     public Tensor sub(final Tensor m) {
-        return new Tensor(MFuncs.Sub.outer(this, m, null));
+        return Tensor.of(MathOps.Sub.outer(this, m, null));
     }
 
     public Tensor imul(final float v) {
-        return (Tensor) MFuncs.Mul.outer(this, v, this);
+        return (Tensor) MathOps.Mul.outer(this, v, this);
     }
 
     public Tensor imul(final Tensor m) {
-        return (Tensor) MFuncs.Mul.outer(this, m, this);
+        return (Tensor) MathOps.Mul.outer(this, m, this);
     }
 
     public Tensor mul(final float v) {
-        return new Tensor(MFuncs.Mul.outer(this, v, null));
+        return Tensor.of(MathOps.Mul.outer(this, v, null));
     }
 
     public Tensor mul(final Tensor m) {
-        return new Tensor(MFuncs.Mul.outer(this, m, null));
+        return Tensor.of(MathOps.Mul.outer(this, m, null));
     }
 
     public Tensor idiv(final float v) {
-        return (Tensor) MFuncs.Div.outer(this, v, this);
+        return (Tensor) MathOps.Div.outer(this, v, this);
     }
 
     public Tensor idiv(final Tensor m) {
-        return (Tensor) MFuncs.Div.outer(this, m, this);
+        return (Tensor) MathOps.Div.outer(this, m, this);
     }
 
     public Tensor div(final float v) {
-        return new Tensor(MFuncs.Div.outer(this, v, null));
+        return Tensor.of(MathOps.Div.outer(this, v, null));
     }
 
     public Tensor div(final Tensor m) {
-        return new Tensor(MFuncs.Div.outer(this, m, null));
+        return Tensor.of(MathOps.Div.outer(this, m, null));
     }
 
     public Tensor isqrt() {
-        return (Tensor) MFuncs.Sqrt.outer(this, 0.0f, this);
+        return (Tensor) MathOps.Sqrt.outer(this, 0.0f, this);
     }
 
     public Tensor sqrt() {
-        return new Tensor(MFuncs.Sqrt.outer(this, 0.0f, null));
+        return Tensor.of(MathOps.Sqrt.outer(this, 0.0f, null));
     }
 
     public Tensor iinvsqrt() {
-        return (Tensor) MFuncs.InvSqrt.outer(this, 0.0f, this);
+        return (Tensor) MathOps.InvSqrt.outer(this, 0.0f, this);
     }
 
     public Tensor invsqrt() {
-        return new Tensor(MFuncs.InvSqrt.outer(this, 0.0f, null));
+        return Tensor.of(MathOps.InvSqrt.outer(this, 0.0f, null));
     }
 
     public Tensor iinv() {
-        return (Tensor) MFuncs.Inv.outer(this, 0.0f, this);
+        return (Tensor) MathOps.Inv.outer(this, 0.0f, this);
     }
 
     public Tensor inv() {
-        return new Tensor(MFuncs.Inv.outer(this, 0.0f, null));
+        return Tensor.of(MathOps.Inv.outer(this, 0.0f, null));
     }
 
     public Tensor isquare() {
-        return (Tensor) MFuncs.Square.outer(this, 0.0f, this);
+        return (Tensor) MathOps.Square.outer(this, 0.0f, this);
     }
 
     public Tensor square() {
-        return new Tensor(MFuncs.Square.outer(this, 0.0f, null));
+        return Tensor.of(MathOps.Square.outer(this, 0.0f, null));
     }
 
     public Tensor ipow(final float n) {
-        return (Tensor) MFuncs.Sqrt.outer(this, n, this);
+        return (Tensor) MathOps.Sqrt.outer(this, n, this);
     }
 
     public Tensor pow(final float n) {
-        return new Tensor(MFuncs.Pow.outer(this, n, null));
+        return Tensor.of(MathOps.Pow.outer(this, n, null));
     }
 
     public Tensor iexp() {
-        return (Tensor) MFuncs.Exp.outer(this, 0.0f, this);
+        return (Tensor) MathOps.Exp.outer(this, 0.0f, this);
     }
 
     public Tensor exp() {
-        return new Tensor(MFuncs.Exp.outer(this, 0.0f, null));
+        return Tensor.of(MathOps.Exp.outer(this, 0.0f, null));
     }
 
     public Tensor ilog() {
-        return (Tensor) MFuncs.Log.outer(this, 0.0f, this);
+        return (Tensor) MathOps.Log.outer(this, 0.0f, this);
     }
 
     public Tensor log() {
-        return new Tensor(MFuncs.Log.outer(this, 0.0f, null));
+        return Tensor.of(MathOps.Log.outer(this, 0.0f, null));
     }
 
     public Tensor dot(final Tensor m, final int axis) {
-        return new Tensor(MFuncs.Mul.inner(this, m, 0.0f, axis, false, null));
+        return Tensor.of(MathOps.Mul.inner(this, m, 0.0f, axis, false, null));
     }
 
     public Tensor outer(final Tensor m) {
-        return new Tensor(MFuncs.Mul.outer(this, m, null));
+        return Tensor.of(MathOps.Mul.outer(this, m, null));
     }
 
     public Tensor argmax(final int axis) {
-        return new Tensor(MFuncs.ArgMax.reduce(this, Float.MIN_VALUE, axis, false, null));
+        return Tensor.of(MathOps.ArgMax.reduce(this, Float.MIN_VALUE, axis, false, null));
     }
 
     public Tensor argmin(final int axis) {
-        return new Tensor(MFuncs.ArgMin.reduce(this, Float.MIN_VALUE, axis, false, null));
+        return Tensor.of(MathOps.ArgMin.reduce(this, Float.MIN_VALUE, axis, false, null));
     }
 
     public Tensor max(final int axis) {
-        return new Tensor(MFuncs.Max.reduce(this, Float.MIN_VALUE, axis, false, null));
+        return Tensor.of(MathOps.Max.reduce(this, Float.MIN_VALUE, axis, false, null));
     }
 
     public Tensor min(final int axis) {
-        return new Tensor(MFuncs.Min.reduce(this, Float.MAX_VALUE, axis, false, null));
+        return Tensor.of(MathOps.Min.reduce(this, Float.MAX_VALUE, axis, false, null));
     }
 
     public Tensor sum(final int axis) {
-        return new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, false, null));
+        return Tensor.of(MathOps.Add.reduce(this, 0.0f, axis, false, null));
     }
 
     public Tensor normSq(final int axis) {
-        return new Tensor(MFuncs.SumSq.reduce(this, 0.0f, axis, false, null));
+        return Tensor.of(MathOps.SumSq.reduce(this, 0.0f, axis, false, null));
     }
 
     public Tensor magSq(final Tensor m, final int axis) {
-        return new Tensor(MFuncs.MagSq.inner(this, m, 0.0f, axis, false, null));
+        return Tensor.of(MathOps.MagSq.inner(this, m, 0.0f, axis, false, null));
     }
 
     public Tensor matmul(final Tensor m) {
-        return new Tensor(MFuncs.MatMul.outer(this, m, null));
+        return MatMul.Op.apply(this, m);
     }
 
     public Tensor norm(final int axis) {
@@ -361,60 +385,15 @@ public class Tensor extends MArray {
     }
 
     public Tensor avg(final int axis) {
-        final float n = (axis == -1) ? this.size : this.shape[axis];
-        return this.sum(axis).idiv(n);
+        return Avg.Op(this, axis);
     }
 
     public Tensor var(final int axis, final float ddof) {
-        final float n = (axis == -1) ? this.size : this.shape[axis];
-        final Tensor avg = new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, true, null)).idiv(n);
-        final Tensor var = new Tensor(MFuncs.MagSq.inner(this, avg, 0.0f, axis, false, null));
-        return var.idiv(n - ddof);
+        return Var.Op(this, axis, ddof);
     }
 
     public Tensor cov(final Tensor v, final boolean rowvar, final float ddof) {
-        assert (this.shape.length <= 2 && this.shape.length == v.shape.length) : "Illegal shape";
-
-        final int axis = rowvar ? 0 : 1;
-
-        final float n1 = this.shape[axis];
-        final Tensor avg1 = new Tensor(MFuncs.Add.reduce(this, 0.0f, axis, true, null)).idiv(n1);
-        final Tensor step1 = this.sub(avg1);
-        if (axis == 0) {
-            step1.transpose();
-        }
-
-        final Tensor step2;
-        if (this == v) {
-            step2 = step1.T();
-        } else {
-            final float n2 = v.shape[axis];
-            final Tensor avg2 = new Tensor(MFuncs.Add.reduce(v, 0.0f, axis, true, null)).idiv(n2);
-            step2 = v.sub(avg2);
-            if (axis == 1) {
-                step2.transpose();
-            }
-        }
-
-        final Tensor cov = new Tensor(MFuncs.MatMul.outer(step1, step2, null));
-        return cov.idiv(n1 - ddof);
-    }
-
-    public Tensor l2Norm(final int axis) {
-        return this.imul(this.norm(axis).iinv());
-    }
-
-    public Tensor batchNorm(final float a, final float b, final int axis) {
-        final Tensor avg = this.avg(axis);
-        final Tensor invvar = this.var(axis, 0).invsqrt();
-        return this.isub(avg).imul(invvar).imul(a).iadd(b);
-    }
-
-    public Tensor softmax(final int axis) {
-        final Tensor c = this.max(axis);
-        new UFunc0((x, y) -> Scalar.exp(y - x)).outer(this, c, this);
-        final Tensor sum = this.sum(axis);
-        return this.idiv(sum);
+        return Cov.Op(this, v, rowvar, ddof);
     }
 
     public boolean isSimilar(final Tensor v, final float e) {
@@ -423,8 +402,8 @@ public class Tensor extends MArray {
 
     public Tensor sparsity(final int axis) {
         final float b = (axis == -1) ? this.size : this.shape[axis];
-        MArray tmp = MFuncs.SumSparse.reduce(this, 0.0f, axis, false, null);
-        return new Tensor(MFuncs.Div.outer(tmp, b, tmp));
+        MArray tmp = MathOps.SumSparse.reduce(this, 0.0f, axis, false, null);
+        return new Tensor(MathOps.Div.outer(tmp, b, tmp));
     }
 
     public Tensor similarity(final Tensor v, final int axis) {
@@ -433,5 +412,21 @@ public class Tensor extends MArray {
         } else {
             return this.dot(v, axis).div(this.norm(axis).mul(v.norm(axis)));
         }
+    }
+
+    public Tensor l2Norm(final int axis) {
+        return L2Norm.Op(this, axis);
+    }
+
+    public Tensor batchNorm(final float a, final float b, final int axis) {
+        return BatchNorm.Op(this, a, b, axis);
+    }
+
+    public Tensor softmax(final int axis) {
+        return Softmax.Op(this, axis);
+    }
+
+    public TFloat32 toTFloat32() {
+        return TFloat32.tensorOf(StdArrays.shapeOf(this.shape), DataBuffers.of(this.data));
     }
 }

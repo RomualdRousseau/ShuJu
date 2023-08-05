@@ -77,7 +77,7 @@ public class SearchPoint {
     public static List<SearchPoint[]> RemoveDuplicates(List<SearchPoint[]> shapes) {
         ArrayList<SearchPoint[]> result = new ArrayList<SearchPoint[]>();
         for (SearchPoint[] shape1 : shapes) {
-            if(!SearchPoint.IsDuplicate(shape1, result)) {
+            if (!SearchPoint.IsDuplicate(shape1, result)) {
                 result.add(shape1);
             }
         }

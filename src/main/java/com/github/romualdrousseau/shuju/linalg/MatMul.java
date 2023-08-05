@@ -1,8 +1,14 @@
-package com.github.romualdrousseau.shuju.math;
+package com.github.romualdrousseau.shuju.linalg;
 
 import java.util.function.BiFunction;
 
+import com.github.romualdrousseau.shuju.core.MArray;
+import com.github.romualdrousseau.shuju.core.UFunc;
+import com.github.romualdrousseau.shuju.types.Tensor;
+
 public class MatMul extends UFunc<Float> {
+
+    public static BiFunction<Tensor, Tensor, Tensor> Op = (a, b) -> Tensor.of(new MatMul((x, y) -> x * y).outer(a, b, null));
 
     public MatMul(BiFunction<Float, Float, Float> func) {
         super(func, 2);

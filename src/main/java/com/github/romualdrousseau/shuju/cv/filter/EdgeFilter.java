@@ -1,6 +1,11 @@
-package com.github.romualdrousseau.shuju.cv;
+package com.github.romualdrousseau.shuju.cv.filter;
+
+import com.github.romualdrousseau.shuju.cv.Filter;
+import com.github.romualdrousseau.shuju.cv.ISearchBitmap;
+import com.github.romualdrousseau.shuju.cv.Template;
 
 public class EdgeFilter extends Filter {
+
     public EdgeFilter() {
         super(null);
     }

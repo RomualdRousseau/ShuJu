@@ -1,4 +1,4 @@
-package com.github.romualdrousseau.shuju.math;
+package com.github.romualdrousseau.shuju.types;
 
 import java.util.Random;
 

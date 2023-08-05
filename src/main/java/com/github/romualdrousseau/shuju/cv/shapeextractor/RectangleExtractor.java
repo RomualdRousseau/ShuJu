@@ -1,13 +1,13 @@
-package com.github.romualdrousseau.shuju.cv.templatematching.shapeextractor;
+package com.github.romualdrousseau.shuju.cv.shapeextractor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.github.romualdrousseau.shuju.cv.ISearchBitmap;
+import com.github.romualdrousseau.shuju.cv.IShapeExtractor;
 import com.github.romualdrousseau.shuju.cv.SearchPoint;
 import com.github.romualdrousseau.shuju.cv.Template;
-import com.github.romualdrousseau.shuju.cv.templatematching.IShapeExtractor;
-import com.github.romualdrousseau.shuju.cv.templatematching.TemplateMatcher;
+import com.github.romualdrousseau.shuju.cv.TemplateMatcher;
 
 public class RectangleExtractor extends IShapeExtractor {
 

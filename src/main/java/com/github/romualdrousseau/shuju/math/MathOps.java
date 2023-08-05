@@ -1,6 +1,11 @@
 package com.github.romualdrousseau.shuju.math;
 
-public class MFuncs {
+import com.github.romualdrousseau.shuju.core.UFunc;
+import com.github.romualdrousseau.shuju.core.UFunc0;
+import com.github.romualdrousseau.shuju.core.UFunc0i;
+import com.github.romualdrousseau.shuju.types.Scalar;
+
+public class MathOps {
 
     public static final UFunc<Float> Inc = new UFunc0((x, y) -> x + 1.0f);
 
@@ -41,8 +46,6 @@ public class MFuncs {
     public static final UFunc<Float> SumSq = new UFunc0((x, y) -> x + y * y);
 
     public static final UFunc<Float> MagSq = new UFunc0((x, y) -> (y - x) * (y - x));
-
-    public static final UFunc<Float> MatMul = new MatMul((x, y) -> x * y);
 
     public static final UFunc.Uni<Float> chop = e -> new UFunc0((x, y) -> (Scalar.abs(y) < e) ? 0.0f : y);
 

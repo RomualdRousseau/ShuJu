@@ -1,6 +1,7 @@
 package com.github.romualdrousseau.shuju.cv;
 
 public interface ISearchBitmap {
+
     int getWidth();
 
     int getHeight();

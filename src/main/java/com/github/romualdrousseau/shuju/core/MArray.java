@@ -1,4 +1,4 @@
-package com.github.romualdrousseau.shuju.math;
+package com.github.romualdrousseau.shuju.core;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -91,7 +91,21 @@ public class MArray {
         return this;
     }
 
-    public MArray setItems(final float... data) {
+    public MArray setItems(final Float v) {
+        this.require(Flag.OWNDATA, false);
+        for(int i = 0; i < this.size; i++) {
+            this.data[i] = v;
+        }
+        return this;
+    }
+
+    public MArray setItems(final float[] data) {
+        this.require(Flag.OWNDATA, false);
+        System.arraycopy(data, 0, this.data, this.base, data.length);
+        return this;
+    }
+
+    public MArray setItems(final Float[] data) {
         this.require(Flag.OWNDATA, false);
         System.arraycopy(data, 0, this.data, this.base, data.length);
         return this;
@@ -105,13 +119,28 @@ public class MArray {
         return this;
     }
 
-    public MArray setItems(final double... data) {
+    public MArray setItems(final Float[][] data) {
+        this.require(Flag.OWNDATA, false);
+        for (int i = 0; i < data.length; i++) {
+            System.arraycopy(data[i], 0, this.data, i * data[0].length, data[0].length);
+        }
+        return this;
+    }
+
+    public MArray setItems(final double[] data) {
         this.require(Flag.OWNDATA, false);
         for(int i = 0; i < data.length; i++) {
             this.data[i] = (float) data[i];
         }
         return this;
-        
+    }
+
+    public MArray setItems(final Double[] data) {
+        this.require(Flag.OWNDATA, false);
+        for(int i = 0; i < data.length; i++) {
+            this.data[i] = data[i].floatValue();
+        }
+        return this;
     }
 
     public MArray setItems(final double[][] data) {
@@ -123,7 +152,17 @@ public class MArray {
         }
         return this;
     }
-    
+
+    public MArray setItems(final Double[][] data) {
+        this.require(Flag.OWNDATA, false);
+        for (int i = 0; i < data.length; i++) {
+            for(int j = 0; i < data[0].length; j++) {
+                this.data[i * data[0].length + j] = data[i][j].floatValue();
+            }
+        }
+        return this;
+    }
+
     public float item(int off) {
         return this.data[this.base + off];
     }

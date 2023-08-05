@@ -1,6 +1,7 @@
 package com.github.romualdrousseau.shuju.cv;
 
 public class Filter {
+
     public Filter(Template filter) {
         this.filter = filter;
     }

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -12,14 +13,27 @@ import java.util.Map;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import com.github.romualdrousseau.shuju.json.jackson.JSONJacksonFactory;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+
 import com.github.romualdrousseau.shuju.util.StringUtils;
 
 public class JSON {
-    private static JSONFactory Factory;
+    public final static String PACKAGE_LOADER_PREFIX = "com.github.romualdrousseau.shuju.json";
 
+    private static JSONFactory Factory;
     static {
-        JSON.Factory = new JSONJacksonFactory();
+        final Reflections reflections = new Reflections(PACKAGE_LOADER_PREFIX, new SubTypesScanner(false));
+        JSON.Factory = reflections.getSubTypesOf(JSONFactory.class).stream()
+                .map(clazz -> {
+                    try {
+                        return (JSONFactory) clazz.getConstructor().newInstance();
+                    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {
+                        return null;
+                    }
+                })
+                .filter(x -> x != null)
+                .findFirst().get();
     }
 
     public static void setFactory(JSONFactory factory) {
@@ -119,7 +133,7 @@ public class JSON {
                     @Override
                     public T next() {
                         return a.get(idx++);
-                    } 
+                    }
                 };
             }
         };
@@ -138,7 +152,7 @@ public class JSON {
     public static <T> JSONArray toJSONArray(final List<T> l) {
         final JSONArray array = JSON.newJSONArray();
         l.forEach(s -> array.append(s));
-        return array;   
+        return array;
     }
 
     public static <T> JSONArray toJSONArray(final Map<String, T> m) {

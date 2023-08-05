@@ -1,9 +1,10 @@
-package com.github.romualdrousseau.shuju.math;
+package com.github.romualdrousseau.shuju.core;
 
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
-import com.github.romualdrousseau.shuju.math.MArray.Flag;
+import com.github.romualdrousseau.shuju.core.MArray.Flag;
+import com.github.romualdrousseau.shuju.math.MathOps;
 
 public abstract class UFunc<T> {
 
@@ -152,12 +153,12 @@ public abstract class UFunc<T> {
 
     public MArray inner(final MArray a, final float b, final float initial, final int axis, final boolean keepShape,
             MArray out) {
-        return MFuncs.Add.reduce(this.outer(a, b, null), initial, axis, keepShape, out);
+        return MathOps.Add.reduce(this.outer(a, b, null), initial, axis, keepShape, out);
     }
 
     public MArray inner(final MArray a, final MArray b, final float initial, final int axis, final boolean keepShape,
             MArray out) {
-        return MFuncs.Add.reduce(this.outer(a, b, null), initial, axis, keepShape, out);
+        return MathOps.Add.reduce(this.outer(a, b, null), initial, axis, keepShape, out);
     }
 
     private int[] reduceShape(final MArray a, final int axis, final boolean keepShape) {
