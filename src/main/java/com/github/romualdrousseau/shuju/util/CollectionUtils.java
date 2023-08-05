@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.tensorflow.ndarray.StdArrays;
+import org.tensorflow.ndarray.Shape;
+import org.tensorflow.ndarray.buffer.DataBuffers;
 import org.tensorflow.types.TFloat32;
 
 public class CollectionUtils {
@@ -22,7 +23,11 @@ public class CollectionUtils {
         return l;
     }
 
-    public static TFloat32 ListOfIntegertoTFloat32(final List<Integer> l, final int a, final int b) {
-        return TFloat32.tensorOf(StdArrays.ndCopyOf(l.stream().map(x -> Float.valueOf(x)).toArray(Float[]::new)));
+    public static TFloat32 ListOfIntegertoTFloat32(final List<Integer> l) {
+        final float[] result = new float[l.size()];
+        for (int i = 0, j = 0; i < l.size(); i++, j++) {
+            result[j] = (float) l.get(i);
+        }
+        return TFloat32.tensorOf(Shape.of(1, l.size()), DataBuffers.of(result));
     }
 }
