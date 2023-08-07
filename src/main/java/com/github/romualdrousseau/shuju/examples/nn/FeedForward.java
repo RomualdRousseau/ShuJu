@@ -82,6 +82,7 @@ public class FeedForward {
         try (EagerSession session = EagerSession.create()) {
             final Ops tf = Ops.create(session);
             List<Operand<TFloat32>> tmp;
+            Operand<TFloat32> err;
 
             // Evaluate
 
@@ -98,21 +99,21 @@ public class FeedForward {
 
             // Back propagation
 
-            Operand<TFloat32> g = this.mse_gd(tf, yhat, tf.constant(output));
+            err = this.mse_gd(tf, yhat, tf.constant(output));
 
-            g = this.sigmoid_gd(tf, yhat, g);
+            err = this.sigmoid_gd(tf, yhat, err);
 
-            tmp = dense_gd(tf, x2, w1, g);
+            tmp = dense_gd(tf, x2, w1, err);
             final Operand<TFloat32> dw1 = tmp.get(0);
             final Operand<TFloat32> db1 = tmp.get(1);
-            g = tmp.get(2);
+            err = tmp.get(2);
 
-            g = this.tanh_gd(tf, x2, g);
+            err = this.tanh_gd(tf, x2, err);
 
-            tmp = dense_gd(tf, x0, w0, g);
+            tmp = this.dense_gd(tf, x0, w0, err);
             final Operand<TFloat32> dw0 = tmp.get(0);
             final Operand<TFloat32> db0 = tmp.get(1);
-            g = tmp.get(2);
+            err = tmp.get(2);
 
             // Update weights
 
