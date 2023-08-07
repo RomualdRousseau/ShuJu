@@ -2,7 +2,7 @@ package com.github.romualdrousseau.shuju.types;
 
 import java.util.Arrays;
 
-import org.tensorflow.ndarray.StdArrays;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.ndarray.buffer.DataBuffers;
 import org.tensorflow.types.TFloat32;
 
@@ -427,6 +427,8 @@ public class Tensor extends MArray {
     }
 
     public TFloat32 toTFloat32() {
-        return TFloat32.tensorOf(StdArrays.shapeOf(this.shape), DataBuffers.of(this.data));
+        return TFloat32.tensorOf(
+                Shape.of(Arrays.stream(this.shape).mapToLong(x -> (long) x).toArray()),
+                DataBuffers.of(this.data));
     }
 }
