@@ -94,16 +94,15 @@ public class MatMul extends UFunc<Float> {
     @Override
     protected void applyAccFunc(int dim, MArray a, int aoff, int astr, MArray b, int boff, int bstr, float initital) {
         throw new UnsupportedOperationException("Not implemented");
-
     }
 
     @Override
-    protected void applyFunc(int dim, MArray a, int aoff, int astr, float b, MArray c, int coff, int cstr) {
+    protected void applyScalarFunc(int dim, MArray a, int aoff, int astr, float b, MArray c, int coff, int cstr) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    protected void applyFunc(int dim, MArray a, int aoff, int astr, MArray b, int boff, int bstr, MArray c, int coff,
+    protected void applyArrayFunc(int dim, MArray a, int aoff, int astr, MArray b, int boff, int bstr, MArray c, int coff,
             int cstr) {
         throw new UnsupportedOperationException("Not implemented");
     }

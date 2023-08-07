@@ -20,7 +20,7 @@ public class UFunc0 extends UFunc<Float> {
     }
 
     @Override
-    protected void applyFunc(final int dim, final MArray a, int aoff, final int astr, final float b, final MArray c,
+    protected void applyScalarFunc(final int dim, final MArray a, int aoff, final int astr, final float b, final MArray c,
             int coff, final int cstr) {
         for (int i = 0; i < dim; i++) {
             c.data[coff] = func.apply(b, a.data[aoff]);
@@ -30,7 +30,7 @@ public class UFunc0 extends UFunc<Float> {
     }
 
     @Override
-    protected void applyFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff,
+    protected void applyArrayFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff,
             final int bstr, final MArray c, int coff, final int cstr) {
         for (int i = 0; i < dim; i++) {
             c.data[coff] = func.apply(b.data[boff], a.data[aoff]);

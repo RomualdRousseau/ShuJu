@@ -14,16 +14,11 @@ public abstract class UFunc<T> {
     protected abstract void applyAccFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b,
             int boff, final int bstr, final float initital);
 
-    protected abstract void applyFunc(final int dim, final MArray a, int aoff, final int astr, final float b,
+    protected abstract void applyScalarFunc(final int dim, final MArray a, int aoff, final int astr, final float b,
             final MArray c, int coff, final int cstr);
 
-    protected abstract void applyFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff,
+    protected abstract void applyArrayFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff,
             final int bstr, final MArray c, int coff, final int cstr);
-
-    public UFunc(final BiFunction<T, T, T> func, final int minShape) {
-        this.func = func;
-        this.minShape = minShape;
-    }
 
     public interface Uni<T> {
         UFunc<T> apply(T a);
@@ -35,6 +30,11 @@ public abstract class UFunc<T> {
 
     public interface Tri<T> {
         UFunc<T> apply(T a, T b, T c);
+    }
+
+    public UFunc(final BiFunction<T, T, T> func, final int minShape) {
+        this.func = func;
+        this.minShape = minShape;
     }
 
     public MArray reduce(MArray a, final float initial, final int axis, final boolean keepShape, MArray out) {
@@ -83,7 +83,7 @@ public abstract class UFunc<T> {
         }
 
         if (a.flags.contains(Flag.CONTINUOUS)) {
-            this.applyFunc(a.size, a, a.base, 1, b, out, out.base, 1);
+            this.applyScalarFunc(a.size, a, a.base, 1, b, out, out.base, 1);
         } else {
             this.outerScalar(0, a, a.base, b, out, out.base);
         }
@@ -368,7 +368,7 @@ public abstract class UFunc<T> {
 
                 // Case for vector
 
-                this.applyFunc(cdim, a, aoff, astr, b, c, coff, cstr);
+                this.applyScalarFunc(cdim, a, aoff, astr, b, c, coff, cstr);
                 break;
 
             case 2:
@@ -390,7 +390,7 @@ public abstract class UFunc<T> {
                 }
 
                 for (int i = 0; i < cdim; i++) {
-                    this.applyFunc(cdim_j, a, aoff, astr_j, b, c, coff, cstr_j);
+                    this.applyScalarFunc(cdim_j, a, aoff, astr_j, b, c, coff, cstr_j);
                     aoff += astr;
                     coff += cstr;
                 }
@@ -440,7 +440,7 @@ public abstract class UFunc<T> {
 
                 // Case for vector
 
-                this.applyFunc(cdim, a, aoff, astr, b, boff, bstr, c, coff, cstr);
+                this.applyArrayFunc(cdim, a, aoff, astr, b, boff, bstr, c, coff, cstr);
                 break;
 
             case 2:
@@ -469,7 +469,7 @@ public abstract class UFunc<T> {
                 }
 
                 for (int i = 0; i < cdim; i++) {
-                    this.applyFunc(cdim_j, a, aoff, astr_j, b, boff, bstr_j, c, coff, cstr_j);
+                    this.applyArrayFunc(cdim_j, a, aoff, astr_j, b, boff, bstr_j, c, coff, cstr_j);
                     aoff += astr;
                     boff += bstr;
                     coff += cstr;
