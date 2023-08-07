@@ -1,5 +1,7 @@
 package com.github.romualdrousseau.shuju.examples.nn;
 
+import java.util.List;
+
 import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
 import org.tensorflow.ndarray.Shape;
@@ -31,7 +33,7 @@ public class FeedForward {
 
     public FeedForward() {
         try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+            final Ops tf = Ops.create(session);
 
             final int n = 2;
             final int m = 10;
@@ -65,83 +67,112 @@ public class FeedForward {
         }
     }
 
-    public void predict(TFloat32 input) {
+    public void predict(final TFloat32 input) {
         try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+            final Ops tf = Ops.create(session);
 
-            // Evaluate
+            final List<Operand<TFloat32>> args = this.model(tf, tf.constant(input));
 
-            Constant<TFloat32> x0 = tf.constant(input);
-
-            Constant<TFloat32> w0 = tf.constant(this.layers_W0);
-            Constant<TFloat32> b0 = tf.constant(this.layers_B0);
-            Operand<TFloat32> x1 = tf.math.add(tf.linalg.matMul(x0, w0), b0);
-
-            Operand<TFloat32> x2 = tf.math.tanh(x1);
-
-            Constant<TFloat32> w1 = tf.constant(this.layers_W1);
-            Constant<TFloat32> b1 = tf.constant(this.layers_B1);
-            Operand<TFloat32> x3 = tf.math.add(tf.linalg.matMul(x2, w1), b1);
-
-            Operand<TFloat32> yhat = tf.math.sigmoid(x3);
-
-            yhat.asTensor().scalars().forEach(x -> System.out.print(x.getFloat() + " "));
+            args.get(8).asTensor().scalars().forEach(x -> System.out.print(x.getFloat() + " "));
             System.out.println();
         }
     }
 
-    public void fit(TFloat32 input, TFloat32 output) {
+    public void fit(final TFloat32 input, final TFloat32 output) {
         try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
-
-            Constant<TInt32> AXIS_ZERO = tf.constant(0);
-            Constant<TFloat32> ONE = tf.constant(1.0f);
-            Constant<TFloat32> TWO = tf.constant(2.0f);
+            final Ops tf = Ops.create(session);
+            List<Operand<TFloat32>> tmp;
 
             // Evaluate
 
-            Constant<TFloat32> x0 = tf.constant(input);
-
-            Constant<TFloat32> w0 = tf.constant(this.layers_W0);
-            Constant<TFloat32> b0 = tf.constant(this.layers_B0);
-            Operand<TFloat32> x1 = tf.math.add(tf.linalg.matMul(x0, w0), b0);
-
-            Operand<TFloat32> x2 = tf.math.tanh(x1);
-
-            Constant<TFloat32> w1 = tf.constant(this.layers_W1);
-            Constant<TFloat32> b1 = tf.constant(this.layers_B1);
-            Operand<TFloat32> x3 = tf.math.add(tf.linalg.matMul(x2, w1), b1);
-
-            Operand<TFloat32> yhat = tf.math.sigmoid(x3);
+            tmp = this.model(tf, tf.constant(input));
+            final Operand<TFloat32> x0   = tmp.get(0);
+            final Operand<TFloat32> w0   = tmp.get(1);
+            final Operand<TFloat32> b0   = tmp.get(2);
+            // Operand<TFloat32> x1   = args.get(3);
+            final Operand<TFloat32> x2   = tmp.get(4);
+            final Operand<TFloat32> w1   = tmp.get(5);
+            final Operand<TFloat32> b1   = tmp.get(6);
+            // Operand<TFloat32> x3   = args.get(7);
+            final Operand<TFloat32> yhat = tmp.get(8);
 
             // Back propagation
 
-            Constant<TFloat32> y = tf.constant(output);
-            Operand<TFloat32> error = tf.math.div(tf.math.sub(yhat, y), tf.constant((float) yhat.shape().get(0)));
+            Operand<TFloat32> g = this.mse_gd(tf, yhat, tf.constant(output));
 
-            error = tf.math.mul(error, tf.math.mul(yhat, tf.math.sub(ONE, yhat)));
+            g = this.sigmoid_gd(tf, yhat, g);
 
-            Operand<TFloat32> dw1 = tf.linalg.matMul(x2, error, MatMul.transposeA(true));
-            Operand<TFloat32> db1 = tf.sum(error, AXIS_ZERO, Sum.keepDims(true));
-            error = tf.linalg.matMul(error, w1, MatMul.transposeB(true));
+            tmp = dense_gd(tf, x2, w1, g);
+            final Operand<TFloat32> dw1 = tmp.get(0);
+            final Operand<TFloat32> db1 = tmp.get(1);
+            g = tmp.get(2);
 
-            error = tf.math.mul(error, tf.math.sub(ONE, tf.math.pow(x2, TWO)));
+            g = this.tanh_gd(tf, x2, g);
 
-            Operand<TFloat32> dw0 = tf.linalg.matMul(x0, error, MatMul.transposeA(true));
-            Operand<TFloat32> db0 = tf.sum(error, AXIS_ZERO, Sum.keepDims(true));
-            error = tf.linalg.matMul(error, w0, MatMul.transposeB(true));
+            tmp = dense_gd(tf, x0, w0, g);
+            final Operand<TFloat32> dw0 = tmp.get(0);
+            final Operand<TFloat32> db0 = tmp.get(1);
+            g = tmp.get(2);
 
-            tf.math.add(w1, tf.math.mul(dw1, tf.constant(-alpha))).asTensor().copyTo(this.layers_W1);
-            tf.math.add(b1, tf.math.mul(db1, tf.constant(-alpha))).asTensor().copyTo(this.layers_B1);
-            tf.math.add(w0, tf.math.mul(dw0, tf.constant(-alpha))).asTensor().copyTo(this.layers_W0);
-            tf.math.add(b0, tf.math.mul(db0, tf.constant(-alpha))).asTensor().copyTo(this.layers_B0);
+            // Update weights
+
+            tf.math.add(w1, tf.math.mul(dw1, tf.constant(-this.alpha))).asTensor().copyTo(this.layers_W1);
+            tf.math.add(b1, tf.math.mul(db1, tf.constant(-this.alpha))).asTensor().copyTo(this.layers_B1);
+            tf.math.add(w0, tf.math.mul(dw0, tf.constant(-this.alpha))).asTensor().copyTo(this.layers_W0);
+            tf.math.add(b0, tf.math.mul(db0, tf.constant(-this.alpha))).asTensor().copyTo(this.layers_B0);
         }
 
-        alpha = Math.max(alpha * 0.99f, 0.01f);
+        this.alpha = Math.max(alpha * 0.99f, 0.01f);
+    }
+
+    private List<Operand<TFloat32>> model(final Ops tf, final Operand<TFloat32> x) {
+
+        final Operand<TFloat32> x0 = x;
+
+        final Operand<TFloat32> w0 = tf.constant(this.layers_W0);
+        final Operand<TFloat32> b0 = tf.constant(this.layers_B0);
+        final Operand<TFloat32> x1 = this.dense(tf, x0, w0, b0);
+
+        final Operand<TFloat32> x2 = tf.math.tanh(x1);
+
+        final Operand<TFloat32> w1 = tf.constant(this.layers_W1);
+        final Operand<TFloat32> b1 = tf.constant(this.layers_B1);
+        final Operand<TFloat32> x3 = this.dense(tf, x2, w1, b1);
+
+        final Operand<TFloat32> y = tf.math.sigmoid(x3);
+
+        return List.of(x0, w0, b0, x1, x2, w1, b1, x3, y);
+    }
+
+    private Operand<TFloat32> dense(final Ops tf, final Operand<TFloat32> x, final Operand<TFloat32> w, final Operand<TFloat32> b) {
+        return tf.math.add(tf.linalg.matMul(x, w), b);
+    }
+
+    private List<Operand<TFloat32>> dense_gd(final Ops tf, final Operand<TFloat32> x, final Operand<TFloat32> w, final Operand<TFloat32> dy) {
+        final Constant<TInt32> AXIS_ZERO = tf.constant(0);
+        final Operand<TFloat32> dw = tf.linalg.matMul(x, dy, MatMul.transposeA(true));
+        final Operand<TFloat32> db = tf.sum(dy, AXIS_ZERO, Sum.keepDims(true));
+        final Operand<TFloat32> dx = tf.linalg.matMul(dy, w, MatMul.transposeB(true));
+        return List.of(dw, db, dx);
+    }
+
+    private Operand<TFloat32> tanh_gd(final Ops tf, final Operand<TFloat32> y, final Operand<TFloat32> dy) {
+        final Constant<TFloat32> ONE = tf.constant(1.0f);
+        final Constant<TFloat32> TWO = tf.constant(2.0f);
+        return tf.math.mul(dy, tf.math.sub(ONE, tf.math.pow(y, TWO)));
+    }
+
+    private Operand<TFloat32> sigmoid_gd(final Ops tf, final Operand<TFloat32> y, final Operand<TFloat32> dy) {
+        final Constant<TFloat32> ONE = tf.constant(1.0f);
+        return tf.math.mul(dy, tf.math.mul(y, tf.math.sub(ONE, y)));
+    }
+
+    private Operand<TFloat32> mse_gd(final Ops tf, final Operand<TFloat32> yhat, final Operand<TFloat32> y) {
+        return tf.math.div(tf.math.sub(yhat, y), tf.constant((float) yhat.shape().get(0)));
     }
 
     public static void main(final String[] args) {
-        FeedForward ff = new FeedForward();
+        final FeedForward ff = new FeedForward();
 
         for (int i = 0; i < 2000; i++) {
             for (int j = 0; j < 4; j++) {
