@@ -1,4 +1,4 @@
-package com.github.romualdrousseau.shuju.linalg;
+package com.github.romualdrousseau.shuju.op.linalg;
 
 import java.util.function.BiFunction;
 
@@ -69,27 +69,6 @@ public class MatMul extends UFunc<Float> {
             }
         }
     }
-
-    // private void fmav(final int n, final float[] a, final int oa, final float[] b, final int ob, final float c[],
-    //         final int oc) {
-    //     final float[] tmpA = new float[8];
-    //     final float[] tmpB = new float[8];
-    //     final float[] tmpC = new float[8];
-    //     for (int j = 0; j < n; j += 8) {
-    //         System.arraycopy(a, oa + j, tmpA, 0, 8);
-    //         System.arraycopy(b, ob + j, tmpB, 0, 8);
-    //         System.arraycopy(c, oc + j, tmpC, 0, 8);
-    //         tmpC[0] = Math.fma(tmpA[0], tmpB[0], tmpC[0]);
-    //         tmpC[1] = Math.fma(tmpA[1], tmpB[1], tmpC[1]);
-    //         tmpC[2] = Math.fma(tmpA[2], tmpB[2], tmpC[2]);
-    //         tmpC[3] = Math.fma(tmpA[3], tmpB[3], tmpC[3]);
-    //         tmpC[4] = Math.fma(tmpA[4], tmpB[4], tmpC[4]);
-    //         tmpC[5] = Math.fma(tmpA[5], tmpB[5], tmpC[5]);
-    //         tmpC[6] = Math.fma(tmpA[6], tmpB[5], tmpC[6]);
-    //         tmpC[7] = Math.fma(tmpA[7], tmpB[5], tmpC[7]);
-    //         System.arraycopy(tmpC, 0, c, oc + j, 8);
-    //     }
-    // }
 
     @Override
     protected void applyAccFunc(int dim, MArray a, int aoff, int astr, MArray b, int boff, int bstr, float initital) {

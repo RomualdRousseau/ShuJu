@@ -25,7 +25,8 @@ public class AlgebraBuilder {
         return compileAlgebra(className, algebra);
     }
 
-    private String generateAlgebra(final String className, final String[] basis, final int[] grades, final String[][] cayley) {
+    private String generateAlgebra(final String className, final String[] basis, final int[] grades,
+            final String[][] cayley) {
         final StringBuffer source = new StringBuffer("public class " + className + " implements GA2D.Algebra {\n");
         compile_rev(source, grades);
         compile_conj(source, grades);
@@ -63,7 +64,8 @@ public class AlgebraBuilder {
         }
     }
 
-    private void compile_ops(final StringBuffer source, final String[] basis, final char op, final String name, final boolean commutatif,
+    private void compile_ops(final StringBuffer source, final String[] basis, final char op, final String name,
+            final boolean commutatif,
             final boolean scalarOnly) {
 
         source.append("\n");

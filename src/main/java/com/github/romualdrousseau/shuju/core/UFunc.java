@@ -4,21 +4,12 @@ import java.util.Arrays;
 import java.util.function.BiFunction;
 
 import com.github.romualdrousseau.shuju.core.MArray.Flag;
-import com.github.romualdrousseau.shuju.math.MathOps;
+import com.github.romualdrousseau.shuju.op.math.MathOps;
 
 public abstract class UFunc<T> {
 
     protected final BiFunction<T, T, T> func;
     protected final int minShape;
-
-    protected abstract void applyAccFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b,
-            int boff, final int bstr, final float initital);
-
-    protected abstract void applyScalarFunc(final int dim, final MArray a, int aoff, final int astr, final float b,
-            final MArray c, int coff, final int cstr);
-
-    protected abstract void applyArrayFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff,
-            final int bstr, final MArray c, int coff, final int cstr);
 
     public interface Uni<T> {
         UFunc<T> apply(T a);
@@ -161,7 +152,7 @@ public abstract class UFunc<T> {
         return MathOps.Add.reduce(this.outer(a, b, null), initial, axis, keepShape, out);
     }
 
-    private int[] reduceShape(final MArray a, final int axis, final boolean keepShape) {
+    protected int[] reduceShape(final MArray a, final int axis, final boolean keepShape) {
         if (keepShape) {
 
             // shape axis is simply put at 1
@@ -488,4 +479,13 @@ public abstract class UFunc<T> {
                 }
         }
     }
+
+    protected abstract void applyAccFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b,
+            int boff, final int bstr, final float initital);
+
+    protected abstract void applyScalarFunc(final int dim, final MArray a, int aoff, final int astr, final float b,
+            final MArray c, int coff, final int cstr);
+
+    protected abstract void applyArrayFunc(final int dim, final MArray a, int aoff, final int astr, final MArray b, int boff,
+            final int bstr, final MArray c, int coff, final int cstr);
 }

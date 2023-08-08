@@ -1,4 +1,4 @@
-package com.github.romualdrousseau.shuju.math;
+package com.github.romualdrousseau.shuju.op.math;
 
 import com.github.romualdrousseau.shuju.core.UFunc;
 import com.github.romualdrousseau.shuju.core.UFunc0;

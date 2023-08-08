@@ -1,6 +1,6 @@
-package com.github.romualdrousseau.shuju.math;
+package com.github.romualdrousseau.shuju.op.math;
 
-import com.github.romualdrousseau.shuju.linalg.MatMul;
+import com.github.romualdrousseau.shuju.op.linalg.MatMul;
 import com.github.romualdrousseau.shuju.types.Tensor;
 
 public class Cov {

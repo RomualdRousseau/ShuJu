@@ -7,14 +7,14 @@ import org.tensorflow.ndarray.buffer.DataBuffers;
 import org.tensorflow.types.TFloat32;
 
 import com.github.romualdrousseau.shuju.core.MArray;
-import com.github.romualdrousseau.shuju.linalg.MatMul;
-import com.github.romualdrousseau.shuju.math.Avg;
-import com.github.romualdrousseau.shuju.math.Cov;
-import com.github.romualdrousseau.shuju.math.MathOps;
-import com.github.romualdrousseau.shuju.math.Var;
-import com.github.romualdrousseau.shuju.nn.BatchNorm;
-import com.github.romualdrousseau.shuju.nn.L2Norm;
-import com.github.romualdrousseau.shuju.nn.Softmax;
+import com.github.romualdrousseau.shuju.op.linalg.MatMul;
+import com.github.romualdrousseau.shuju.op.math.Avg;
+import com.github.romualdrousseau.shuju.op.math.Cov;
+import com.github.romualdrousseau.shuju.op.math.MathOps;
+import com.github.romualdrousseau.shuju.op.math.Var;
+import com.github.romualdrousseau.shuju.op.nn.BatchNorm;
+import com.github.romualdrousseau.shuju.op.nn.L2Norm;
+import com.github.romualdrousseau.shuju.op.nn.Softmax;
 
 public class Tensor extends MArray {
 

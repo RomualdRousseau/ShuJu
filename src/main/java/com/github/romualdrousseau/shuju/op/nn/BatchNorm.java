@@ -1,4 +1,4 @@
-package com.github.romualdrousseau.shuju.nn;
+package com.github.romualdrousseau.shuju.op.nn;
 
 import com.github.romualdrousseau.shuju.types.Tensor;
 

@@ -25,19 +25,19 @@ public class JSON {
     static {
         final Reflections reflections = new Reflections(PACKAGE_LOADER_PREFIX, new SubTypesScanner(false));
         JSON.Factory = reflections.getSubTypesOf(JSONFactory.class).stream()
-                .map(clazz -> {
-                    try {
-                        return (JSONFactory) clazz.getConstructor().newInstance();
-                    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {
-                        return null;
-                    }
-                })
-                .filter(x -> x != null)
-                .findFirst().get();
+                .map(JSON::newJSONFactoryInstance)
+                .findFirst()
+                .get();
     }
 
-    public static void setFactory(JSONFactory factory) {
-        JSON.Factory = factory;
+    private static <T> JSONFactory newJSONFactoryInstance(Class<T> clazz) {
+        try {
+            return (JSONFactory) clazz.getConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException
+                | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static JSONArray newJSONArray() {
@@ -105,12 +105,11 @@ public class JSON {
         final List<String> t = Arrays.asList(q.split("\\."));
         Object curr = a;
         int state = 0;
-        while(state < t.size()) {
+        while (state < t.size()) {
             if (curr instanceof JSONArray) {
                 int i = Integer.parseInt(t.get(state));
                 curr = ((JSONArray) curr).get(i);
-            }
-            else if (curr instanceof JSONObject) {
+            } else if (curr instanceof JSONObject) {
                 curr = ((JSONObject) curr).get(t.get(state)).get();
             }
             state++;
