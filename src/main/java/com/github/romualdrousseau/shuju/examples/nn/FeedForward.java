@@ -178,8 +178,8 @@ public class FeedForward {
         for (int i = 0; i < 2000; i++) {
             for (int j = 0; j < 4; j++) {
                 ff.fit(
-                    TFloat32.tensorOf(Shape.of(1, 2), DataBuffers.of(training_features[j])),
-                    TFloat32.tensorOf(Shape.of(1, 1), DataBuffers.of(training_labels[j])));
+                    Tensor.of(training_features[j]).reshape(1, 2).toTFloat32(),
+                    Tensor.of(training_labels[j]).reshape(1, 1).toTFloat32());
             }
         }
 
