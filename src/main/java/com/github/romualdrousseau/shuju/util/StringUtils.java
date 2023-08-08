@@ -98,7 +98,7 @@ public class StringUtils {
     }
 
     public static String ensureCamelStyle(final String s) {
-        // Consider _ separated words instead of space 
+        // Consider _ separated words instead of space
         String ss = s.replaceAll("_", " ");
         if (StringUtils.isBlank(ss)) {
             return "";
@@ -115,7 +115,6 @@ public class StringUtils {
             }
         }
 
-        // Ensure to start by a lower case
-        return Character.toLowerCase(ss.charAt(0)) + ss.substring(1);
+        return ss;
     }
 }
