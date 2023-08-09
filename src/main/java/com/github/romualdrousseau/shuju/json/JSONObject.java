@@ -21,13 +21,13 @@ public interface JSONObject {
 
     void setString(String k, String s);
 
-    JSONArray getJSONArray(String k);
+    JSONArray getArray(String k);
 
-    void setJSONArray(String k, JSONArray a);
+    void setArray(String k, JSONArray a);
 
-    JSONObject getJSONObject(String k);
+    JSONObject getObject(String k);
 
-    void setJSONObject(String k, JSONObject o);
+    void setObject(String k, JSONObject o);
 
     String toString();
 }

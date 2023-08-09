@@ -133,7 +133,7 @@ public class Text {
     }
 
     public static JSONArray json_sequence(final List<Integer> sequence) {
-        JSONArray result = JSON.newJSONArray();
+        JSONArray result = JSON.newArray();
         sequence.forEach(x -> result.append(x));
         return result;
     }

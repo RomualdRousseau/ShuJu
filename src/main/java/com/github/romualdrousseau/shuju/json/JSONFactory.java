@@ -1,23 +1,26 @@
 package com.github.romualdrousseau.shuju.json;
 
+import java.nio.file.Path;
+
 public interface JSONFactory {
-    JSONObject newJSONObject();
 
-    JSONArray newJSONArray();
+    JSONArray newArray();
 
-    JSONObject loadJSONObject(String filePath);
+    JSONArray parseArray(String data);
 
-    JSONArray loadJSONArray(String filePath);
+    JSONArray parseArray(Object object);
 
-    JSONObject parseJSONObject(String data);
+    JSONArray loadArray(Path filePath);
 
-    JSONArray parseJSONArray(String data);
+    void saveArray(JSONArray a, Path filePath);
 
-    JSONObject parseJSONObject(Object object);
+    JSONObject newObject();
 
-    JSONArray parseJSONArray(Object object);
+    JSONObject parseObject(String data);
 
-    void saveJSONObject(JSONObject o, String filePath);
+    JSONObject parseObject(Object object);
 
-    void saveJSONArray(JSONArray a, String filePath);
+    JSONObject loadObject(Path filePath);
+
+    void saveObject(JSONObject o, Path filePath);
 }

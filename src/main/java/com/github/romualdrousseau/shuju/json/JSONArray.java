@@ -19,13 +19,13 @@ public interface JSONArray {
 
     void setString(int i, String s);
 
-    JSONArray getJSONArray(int i);
+    JSONArray getArray(int i);
 
-    void setJSONArray(int i, JSONArray f);
+    void setArray(int i, JSONArray f);
 
-    JSONObject getJSONObject(int i);
+    JSONObject getObject(int i);
 
-    void setJSONObject(int i, JSONObject o);
+    void setOject(int i, JSONObject o);
 
     void append(int i );
 
