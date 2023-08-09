@@ -85,19 +85,19 @@ public class JSONJacksonObject implements JSONObject {
         this.objectNode.put(k, s);
     }
 
-    public JSONArray getJSONArray(final String k) {
+    public JSONArray getArray(final String k) {
         return new JSONJacksonArray(this.mapper, this.objectNode.get(k));
     }
 
-    public void setJSONArray(final String k, final JSONArray a) {
+    public void setArray(final String k, final JSONArray a) {
         this.objectNode.set(k, ((JSONJacksonArray) a).arrayNode);
     }
 
-    public JSONObject getJSONObject(final String k) {
+    public JSONObject getObject(final String k) {
         return new JSONJacksonObject(this.mapper, this.objectNode.get(k));
     }
 
-    public void setJSONObject(final String k, final JSONObject o) {
+    public void setObject(final String k, final JSONObject o) {
         this.objectNode.set(k, ((JSONJacksonObject) o).objectNode);
     }
 

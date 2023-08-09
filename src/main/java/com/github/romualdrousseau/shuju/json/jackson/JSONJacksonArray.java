@@ -73,19 +73,19 @@ public class JSONJacksonArray implements JSONArray {
         this.arrayNode.set(i, s);
     }
 
-    public JSONArray getJSONArray(int i) {
+    public JSONArray getArray(int i) {
         return new JSONJacksonArray(this.mapper, this.arrayNode.get(i));
     }
 
-    public void setJSONArray(int i, JSONArray a) {
+    public void setArray(int i, JSONArray a) {
         this.arrayNode.set(i, ((JSONJacksonArray) a).arrayNode);
     }
 
-    public JSONObject getJSONObject(int i) {
+    public JSONObject getObject(int i) {
         return new JSONJacksonObject(this.mapper, this.arrayNode.get(i));
     }
 
-    public void setJSONObject(int i, JSONObject o) {
+    public void setOject(int i, JSONObject o) {
         this.arrayNode.set(i, ((JSONJacksonObject) o).objectNode);
     }
 
