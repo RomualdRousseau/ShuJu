@@ -62,7 +62,7 @@
     </repositories>
 
     <dependencies>
-        <!-- ShuJu Framework -->
+        <!-- Reflections Framework -->
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
