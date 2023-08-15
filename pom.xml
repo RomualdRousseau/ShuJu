@@ -67,6 +67,7 @@
             <artifactId>shuju</artifactId>
             <version>1.20-SNAPSHOT</version>
         </dependency>
+        <!-- Jackson Framework -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
