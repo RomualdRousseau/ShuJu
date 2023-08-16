@@ -3,7 +3,7 @@
 
     <groupId>com.github.romualdrousseau</groupId>
     <artifactId>shuju-jackson</artifactId>
-    <version>1.19-SNAPSHOT</version>
+    <version>1.20-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>shuju-jackson</name>
@@ -65,7 +65,7 @@
         <dependency>
             <groupId>com.github.romualdrousseau</groupId>
             <artifactId>shuju</artifactId>
-            <version>1.19-SNAPSHOT</version>
+            <version>1.20-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
