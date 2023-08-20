@@ -1,4 +1,4 @@
-package com.github.romualdrousseau.shuju.util;
+package com.github.romualdrousseau.shuju.commons;
 
 import java.util.ArrayList;
 import java.util.Collections;
