@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import com.github.romualdrousseau.shuju.preprocessing.Text;
-import com.github.romualdrousseau.shuju.util.StringUtils;
+import com.github.romualdrousseau.shuju.strings.StringUtils;
 
 public class ShingleTokenizer implements Text.ITokenizer {
     private static final Pattern CAMEL_PATTERN = Pattern.compile("(?<!(^|[A-Z/]))(?=[A-Z/])|(?<!^)(?=[A-Z/][a-z/])");

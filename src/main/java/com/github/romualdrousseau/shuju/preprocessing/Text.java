@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.github.romualdrousseau.shuju.commons.CollectionUtils;
 import com.github.romualdrousseau.shuju.json.JSON;
 import com.github.romualdrousseau.shuju.json.JSONArray;
 import com.github.romualdrousseau.shuju.preprocessing.hasher.DefaultHasher;
 import com.github.romualdrousseau.shuju.preprocessing.tokenizer.DefaultTokenizer;
 import com.github.romualdrousseau.shuju.preprocessing.comparer.DefaultComparer;
-import com.github.romualdrousseau.shuju.util.CollectionUtils;
 
 public class Text {
 

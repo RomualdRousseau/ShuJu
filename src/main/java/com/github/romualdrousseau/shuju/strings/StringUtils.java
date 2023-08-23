@@ -1,4 +1,4 @@
-package com.github.romualdrousseau.shuju.util;
+package com.github.romualdrousseau.shuju.strings;
 
 import java.util.regex.Pattern;
 
