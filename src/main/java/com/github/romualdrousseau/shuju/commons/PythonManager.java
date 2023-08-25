@@ -116,7 +116,13 @@ public class PythonManager {
 
     private String getPythonScript() {
         if (this.hasVirtualEnv) {
-            return Path.of(this.virtualEnvPath, "/bin/python").toString();
+            if (Path.of(this.virtualEnvPath, "/bin/python").toFile().exists()) {
+                return Path.of(this.virtualEnvPath, "/bin/python").toString();
+            } else if (Path.of(this.virtualEnvPath, "/Scripts/python").toFile().exists()) {
+                return Path.of(this.virtualEnvPath, "/Scripts/python").toString();
+            } else {
+                return "python";
+            }
         } else {
             return "python";
         }
@@ -124,7 +130,13 @@ public class PythonManager {
 
     private String getPipScript() {
         if (this.hasVirtualEnv) {
-            return Path.of(this.virtualEnvPath, "/bin/pip").toString();
+            if (Path.of(this.virtualEnvPath, "/bin/pip").toFile().exists()) {
+                return Path.of(this.virtualEnvPath, "/bin/pip").toString();
+            } else if (Path.of(this.virtualEnvPath, "/Scripts/pip").toFile().exists()) {
+                return Path.of(this.virtualEnvPath, "/Scripts/pip").toString();
+            } else {
+                return "pip";
+            }
         } else {
             return "pip";
         }
