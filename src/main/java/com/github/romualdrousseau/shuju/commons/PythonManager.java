@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class PythonManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(PythonManager.class);
 
-    public PythonManager(final String moduleName) throws IOException {
+    public PythonManager(final String moduleName) throws IOException, URISyntaxException {
         final Properties prop = new Properties();
         prop.load(this.findPropertiesFile());
 
@@ -130,16 +130,13 @@ public class PythonManager {
         }
     }
 
-    private static Optional<Path> resolveResourcePath(String resourceName) {
-        try {
-            final URL resource = PythonManager.class.getResource(resourceName);
-            if (resource != null) {
-                return Optional.of(Path.of(resource.toURI()));
-            }
-            return Optional.empty();
-        } catch (final URISyntaxException e) {
-            return Optional.empty();
+    private static Optional<Path> resolveResourcePath(String resourceName) throws URISyntaxException {
+        final URL resource = PythonManager.class.getResource(resourceName);
+        if (resource != null) {
+            LOGGER.debug(resource.toURI().toString());
+            return Optional.of(Path.of(resource.toURI()));
         }
+        return Optional.empty();
     }
 
     private final Path modulePath;
