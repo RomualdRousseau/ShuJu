@@ -1,10 +1,8 @@
 package com.github.romualdrousseau.shuju.commons;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -19,11 +17,11 @@ import org.slf4j.LoggerFactory;
 public class PythonManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(PythonManager.class);
 
-    public PythonManager(final String moduleName) throws IOException, URISyntaxException {
-        final Properties prop = new Properties();
+    public PythonManager(final String moduleName) throws IOException {
+        final var prop = new Properties();
         prop.load(this.findPropertiesFile());
 
-        this.modulePath = PythonManager.resolveResourcePath(prop.getProperty(moduleName + ".module-path")).get();
+        this.modulePath = this.getModulePath(prop.getProperty(moduleName + ".module-path"));
         this.mainEntry = prop.getProperty(moduleName + ".module-main", "main.py");
         this.hasVirtualEnv = prop.getProperty(moduleName + ".virtual-env", "false").equals("true");
         this.virtualEnvPath = prop.getProperty(moduleName + ".virtual-env-path", ".venv");
@@ -76,33 +74,38 @@ public class PythonManager {
             this.installDependencies();
         }
 
-        LOGGER.info("python: Call {} with args: {}", this.mainEntry, args);
-
-        final List<String> command = Stream.of(List.of(this.getPythonScript(), this.mainEntry), List.of(args))
+        final var command = Stream.of(List.of(this.getPythonScript(), this.mainEntry), List.of(args))
                 .flatMap(Collection::stream).toList();
         final ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.directory(this.modulePath.toFile());
         processBuilder.redirectErrorStream(true);
 
         if (this.environment != null || this.environment.size() > 0) {
-            final Map<String, String> env = processBuilder.environment();
+            final var env = processBuilder.environment();
             this.environment.forEach((k, v) -> env.put(k, v));
         }
+
+        LOGGER.info("python: Call {} with args: {}", this.mainEntry, args);
 
         return processBuilder.start();
     }
 
-    private InputStream findPropertiesFile() {
-        return this.getClass().getClassLoader().getResourceAsStream("python4j.properties");
+    private InputStream findPropertiesFile() throws IOException {
+        final var userDir = System.getProperty("user.dir");
+        return this.getPathIfExists(Path.of(userDir, "python4j.properties"))
+                .or(() -> this.getPathIfExists(Path.of(userDir, "classes", "python4j.properties")))
+                .flatMap(this::pathToStream)
+                .or(() -> this.resolveResourceAsStream("python4j.properties"))
+                .orElseThrow(() -> PythonManager.panicAndAbort("python4j.properties"));
     }
 
     private boolean isRequirementsInstalled() throws IOException {
-        final File requireFile = this.modulePath.resolve("requirements.txt").toFile();
+        final var requireFile = this.modulePath.resolve("requirements.txt").toFile();
         if (!requireFile.exists()) {
             return false;
         }
 
-        final File lockFile = this.modulePath.resolve("requirements.lock").toFile();
+        final var lockFile = this.modulePath.resolve("requirements.lock").toFile();
         if (lockFile.exists()) {
             if (requireFile.lastModified() < lockFile.lastModified()) {
                 return true;
@@ -116,13 +119,10 @@ public class PythonManager {
 
     private String getPythonScript() {
         if (this.hasVirtualEnv) {
-            if (Path.of(this.virtualEnvPath, "/bin/python").toFile().exists()) {
-                return Path.of(this.virtualEnvPath, "/bin/python").toString();
-            } else if (Path.of(this.virtualEnvPath, "/Scripts/python").toFile().exists()) {
-                return Path.of(this.virtualEnvPath, "/Scripts/python").toString();
-            } else {
-                return "python";
-            }
+            return this.getScriptPath("/bin/python")
+                    .or(() -> this.getScriptPath("/Scripts/python.exe"))
+                    .orElseThrow(() -> PythonManager.panicAndAbort("python"))
+                    .toString();
         } else {
             return "python";
         }
@@ -130,25 +130,59 @@ public class PythonManager {
 
     private String getPipScript() {
         if (this.hasVirtualEnv) {
-            if (Path.of(this.virtualEnvPath, "/bin/pip").toFile().exists()) {
-                return Path.of(this.virtualEnvPath, "/bin/pip").toString();
-            } else if (Path.of(this.virtualEnvPath, "/Scripts/pip").toFile().exists()) {
-                return Path.of(this.virtualEnvPath, "/Scripts/pip").toString();
-            } else {
-                return "pip";
-            }
+            return this.getScriptPath("/bin/pip")
+                    .or(() -> this.getScriptPath("/Scripts/pip.exe"))
+                    .orElseThrow(() -> PythonManager.panicAndAbort("pip"))
+                    .toString();
         } else {
             return "pip";
         }
     }
 
-    private static Optional<Path> resolveResourcePath(String resourceName) throws URISyntaxException {
-        final URL resource = PythonManager.class.getResource(resourceName);
-        if (resource != null) {
-            LOGGER.debug(resource.toURI().toString());
-            return Optional.of(Path.of(resource.toURI()));
+    private Optional<Path> getScriptPath(final String pathName) {
+        final var p = Path.of(this.virtualEnvPath, pathName);
+        return getPathIfExists(this.modulePath.resolve(p), p);
+    }
+
+    private Path getModulePath(final String moduleName) {
+        final var userDir = System.getProperty("user.dir");
+        return this.getPathIfExists(Path.of(userDir, moduleName))
+                .or(() -> this.getPathIfExists(Path.of(userDir, "classes", moduleName)))
+                .orElseThrow(() -> PythonManager.panicAndAbort(moduleName));
+    }
+
+    private Optional<InputStream> pathToStream(final Path x) {
+        try {
+            return Optional.of(Files.newInputStream(x));
+        } catch (final IOException e) {
+            return Optional.empty();
         }
-        return Optional.empty();
+    }
+
+    private Optional<InputStream> resolveResourceAsStream(final String resourceName) {
+        final InputStream resource = this.getClass().getClassLoader().getResourceAsStream(resourceName);
+        if (resource == null) {
+            return Optional.empty();
+        }
+        LOGGER.debug("module: {} found at {}", resourceName, resource);
+        return Optional.of(resource);
+    }
+
+    private Optional<Path> getPathIfExists(final Path path) {
+        return this.getPathIfExists(path, path);
+    }
+
+    private Optional<Path> getPathIfExists(final Path path1, final Path path2) {
+        if (!path1.toFile().exists()) {
+            return Optional.empty();
+        }
+        LOGGER.debug("module: {} found at {}", path2.getFileName(), path2);
+        return Optional.of(path2);
+    }
+
+    private static RuntimeException panicAndAbort(final String name) {
+        LOGGER.error("module: {} not found, abort ...", name);
+        return new RuntimeException(String.format("%s not found, abort ...", name));
     }
 
     private final Path modulePath;

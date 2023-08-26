@@ -6,18 +6,18 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
 
 public class JSON {
     public final static String PACKAGE_LOADER_PREFIX = "com.github.romualdrousseau.shuju.json";
 
     private static JSONFactory Factory;
     static {
-        final Reflections reflections = new Reflections(PACKAGE_LOADER_PREFIX, new SubTypesScanner(false));
+        final Reflections reflections = new Reflections(PACKAGE_LOADER_PREFIX);
         JSON.Factory = reflections.getSubTypesOf(JSONFactory.class).stream()
                 .map(JSON::newFactoryInstance)
                 .findFirst()
@@ -97,6 +97,13 @@ public class JSON {
         JSON.Factory.saveObject(o, filePath);
     }
 
+    public static <T> Stream<T> streamOf(final Object a, final String q) {
+        return JSON.<T>query(a, q)
+                .filter(o -> o instanceof JSONArray)
+                .map(o -> JSON.<T>streamOf((JSONArray) o))
+                .orElse(Stream.empty());
+    }
+
     public static <T> Stream<T> streamOf(final JSONArray a) {
         Iterable<T> it = new Iterable<T>() {
             @Override
@@ -119,17 +126,8 @@ public class JSON {
         return StreamSupport.stream(it.spliterator(), false);
     }
 
-    public static <T> Stream<T> streamOf(final Object a, final String q) {
-        T o = JSON.query(a, q);
-        if (o instanceof JSONArray) {
-            return JSON.streamOf((JSONArray) o);
-        } else {
-            return Stream.empty();
-        }
-    }
-
     @SuppressWarnings("unchecked")
-    public static <T> T query(final Object a, final String q) {
+    public static <T> Optional<T> query(final Object a, final String q) {
         Object curr = a;
         for(String token: Arrays.asList(q.split("\\."))) {
             if (curr instanceof JSONArray) {
@@ -139,6 +137,6 @@ public class JSON {
                 curr = ((JSONObject) curr).get(token).get();
             }
         }
-        return (T) curr;
+        return Optional.ofNullable((T) curr);
     }
 }
