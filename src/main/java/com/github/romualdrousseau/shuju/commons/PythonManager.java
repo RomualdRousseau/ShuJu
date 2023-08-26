@@ -24,18 +24,18 @@ public class PythonManager {
         this.modulePath = this.getModulePath(prop.getProperty(moduleName + ".module-path"));
         this.mainEntry = prop.getProperty(moduleName + ".module-main", "main.py");
         this.hasVirtualEnv = prop.getProperty(moduleName + ".virtual-env", "false").equals("true");
-        this.virtualEnvPath = prop.getProperty(moduleName + ".virtual-env-path", ".venv");
+        this.virtualEnvPath = this.getVirtualEnvPath(prop.getProperty(moduleName + ".virtual-env-path", ".venv"));
         this.hasDependencies = prop.getProperty(moduleName + ".dependencies", "false").equals("true");
     }
 
     public PythonManager enableVirtualEnv() throws IOException, InterruptedException {
-        if (this.modulePath.resolve(this.virtualEnvPath).toFile().exists()) {
+        if (this.virtualEnvPath.toFile().exists()) {
             return this;
         }
 
         LOGGER.info("venv: Create a new virtual environment");
 
-        final ProcessBuilder processBuilder = new ProcessBuilder("python", "-m", "venv", this.virtualEnvPath);
+        final ProcessBuilder processBuilder = new ProcessBuilder("python", "-m", "venv", this.virtualEnvPath.toString());
         processBuilder.directory(this.modulePath.toFile());
         processBuilder.inheritIO();
         processBuilder.redirectErrorStream(true);
@@ -140,8 +140,7 @@ public class PythonManager {
     }
 
     private Optional<Path> getScriptPath(final String pathName) {
-        final var p = Path.of(this.virtualEnvPath, pathName);
-        return getPathIfExists(this.modulePath.resolve(p), p);
+        return this.getPathIfExists(this.virtualEnvPath.resolve(pathName));
     }
 
     private Path getModulePath(final String moduleName) {
@@ -149,6 +148,14 @@ public class PythonManager {
         return this.getPathIfExists(Path.of(userDir, moduleName))
                 .or(() -> this.getPathIfExists(Path.of(userDir, "classes", moduleName)))
                 .orElseThrow(() -> PythonManager.panicAndAbort(moduleName));
+    }
+
+    private Path getVirtualEnvPath(String virtualEnvPath) {
+        if (Path.of(virtualEnvPath).isAbsolute()) {
+            return Path.of(virtualEnvPath);
+        } else {
+            return this.modulePath.resolve(virtualEnvPath);
+        }
     }
 
     private Optional<InputStream> pathToStream(final Path x) {
@@ -169,15 +176,11 @@ public class PythonManager {
     }
 
     private Optional<Path> getPathIfExists(final Path path) {
-        return this.getPathIfExists(path, path);
-    }
-
-    private Optional<Path> getPathIfExists(final Path path1, final Path path2) {
-        if (!path1.toFile().exists()) {
+        if (!path.toFile().exists()) {
             return Optional.empty();
         }
-        LOGGER.debug("module: {} found at {}", path2.getFileName(), path2);
-        return Optional.of(path2);
+        LOGGER.debug("module: {} found at {}", path.getFileName(), path);
+        return Optional.of(path);
     }
 
     private static RuntimeException panicAndAbort(final String name) {
@@ -188,7 +191,7 @@ public class PythonManager {
     private final Path modulePath;
     private final String mainEntry;
     private final boolean hasVirtualEnv;
-    private final String virtualEnvPath;
+    private final Path virtualEnvPath;
     private final boolean hasDependencies;
     private Map<String, String> environment = null;
 }
