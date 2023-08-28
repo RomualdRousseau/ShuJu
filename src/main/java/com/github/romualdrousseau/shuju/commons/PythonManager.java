@@ -57,6 +57,9 @@ public class PythonManager {
         processBuilder.redirectErrorStream(true);
         processBuilder.start().waitFor();
 
+        final var lockFile = this.modulePath.resolve("requirements.lock").toFile();
+        lockFile.createNewFile();
+
         return this;
     }
 
@@ -113,14 +116,13 @@ public class PythonManager {
             lockFile.delete();
         }
 
-        lockFile.createNewFile();
         return false;
     }
 
     private String getPythonScript() {
         if (this.hasVirtualEnv) {
-            return this.getScriptPath("/bin/python")
-                    .or(() -> this.getScriptPath("/Scripts/python.exe"))
+            return this.getScriptPath("bin/python")
+                    .or(() -> this.getScriptPath("Scripts/python.exe"))
                     .orElseThrow(() -> PythonManager.panicAndAbort("python"))
                     .toString();
         } else {
@@ -130,8 +132,8 @@ public class PythonManager {
 
     private String getPipScript() {
         if (this.hasVirtualEnv) {
-            return this.getScriptPath("/bin/pip")
-                    .or(() -> this.getScriptPath("/Scripts/pip.exe"))
+            return this.getScriptPath("bin/pip")
+                    .or(() -> this.getScriptPath("Scripts/pip.exe"))
                     .orElseThrow(() -> PythonManager.panicAndAbort("pip"))
                     .toString();
         } else {
@@ -169,6 +171,7 @@ public class PythonManager {
     private Optional<InputStream> resolveResourceAsStream(final String resourceName) {
         final InputStream resource = this.getClass().getClassLoader().getResourceAsStream(resourceName);
         if (resource == null) {
+            LOGGER.debug("module: {} not found", resourceName);
             return Optional.empty();
         }
         LOGGER.debug("module: {} found at {}", resourceName, resource);
@@ -177,6 +180,7 @@ public class PythonManager {
 
     private Optional<Path> getPathIfExists(final Path path) {
         if (!path.toFile().exists()) {
+            LOGGER.debug("module: {} not found at {}", path.getFileName(), path);
             return Optional.empty();
         }
         LOGGER.debug("module: {} found at {}", path.getFileName(), path);
