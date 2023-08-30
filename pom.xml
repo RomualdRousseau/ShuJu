@@ -65,7 +65,7 @@
         <dependency>
             <groupId>com.github.romualdrousseau</groupId>
             <artifactId>shuju</artifactId>
-            <version>1.21-SNAPSHOT</version>
+            <version>1.21</version>
         </dependency>
         <!-- Test Framework -->
         <dependency>
