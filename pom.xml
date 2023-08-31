@@ -55,9 +55,16 @@
 
     <repositories>
         <repository>
-            <id>ossrh</id>
-            <name>Open Source Project Repository Hosting</name>
-            <url>https://oss.sonatype.org/content/groups/public</url>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>repo</id>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
         </repository>
     </repositories>
 
