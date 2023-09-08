@@ -11,31 +11,47 @@ public class PythonSimpleDateFormat extends SimpleDateFormat {
     }
 
     public PythonSimpleDateFormat(final String pattern) {
-        super(convert(pattern));
+        super(PythonSimpleDateFormat.toJava(pattern));
     }
 
     public PythonSimpleDateFormat(final String pattern, DateFormatSymbols formatSymbols) {
-        super(convert(pattern), formatSymbols);
+        super(PythonSimpleDateFormat.toJava(pattern), formatSymbols);
     }
 
     public PythonSimpleDateFormat(final String pattern, Locale locale) {
-        super(convert(pattern), locale);
+        super(PythonSimpleDateFormat.toJava(pattern), locale);
     }
 
-    private static String convert(final String pattern) {
-        return pattern
-            .replaceAll("%y", "yy")
-            .replaceAll("%Y", "yyyy")
+    public static String toPython(final String javaPattern) {
+        return javaPattern
+            .replaceAll("YYYY", "%G")
+            .replaceAll("yyyy", "%Y")
+            .replaceAll("yy", "%y")
+            .replaceAll("MMMMM", "%B")
+            .replaceAll("MMM", "%b")
+            .replaceAll("MM", "%m")
+            .replaceAll("DDD", "%j")
+            .replaceAll("dd", "%d")
+            .replaceAll("EEEEE", "%A")
+            .replaceAll("EEE", "%a")
+            .replaceAll("ww", "%W")
+            .replaceAll("u", "%u");
+    }
+
+    public static String toJava(final String pythonPattern) {
+        return pythonPattern
             .replaceAll("%G", "YYYY")
-            .replaceAll("%m", "MM")
-            .replaceAll("%b", "MMM")
+            .replaceAll("%Y", "yyyy")
+            .replaceAll("%y", "yy")
             .replaceAll("%B", "MMMMM")
-            .replaceAll("%d", "dd")
+            .replaceAll("%b", "MMM")
+            .replaceAll("%m", "MM")
             .replaceAll("%j", "DDD")
-            .replaceAll("%a", "EEE")
+            .replaceAll("%d", "dd")
             .replaceAll("%A", "EEEEE")
-            .replaceAll("%w", "u")
+            .replaceAll("%a", "EEE")
             .replaceAll("%W", "ww")
+            .replaceAll("%w", "u")
             .replaceAll("%u", "u")
             .replaceAll("%U", "ww")
             .replaceAll("%V", "ww");
