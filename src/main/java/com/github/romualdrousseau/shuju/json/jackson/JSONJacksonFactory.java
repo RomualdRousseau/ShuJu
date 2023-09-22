@@ -8,6 +8,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.romualdrousseau.shuju.json.JSONArray;
@@ -19,6 +21,11 @@ public class JSONJacksonFactory implements JSONFactory {
 
     public JSONJacksonFactory() {
         this.mapper = new ObjectMapper();
+
+        DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
+        prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+        mapper.setDefaultPrettyPrinter(prettyPrinter);
+
         final StreamReadConstraints streamReadConstraints = StreamReadConstraints
             .builder()
             .maxStringLength(Integer.MAX_VALUE)
@@ -52,7 +59,7 @@ public class JSONJacksonFactory implements JSONFactory {
 
     public void saveArray(final JSONArray a, final Path filePath) {
         try {
-            mapper.writeValue(filePath.toFile(), ((JSONJacksonArray) a).arrayNode);
+            mapper.writerWithDefaultPrettyPrinter().writeValue(filePath.toFile(), ((JSONJacksonArray) a).arrayNode);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
