@@ -18,7 +18,7 @@ import org.tensorflow.types.TFloat32;
 import com.github.romualdrousseau.shuju.types.Scalar;
 import com.github.romualdrousseau.shuju.types.Tensor;
 
-public class TensorTest {
+public class Test_Tensor {
 
     @Test
     public void testNull() {
