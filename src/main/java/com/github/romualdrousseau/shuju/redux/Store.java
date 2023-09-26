@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Store<S, A> {
+public class Store<S, A extends Action> {
 
     private final Map<A, List<Subscriber<S, A>>> subscribers = new HashMap<>();
     private final List<Reducer<S, A>> reducers = new ArrayList<>();
@@ -29,7 +29,8 @@ public class Store<S, A> {
     }
 
     public void dispatch(final A action) {
-        this.state = reducers.stream().reduce(this.state, (x, y) -> y.apply(x, action), (x, y) -> y);
-        this.subscribers.getOrDefault(action, Collections.emptyList()).forEach(x -> x.accept(this, action));
+        @SuppressWarnings("unchecked") final var result = (A) action.get();
+        this.state = reducers.stream().reduce(this.state, (x, y) -> y.apply(x, result), (x, y) -> y);
+        this.subscribers.getOrDefault(result, Collections.emptyList()).forEach(x -> x.accept(this, result));
     }
 }

@@ -2,4 +2,4 @@ package com.github.romualdrousseau.shuju.redux;
 
 import java.util.function.BiConsumer;
 
-public interface Subscriber<S, A> extends BiConsumer<Store<S, A>, A> {}
+public interface Subscriber<S, A extends Action> extends BiConsumer<Store<S, A>, A> {}
