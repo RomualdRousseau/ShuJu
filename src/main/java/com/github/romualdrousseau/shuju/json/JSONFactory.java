@@ -12,7 +12,7 @@ public interface JSONFactory {
 
     JSONArray loadArray(Path filePath);
 
-    void saveArray(JSONArray a, Path filePath);
+    void saveArray(JSONArray a, Path filePath, boolean pretty);
 
     JSONObject newObject();
 
@@ -22,5 +22,5 @@ public interface JSONFactory {
 
     JSONObject loadObject(Path filePath);
 
-    void saveObject(JSONObject o, Path filePath);
+    void saveObject(JSONObject o, Path filePath, boolean pretty);
 }

@@ -68,7 +68,11 @@ public class JSON {
     }
 
     public static void saveArray(JSONArray a, Path filePath) {
-        JSON.Factory.saveArray(a, filePath);
+        JSON.Factory.saveArray(a, filePath, false);
+    }
+
+    public static void saveArray(JSONArray a, Path filePath, final boolean pretty) {
+        JSON.Factory.saveArray(a, filePath, pretty);
     }
 
     public static JSONObject newObject() {
@@ -94,7 +98,11 @@ public class JSON {
     }
 
     public static void saveObject(JSONObject o, Path filePath) {
-        JSON.Factory.saveObject(o, filePath);
+        JSON.Factory.saveObject(o, filePath, false);
+    }
+
+    public static void saveObject(JSONObject o, Path filePath, final boolean pretty) {
+        JSON.Factory.saveObject(o, filePath, pretty);
     }
 
     public static <T> Stream<T> streamOf(final Object a, final String q) {
