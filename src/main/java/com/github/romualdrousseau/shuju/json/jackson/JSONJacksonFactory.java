@@ -2,6 +2,7 @@ package com.github.romualdrousseau.shuju.json.jackson;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.io.FileInputStream;
@@ -41,7 +42,7 @@ public class JSONJacksonFactory implements JSONFactory {
         try {
             return new JSONJacksonArray(this.mapper, this.mapper.readTree(data));
         } catch (final IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -53,15 +54,19 @@ public class JSONJacksonFactory implements JSONFactory {
         try (BufferedReader reader = this.createReader(filePath)) {
             return new JSONJacksonArray(this.mapper, this.mapper.readTree(reader));
         } catch (final IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
-    public void saveArray(final JSONArray a, final Path filePath) {
+    public void saveArray(final JSONArray a, final Path filePath, final boolean pretty) {
         try {
-            mapper.writerWithDefaultPrettyPrinter().writeValue(filePath.toFile(), ((JSONJacksonArray) a).arrayNode);
+            if (pretty) {
+                mapper.writerWithDefaultPrettyPrinter().writeValue(filePath.toFile(), ((JSONJacksonArray) a).arrayNode);
+            } else{
+                mapper.writeValue(filePath.toFile(), ((JSONJacksonArray) a).arrayNode);
+            }
         } catch (final IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -73,7 +78,7 @@ public class JSONJacksonFactory implements JSONFactory {
         try {
             return new JSONJacksonObject(this.mapper, this.mapper.readTree(data));
         } catch (final IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -85,15 +90,19 @@ public class JSONJacksonFactory implements JSONFactory {
         try (BufferedReader reader = this.createReader(filePath)) {
             return new JSONJacksonObject(this.mapper, this.mapper.readTree(reader));
         } catch (final IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
-    public void saveObject(final JSONObject o, final Path filePath) {
+    public void saveObject(final JSONObject o, final Path filePath, final boolean pretty) {
         try {
-            mapper.writeValue(filePath.toFile(), ((JSONJacksonObject) o).objectNode);
+            if (pretty) {
+                mapper.writerWithDefaultPrettyPrinter().writeValue(filePath.toFile(), ((JSONJacksonObject) o).objectNode);
+            } else{
+                mapper.writeValue(filePath.toFile(), ((JSONJacksonObject) o).objectNode);
+            }
         } catch (final IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
