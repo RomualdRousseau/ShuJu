@@ -110,7 +110,7 @@ jobs:
         if: needs.check-version-is-release.outputs.is_release == 1
         runs-on: [ubuntu-latest]
         steps:
-            -   uses: geekyeggo/delete-artifact@v3
+            -   uses: geekyeggo/delete-artifact@v2
                 with:
                     name: target
 
@@ -119,6 +119,6 @@ jobs:
         if: needs.check-version-is-release.outputs.is_release == 0
         runs-on: [ubuntu-latest]
         steps:
-            -   uses: geekyeggo/delete-artifact@v3
+            -   uses: geekyeggo/delete-artifact@v2
                 with:
                     name: target
