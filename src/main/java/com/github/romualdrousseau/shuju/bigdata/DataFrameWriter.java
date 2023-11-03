@@ -73,9 +73,7 @@ public class DataFrameWriter implements Closeable {
     }
 
     public void write(final Row data) throws IOException {
-        assert data.size() == this.root.getFieldVectors().size();
-
-        for(int i = 0; i < data.size(); i++) {
+        for(int i = 0; i < Math.min(data.size(), this.root.getFieldVectors().size()); i++) {
             final var v = (VarCharVector) this.root.getVector(i);
             final var d = data.get(i);
             if (d != null) {
