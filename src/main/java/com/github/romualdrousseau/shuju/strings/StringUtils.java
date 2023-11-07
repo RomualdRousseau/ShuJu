@@ -1,16 +1,15 @@
 package com.github.romualdrousseau.shuju.strings;
 
+import java.util.List;
 import java.util.regex.Pattern;
+
+import com.github.romualdrousseau.shuju.preprocessing.Text;
 
 public class StringUtils {
     public static final String WHITE_SPACES = "\\s\\u00A0\\u3000";
-
     public static final String WRONG_UNICODE = "\\uFFFD";
-
     public static final char WRONG_UNICODE_CHAR = '\uFFFD';
-
     public static final String BOM = "\\uFEFF";
-
     public static final char BOM_CHAR = '\uFEFF';
 
     public static boolean isBlank(final String s) {
@@ -71,10 +70,16 @@ public class StringUtils {
         }
         if (s.length() == 1) {
             return s.toLowerCase();
-        }
-        else {
+        } else {
             return Character.toUpperCase(s.charAt(0)) + s.substring(1).toLowerCase();
         }
+    }
+
+    public static String uncapitalize(final String s) {
+        if (s == null) {
+            return null;
+        }
+        return Character.toLowerCase(s.charAt(0)) + s.substring(1);
     }
 
     public static boolean checkIfGoodEncoding(final String s) {
@@ -97,24 +102,23 @@ public class StringUtils {
         return ss;
     }
 
-    public static String ensureCamelStyle(final String s) {
-        // Consider _ separated words instead of space
-        String ss = s.replaceAll("_", " ");
-        if (StringUtils.isBlank(ss)) {
-            return "";
-        }
+    public static String toSnake(final String w, final Text.ITokenizer tokenizer) {
+        return String.join("_", tokenizer.apply(StringUtils.encodeSymbols(w).replaceAll("\\W+", " "))).toLowerCase();
+    }
 
-        // Replace space by the next letter upper case
-        boolean stillCamelToDo = true;
-        while (stillCamelToDo) {
-            final int i = ss.indexOf(" ");
-            if (i >= 0) {
-                ss = ss.substring(0, i) + Character.toUpperCase(ss.charAt(i + 1)) + ss.substring(i + 2);
-            } else {
-                stillCamelToDo = false;
-            }
-        }
+    public static String toCamel(final String w, final Text.ITokenizer tokenizer) {
+        return uncapitalize(
+                String.join("", tokenizer.apply(StringUtils.encodeSymbols(w).replaceAll("\\W+", " ")).stream()
+                        .map(StringUtils::capitalize).toArray(String[]::new)));
+    }
 
-        return ss;
+    public static String encodeSymbols(final String s) {
+        return s
+                .replaceAll("%+", "percent")
+                .replaceAll("\\$+", "dollar");
+    }
+
+    public static List<String> getSymbols() {
+        return List.of("dollar", "percent");
     }
 }

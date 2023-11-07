@@ -1,9 +1,12 @@
 package com.github.romualdrousseau.shuju;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import org.junit.Test;
@@ -71,7 +74,7 @@ public class Test_BigData {
 
     @Test
     public void testDataFrameRandom() throws IOException {
-        try (final var writer = new DataFrameWriter(100, 10)) {
+        try (final var writer = new DataFrameWriter(100, 100)) {
             for (int i = 0; i < 5000; i++) {
                 writer.write(Row.of(IntStream.range(0, writer.getColumnCount())
                         .mapToObj(j -> "nisl purus in mollis nunc")
@@ -89,7 +92,7 @@ public class Test_BigData {
         if (!Path.of("/mnt/media").toFile().exists()) {
             return;
         }
-        try (final var writer = new DataFrameWriter(10000, 100, Path.of("/mnt/media"))) {
+        try (final var writer = new DataFrameWriter(100000, 1000, Path.of("/mnt/media"))) {
             for (int i = 0; i < 10000000; i++) {
                 writer.write(Row.of(IntStream.range(0, writer.getColumnCount())
                         .mapToObj(j -> "nisl purus in mollis nunc")
@@ -103,5 +106,22 @@ public class Test_BigData {
                 });
             }
         }
+    }
+
+    @Test
+    public void testArrayListMassive() {
+        assertThrows(OutOfMemoryError.class, () -> {
+            final var list =  new ArrayList<String[]>();
+            for (int i = 0; i < 10000000; i++) {
+                list.add(IntStream.range(0, 1000)
+                        .mapToObj(j -> "nisl purus in mollis nunc")
+                        .toArray(String[]::new));
+            }
+            list.forEach(y -> {
+                List.of(y).forEach(x -> {
+                    assertEquals("nisl purus in mollis nunc", x);
+                });
+            });
+        });
     }
 }

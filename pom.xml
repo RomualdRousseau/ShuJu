@@ -32,13 +32,11 @@
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <processing.libraries.path>${user.home}/Projects/Processing/libraries</processing.libraries.path>
 
         <slf4j.version>2.0.9</slf4j.version>
         <log4j.version>2.20.0</log4j.version>
         <reflections.version>0.10.2</reflections.version>
         <tensorflow.version>0.5.0</tensorflow.version>
-        <arrow.version>13.0.0</arrow.version>
 
         <junit.version>4.13.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
@@ -82,7 +80,7 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
+                <version>1.7.36</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -115,17 +113,6 @@
             <groupId>org.tensorflow</groupId>
             <artifactId>tensorflow-core-platform</artifactId>
             <version>${tensorflow.version}</version>
-        </dependency>
-        <!-- Arrow -->
-        <dependency>
-            <groupId>org.apache.arrow</groupId>
-            <artifactId>arrow-vector</artifactId>
-            <version>${arrow.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.arrow</groupId>
-            <artifactId>arrow-memory-netty</artifactId>
-            <version>${arrow.version}</version>
         </dependency>
         <!-- Test Framework -->
         <dependency>
@@ -168,7 +155,6 @@
                 </dependencies>
                 <configuration>
                     <argLine>-Dfile.encoding="UTF-8"</argLine>
-                    <argLine>--add-opens=java.base/java.nio=ALL-UNNAMED</argLine>
                     <reportFormat>plain</reportFormat>
                     <consoleOutputReporter>
                     <disable>true</disable>

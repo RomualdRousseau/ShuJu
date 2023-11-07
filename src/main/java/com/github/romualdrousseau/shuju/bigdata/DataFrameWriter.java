@@ -1,62 +1,64 @@
 package com.github.romualdrousseau.shuju.bigdata;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.Channels;
+import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-
-import org.apache.arrow.memory.RootAllocator;
-import org.apache.arrow.vector.FieldVector;
-import org.apache.arrow.vector.VarCharVector;
-import org.apache.arrow.vector.VectorSchemaRoot;
-import org.apache.arrow.vector.ipc.ArrowFileWriter;
-import org.apache.arrow.vector.types.pojo.ArrowType;
-import org.apache.arrow.vector.types.pojo.Field;
-import org.apache.arrow.vector.types.pojo.FieldType;
-import org.apache.arrow.vector.types.pojo.Schema;
+import java.util.EnumSet;
+import java.util.List;
 
 public class DataFrameWriter implements Closeable {
-    private final RootAllocator allocator;
-    private final int batchSize;
-    private final int columnCount;
-    private final VectorSchemaRoot root;
-    private final Path storePath;
-    private final FileOutputStream output;
-    private final ArrowFileWriter writer;
 
+    private final int batchSize;
+    private final Path storePath;
+    private final List<BatchOfRows> batches = new ArrayList<>();
+    private final List<Row> currentBatch;
+    private final FileChannel fileChannel;
+
+    private long currPosition = 0;
     private int rowCount = 0;
-    private boolean isWriteEnd = false;
+    private int columnCount  = 0;
+    private boolean isClosed = false;
+
+    public DataFrameWriter(final int batchSize) throws IOException {
+        this(batchSize, 0, null);
+    }
 
     public DataFrameWriter(final int batchSize, final int columnCount) throws IOException {
         this(batchSize, columnCount, null);
     }
 
+    public DataFrameWriter(final int batchSize, final Path path) throws IOException {
+        this(batchSize, 0, path);
+    }
+
     public DataFrameWriter(final int batchSize, final int columnCount, final Path path) throws IOException {
-        this.allocator = new RootAllocator(Long.MAX_VALUE);
         this.batchSize = batchSize;
-        this.columnCount = columnCount;
-
-        final var fields = new ArrayList<Field>();
-        for (int i = 0; i < columnCount; i++) {
-            fields.add(new Field(String.valueOf(i), FieldType.nullable(new ArrowType.Utf8()), null));
-        }
-        this.root = VectorSchemaRoot.create(new Schema(fields), this.allocator);
-
         this.storePath = (path == null) ? Files.createTempFile(null, null) : Files.createTempFile(path, null, null);
         this.storePath.toFile().deleteOnExit();
-        this.output = new FileOutputStream(this.storePath.toFile());
-        this.writer = new ArrowFileWriter(root, null, Channels.newChannel(output));
-
-        this.writer.start();
+        this.fileChannel = (FileChannel) Files.newByteChannel(this.storePath, EnumSet.of(StandardOpenOption.CREATE, StandardOpenOption.WRITE));
+        this.currentBatch = new ArrayList<Row>(this.batchSize);
+        this.columnCount = columnCount;
     }
 
     @Override
     public void close() throws IOException {
-        this.writeEnd();
-        this.allocator.close();
+        if (this.isClosed) {
+            return;
+        }
+
+        if (this.currentBatch.size() > 0) {
+            this.flush();
+        }
+
+        this.fileChannel.close();
+        this.isClosed = true;
     }
 
     public int getRowCount() {
@@ -68,40 +70,33 @@ public class DataFrameWriter implements Closeable {
     }
 
     public DataFrame getDataFrame() throws IOException {
-        this.writeEnd();
-        return new DataFrame(this.allocator, this.batchSize, this.rowCount, this.columnCount, this.storePath);
+        this.close();
+        return new DataFrame(this.batchSize, this.storePath, this.batches, this.rowCount, this.columnCount);
     }
 
     public void write(final Row data) throws IOException {
-        assert data.size() == this.root.getFieldVectors().size();
-
-        for(int i = 0; i < data.size(); i++) {
-            final var v = (VarCharVector) this.root.getVector(i);
-            final var d = data.get(i);
-            if (d != null) {
-                v.setSafe(this.rowCount % this.batchSize, d.getBytes());
-            }
-        }
-
-        if ((++this.rowCount % this.batchSize) == 0) {
-            this.root.setRowCount(this.batchSize);
-            this.writer.writeBatch();
-            this.root.getFieldVectors().forEach(FieldVector::reset);
+        this.currentBatch.add(data);
+        this.columnCount = Math.max(this.columnCount, data.size());
+        this.rowCount++;
+        if (this.currentBatch.size() >= this.batchSize) {
+            this.flush();
         }
     }
 
-    private void writeEnd() throws IOException {
-        if (this.isWriteEnd) {
-            return;
+    private void flush() throws IOException {
+        final var bytes = this.serialize(this.currentBatch);
+        this.batches.add(BatchOfRows.of(this.currPosition, bytes.length));
+        this.fileChannel.write(ByteBuffer.wrap(bytes));
+        this.currPosition += bytes.length;
+        this.currentBatch.clear();
+    }
+
+    private byte[] serialize(final List<Row> o) throws IOException {
+        try (
+            final var byteArrayOutputStream = new ByteArrayOutputStream();
+            final var objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
+            objectOutputStream.writeObject(o);
+            return byteArrayOutputStream.toByteArray();
         }
-        if ((this.rowCount % this.batchSize) > 0) {
-            root.setRowCount(this.rowCount % this.batchSize);
-            writer.writeBatch();
-        }
-        this.writer.end();
-        this.writer.close();
-        this.output.close();
-        this.root.close();
-        this.isWriteEnd = true;
     }
 }

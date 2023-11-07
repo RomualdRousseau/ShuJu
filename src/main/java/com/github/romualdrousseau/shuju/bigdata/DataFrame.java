@@ -1,41 +1,41 @@
 package com.github.romualdrousseau.shuju.bigdata;
 
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.UncheckedIOException;
-import java.nio.channels.SeekableByteChannel;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.List;
 
-import org.apache.arrow.memory.RootAllocator;
-import org.apache.arrow.vector.VarCharVector;
-import org.apache.arrow.vector.VectorSchemaRoot;
-import org.apache.arrow.vector.ipc.ArrowFileReader;
 
 public class DataFrame implements Closeable, Iterable<Row> {
 
     private final int batchSize;
+    private final Path storePath;
+    private final List<BatchOfRows> batches;
     private final int rowCount;
     private final int columnCount;
-    private final Path storePath;
-    private final SeekableByteChannel input;
-    private final ArrowFileReader reader;
+    private final FileChannel fileChannel;
 
-    private int currBlock = -1;
-    private VectorSchemaRoot root;
+    private List<Row> currentBatch = null;
+    private int currentBatchIdx = -1;
     private boolean isClosed = false;
-    private final RowCache rowCache = new RowCache();
 
-    public DataFrame(final RootAllocator allocator, final int batchSize, final int rowCount, final int columnCount, final Path storePath) throws IOException {
+
+    public DataFrame(final int batchSize, final Path storePath, final List<BatchOfRows> batches, final int rowCount, final int columnCount) throws IOException {
         this.batchSize = batchSize;
+        this.storePath = storePath;
+        this.batches = batches;
         this.rowCount = rowCount;
         this.columnCount = columnCount;
-        this.storePath = storePath;
-        this.input = Files.newByteChannel(storePath, EnumSet.of(StandardOpenOption.READ));
-        this.reader = new ArrowFileReader(this.input, allocator);
+        this.fileChannel = (FileChannel) Files.newByteChannel(this.storePath, EnumSet.of(StandardOpenOption.READ, StandardOpenOption.DELETE_ON_CLOSE));
     }
 
     @Override
@@ -43,9 +43,8 @@ public class DataFrame implements Closeable, Iterable<Row> {
         if (this.isClosed) {
             return;
         }
-        this.reader.close();
-        this.input.close();
-        Files.deleteIfExists(this.storePath);
+
+        this.fileChannel.close();
         this.isClosed = true;
     }
 
@@ -56,47 +55,59 @@ public class DataFrame implements Closeable, Iterable<Row> {
     }
 
     public int getRowCount() {
-        return rowCount;
+        return this.rowCount;
     }
 
     public int getColumnCount() {
-        return columnCount;
+        return this.columnCount;
+    }
+
+    public int getColumnCount(final int row) {
+        this.checkRowIndex(row);
+        final var r = this.getRow(row);
+        return r.size();
     }
 
     public Row getRow(final int row) {
         this.checkRowIndex(row);
-        return rowCache.computeIfAbsent(row, y -> {
-            try {
-                final int block_n = row / this.batchSize;
-                final int batch_n = row % this.batchSize;
-
-                if (this.currBlock != block_n) {
-                    final var block = DataFrame.this.reader.getRecordBlocks().get(block_n);
-                    DataFrame.this.reader.loadRecordBatch(block);
-                    this.root = DataFrame.this.reader.getVectorSchemaRoot();
-                    this.currBlock = block_n;
-                }
-
-                return Row.of(this.root.getFieldVectors().stream()
-                    .map(x -> (VarCharVector) x)
-                    .map(x -> !x.isNull(batch_n) ? new String(x.get(batch_n)) : null)
-                    .toArray(String[]::new));
-            }
-            catch(final IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        final int idx = row / batchSize;
+        if (this.currentBatchIdx != idx) {
+            this.currentBatch = this.loadOneBatch(batches.get(idx));
+            this.currentBatchIdx = idx;
+        }
+        return this.currentBatch.get(row % batchSize);
     }
 
     public String getCell(final int row, final int column) {
         this.checkRowIndex(row);
         this.checkColumnIndex(column);
-        return this.getRow(row).get(column);
+        final var r = this.getRow(row);
+        return (column < r.size()) ? r.get(column) : null;
     }
 
     @Override
     public Iterator<Row> iterator() {
         return new DataFrameIterator(this);
+    }
+
+    private List<Row> loadOneBatch(final BatchOfRows batch) {
+        try {
+            final var bytes = ByteBuffer.allocate(batch.length());
+            this.fileChannel.position(batch.position());
+            this.fileChannel.read(bytes);
+            return this.deserialize(bytes.array());
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Row> deserialize(final byte[] bytes) throws IOException {
+        try (ObjectInputStream o = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+            return (List<Row>) o.readObject();
+        } catch (final ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void checkRowIndex(final int index) {
