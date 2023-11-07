@@ -1,8 +1,9 @@
 package com.github.romualdrousseau.shuju.bigdata;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
-public class Row implements Iterable<String> {
+public class Row implements Iterable<String>, Serializable {
 
     private final int columnStart;
     private final int columnCount;
