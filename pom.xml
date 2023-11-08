@@ -154,7 +154,10 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <argLine>-Dfile.encoding="UTF-8"</argLine>
+                    <argLine>
+                        -Dfile.encoding="UTF-8"
+                        --add-opens=java.base/java.nio=ALL-UNNAMED
+                    </argLine>
                     <reportFormat>plain</reportFormat>
                     <consoleOutputReporter>
                     <disable>true</disable>

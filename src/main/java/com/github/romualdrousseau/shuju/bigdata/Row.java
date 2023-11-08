@@ -9,6 +9,12 @@ public class Row implements Iterable<String>, Serializable {
     private final int columnCount;
     private final String[] data;
 
+    public Row() {
+        this.columnStart = 0;
+        this.columnCount = 0;
+        this.data = new String[0];
+    }
+
     public Row(final int columnCount) {
         this.columnStart = 0;
         this.columnCount = columnCount;
@@ -59,7 +65,7 @@ public class Row implements Iterable<String>, Serializable {
 
     @Override
     public Iterator<String> iterator() {
-        return new RowIterator(this);
+        return new RowIterator(this.data);
     }
 
     private void checkIndex(int index) {

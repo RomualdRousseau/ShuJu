@@ -15,6 +15,7 @@ import java.util.List;
 
 public class DataFrameWriter implements Closeable {
 
+
     private final int batchSize;
     private final Path storePath;
     private final List<BatchOfRows> batches = new ArrayList<>();
@@ -54,7 +55,7 @@ public class DataFrameWriter implements Closeable {
         }
 
         if (this.currentBatch.size() > 0) {
-            this.flush();
+            this.flushCurrentBatch();
         }
 
         this.fileChannel.close();
@@ -79,23 +80,23 @@ public class DataFrameWriter implements Closeable {
         this.columnCount = Math.max(this.columnCount, data.size());
         this.rowCount++;
         if (this.currentBatch.size() >= this.batchSize) {
-            this.flush();
+            this.flushCurrentBatch();
         }
     }
 
-    private void flush() throws IOException {
-        final var bytes = this.serialize(this.currentBatch);
-        this.batches.add(BatchOfRows.of(this.currPosition, bytes.length));
+    private void flushCurrentBatch() throws IOException {
+        final var bytes = this.serializeCurrentBatch();
         this.fileChannel.write(ByteBuffer.wrap(bytes));
-        this.currPosition += bytes.length;
+        this.batches.add(BatchOfRows.of(this.currPosition, bytes.length));
         this.currentBatch.clear();
+        this.currPosition += bytes.length;
     }
 
-    private byte[] serialize(final List<Row> o) throws IOException {
+    private byte[] serializeCurrentBatch() throws IOException {
         try (
             final var byteArrayOutputStream = new ByteArrayOutputStream();
             final var objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
-            objectOutputStream.writeObject(o);
+            objectOutputStream.writeObject(this.currentBatch);
             return byteArrayOutputStream.toByteArray();
         }
     }

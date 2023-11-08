@@ -5,24 +5,24 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 
 public class RowIterator implements Iterator<String> {
-    private final Row row;
+    private final String[] row;
 
 	private int curr;
 
-	public RowIterator(final Row row) {
+	public RowIterator(final String[] row) {
 		this.row = row;
 		this.curr = 0;
 	}
 
 	public boolean hasNext() {
-		return this.curr < this.row.size();
+		return this.curr < this.row.length;
 	}
 
 	public String next() {
-        return this.row.get(this.curr++);
+        return this.row[this.curr++];
 	}
 
     public Spliterator<String> spliterator() {
-        return Spliterators.spliterator(this, this.row.size(), Spliterator.IMMUTABLE);
+        return Spliterators.spliterator(this, this.row.length, Spliterator.IMMUTABLE);
     }
 }

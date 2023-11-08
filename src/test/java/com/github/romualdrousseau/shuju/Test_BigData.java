@@ -92,7 +92,7 @@ public class Test_BigData {
         if (!Path.of("/mnt/media").toFile().exists()) {
             return;
         }
-        try (final var writer = new DataFrameWriter(100000, 1000, Path.of("/mnt/media"))) {
+        try (final var writer = new DataFrameWriter(10000, 1000, Path.of("/mnt/media"))) {
             for (int i = 0; i < 10000000; i++) {
                 writer.write(Row.of(IntStream.range(0, writer.getColumnCount())
                         .mapToObj(j -> "nisl purus in mollis nunc")
@@ -110,6 +110,9 @@ public class Test_BigData {
 
     @Test
     public void testArrayListMassive() {
+        if (!Path.of("/mnt/media").toFile().exists()) {
+            return;
+        }
         assertThrows(OutOfMemoryError.class, () -> {
             final var list =  new ArrayList<String[]>();
             for (int i = 0; i < 10000000; i++) {
