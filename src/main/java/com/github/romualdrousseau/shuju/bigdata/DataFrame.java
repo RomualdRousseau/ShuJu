@@ -81,8 +81,7 @@ public class DataFrame implements Closeable, Iterable<Row> {
     public String getCell(final int row, final int column) {
         this.checkRowIndex(row);
         this.checkColumnIndex(column);
-        final var r = this.getRow(row);
-        return (column < r.size()) ? r.get(column) : null;
+        return this.getRow(row).get(column);
     }
 
     @Override

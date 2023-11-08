@@ -42,12 +42,18 @@ public class Row implements Iterable<String>, Serializable {
 
     public String get(final int index) {
         this.checkIndex(index);
-        return this.data[this.columnStart + index];
+        if ((this.columnStart + index) < data.length) {
+            return this.data[this.columnStart + index];
+        } else {
+            return null;
+        }
     }
 
     public Row set(final int index, final String element) {
         this.checkIndex(index);
-        this.data[this.columnStart + index] = element;
+        if ((this.columnStart + index) < data.length) {
+            this.data[this.columnStart + index] = element;
+        }
         return this;
     }
 
