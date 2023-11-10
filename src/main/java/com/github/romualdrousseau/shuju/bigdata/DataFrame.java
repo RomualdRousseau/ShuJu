@@ -1,9 +1,7 @@
 package com.github.romualdrousseau.shuju.bigdata;
 
-import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -13,27 +11,24 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.EnumSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Objects;
 
 public class DataFrame implements Closeable, Iterable<Row> {
 
-    private final int batchSize;
+    private final Batch batch;
     private final Path storePath;
-    private final List<BatchOfRows> batches;
     private final int rowCount;
     private final int columnCount;
     private final FileChannel fileChannel;
     private final MappedByteBuffer mappedBuffer;
 
-    private List<Row> currentBatch = null;
-    private int currentBatchIdx = -1;
-    private boolean isClosed = false;
+    private int currentBatchIdx;
+    private boolean isClosed;
 
-    public DataFrame(final int batchSize, final Path storePath, final List<BatchOfRows> batches, final int rowCount,
-            final int columnCount) throws IOException {
-        this.batchSize = batchSize;
+    public DataFrame(final Batch batch, final Path storePath, final int rowCount, final int columnCount)
+            throws IOException {
+        this.batch = batch;
         this.storePath = storePath;
-        this.batches = batches;
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         this.fileChannel = (FileChannel) Files.newByteChannel(this.storePath,
@@ -43,6 +38,9 @@ public class DataFrame implements Closeable, Iterable<Row> {
         } else {
             this.mappedBuffer = null;
         }
+
+        this.currentBatchIdx = -1;
+        this.isClosed = false;
     }
 
     @Override
@@ -55,8 +53,8 @@ public class DataFrame implements Closeable, Iterable<Row> {
     }
 
     public DataView view(final int rowStart, final int columnStart, final int rowCount, final int columnCount) {
-        this.checkRowRange(rowStart, rowStart + rowCount - 1);
-        this.checkColumnRange(columnStart, columnStart + columnCount - 1);
+        Objects.checkFromToIndex(rowStart, rowStart + rowCount - 1, this.rowCount);
+        Objects.checkFromToIndex(columnStart, columnStart + columnCount - 1, this.columnCount);
         return new DataView(this, rowStart, columnStart, rowCount, columnCount);
     }
 
@@ -69,24 +67,24 @@ public class DataFrame implements Closeable, Iterable<Row> {
     }
 
     public int getColumnCount(final int row) {
-        this.checkRowIndex(row);
+        Objects.checkIndex(row, this.rowCount);
         final var r = this.getRow(row);
         return r.size();
     }
 
     public Row getRow(final int row) {
-        this.checkRowIndex(row);
-        final int idx = row / batchSize;
+        Objects.checkIndex(row, this.rowCount);
+        final int idx = row / this.batch.getBatchSize();
         if (this.currentBatchIdx != idx) {
-            this.currentBatch = this.loadOneBatch(batches.get(idx));
+            this.batch.setRows(this.loadOneBatch(this.batch.getBatches().get(idx)));
             this.currentBatchIdx = idx;
         }
-        return this.currentBatch.get(row % batchSize);
+        return this.batch.getRow(row % this.batch.getBatchSize());
     }
 
     public String getCell(final int row, final int column) {
-        this.checkRowIndex(row);
-        this.checkColumnIndex(column);
+        Objects.checkIndex(row, this.rowCount);
+        Objects.checkIndex(column, this.columnCount);
         return this.getRow(row).get(column);
     }
 
@@ -95,62 +93,25 @@ public class DataFrame implements Closeable, Iterable<Row> {
         return new DataFrameIterator(this);
     }
 
-    private List<Row> loadOneBatch(final BatchOfRows batch) {
+    private Row[] loadOneBatch(final BatchMetaData batch) {
         try {
             if (this.isMappedBuffer()) {
                 final var bytes = new byte[batch.length()];
                 this.mappedBuffer.position((int) batch.position());
                 this.mappedBuffer.get(bytes);
-                return this.deserializeOneBatch(bytes);
+                return BatchSerializerFactory.get().deserialize(bytes);
             } else {
                 final var bytes = ByteBuffer.allocate(batch.length());
                 this.fileChannel.position(batch.position());
                 this.fileChannel.read(bytes);
-                return this.deserializeOneBatch(bytes.array());
+                return BatchSerializerFactory.get().deserialize(bytes.array());
             }
-        } catch (final IOException e) {
-            throw new UncheckedIOException(e);
+        } catch (final IOException x) {
+            throw new UncheckedIOException(x);
         }
     }
 
     private boolean isMappedBuffer() {
         return this.mappedBuffer != null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Row> deserializeOneBatch(final byte[] bytes) throws IOException {
-        try (ObjectInputStream o = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
-            return (List<Row>) o.readObject();
-        } catch (final ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void checkRowIndex(final int index) {
-        if (index < 0 || index >= this.rowCount)
-            throw new IndexOutOfBoundsException(this.outOfBoundsMsg(index, this.rowCount));
-    }
-
-    private void checkColumnIndex(final int index) {
-        if (index < 0 || index >= this.columnCount)
-            throw new IndexOutOfBoundsException(this.outOfBoundsMsg(index, this.columnCount));
-    }
-
-    private void checkRowRange(final int fromIndex, final int toIndex) {
-        if (fromIndex < 0 || fromIndex >= this.rowCount)
-            throw new IndexOutOfBoundsException(this.outOfBoundsMsg(fromIndex, this.rowCount));
-        if (toIndex < 0 || toIndex >= this.rowCount)
-            throw new IndexOutOfBoundsException(this.outOfBoundsMsg(toIndex, this.rowCount));
-    }
-
-    private void checkColumnRange(final int fromIndex, final int toIndex) {
-        if (fromIndex < 0 || fromIndex >= this.columnCount)
-            throw new IndexOutOfBoundsException(this.outOfBoundsMsg(fromIndex, this.columnCount));
-        if (toIndex < 0 || toIndex >= this.columnCount)
-            throw new IndexOutOfBoundsException(this.outOfBoundsMsg(toIndex, this.columnCount));
-    }
-
-    private String outOfBoundsMsg(final int index, final int count) {
-        return "Index: " + index + ", Size: " + count;
     }
 }

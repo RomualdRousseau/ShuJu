@@ -1,6 +1,7 @@
 package com.github.romualdrousseau.shuju.strings;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.github.romualdrousseau.shuju.preprocessing.Text;
@@ -11,6 +12,11 @@ public class StringUtils {
     public static final char WRONG_UNICODE_CHAR = '\uFFFD';
     public static final String BOM = "\\uFEFF";
     public static final char BOM_CHAR = '\uFEFF';
+
+    public static final Map<String, String> symbols = Map.of(
+        "%+", "percent",
+        "\\$+", "dollar"
+    );
 
     public static boolean isBlank(final String s) {
         return s == null || StringUtils.trim(s).equals("");
@@ -113,12 +119,14 @@ public class StringUtils {
     }
 
     public static String encodeSymbols(final String s) {
-        return s
-                .replaceAll("%+", "percent")
-                .replaceAll("\\$+", "dollar");
+        var tmp = s;
+        for(var e: symbols.entrySet()) {
+            tmp = tmp.replaceAll(e.getKey(), e.getValue());
+        }
+        return tmp;
     }
 
-    public static List<String> getSymbols() {
-        return List.of("dollar", "percent");
+    public static Set<String> getSymbols() {
+        return symbols.keySet();
     }
 }

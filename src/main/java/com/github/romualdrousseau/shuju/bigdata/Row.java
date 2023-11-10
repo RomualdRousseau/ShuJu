@@ -2,18 +2,13 @@ package com.github.romualdrousseau.shuju.bigdata;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.Objects;
 
 public class Row implements Iterable<String>, Serializable {
 
     private final int columnStart;
     private final int columnCount;
     private final String[] data;
-
-    public Row() {
-        this.columnStart = 0;
-        this.columnCount = 0;
-        this.data = new String[0];
-    }
 
     public Row(final int columnCount) {
         this.columnStart = 0;
@@ -38,16 +33,20 @@ public class Row implements Iterable<String>, Serializable {
     }
 
     public Row view(final int columnStart, final int columnCount) {
-        this.checkRange(columnStart, columnStart + columnCount - 1);
+        Objects.checkFromToIndex(columnStart, columnStart + columnCount - 1, this.columnCount);
         return new Row(columnStart, columnCount, this.data);
     }
 
-    public int size() {
+    public int getColumnCount() {
         return this.columnCount;
     }
 
+    public int size() {
+        return this.data.length;
+    }
+
     public String get(final int index) {
-        this.checkIndex(index);
+        Objects.checkIndex(index, this.columnCount);
         if ((this.columnStart + index) < data.length) {
             return this.data[this.columnStart + index];
         } else {
@@ -56,7 +55,7 @@ public class Row implements Iterable<String>, Serializable {
     }
 
     public Row set(final int index, final String element) {
-        this.checkIndex(index);
+        Objects.checkIndex(index, this.columnCount);
         if ((this.columnStart + index) < data.length) {
             this.data[this.columnStart + index] = element;
         }
@@ -66,21 +65,5 @@ public class Row implements Iterable<String>, Serializable {
     @Override
     public Iterator<String> iterator() {
         return new RowIterator(this.data);
-    }
-
-    private void checkIndex(int index) {
-        if (index < 0 || index >= this.columnCount)
-            throw new IndexOutOfBoundsException(this.outOfBoundsMsg(index));
-    }
-
-    private void checkRange(final int fromIndex, final int toIndex) {
-        if (fromIndex < 0 || fromIndex >= this.columnCount)
-            throw new IndexOutOfBoundsException(this.outOfBoundsMsg(fromIndex));
-        if (toIndex < 0 || toIndex >= this.columnCount)
-            throw new IndexOutOfBoundsException(this.outOfBoundsMsg(toIndex));
-    }
-
-    private String outOfBoundsMsg(int index) {
-        return "Index: " + index + ", Size: " + this.columnCount;
     }
 }

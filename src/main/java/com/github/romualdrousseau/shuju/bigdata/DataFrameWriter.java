@@ -1,31 +1,23 @@
 package com.github.romualdrousseau.shuju.bigdata;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 
 public class DataFrameWriter implements Closeable {
 
-
-    private final int batchSize;
+    private final Batch batch;
     private final Path storePath;
-    private final List<BatchOfRows> batches = new ArrayList<>();
-    private final List<Row> currentBatch;
     private final FileChannel fileChannel;
 
-    private long currPosition = 0;
-    private int rowCount = 0;
-    private int columnCount  = 0;
-    private boolean isClosed = false;
+    private int columnCount;
+    private int rowCount;
+    private boolean isClosed;
 
     public DataFrameWriter(final int batchSize) throws IOException {
         this(batchSize, 0, null);
@@ -40,12 +32,14 @@ public class DataFrameWriter implements Closeable {
     }
 
     public DataFrameWriter(final int batchSize, final int columnCount, final Path path) throws IOException {
-        this.batchSize = batchSize;
+        this.batch = new Batch(batchSize);
         this.storePath = (path == null) ? Files.createTempFile(null, null) : Files.createTempFile(path, null, null);
         this.storePath.toFile().deleteOnExit();
-        this.fileChannel = (FileChannel) Files.newByteChannel(this.storePath, EnumSet.of(StandardOpenOption.CREATE, StandardOpenOption.WRITE));
-        this.currentBatch = new ArrayList<Row>(this.batchSize);
+        this.fileChannel = (FileChannel) Files.newByteChannel(this.storePath,
+                EnumSet.of(StandardOpenOption.CREATE, StandardOpenOption.WRITE));
         this.columnCount = columnCount;
+        this.rowCount = 0;
+        this.isClosed = false;
     }
 
     @Override
@@ -54,7 +48,7 @@ public class DataFrameWriter implements Closeable {
             return;
         }
 
-        if (this.currentBatch.size() > 0) {
+        if ((this.rowCount % this.batch.getBatchSize()) > 0) {
             this.flushCurrentBatch();
         }
 
@@ -72,32 +66,21 @@ public class DataFrameWriter implements Closeable {
 
     public DataFrame getDataFrame() throws IOException {
         this.close();
-        return new DataFrame(this.batchSize, this.storePath, this.batches, this.rowCount, this.columnCount);
+        return new DataFrame(this.batch, this.storePath, this.rowCount, this.columnCount);
     }
 
     public void write(final Row data) throws IOException {
-        this.currentBatch.add(data);
+        this.batch.setRow(this.rowCount % this.batch.getBatchSize(), data);
         this.columnCount = Math.max(this.columnCount, data.size());
         this.rowCount++;
-        if (this.currentBatch.size() >= this.batchSize) {
+        if ((this.rowCount % this.batch.getBatchSize()) == 0) {
             this.flushCurrentBatch();
         }
     }
 
     private void flushCurrentBatch() throws IOException {
-        final var bytes = this.serializeCurrentBatch();
+        final var bytes = BatchSerializerFactory.get().serialize(this.batch.getRows());
+        this.batch.getBatches().add(BatchMetaData.of(this.fileChannel.position(), bytes.length));
         this.fileChannel.write(ByteBuffer.wrap(bytes));
-        this.batches.add(BatchOfRows.of(this.currPosition, bytes.length));
-        this.currentBatch.clear();
-        this.currPosition += bytes.length;
-    }
-
-    private byte[] serializeCurrentBatch() throws IOException {
-        try (
-            final var byteArrayOutputStream = new ByteArrayOutputStream();
-            final var objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
-            objectOutputStream.writeObject(this.currentBatch);
-            return byteArrayOutputStream.toByteArray();
-        }
     }
 }
