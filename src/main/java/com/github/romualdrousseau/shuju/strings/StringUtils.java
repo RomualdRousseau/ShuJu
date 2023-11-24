@@ -74,7 +74,7 @@ public class StringUtils {
         if (s == null) {
             return null;
         }
-        if (s.length() == 1) {
+        if (s.length() <= 1) {
             return s.toLowerCase();
         } else {
             return Character.toUpperCase(s.charAt(0)) + s.substring(1).toLowerCase();
@@ -85,7 +85,11 @@ public class StringUtils {
         if (s == null) {
             return null;
         }
-        return Character.toLowerCase(s.charAt(0)) + s.substring(1);
+        if (s.length() <= 1) {
+            return s.toLowerCase();
+        } else {
+            return Character.toLowerCase(s.charAt(0)) + s.substring(1);
+        }
     }
 
     public static boolean checkIfGoodEncoding(final String s) {

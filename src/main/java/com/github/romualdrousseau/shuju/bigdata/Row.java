@@ -10,6 +10,8 @@ public class Row implements Iterable<String>, Serializable {
     private final int columnCount;
     private final String[] data;
 
+    public static final Row Empty = new Row(0);
+
     public Row(final int columnCount) {
         this.columnStart = 0;
         this.columnCount = columnCount;
