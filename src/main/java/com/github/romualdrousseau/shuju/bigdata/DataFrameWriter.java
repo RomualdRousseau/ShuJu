@@ -11,6 +11,8 @@ import java.util.EnumSet;
 
 public class DataFrameWriter implements Closeable {
 
+    private final BatchSerializer serializer = BatchSerializerFactory.newInstance();
+
     private final Batch batch;
     private final Path storePath;
     private final FileChannel fileChannel;
@@ -79,7 +81,7 @@ public class DataFrameWriter implements Closeable {
     }
 
     private void flushCurrentBatch() throws IOException {
-        final var bytes = BatchSerializerFactory.get().serialize(this.batch.getRows());
+        final var bytes = serializer.serialize(this.batch.getRows());
         this.batch.getBatches().add(BatchMetaData.of(this.fileChannel.position(), bytes.length));
         this.fileChannel.write(ByteBuffer.wrap(bytes));
     }

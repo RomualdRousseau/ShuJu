@@ -12,16 +12,15 @@ import java.util.stream.IntStream;
 
 import org.junit.Test;
 
+import com.github.romualdrousseau.shuju.bigdata.BatchSerializer;
 import com.github.romualdrousseau.shuju.bigdata.BatchSerializerFactory;
+import com.github.romualdrousseau.shuju.bigdata.BatchSerializerFactory.SerializerType;
 import com.github.romualdrousseau.shuju.bigdata.DataFrameWriter;
 import com.github.romualdrousseau.shuju.bigdata.Row;
-import com.github.romualdrousseau.shuju.bigdata.serializer.BatchSerializerFury;
 
 public class Test_BigData {
 
-    static {
-        BatchSerializerFactory.set(new BatchSerializerFury());
-    }
+    private final BatchSerializer serializer = BatchSerializerFactory.newInstance(SerializerType.FURY);
 
     @Test
     public void testSerialize() throws IOException {
@@ -30,10 +29,10 @@ public class Test_BigData {
                         .mapToObj(j -> "nisl purus in mollis nunc")
                         .toArray(String[]::new)))
                 .toArray(Row[]::new);
-        final var bytes = BatchSerializerFactory.get().serialize(rows);
+        final var bytes = serializer.serialize(rows);
         System.out.println(bytes.length >> 20);
 
-        final var rows2 = BatchSerializerFactory.get().deserialize(bytes);
+        final var rows2 = serializer.deserialize(bytes);
         assertEquals(rows.length, rows2.length);
         Arrays.stream(rows2).forEach(row -> {
             row.forEach(x -> {

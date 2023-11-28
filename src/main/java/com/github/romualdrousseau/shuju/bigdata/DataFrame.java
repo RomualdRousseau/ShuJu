@@ -15,6 +15,8 @@ import java.util.Objects;
 
 public class DataFrame implements Closeable, Iterable<Row> {
 
+    private final BatchSerializer serializer = BatchSerializerFactory.newInstance();
+
     private final Batch batch;
     private final Path storePath;
     private final int rowCount;
@@ -99,12 +101,12 @@ public class DataFrame implements Closeable, Iterable<Row> {
                 final var bytes = new byte[batch.length()];
                 this.mappedBuffer.position((int) batch.position());
                 this.mappedBuffer.get(bytes);
-                return BatchSerializerFactory.get().deserialize(bytes);
+                return serializer.deserialize(bytes);
             } else {
                 final var bytes = ByteBuffer.allocate(batch.length());
                 this.fileChannel.position(batch.position());
                 this.fileChannel.read(bytes);
-                return BatchSerializerFactory.get().deserialize(bytes.array());
+                return serializer.deserialize(bytes.array());
             }
         } catch (final IOException x) {
             throw new UncheckedIOException(x);
