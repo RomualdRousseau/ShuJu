@@ -36,6 +36,7 @@
         <shuju.version>1.22-SNAPSHOT</shuju.version>
         <jackson.version>2.15.2</jackson.version>
 
+        <log4j.version>2.22.0</log4j.version>
         <junit.version>4.13.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
     </properties>
@@ -368,7 +369,7 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.36</version>
+                <version>2.0.9</version>
             </dependency>
             <!-- Fix vunerabilities -->
             <dependency>
