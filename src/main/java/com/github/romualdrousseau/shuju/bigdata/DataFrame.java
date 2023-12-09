@@ -13,7 +13,11 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DataFrame implements Closeable, Iterable<Row> {
+    private final Logger logger = LoggerFactory.getLogger(DataFrame.class);
 
     private final BatchSerializer serializer = BatchSerializerFactory.newInstance();
 
@@ -43,6 +47,8 @@ public class DataFrame implements Closeable, Iterable<Row> {
 
         this.currentBatchIdx = -1;
         this.isClosed = false;
+
+        this.logger.info("DataFrame initialized with Mapped Buffer: {}", this.isMappedBuffer());
     }
 
     @Override
@@ -97,6 +103,7 @@ public class DataFrame implements Closeable, Iterable<Row> {
 
     private Row[] loadOneBatch(final BatchMetaData batch) {
         try {
+            this.logger.debug("Load a batch in memory: {}, {}", batch.position(), batch.length());
             if (this.isMappedBuffer()) {
                 final var bytes = new byte[batch.length()];
                 this.mappedBuffer.position((int) batch.position());
