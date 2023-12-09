@@ -3,6 +3,7 @@ package com.github.romualdrousseau.shuju.bigdata;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -43,9 +44,10 @@ public class BatchSerializerFactory {
             if (typeVal != null) {
                 this.type = Enum.valueOf(SerializerType.class, typeVal);
             }
-            LOGGER.info("Factory set to {}", this.type);
+            LOGGER.info("BatchSerializerFactor set to {}", this.type);
         } catch(final IOException x) {
-            LOGGER.error("Error during initialization", x);
+            LOGGER.error("Error during BatchSerializerFactor initialization: {}", x.getMessage());
+            throw new UncheckedIOException(x);
         }
     }
 
