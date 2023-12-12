@@ -3,7 +3,7 @@
 
     <groupId>com.github.romualdrousseau</groupId>
     <artifactId>shuju-jackson</artifactId>
-    <version>1.22-SNAPSHOT</version>
+    <version>1.22</version>
     <packaging>jar</packaging>
 
     <name>shuju-jackson</name>
@@ -33,7 +33,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
-        <shuju.version>1.22-SNAPSHOT</shuju.version>
+        <shuju.version>1.22</shuju.version>
         <jackson.version>2.15.2</jackson.version>
 
         <log4j.version>2.22.0</log4j.version>
