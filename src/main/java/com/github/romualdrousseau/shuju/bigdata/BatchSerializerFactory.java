@@ -26,12 +26,20 @@ public class BatchSerializerFactory {
 
     private static BatchSerializerFactory singleton = new BatchSerializerFactory();
 
+    private static ThreadLocal<BatchSerializer> context = new ThreadLocal<>();
+
     public static BatchSerializer newInstance() {
-        return singleton.createSerializerInstance();
+        if (context.get() == null) {
+            context.set(singleton.createSerializerInstance());
+        }
+        return context.get();
     }
 
     public static BatchSerializer newInstance(final SerializerType type) {
-        return singleton.createSerializerInstance(type);
+        if (context.get() == null) {
+            context.set(singleton.createSerializerInstance(type));
+        }
+        return context.get();
     }
 
     private SerializerType type = SerializerType.FURY;

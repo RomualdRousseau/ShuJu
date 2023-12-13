@@ -102,8 +102,9 @@ public class DataFrame implements Closeable, Iterable<Row> {
     }
 
     private Row[] loadOneBatch(final BatchMetaData batch) {
+        final long startTime = System.currentTimeMillis();
         try {
-            this.logger.debug("Load a batch in memory: {}, {}", batch.position(), batch.length());
+
             if (this.isMappedBuffer()) {
                 final var bytes = new byte[batch.length()];
                 this.mappedBuffer.position((int) batch.position());
@@ -117,6 +118,10 @@ public class DataFrame implements Closeable, Iterable<Row> {
             }
         } catch (final IOException x) {
             throw new UncheckedIOException(x);
+        } finally {
+            final var stopTime = System.currentTimeMillis();
+            final var executionTimeInMS = (int) (stopTime - startTime);
+            this.logger.debug("Load a batch in memory offset: {}, lenght: {}. Took {}ms", batch.position(), batch.length(), executionTimeInMS);
         }
     }
 
