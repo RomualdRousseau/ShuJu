@@ -1,6 +1,8 @@
 package com.github.romualdrousseau.shuju.strings;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -132,5 +134,9 @@ public class StringUtils {
 
     public static Set<String> getSymbols() {
         return symbols.keySet();
+    }
+
+    public static Optional<String> merge(final String sep, final List<String> values) {
+        return values.stream().reduce((a, x) -> !a.contains(x) ? String.join(sep, a, x) : a);
     }
 }
