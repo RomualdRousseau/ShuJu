@@ -3,7 +3,7 @@
 
     <groupId>com.github.romualdrousseau</groupId>
     <artifactId>shuju</artifactId>
-    <version>1.23-SNAPSHOT</version>
+    <version>1.23</version>
     <packaging>jar</packaging>
 
     <name>shuju</name>
