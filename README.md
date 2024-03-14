@@ -6,11 +6,30 @@
 ![Snyk Known Vulnerabilities](https://snyk.io/test/github/com.github.romualdrousseau/shuju/badge.svg)
 ![Test](https://github.com/RomualdRousseau/ShuJu/actions/workflows/build-and-test.yml/badge.svg)
 ![Build](https://github.com/RomualdRousseau/ShuJu/actions/workflows/build-and-deploy.yml/badge.svg)
+![Servier Inspired](https://raw.githubusercontent.com/servierhub/.github/main/badges/inspired.svg)
 
-A collection of various algorithms implemented in Java covering domains such as mathematics and data.
+A collection of various algorithms implemented in Java covering domains such as mathematics and data science.
 
 ## Description
 
+### Mathematics
+
+* Geometry Algebra: a package to build and use geomatry algebra in Java.
+* CV: a package to extract shapes from image.
+
+### Data Science
+
+* BigData: a Java list implementation with chunks and backed memory mapped.
+* Core: a Java implementation of multi-dimentional array (ala ndarray).
+* Op: various mathematical algorithms on multi-dimentional array.
+* Preprocessing: a Java implemetation of some keras text preprocessing functions.
+* Strings: a Java implemenation of some algorithms (fuzzy search) on String.
+
+### Others
+
+* Json: an agnostic wrapper to json frameworks.
+* Commons: A Java-Python binder managing virutal environamnt and package installation.
+* Redux: A min Java implementation of the Redux pattern.
 
 ## Getting Started
 
@@ -92,6 +111,6 @@ Please make sure to update tests as appropriate.
 
 ## Version History
 
-* 2.37
+* 1.23
 * ...
 * Initial Release
