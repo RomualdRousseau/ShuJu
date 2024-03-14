@@ -1,11 +1,8 @@
 # ShuJu Examples
 
 ![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
-![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.romualdrousseau/shuju-examples/badge.svg)
-![Snyk security score](https://snyk-widget.herokuapp.com/badge/mvn/com.github.romualdrousseau/shuju-examples/badge.svg)
 ![Snyk Known Vulnerabilities](https://snyk.io/test/github/com.github.romualdrousseau/shuju-examples/badge.svg)
-![Test](https://github.com/RomualdRousseau/ShuJu-Examples/actions/workflows/build-and-test.yml/badge.svg)
-![Build](https://github.com/RomualdRousseau/ShuJu-Examples/actions/workflows/build-and-deploy.yml/badge.svg)
+![Build](https://github.com/RomualdRousseau/ShuJu-Examples/actions/workflows/build.yml/badge.svg)
 ![Servier Inspired](https://raw.githubusercontent.com/servierhub/.github/main/badges/inspired.svg)
 
 This repository contains a number of examples that demonstrates how you can use the
