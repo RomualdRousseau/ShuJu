@@ -3,7 +3,7 @@
 
     <groupId>com.github.romualdrousseau</groupId>
     <artifactId>shuju</artifactId>
-    <version>1.25-SNAPSHOT</version>
+    <version>1.25</version>
     <packaging>jar</packaging>
 
     <name>shuju</name>
@@ -404,7 +404,7 @@
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>4.26.1</version>
+                <version>3.25.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
