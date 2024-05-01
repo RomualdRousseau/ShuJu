@@ -35,7 +35,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
-        <shuju.version>1.25-SNAPSHOT</shuju.version>
+        <shuju.version>1.25</shuju.version>
         <jackson.version>2.17.0</jackson.version>
 
         <junit.version>4.13.2</junit.version>
@@ -372,7 +372,7 @@
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>4.26.1</version>
+                <version>3.25.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
