@@ -33,8 +33,19 @@ public class RegexComparer implements Text.IComparer {
     }
 
     @Override
+    public String anonymize(final String v, final String pattern) {
+        return (v == null) ? null : this.patterns.entrySet().stream().filter(e -> e.getValue().equals(pattern))
+            .reduce(Map.entry("", v), (a, e) -> Map.entry("", this.compiledPatterns.get(e.getKey()).matcher(a.getValue()).replaceAll(e.getValue()))).getValue();
+    }
+
+    @Override
     public Optional<String> find(final String v) {
         return (v == null) ? null : this.patterns.entrySet().stream().map(e -> this.compiledPatterns.get(e.getKey()).matcher(v)).filter(m -> m.find()).map(m -> m.group()).findFirst();
+    }
+
+    @Override
+    public Optional<String> find(final String v, final String pattern) {
+        return (v == null) ? null : this.patterns.entrySet().stream().filter(e -> e.getValue().equals(pattern)).map(e -> this.compiledPatterns.get(e.getKey()).matcher(v)).filter(m -> m.find()).map(m -> m.group()).findFirst();
     }
 
     private Pattern compileRegex(String r) {

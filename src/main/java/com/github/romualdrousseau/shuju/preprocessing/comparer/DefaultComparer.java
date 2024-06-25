@@ -18,7 +18,17 @@ public class DefaultComparer implements Text.IComparer {
     }
 
     @Override
+    public String anonymize(final String v, final String pattern) {
+        return v;
+    }
+
+    @Override
     public Optional<String> find(String v) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> find(String v, final String pattern) {
         return Optional.empty();
     }
 }

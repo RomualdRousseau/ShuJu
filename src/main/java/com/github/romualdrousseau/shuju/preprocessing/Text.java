@@ -28,7 +28,9 @@ public class Text {
 
     public interface IComparer extends BiFunction<String, List<String>, Boolean> {
         String anonymize(String v);
+        String anonymize(final String v, final String pattern);
         Optional<String> find(String v);
+        Optional<String> find(final String v, final String pattern);
     }
 
     public static ITokenizer DefaultTokenizer = new DefaultTokenizer();
