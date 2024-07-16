@@ -6,7 +6,7 @@ import java.util.List;
 import com.github.romualdrousseau.shuju.preprocessing.Text;
 import com.github.romualdrousseau.shuju.strings.StringUtils;
 
-public class NgramTokenizer implements Text.ITokenizer{
+public class NgramTokenizer implements Text.ITokenizer {
 
     private final int n;
 

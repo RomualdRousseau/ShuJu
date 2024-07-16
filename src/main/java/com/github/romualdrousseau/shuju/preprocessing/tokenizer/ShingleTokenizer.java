@@ -16,13 +16,28 @@ public class ShingleTokenizer implements Text.ITokenizer {
     private final Map<String, List<String>> variants;
     private final int minSize;
 
+    private boolean lemmatization;
+
     public ShingleTokenizer(final List<String> lexicon) {
         this(lexicon, MIN_SIZE);
     }
 
     public ShingleTokenizer(final List<String> lexicon, final int minSize) {
+        this(lexicon, minSize, true);
+    }
+
+    public ShingleTokenizer(final List<String> lexicon, final int minSize, final boolean lemmatization) {
         this.variants = Text.get_lexicon(lexicon);
         this.minSize = minSize;
+        this.lemmatization = lemmatization;
+    }
+
+    public void enableLemmatization() {
+        this.lemmatization = true;
+    }
+
+    public void disableLemmatization() {
+        this.lemmatization = false;
     }
 
     @Override
@@ -34,7 +49,8 @@ public class ShingleTokenizer implements Text.ITokenizer {
         for (final Entry<String, List<String>> lexem : variants.entrySet()) {
             for (final String variant : lexem.getValue()) {
                 if (s.toLowerCase().contains(variant)) {
-                    s = s.replaceAll("(?i)" + variant, " " + lexem.getKey() + " ");
+                    final var k = this.lemmatization ? lexem.getKey() : variant;
+                    s = s.replaceAll("(?i)" + variant, " " + k + " ");
                     break;
                 }
             }
