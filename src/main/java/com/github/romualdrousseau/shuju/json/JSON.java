@@ -52,6 +52,12 @@ public class JSON {
         return array;
     }
 
+    public static <T> JSONArray arrayOf(final Stream<T> l) {
+        final JSONArray array = JSON.newArray();
+        l.forEach(s -> array.append(s));
+        return array;
+    }
+
     public static <T> JSONArray arrayOf(final Map<String, T> m) {
         final JSONArray array = JSON.newArray();
         m.forEach((k, v) -> {

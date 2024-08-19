@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.github.romualdrousseau.shuju.bigdata.BatchSerializer;
+import com.github.romualdrousseau.shuju.bigdata.ChunkSerializer;
 import com.github.romualdrousseau.shuju.bigdata.Row;
 
-public class BatchSerializerJava implements BatchSerializer {
+public class ChunkSerializerJava implements ChunkSerializer {
 
     @Override
     public byte[] serialize(Row[] batch) throws IOException {

@@ -3,14 +3,14 @@ package com.github.romualdrousseau.shuju.bigdata;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Batch {
+public class Chunk {
 
     private final int batchSize;
-    private final List<BatchMetaData> batches;
+    private final List<ChunkMetaData> batches;
 
     private Row[] rows;
 
-    public Batch(final int batchSize) {
+    public Chunk(final int batchSize) {
         this.batchSize = batchSize;
         this.batches = new ArrayList<>();
         this.rows = new Row[this.batchSize];
@@ -20,7 +20,7 @@ public class Batch {
         return this.batchSize;
     }
 
-    public List<BatchMetaData> getBatches() {
+    public List<ChunkMetaData> getBatches() {
         return this.batches;
     }
 

@@ -10,45 +10,63 @@ import com.github.romualdrousseau.shuju.preprocessing.Text;
 
 public class RegexComparer implements Text.IComparer {
 
-    private Map<String, String> patterns;
-    private Map<String, Pattern> compiledPatterns;
+    private final Map<String, String> patterns;
+    private final Map<String, Pattern> compiledPatterns;
 
     public RegexComparer(final Map<String, String> patterns) {
         this.patterns = patterns;
-        this.compiledPatterns = patterns.keySet().stream().collect(Collectors.toMap(r -> r, r -> this.compileRegex(r)));
+        this.compiledPatterns = patterns.keySet().stream()
+                .collect(Collectors.toUnmodifiableMap(r -> r, this::compileRegex));
     }
 
     @Override
     public Boolean apply(final String a, final List<String> b) {
-        return this.patterns.entrySet().stream()
-                .filter(x -> a.equals(x.getValue()))
-                .map(e -> this.compiledPatterns.get(e.getKey()))
-                .anyMatch(p -> b.stream().anyMatch(v -> v != null && p.matcher(v).find()));
+        return (a == null) ? false
+                : this.patterns.entrySet().stream()
+                        .filter(p -> p.getValue().equals(a))
+                        .map(p -> this.compiledPatterns.get(p.getKey()).matcher(""))
+                        .anyMatch(m -> b.stream().anyMatch(v -> v != null && m.reset(v).find()));
     }
 
     @Override
     public String anonymize(final String v) {
-        return (v == null) ? null : this.patterns.entrySet().stream()
-            .reduce(Map.entry("", v), (a, e) -> Map.entry("", this.compiledPatterns.get(e.getKey()).matcher(a.getValue()).replaceAll(e.getValue()))).getValue();
+        return (v == null) ? null
+                : this.patterns.entrySet().stream()
+                        .reduce(v, (r, e) -> this.compiledPatterns.get(e.getKey()).matcher(r).replaceAll(e.getValue()),
+                                (res1, res2) -> res1);
     }
 
     @Override
-    public String anonymize(final String v, final String pattern) {
-        return (v == null) ? null : this.patterns.entrySet().stream().filter(e -> e.getValue().equals(pattern))
-            .reduce(Map.entry("", v), (a, e) -> Map.entry("", this.compiledPatterns.get(e.getKey()).matcher(a.getValue()).replaceAll(e.getValue()))).getValue();
+    public String anonymize(final String v, final String filter) {
+        return (v == null) ? null
+                : this.patterns.entrySet().stream()
+                        .filter(e -> e.getValue().equals(filter))
+                        .reduce(v, (r, e) -> this.compiledPatterns.get(e.getKey()).matcher(r).replaceAll(e.getValue()),
+                                (res1, res2) -> res1);
     }
 
     @Override
     public Optional<String> find(final String v) {
-        return (v == null) ? null : this.patterns.entrySet().stream().map(e -> this.compiledPatterns.get(e.getKey()).matcher(v)).filter(m -> m.find()).map(m -> m.group()).findFirst();
+        return (v == null) ? Optional.empty()
+                : this.compiledPatterns.values().stream()
+                        .map(e -> e.matcher(v))
+                        .filter(m -> m.find())
+                        .map(m -> m.group())
+                        .findFirst();
     }
 
     @Override
-    public Optional<String> find(final String v, final String pattern) {
-        return (v == null) ? null : this.patterns.entrySet().stream().filter(e -> e.getValue().equals(pattern)).map(e -> this.compiledPatterns.get(e.getKey()).matcher(v)).filter(m -> m.find()).map(m -> m.group()).findFirst();
+    public Optional<String> find(final String v, final String filter) {
+        return (v == null) ? Optional.empty()
+                : this.patterns.entrySet().stream()
+                        .filter(p -> p.getValue().equals(filter))
+                        .map(p -> this.compiledPatterns.get(p.getKey()).matcher(v))
+                        .filter(m -> m.find())
+                        .map(m -> m.group())
+                        .findFirst();
     }
 
-    private Pattern compileRegex(String r) {
+    private Pattern compileRegex(final String r) {
         return Pattern.compile(r, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     }
 }

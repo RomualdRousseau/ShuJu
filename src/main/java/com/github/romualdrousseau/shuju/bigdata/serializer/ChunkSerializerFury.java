@@ -4,17 +4,17 @@ import java.io.IOException;
 
 import org.xerial.snappy.Snappy;
 
-import com.github.romualdrousseau.shuju.bigdata.BatchSerializer;
+import com.github.romualdrousseau.shuju.bigdata.ChunkSerializer;
 import com.github.romualdrousseau.shuju.bigdata.Row;
 
 import io.fury.Fury;
 import io.fury.config.Language;
 
-public class BatchSerializerFury implements BatchSerializer {
+public class ChunkSerializerFury implements ChunkSerializer {
 
     private final Fury fury;
 
-    public BatchSerializerFury() {
+    public ChunkSerializerFury() {
         this.fury = Fury.builder()
                 .withLanguage(Language.JAVA)
                 .build();

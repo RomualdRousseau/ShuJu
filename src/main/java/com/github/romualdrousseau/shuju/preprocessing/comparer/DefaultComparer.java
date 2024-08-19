@@ -23,12 +23,12 @@ public class DefaultComparer implements Text.IComparer {
     }
 
     @Override
-    public Optional<String> find(String v) {
+    public Optional<String> find(final String v) {
         return Optional.empty();
     }
 
     @Override
-    public Optional<String> find(String v, final String pattern) {
+    public Optional<String> find(final String v, final String pattern) {
         return Optional.empty();
     }
 }

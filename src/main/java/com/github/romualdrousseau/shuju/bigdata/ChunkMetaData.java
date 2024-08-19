@@ -1,11 +1,11 @@
 package com.github.romualdrousseau.shuju.bigdata;
 
-public class BatchMetaData {
+public class ChunkMetaData {
 
     private final long position;
     private final int length;
 
-    private BatchMetaData(final long position, final int length) {
+    private ChunkMetaData(final long position, final int length) {
         this.position = position;
         this.length = length;
     }
@@ -18,7 +18,7 @@ public class BatchMetaData {
         return length;
     }
 
-    public static BatchMetaData of(final long position, final int length) {
-        return new BatchMetaData(position, length);
+    public static ChunkMetaData of(final long position, final int length) {
+        return new ChunkMetaData(position, length);
     }
 }

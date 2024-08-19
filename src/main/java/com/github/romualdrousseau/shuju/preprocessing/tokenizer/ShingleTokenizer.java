@@ -3,8 +3,8 @@ package com.github.romualdrousseau.shuju.preprocessing.tokenizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.github.romualdrousseau.shuju.preprocessing.Text;
 import com.github.romualdrousseau.shuju.strings.StringUtils;
@@ -13,7 +13,7 @@ public class ShingleTokenizer implements Text.ITokenizer {
     private static final Pattern CAMEL_PATTERN = Pattern.compile("(?<!(^|[A-Z/]))(?=[A-Z/])|(?<!^)(?=[A-Z/][a-z/])");
     private static final int MIN_SIZE = 2;
 
-    private final Map<String, List<String>> variants;
+    private final List<Map.Entry<String, List<String>>> variants;
     private final int minSize;
 
     private boolean lemmatization;
@@ -27,7 +27,8 @@ public class ShingleTokenizer implements Text.ITokenizer {
     }
 
     public ShingleTokenizer(final List<String> lexicon, final int minSize, final boolean lemmatization) {
-        this.variants = Text.get_lexicon(lexicon);
+        this.variants = Text.get_lexicon(lexicon).entrySet().stream()
+                .sorted((a, b) -> b.getKey().length() - a.getKey().length()).toList();
         this.minSize = minSize;
         this.lemmatization = lemmatization;
     }
@@ -42,15 +43,18 @@ public class ShingleTokenizer implements Text.ITokenizer {
 
     @Override
     public List<String> apply(final String w) {
-        String s = StringUtils.normalizeWhiteSpaces(w);
+        var s = StringUtils.normalizeWhiteSpaces(w);
 
-        // Split using a lexicon of known words if any
+        // Split using a lexicon of known words if any and prioritize longest variant
 
-        for (final Entry<String, List<String>> lexem : variants.entrySet()) {
+        final var lexems = this.variants.stream().collect(Collectors.toList());
+        while (lexems.size() > 0) {
+            final var lexem = lexems.remove(0);
             for (final String variant : lexem.getValue()) {
                 if (s.toLowerCase().contains(variant)) {
-                    final var k = this.lemmatization ? lexem.getKey() : variant;
-                    s = s.replaceAll("(?i)" + variant, " " + k + " ");
+                    final var replacement = this.lemmatization ? lexem.getKey() : variant;
+                    s = s.replaceAll("(?i)" + variant, " " + replacement + " ");
+                    lexems.removeIf(x -> x.getValue().stream().anyMatch(y -> replacement.contains(y)));
                     break;
                 }
             }

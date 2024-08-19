@@ -19,21 +19,21 @@ import org.slf4j.LoggerFactory;
 public class DataFrame implements Closeable, Iterable<Row> {
     private final Logger logger = LoggerFactory.getLogger(DataFrame.class);
 
-    private final BatchSerializer serializer = BatchSerializerFactory.newInstance();
+    private final ChunkSerializer serializer = ChunkSerializerFactory.newInstance();
 
-    private final Batch batch;
+    private final Chunk chunk;
     private final Path storePath;
     private final int rowCount;
     private final int columnCount;
     private final FileChannel fileChannel;
     private final MappedByteBuffer mappedBuffer;
 
-    private int currentBatchIdx;
+    private int currentChunkIdx;
     private boolean isClosed;
 
-    public DataFrame(final Batch batch, final Path storePath, final int rowCount, final int columnCount)
+    public DataFrame(final Chunk chunk, final Path storePath, final int rowCount, final int columnCount)
             throws IOException {
-        this.batch = batch;
+        this.chunk = chunk;
         this.storePath = storePath;
         this.rowCount = rowCount;
         this.columnCount = columnCount;
@@ -45,7 +45,7 @@ public class DataFrame implements Closeable, Iterable<Row> {
             this.mappedBuffer = null;
         }
 
-        this.currentBatchIdx = -1;
+        this.currentChunkIdx = -1;
         this.isClosed = false;
 
         this.logger.info("DataFrame initialized with Mapped Buffer: {}", this.isMappedBuffer());
@@ -82,12 +82,12 @@ public class DataFrame implements Closeable, Iterable<Row> {
 
     public Row getRow(final int row) {
         Objects.checkIndex(row, this.rowCount);
-        final int idx = row / this.batch.getBatchSize();
-        if (this.currentBatchIdx != idx) {
-            this.batch.setRows(this.loadOneBatch(this.batch.getBatches().get(idx)));
-            this.currentBatchIdx = idx;
+        final int idx = row / this.chunk.getBatchSize();
+        if (this.currentChunkIdx != idx) {
+            this.chunk.setRows(this.loadOneBatch(this.chunk.getBatches().get(idx)));
+            this.currentChunkIdx = idx;
         }
-        return this.batch.getRow(row % this.batch.getBatchSize());
+        return this.chunk.getRow(row % this.chunk.getBatchSize());
     }
 
     public String getCell(final int row, final int column) {
@@ -101,7 +101,7 @@ public class DataFrame implements Closeable, Iterable<Row> {
         return new DataFrameIterator(this);
     }
 
-    private Row[] loadOneBatch(final BatchMetaData batch) {
+    private Row[] loadOneBatch(final ChunkMetaData batch) {
         final long startTime = System.currentTimeMillis();
         try {
 
@@ -121,7 +121,7 @@ public class DataFrame implements Closeable, Iterable<Row> {
         } finally {
             final var stopTime = System.currentTimeMillis();
             final var executionTimeInMS = (int) (stopTime - startTime);
-            this.logger.debug("Load a batch in memory offset: {}, lenght: {}. Took {}ms", batch.position(), batch.length(), executionTimeInMS);
+            this.logger.debug("Load a chunk in memory offset: {}, lenght: {}. Took {}ms", batch.position(), batch.length(), executionTimeInMS);
         }
     }
 

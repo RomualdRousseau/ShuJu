@@ -1,6 +1,5 @@
 package com.github.romualdrousseau.shuju.preprocessing;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -39,13 +38,13 @@ public class Text {
 
     public static IComparer DefaultComparer = new DefaultComparer();
 
-    public static List<String> DefaultFilters = Arrays.asList("[\\\\!\"#$%&()*+,-./:;<=>?@\\[\\]^_`{|}~\\t\\n]");
+    public static List<String> DefaultFilters = List.of("[\\\\!\"#$%&()*+,-./:;<=>?@\\[\\]^_`{|}~\\t\\n]");
 
     public static Comparator<String> ComparatorByLength = (a, b) -> b.length() - a.length();
 
     public static Map<String, List<String>> get_lexicon(List<String> lexicon) {
         return lexicon.stream()
-                .map(w -> Arrays.asList(w.split(",")))
+                .map(w -> List.of(w.split(",")))
                 .collect(Collectors.toMap(
                         w -> w.get(0),
                         w -> w.stream().distinct().sorted(Text.ComparatorByLength).toList()));
@@ -61,7 +60,7 @@ public class Text {
 
     public static List<String> all_words(final List<String> documents, final List<String> filters, final ITokenizer tokenizer) {
         return documents.stream()
-                .flatMap(d -> Text.to_words(d, filters, tokenizer).stream())
+                .flatMap(d -> d != null ? Text.to_words(d, filters, tokenizer).stream() : Stream.empty())
                 .distinct().sorted().toList();
     }
 
@@ -83,7 +82,7 @@ public class Text {
 
     public static List<Integer> to_categorical(final String label, final List<String> classes,
             final IComparer comparer) {
-        return Text.to_categorical(Arrays.asList(label), classes, comparer);
+        return Text.to_categorical(List.of(label), classes, comparer);
     }
 
     public static List<Integer> to_categorical(final List<String> labels, final List<String> classes) {
@@ -95,8 +94,16 @@ public class Text {
         return classes.stream().map(c -> comparer.apply(c, labels) ? 1 : 0).toList();
     }
 
+    public static String anonymize(final String label, final IComparer comparer) {
+        return Text.anonymize(List.of(label), comparer).get(0);
+    }
+
     public static List<String> anonymize(final List<String> labels, final IComparer comparer) {
         return labels.stream().map(l -> comparer.anonymize(l)).toList();
+    }
+
+    public static List<Integer> one_hot(final String text) {
+        return Text.one_hot(text, Text.DefaultFilters, Text.DefaultTokenizer, Text.DefaultHasher);
     }
 
     public static List<Integer> one_hot(final String text, final List<String> filters) {
@@ -129,7 +136,7 @@ public class Text {
     }
 
     public static List<Integer> mutate_sequence(final List<Integer> sequence, final float p, final int value) {
-        final List<Integer> shuffler = CollectionUtils.shuffle(CollectionUtils.mutableRange(0, sequence.size()));
+        final var shuffler = CollectionUtils.shuffle(CollectionUtils.mutableRange(0, sequence.size()));
         final Function<Integer, Integer> mutator = x -> Math.random() < p ? value : sequence.get(x);
         return shuffler.stream().map(mutator).filter(x -> x != value).toList();
     }

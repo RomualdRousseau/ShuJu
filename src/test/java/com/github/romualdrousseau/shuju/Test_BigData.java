@@ -12,15 +12,15 @@ import java.util.stream.IntStream;
 
 import org.junit.Test;
 
-import com.github.romualdrousseau.shuju.bigdata.BatchSerializer;
-import com.github.romualdrousseau.shuju.bigdata.BatchSerializerFactory;
-import com.github.romualdrousseau.shuju.bigdata.BatchSerializerFactory.SerializerType;
+import com.github.romualdrousseau.shuju.bigdata.ChunkSerializer;
+import com.github.romualdrousseau.shuju.bigdata.ChunkSerializerFactory;
+import com.github.romualdrousseau.shuju.bigdata.ChunkSerializerFactory.SerializerType;
 import com.github.romualdrousseau.shuju.bigdata.DataFrameWriter;
 import com.github.romualdrousseau.shuju.bigdata.Row;
 
 public class Test_BigData {
 
-    private final BatchSerializer serializer = BatchSerializerFactory.newInstance(SerializerType.FURY);
+    private final ChunkSerializer serializer = ChunkSerializerFactory.newInstance(SerializerType.FURY);
 
     @Test
     public void testSerialize() throws IOException {

@@ -11,9 +11,9 @@ import java.util.EnumSet;
 
 public class DataFrameWriter implements Closeable {
 
-    private final BatchSerializer serializer = BatchSerializerFactory.newInstance();
+    private final ChunkSerializer serializer = ChunkSerializerFactory.newInstance();
 
-    private final Batch batch;
+    private final Chunk chunk;
     private final Path storePath;
     private final FileChannel fileChannel;
 
@@ -21,20 +21,20 @@ public class DataFrameWriter implements Closeable {
     private int rowCount;
     private boolean isClosed;
 
-    public DataFrameWriter(final int batchSize) throws IOException {
-        this(batchSize, 0, null);
+    public DataFrameWriter(final int chunkSize) throws IOException {
+        this(chunkSize, 0, null);
     }
 
-    public DataFrameWriter(final int batchSize, final int columnCount) throws IOException {
-        this(batchSize, columnCount, null);
+    public DataFrameWriter(final int chunkSize, final int columnCount) throws IOException {
+        this(chunkSize, columnCount, null);
     }
 
     public DataFrameWriter(final int batchSize, final Path path) throws IOException {
         this(batchSize, 0, path);
     }
 
-    public DataFrameWriter(final int batchSize, final int columnCount, final Path path) throws IOException {
-        this.batch = new Batch(batchSize);
+    public DataFrameWriter(final int chunkSize, final int columnCount, final Path path) throws IOException {
+        this.chunk = new Chunk(chunkSize);
         this.storePath = (path == null) ? Files.createTempFile(null, null) : Files.createTempFile(path, null, null);
         this.storePath.toFile().deleteOnExit();
         this.fileChannel = (FileChannel) Files.newByteChannel(this.storePath,
@@ -50,8 +50,8 @@ public class DataFrameWriter implements Closeable {
             return;
         }
 
-        if ((this.rowCount % this.batch.getBatchSize()) > 0) {
-            this.flushCurrentBatch();
+        if ((this.rowCount % this.chunk.getBatchSize()) > 0) {
+            this.flushCurrentChunk();
         }
 
         this.fileChannel.close();
@@ -68,21 +68,21 @@ public class DataFrameWriter implements Closeable {
 
     public DataFrame getDataFrame() throws IOException {
         this.close();
-        return new DataFrame(this.batch, this.storePath, this.rowCount, this.columnCount);
+        return new DataFrame(this.chunk, this.storePath, this.rowCount, this.columnCount);
     }
 
     public void write(final Row data) throws IOException {
-        this.batch.setRow(this.rowCount % this.batch.getBatchSize(), data);
+        this.chunk.setRow(this.rowCount % this.chunk.getBatchSize(), data);
         this.columnCount = Math.max(this.columnCount, data.size());
         this.rowCount++;
-        if ((this.rowCount % this.batch.getBatchSize()) == 0) {
-            this.flushCurrentBatch();
+        if ((this.rowCount % this.chunk.getBatchSize()) == 0) {
+            this.flushCurrentChunk();
         }
     }
 
-    private void flushCurrentBatch() throws IOException {
-        final var bytes = serializer.serialize(this.batch.getRows());
-        this.batch.getBatches().add(BatchMetaData.of(this.fileChannel.position(), bytes.length));
+    private void flushCurrentChunk() throws IOException {
+        final var bytes = serializer.serialize(this.chunk.getRows());
+        this.chunk.getBatches().add(ChunkMetaData.of(this.fileChannel.position(), bytes.length));
         this.fileChannel.write(ByteBuffer.wrap(bytes));
     }
 }

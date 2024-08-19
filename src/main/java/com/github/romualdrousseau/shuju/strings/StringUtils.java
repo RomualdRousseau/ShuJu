@@ -20,6 +20,9 @@ public class StringUtils {
         "\\$+", "dollar"
     );
 
+    private static final Pattern cleanTokenRegex1 = Pattern.compile("[" + StringUtils.WHITE_SPACES + "]+");
+    private static final Pattern cleanTokenRegex2 = Pattern.compile("^[\" ]+|[\" ]+$");
+
     public static boolean isBlank(final String s) {
         return s == null || StringUtils.trim(s).equals("");
     }
@@ -105,11 +108,9 @@ public class StringUtils {
         if (s == null) {
             return null;
         }
-        String ss = StringUtils.normalizeWhiteSpaces(s);
-        ss = StringUtils.singleWhiteSpaces(ss);
-        ss = StringUtils.trim(ss, StringUtils.WHITE_SPACES);
+        var ss = cleanTokenRegex1.matcher(s).replaceAll(" ").trim();
         if (ss.startsWith("\"") && ss.endsWith("\"")) {
-            ss = StringUtils.trim(ss, StringUtils.WHITE_SPACES + "\"");
+            ss = cleanTokenRegex2.matcher(ss).replaceAll("");
         }
         return ss;
     }
