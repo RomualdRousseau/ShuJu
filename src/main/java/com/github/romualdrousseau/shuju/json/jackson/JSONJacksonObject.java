@@ -11,7 +11,7 @@ import com.github.romualdrousseau.shuju.json.JSONObject;
 
 public class JSONJacksonObject implements JSONObject {
     private final ObjectMapper mapper;
-    private final ObjectNode objectNode;
+    protected ObjectNode objectNode;
 
     public JSONJacksonObject(final ObjectMapper mapper, final JsonNode node) {
         this.mapper = mapper;
@@ -22,11 +22,6 @@ public class JSONJacksonObject implements JSONObject {
         }
     }
 
-    protected JsonNode getJsonNode() {
-        return this.objectNode;
-    }
-
-    @Override
     public Iterable<String> keys() {
         return new Iterable<String>() {
             @Override
@@ -37,44 +32,73 @@ public class JSONJacksonObject implements JSONObject {
         };
     }
 
-    @Override
     @SuppressWarnings("unchecked")
     public <T> Optional<T> get(final String k) {
         final JsonNode node = this.objectNode.get(k);
         if (node == null) {
             return Optional.empty();
         }
-        final T object;
         if (node.isObject()) {
-            object = (T) new JSONJacksonObject(this.mapper, node);
+            return Optional.of((T) new JSONJacksonObject(this.mapper, node));
         } else if (node.isArray()) {
-            object = (T) new JSONJacksonArray(this.mapper, node);
+            return Optional.of((T) new JSONJacksonArray(this.mapper, node));
         } else if (node.isInt()) {
-            object = (T) Integer.valueOf(node.intValue());
+            return Optional.of((T) Integer.valueOf(node.intValue()));
         } else if (node.isFloat()) {
-            object = (T) Float.valueOf(node.floatValue());
+            return Optional.of((T) Float.valueOf(node.floatValue()));
         } else {
-            object = (T) node.textValue();
+            return Optional.of((T) node.textValue());
         }
-        return Optional.ofNullable(object);
     }
 
-    @Override
-    public <T> JSONObject set(final String k, final T o) {
+    public void set(final String k, final Object o) {
         if (o instanceof JSONObject) {
-            this.objectNode.set(k, ((JSONJacksonObject) o).getJsonNode());
+            this.objectNode.set(k, (JsonNode) ((JSONJacksonObject) o).objectNode);
         } else if (o instanceof JSONArray) {
-            this.objectNode.set(k, ((JSONJacksonArray) o).getJsonNode());
+            this.objectNode.set(k, (JsonNode) ((JSONJacksonArray) o).arrayNode);
         } else {
             this.objectNode.set(k, this.mapper.convertValue(o, JsonNode.class));
         }
-        return this;
     }
 
-    @Override
-    public JSONObject remove(final String k) {
-        this.objectNode.remove(k);
-        return this;
+    public int getInt(final String k) {
+        return Optional.ofNullable(this.objectNode.get(k)).map(v -> v.intValue()).orElse(0);
+    }
+
+    public void setInt(final String k, final int n) {
+        this.objectNode.put(k, n);
+    }
+
+    public float getFloat(final String k) {
+        return Optional.ofNullable(this.objectNode.get(k)).map(v -> v.floatValue()).orElse(0.0f);
+    }
+
+    public void setFloat(final String k, final float f) {
+        this.objectNode.put(k, f);
+    }
+
+    public String getString(final String k) {
+        return Optional.ofNullable(this.objectNode.get(k)).map(v -> v.textValue()).orElse(null);
+    }
+
+    public void setString(final String k, final String s) {
+        this.objectNode.put(k, s);
+    }
+
+    public JSONArray getArray(final String k) {
+        return new JSONJacksonArray(this.mapper, this.objectNode.get(k));
+    }
+
+    public void setArray(final String k, final JSONArray a) {
+        this.objectNode.set(k, ((JSONJacksonArray) a).arrayNode);
+    }
+
+    public JSONObject getObject(final String k) {
+        return new JSONJacksonObject(this.mapper, this.objectNode.get(k));
+    }
+
+    public void setObject(final String k, final JSONObject o) {
+        this.objectNode.set(k, ((JSONJacksonObject) o).objectNode);
     }
 
     @Override

@@ -28,9 +28,9 @@ public class JSONJacksonFactory implements JSONFactory {
         mapper.setDefaultPrettyPrinter(prettyPrinter);
 
         final StreamReadConstraints streamReadConstraints = StreamReadConstraints
-                .builder()
-                .maxStringLength(Integer.MAX_VALUE)
-                .build();
+            .builder()
+            .maxStringLength(Integer.MAX_VALUE)
+            .build();
         this.mapper.getFactory().setStreamReadConstraints(streamReadConstraints);
     }
 
@@ -60,11 +60,10 @@ public class JSONJacksonFactory implements JSONFactory {
 
     public void saveArray(final JSONArray a, final Path filePath, final boolean pretty) {
         try {
-            final var aa = (JSONJacksonArray) a;
             if (pretty) {
-                mapper.writerWithDefaultPrettyPrinter().writeValue(filePath.toFile(), aa.getJsonNode());
-            } else {
-                mapper.writeValue(filePath.toFile(), aa.getJsonNode());
+                mapper.writerWithDefaultPrettyPrinter().writeValue(filePath.toFile(), ((JSONJacksonArray) a).arrayNode);
+            } else{
+                mapper.writeValue(filePath.toFile(), ((JSONJacksonArray) a).arrayNode);
             }
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
@@ -97,11 +96,10 @@ public class JSONJacksonFactory implements JSONFactory {
 
     public void saveObject(final JSONObject o, final Path filePath, final boolean pretty) {
         try {
-            final var oo = (JSONJacksonObject) o;
             if (pretty) {
-                mapper.writerWithDefaultPrettyPrinter().writeValue(filePath.toFile(), oo.getJsonNode());
-            } else {
-                mapper.writeValue(filePath.toFile(), oo.getJsonNode());
+                mapper.writerWithDefaultPrettyPrinter().writeValue(filePath.toFile(), ((JSONJacksonObject) o).objectNode);
+            } else{
+                mapper.writeValue(filePath.toFile(), ((JSONJacksonObject) o).objectNode);
             }
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
