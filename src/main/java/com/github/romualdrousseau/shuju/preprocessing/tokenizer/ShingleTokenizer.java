@@ -10,8 +10,15 @@ import com.github.romualdrousseau.shuju.preprocessing.Text;
 import com.github.romualdrousseau.shuju.strings.StringUtils;
 
 public class ShingleTokenizer implements Text.ITokenizer {
-    private static final Pattern CAMEL_PATTERN = Pattern.compile("(?<!(^|[A-Z/]))(?=[A-Z/])|(?<!^)(?=[A-Z/][a-z/])");
+
     private static final int MIN_SIZE = 2;
+
+    private static final ThreadLocal<Pattern> CAMEL_PATTERN = new ThreadLocal<Pattern>() {
+        @Override
+        protected Pattern initialValue() {
+            return Pattern.compile("(?<!(^|[A-Z/]))(?=[A-Z/])|(?<!^)(?=[A-Z/][a-z/])");
+        }
+    };
 
     private final List<Map.Entry<String, List<String>>> variants;
     private final int minSize;
@@ -68,7 +75,7 @@ public class ShingleTokenizer implements Text.ITokenizer {
 
         final ArrayList<String> result = new ArrayList<String>();
         for (final String ss : s.split(" ")) {
-            for (final String sss : CAMEL_PATTERN.split(ss)) {
+            for (final String sss : CAMEL_PATTERN.get().split(ss)) {
                 if (sss.length() > 0 && (sss.length() > (minSize - 1) || !Character.isAlphabetic(sss.charAt(0)))) {
                     result.add(sss.toLowerCase());
                 }
