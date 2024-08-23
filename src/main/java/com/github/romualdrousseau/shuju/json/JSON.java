@@ -111,6 +111,22 @@ public class JSON {
         JSON.Factory.saveObject(o, filePath, pretty);
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> Optional<T> query(final Object a, final String q) {
+        Object curr = a;
+        for(String token: Arrays.asList(q.split("\\."))) {
+            if (curr instanceof JSONArray) {
+                int i = Integer.parseInt(token);
+                curr = ((JSONArray) curr).get(i).orElse(null);
+            } else if (curr instanceof JSONObject) {
+                curr = ((JSONObject) curr).get(token).orElse(null);
+            } else {
+                curr = null;
+            }
+        }
+        return Optional.ofNullable((T) curr);
+    }
+
     public static <T> Stream<T> streamOf(final Object a, final String q) {
         return JSON.<T>query(a, q)
                 .filter(o -> o instanceof JSONArray)
@@ -132,25 +148,11 @@ public class JSON {
 
                     @Override
                     public T next() {
-                        return a.get(idx++);
+                        return a.<T>get(idx++).get();
                     }
                 };
             }
         };
         return StreamSupport.stream(it.spliterator(), false);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> Optional<T> query(final Object a, final String q) {
-        Object curr = a;
-        for(String token: Arrays.asList(q.split("\\."))) {
-            if (curr instanceof JSONArray) {
-                int i = Integer.parseInt(token);
-                curr = ((JSONArray) curr).get(i);
-            } else if (curr instanceof JSONObject) {
-                curr = ((JSONObject) curr).get(token).get();
-            }
-        }
-        return Optional.ofNullable((T) curr);
     }
 }
