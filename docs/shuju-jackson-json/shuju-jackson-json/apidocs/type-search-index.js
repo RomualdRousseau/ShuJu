@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"com.github.romualdrousseau.shuju.json.jackson","l":"JSONJacksonArray"},{"p":"com.github.romualdrousseau.shuju.json.jackson","l":"JSONJacksonFactory"},{"p":"com.github.romualdrousseau.shuju.json.jackson","l":"JSONJacksonObject"}];updateSearchResults();
