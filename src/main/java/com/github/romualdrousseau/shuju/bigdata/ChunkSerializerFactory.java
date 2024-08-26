@@ -24,33 +24,34 @@ public class ChunkSerializerFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChunkSerializerFactory.class);
 
-    private static ChunkSerializerFactory singleton = new ChunkSerializerFactory();
-
-    private static ThreadLocal<ChunkSerializer> context = new ThreadLocal<>();
+    private static final ThreadLocal<ChunkSerializer> CONTEXT = new ThreadLocal<>();
 
     public static ChunkSerializer newInstance() {
-        if (context.get() == null) {
-            context.set(singleton.createSerializerInstance());
-        }
-        return context.get();
+        return ChunkSerializerFactory.newInstance(SerializerType.DEFAULT);
     }
 
     public static ChunkSerializer newInstance(final SerializerType type) {
-        if (context.get() == null) {
-            context.set(singleton.createSerializerInstance(type));
+        if (CONTEXT.get() == null) {
+            CONTEXT.set(new ChunkSerializerFactory(type).createSerializerInstance());
         }
-        return context.get();
+        return CONTEXT.get();
     }
 
-    private SerializerType type = SerializerType.FURY;
+    private final SerializerType type;
 
-    private ChunkSerializerFactory() {
+    private ChunkSerializerFactory(final SerializerType type) {
         try {
-            final var prop = new Properties();
-            prop.load(this.openDefaultPropertiesInputStream());
-            final var typeVal = prop.getProperty("serializer");
-            if (typeVal != null) {
-                this.type = Enum.valueOf(SerializerType.class, typeVal);
+            if (type.equals(SerializerType.DEFAULT)) {
+                final var prop = new Properties();
+                prop.load(this.openDefaultPropertiesInputStream());
+                final var typeVal = prop.getProperty("serializer");
+                if (typeVal != null) {
+                    this.type = Enum.valueOf(SerializerType.class, typeVal);
+                } else {
+                    this.type = type;
+                }
+            } else {
+                this.type = type;
             }
             LOGGER.info("ChunkSerializerFactor set to {}", this.type);
         } catch (final IOException x) {
@@ -60,11 +61,7 @@ public class ChunkSerializerFactory {
     }
 
     private ChunkSerializer createSerializerInstance() {
-        return this.createSerializerInstance(this.type);
-    }
-
-    private ChunkSerializer createSerializerInstance(final SerializerType type) {
-        switch (type) {
+        switch (this.type) {
             case JAVA:
                 return new ChunkSerializerJava();
             case FURY:

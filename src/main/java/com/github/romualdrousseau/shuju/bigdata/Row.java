@@ -57,6 +57,7 @@ public class Row implements Iterable<String>, Serializable {
     }
 
     public Row set(final int index, final String element) {
+        assert this != Row.Empty : "Row.Empty is not mutable";
         Objects.checkIndex(index, this.columnCount);
         if ((this.columnStart + index) < data.length) {
             this.data[this.columnStart + index] = element;

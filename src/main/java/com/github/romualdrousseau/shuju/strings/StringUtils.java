@@ -20,13 +20,13 @@ public class StringUtils {
         "\\$+", "dollar"
     );
 
-    private static final ThreadLocal<Pattern> CLEAN_TOKEN_REGEX1 = new ThreadLocal<Pattern>() {
+    private static final ThreadLocal<Pattern> CLEAN_TOKEN_REGEX1 = new ThreadLocal<>() {
         @Override
         protected Pattern initialValue() {
             return Pattern.compile("[" + StringUtils.WHITE_SPACES + "]+");
         }
     };
-    private static final ThreadLocal<Pattern> CLEAN_TOKEN_REGEX2 = new ThreadLocal<Pattern>() {
+    private static final ThreadLocal<Pattern> CLEAN_TOKEN_REGEX2 = new ThreadLocal<>() {
         @Override
         protected Pattern initialValue() {
             return Pattern.compile("^[\" ]+|[\" ]+$");
