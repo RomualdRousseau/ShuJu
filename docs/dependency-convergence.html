@@ -90,7 +90,7 @@
 <td>36</td></tr>
 <tr class="a">
 <th>Number of unique artifacts (NOA):</th>
-<td>37</td></tr>
+<td>42</td></tr>
 <tr class="b">
 <th>Number of version-conflicting artifacts (NOC):</th>
 <td>1</td></tr>
@@ -99,12 +99,12 @@
 <td>0</td></tr>
 <tr class="b">
 <th>Convergence (NOD/NOA):</th>
-<td><img src="images/icon_error_sml.gif" alt="[Error]" />&#160;<b>97 %</b></td></tr>
+<td><img src="images/icon_error_sml.gif" alt="[Error]" />&#160;<b>85 %</b></td></tr>
 <tr class="a">
 <th>Ready for release (100% convergence and no SNAPSHOTS):</th>
 <td><img src="images/icon_error_sml.gif" alt="[Error]" />&#160;<b>Error</b><br />You do not have 100% convergence.</td></tr></table></section><section>
 <h2>Dependencies used in modules</h2><section>
-<h3>com.fasterxml.jackson.core:jackson-annotations</h3>
+<h3>com.fasterxml.jackson.core:jackson-databind</h3>
 <table class="table table-striped">
 <tr class="a">
 <td><img src="images/icon_error_sml.gif" alt="[Error]" /></td>
@@ -114,18 +114,14 @@
 <td>2.15.1</td>
 <td>
 <ol style="list-style-type: decimal;">
-<li>com.github.romualdrousseau:shuju-examples:jar:1.29-SNAPSHOT<br />\-&#160;com.github.romualdrousseau:shuju:jar:1.29-SNAPSHOT:compile<br />&#160;&#160;&#160;\-&#160;org.furyio:fury-format:jar:0.4.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;org.apache.arrow:arrow-vector:jar:14.0.0:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;+-&#160;com.fasterxml.jackson.core:jackson-annotations:jar:2.15.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.15.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-annotations:jar:2.15.1:compile<br /></li><br />
-<li>com.github.romualdrousseau:shuju-jackson-json:jar:1.29-SNAPSHOT<br />\-&#160;com.github.romualdrousseau:shuju:jar:1.29-SNAPSHOT:compile<br />&#160;&#160;&#160;\-&#160;org.furyio:fury-format:jar:0.4.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;org.apache.arrow:arrow-vector:jar:14.0.0:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;+-&#160;com.fasterxml.jackson.core:jackson-annotations:jar:2.15.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.15.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-annotations:jar:2.15.1:compile<br /></li><br />
-<li>com.github.romualdrousseau:shuju-jackson-yaml:jar:1.29-SNAPSHOT<br />\-&#160;com.github.romualdrousseau:shuju:jar:1.29-SNAPSHOT:compile<br />&#160;&#160;&#160;\-&#160;org.furyio:fury-format:jar:0.4.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;org.apache.arrow:arrow-vector:jar:14.0.0:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;+-&#160;com.fasterxml.jackson.core:jackson-annotations:jar:2.15.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.15.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-annotations:jar:2.15.1:compile<br /></li><br />
-<li>com.github.romualdrousseau:shuju:jar:1.29-SNAPSHOT<br />\-&#160;org.furyio:fury-format:jar:0.4.1:compile<br />&#160;&#160;&#160;\-&#160;org.apache.arrow:arrow-vector:jar:14.0.0:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;+-&#160;com.fasterxml.jackson.core:jackson-annotations:jar:2.15.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.15.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-annotations:jar:2.15.1:compile<br /></li><br /></ol></td></tr>
+<li>com.github.romualdrousseau:shuju-examples:jar:1.29-SNAPSHOT<br />\-&#160;com.github.romualdrousseau:shuju:jar:1.29-SNAPSHOT:compile<br />&#160;&#160;&#160;\-&#160;org.furyio:fury-format:jar:0.4.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;org.apache.arrow:arrow-vector:jar:14.0.0:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;+-&#160;com.fasterxml.jackson.core:jackson-databind:jar:2.15.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.15.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-databind:jar:2.15.1:compile<br /></li><br />
+<li>com.github.romualdrousseau:shuju:jar:1.29-SNAPSHOT<br />\-&#160;org.furyio:fury-format:jar:0.4.1:compile<br />&#160;&#160;&#160;\-&#160;org.apache.arrow:arrow-vector:jar:14.0.0:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;+-&#160;com.fasterxml.jackson.core:jackson-databind:jar:2.15.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.15.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-databind:jar:2.15.1:compile<br /></li><br /></ol></td></tr>
 <tr class="a">
-<td>2.17.0</td>
+<td>2.16.0</td>
 <td>
 <ol style="list-style-type: decimal;">
-<li>com.github.romualdrousseau:shuju-examples:jar:1.29-SNAPSHOT<br />\-&#160;com.github.romualdrousseau:shuju:jar:1.29-SNAPSHOT:compile<br />&#160;&#160;&#160;\-&#160;org.furyio:fury-format:jar:0.4.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-databind:jar:2.17.0:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-annotations:jar:2.17.0:compile<br /></li><br />
-<li>com.github.romualdrousseau:shuju-jackson-json:jar:1.29-SNAPSHOT<br />\-&#160;com.fasterxml.jackson.core:jackson-databind:jar:2.17.0:compile<br />&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-annotations:jar:2.17.0:compile<br /></li><br />
-<li>com.github.romualdrousseau:shuju-jackson-yaml:jar:1.29-SNAPSHOT<br />\-&#160;com.fasterxml.jackson.core:jackson-databind:jar:2.17.0:compile<br />&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-annotations:jar:2.17.0:compile<br /></li><br />
-<li>com.github.romualdrousseau:shuju:jar:1.29-SNAPSHOT<br />\-&#160;org.furyio:fury-format:jar:0.4.1:compile<br />&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-databind:jar:2.17.0:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-annotations:jar:2.17.0:compile<br /></li><br /></ol></td></tr></table></td></tr></table></section></section>
+<li>com.github.romualdrousseau:shuju-examples:jar:1.29-SNAPSHOT<br />\-&#160;com.github.romualdrousseau:shuju:jar:1.29-SNAPSHOT:compile<br />&#160;&#160;&#160;\-&#160;org.furyio:fury-format:jar:0.4.1:compile<br />&#160;&#160;&#160;&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-databind:jar:2.16.0:compile<br /></li><br />
+<li>com.github.romualdrousseau:shuju:jar:1.29-SNAPSHOT<br />\-&#160;org.furyio:fury-format:jar:0.4.1:compile<br />&#160;&#160;&#160;\-&#160;com.fasterxml.jackson.core:jackson-databind:jar:2.16.0:compile<br /></li><br /></ol></td></tr></table></td></tr></table></section></section>
         </main>
       </div>
     </div>
