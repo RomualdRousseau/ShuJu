@@ -34,4 +34,5 @@ jobs:
         uses: ./.github/workflows/tooling-deploy-prod.yml
         with:
             service: shuju
+            version: ${{ github.event.release.tag_name }}
         secrets: inherit
