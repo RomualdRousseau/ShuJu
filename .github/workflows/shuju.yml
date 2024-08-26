@@ -9,12 +9,6 @@ on:
         types: [published]
 
 jobs:
-    debug:
-        runs-on: ubuntu-latest
-        steps:
-            - run: echo "Deploying to production server on branch $GITHUB_REF"
-            - run: echo "Deploying to production server on branch $GITHUB_EVENT_NAME"
-
     build:
         uses: ./.github/workflows/tooling-build.yml
         with:
@@ -28,7 +22,7 @@ jobs:
 
     deploy-snapshot:
         needs: [test]
-        if: ${{ github.event.push && github.ref == 'main' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         uses: ./.github/workflows/tooling-deploy-snapshot.yml
         with:
             service: shuju
@@ -36,7 +30,7 @@ jobs:
 
     deploy-prod:
         needs: [test]
-        if: ${{ github.event.release }}
+        if: ${{ github.event_name == 'release' }}
         uses: ./.github/workflows/tooling-deploy-prod.yml
         with:
             service: shuju
