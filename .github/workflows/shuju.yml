@@ -2,37 +2,21 @@ name: shuju
 
 on:
     push:
+        branches:
+            - '**'
+            - "!main"
         paths:
             - shuju/**
             - .github/workflows/shuju.yml
-    release:
-        types: [published]
 
 jobs:
     build:
-        uses: ./.github/workflows/tooling-build.yml
+        uses: ./.github/workflows/maven-build.yml
         with:
             service: shuju
 
     test:
         needs: [build]
-        uses: ./.github/workflows/tooling-test.yml
+        uses: ./.github/workflows/maven-test.yml
         with:
             service: shuju
-
-    deploy-snapshot:
-        needs: [test]
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        uses: ./.github/workflows/tooling-deploy-snapshot.yml
-        with:
-            service: shuju
-        secrets: inherit
-
-    deploy-prod:
-        needs: [test]
-        if: ${{ github.event_name == 'release' }}
-        uses: ./.github/workflows/tooling-deploy-prod.yml
-        with:
-            service: shuju
-            version: ${{ github.event.release.tag_name }}
-        secrets: inherit

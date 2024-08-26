@@ -6,7 +6,7 @@
 
     <groupId>com.github.romualdrousseau</groupId>
     <artifactId>shuju-monorepo</artifactId>
-    <version>1.29-SNAPSHOT</version>
+    <version>1.29.2</version>
     <packaging>pom</packaging>
 
     <name>shuju-monorepo</name>
@@ -106,12 +106,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Fix vunerabilities -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>2.0.16</version>
             </dependency>
-            <!-- Fix vunerabilities -->
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>

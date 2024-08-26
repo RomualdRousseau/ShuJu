@@ -1,9 +1,5 @@
 on:
     workflow_call:
-        inputs:
-            service:
-                required: true
-                type: string
         secrets:
             OSSRH_USERNAME:
                 required: true
@@ -11,7 +7,7 @@ on:
                 required: true
 
 jobs:
-    deploy-snapshot:
+    maven-deploy-snapshot:
         runs-on: [ubuntu-latest]
         steps:
             - uses: actions/checkout@v4
@@ -28,7 +24,7 @@ jobs:
                   key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
             - name: Deploy project snapshot
-              run: mvn -U -B clean deploy -Dmaven.test.skip=true -P snapshot --projects :${{ inputs.service }} --file pom.xml -s .mvn/settings.xml --also-make --batch-mode
+              run: mvn -U -B clean deploy -Dmaven.test.skip=true -P snapshot --file pom.xml -s .mvn/settings.xml --also-make --batch-mode
               env:
                   OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
                   OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}

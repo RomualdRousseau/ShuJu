@@ -6,7 +6,7 @@ on:
                 type: string
 
 jobs:
-    test:
+    maven-build:
         runs-on: [ubuntu-latest]
         steps:
             - uses: actions/checkout@v4
@@ -25,5 +25,11 @@ jobs:
             - name: Installing local dependencies
               run: mvn initialize --projects :${{ inputs.service }} --file pom.xml --also-make --batch-mode
 
-            - name: Test project
-              run: mvn -B test --projects :${{ inputs.service }} --file pom.xml --also-make --batch-mode
+            - name: Build project
+              run: mvn -U -B package -Dmaven.test.skip=true --projects :${{ inputs.service }} --file pom.xml --also-make --batch-mode
+
+            - name: Archive build artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ${{ inputs.service }}-target
+                  path: ${{ inputs.service }}/target
