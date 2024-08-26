@@ -16,10 +16,6 @@
         Collection of various algorithms implemented in Java covering domains such as mathematics and data science.
     </description>
 
-    <properties>
-        <jackson.version>2.17.0</jackson.version>
-    </properties>
-
     <dependencies>
         <!-- ShuJu Framework -->
         <dependency>
@@ -34,24 +30,4 @@
             <version>${jackson.version}</version>
         </dependency>
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

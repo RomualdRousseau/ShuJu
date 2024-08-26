@@ -17,13 +17,6 @@
         Collection of various algorithms implemented in Java covering domains such as mathematics and data science.
     </description>
 
-    <properties>
-        <fury.version>0.4.1</fury.version>
-        <snappy.version>1.1.10.5</snappy.version>
-        <reflections.version>0.10.2</reflections.version>
-        <tensorflow.version>0.5.0</tensorflow.version>
-    </properties>
-
     <dependencies>
         <!-- Serialization -->
         <dependency>
