@@ -1,0 +1,38 @@
+name: shuju-jackson-yaml
+
+on:
+    push:
+        paths:
+            - shuju/**
+            - .github/workflows/shuju-jackson-yaml.yml
+    release:
+        types: [published]
+
+jobs:
+    build:
+        uses: ./.github/workflows/tooling-build.yml
+        with:
+            service: shuju-jackson-yaml
+
+    test:
+        needs: [build]
+        uses: ./.github/workflows/tooling-test.yml
+        with:
+            service: shuju-jackson-yaml
+
+    deploy-snapshot:
+        needs: [test]
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        uses: ./.github/workflows/tooling-deploy-snapshot.yml
+        with:
+            service: shuju-jackson-yaml
+        secrets: inherit
+
+    deploy-prod:
+        needs: [test]
+        if: ${{ github.event_name == 'release' }}
+        uses: ./.github/workflows/tooling-deploy-prod.yml
+        with:
+            service: shuju-jackson-yaml
+            version: ${{ github.event.release.tag_name }}
+        secrets: inherit
