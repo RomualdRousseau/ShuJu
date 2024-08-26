@@ -4,7 +4,7 @@ on:
     push:
         paths:
             - shuju/**
-            - .github/workflows/shuju-pull-request.yml
+            - .github/workflows/shuju.yml
     release:
         types: [published]
 
