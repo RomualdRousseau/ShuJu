@@ -38,6 +38,14 @@ test-full:
 install:
 	mvn -DskipTests install
 
+# Deploy snapshot
+deploy-snapshot:
+	mvn -U -B clean deploy -DskipTests -P snapshot --also-make --batch-mode
+
+# Deploy release
+deploy-release:
+	mvn -U -B clean deploy -DskipTests -P release --also-make --batch-mode
+
 # Prepape a new version:
 prepare-version *args='':
     mvn versions:set -DnewVersion={{args}}
@@ -47,5 +55,5 @@ build-doc:
     mvn -P documentation clean site site:stage
 
 # Update all plugins and dependencies
-update:
+update:-DnewVersion=
     mvn versions:use-latest-release

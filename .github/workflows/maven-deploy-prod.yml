@@ -1,9 +1,6 @@
 on:
     workflow_call:
         inputs:
-            service:
-                required: true
-                type: string
             version:
                 required: true
                 type: string
@@ -18,7 +15,7 @@ on:
                 required: true
 
 jobs:
-    deploy-prod:
+    maven-deploy-prod:
         runs-on: [ubuntu-latest]
         steps:
             - uses: actions/checkout@v4
@@ -36,8 +33,8 @@ jobs:
 
             - name: Set version
               run: |
-                  mvn versions:set -DnewVersion=${{ inputs.version }} --projects :${{ inputs.service }} --file pom.xml --also-make --batch-mode
-                  mvn versions:commit --projects :${{ inputs.service }} --file pom.xml --also-make --batch-mode
+                  mvn versions:set -DnewVersion=${{ inputs.version }} --file pom.xml --also-make --batch-mode
+                  mvn versions:commit --file pom.xml --also-make --batch-mode
 
             - name: Setup GPG
               run: |
@@ -49,7 +46,7 @@ jobs:
             - name: Deploy project
               run: |
                   export GPG_TTY=$(tty)
-                  mvn -U -B clean deploy -Dmaven.test.skip=true -P release --projects :${{ inputs.service }} --file pom.xml -s .mvn/settings.xml --also-make --batch-mode
+                  mvn -U -B clean deploy -Dmaven.test.skip=true -P release --file pom.xml -s .mvn/settings.xml --also-make --batch-mode
               env:
                   OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
                   OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
