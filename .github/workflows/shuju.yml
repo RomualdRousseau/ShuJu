@@ -22,7 +22,7 @@ jobs:
 
     deploy-snapshot:
         needs: [test]
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.event.push && github.ref == 'refs/heads/main' }}
         uses: ./.github/workflows/tooling-deploy-snapshot.yml
         with:
             service: shuju
@@ -30,7 +30,7 @@ jobs:
 
     deploy-prod:
         needs: [test]
-        if: ${{ github.event.release }}
+        if: ${{ github.event.release && github.ref == 'refs/heads/main' }}
         uses: ./.github/workflows/tooling-deploy-prod.yml
         with:
             service: shuju
