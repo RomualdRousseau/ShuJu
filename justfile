@@ -55,5 +55,5 @@ build-doc:
     mvn -P documentation clean site site:stage
 
 # Update all plugins and dependencies
-update:-DnewVersion=
+update:
     mvn versions:use-latest-release
