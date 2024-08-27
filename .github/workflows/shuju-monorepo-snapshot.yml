@@ -19,8 +19,8 @@ jobs:
         uses: ./.github/workflows/maven-deploy-snapshot.yml
         secrets: inherit
 
-    deploy-snapshot:
+    deploy-doc:
         needs: [deploy-prod]
         uses: ./.github/workflows/maven-deploy-doc.yml
         with:
-            version: ${{ github.event.release.tag_name }}
+            version: 1.44-SNAPSHOT
