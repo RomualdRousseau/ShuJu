@@ -33,15 +33,13 @@ jobs:
                   mvn versions:commit
 
             - name: Installing local dependencies
-              run: mvn -U -B initialize
+              run: mvn -U -B clean initialize
 
             - name: Deploy project
-              run: |
-                  export GPG_TTY=$(tty)
-                  mvn -U -B clean install
+              run: mvn -B install
 
             - name: Build documentation
-              run: mvn -B -P documentation clean site site:stage
+              run: mvn -B -P documentation site site:stage
 
             - name: Setup pages
               uses: actions/configure-pages@v5

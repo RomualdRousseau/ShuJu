@@ -25,10 +25,10 @@ jobs:
                   key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
             - name: Installing local dependencies
-              run: mvn initialize --projects :${{ inputs.service }} --also-make
+              run: mvn -U -B clean initialize --projects :${{ inputs.service }} --also-make
 
             - name: Build project
-              run: mvn -U -B package -DskipTests --projects :${{ inputs.service }} --also-make
+              run: mvn -B package -DskipTests --projects :${{ inputs.service }} --also-make
 
             - name: Archive build artifact
               uses: actions/upload-artifact@v4
