@@ -28,4 +28,4 @@ jobs:
               run: mvn -U -B clean initialize --projects :${{ inputs.service }} --also-make
 
             - name: Test project
-              run: mvn -B test --projects :${{ inputs.service }} --also-make
+              run: mvn -U -B test --projects :${{ inputs.service }} --also-make
