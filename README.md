@@ -104,7 +104,7 @@ Do not forget to configure the GitHub authentication in ***~/.m2/settings.xml***
 The following links will give you documentation about some background information, takes you through some implementation details,
 and then focuses on step-by-step instructions for getting the most out of Any2Json:
 
-* API Reference: [here](https://romualdrousseau.github.io/ShuJu-monorepo/).
+* API Reference: [here](https://romualdrousseau.github.io/ShuJu/).
 
 ## Contribute
 
