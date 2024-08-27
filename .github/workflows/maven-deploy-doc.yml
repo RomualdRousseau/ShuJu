@@ -32,6 +32,14 @@ jobs:
                   mvn versions:set -DnewVersion=${{ inputs.version }}
                   mvn versions:commit
 
+            - name: Installing local dependencies
+              run: mvn -U -B initialize
+
+            - name: Deploy project
+              run: |
+                  export GPG_TTY=$(tty)
+                  mvn -U -B clean install
+
             - name: Build documentation
               run: mvn -B -P documentation clean site site:stage
 
