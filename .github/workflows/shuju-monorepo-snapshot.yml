@@ -20,7 +20,7 @@ jobs:
         secrets: inherit
 
     deploy-doc:
-        needs: [deploy-prod]
+        needs: [deploy-snapshot]
         uses: ./.github/workflows/maven-deploy-doc.yml
         with:
             version: 1.44-SNAPSHOT
