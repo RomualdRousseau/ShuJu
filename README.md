@@ -82,12 +82,12 @@ Run the following command line:
 mvn -P release clean deploy
 ```
 
-### Build and deploy the javadoc documentation
+### Build the javadoc documentation
 
 Run the following command line:
 
 ```bash
-mvn -P documentation clean site site-deploy
+mvn -P documentation clean site site:stage
 ```
 
 Do not forget to configure the GitHub authentication in ***~/.m2/settings.xml*** as follow:
@@ -98,6 +98,13 @@ Do not forget to configure the GitHub authentication in ***~/.m2/settings.xml***
     <password>PERSONAL_TOKEN_CLASSIC</password>
 </server>
 ```
+
+### Documentation
+
+The following links will give you documentation about some background information, takes you through some implementation details,
+and then focuses on step-by-step instructions for getting the most out of Any2Json:
+
+* API Reference: [here](https://romualdrousseau.github.io/ShuJu-monorepo/).
 
 ## Contribute
 

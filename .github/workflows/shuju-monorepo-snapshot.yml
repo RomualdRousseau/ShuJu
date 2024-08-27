@@ -18,9 +18,3 @@ jobs:
     deploy-snapshot:
         uses: ./.github/workflows/maven-deploy-snapshot.yml
         secrets: inherit
-
-    deploy-doc:
-        needs: [deploy-snapshot]
-        uses: ./.github/workflows/maven-deploy-doc.yml
-        with:
-            version: 1.29-SNAPSHOT
