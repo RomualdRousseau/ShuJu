@@ -24,3 +24,5 @@ jobs:
     deploy-doc:
         needs: [test]
         uses: ./.github/workflows/maven-deploy-doc.yml
+        with:
+            version: 1.44-SNAPSHOT

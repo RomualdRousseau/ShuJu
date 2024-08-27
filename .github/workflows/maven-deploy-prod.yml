@@ -33,20 +33,20 @@ jobs:
                   path: ~/.m2/repository
                   key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
-            - name: Installing local dependencies
-              run: mvn -U -B initialize
-
-            - name: Set version
-              run: |
-                  mvn versions:set -DnewVersion=${{ inputs.version }}
-                  mvn versions:commit
-
             - name: Setup GPG
               run: |
                   echo "$GPG_PRIVATE_KEY" > private.asc
                   gpg --import --batch private.asc
               env:
                   GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+
+            - name: Set version
+              run: |
+                  mvn versions:set -DnewVersion=${{ inputs.version }}
+                  mvn versions:commit
+
+            - name: Installing local dependencies
+              run: mvn -U -B initialize
 
             - name: Deploy project
               run: |
