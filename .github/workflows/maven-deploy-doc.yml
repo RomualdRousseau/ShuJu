@@ -1,0 +1,49 @@
+on:
+    workflow_call:
+        inputs:
+
+# permissions:
+#     contents: read
+#     pages: write
+#     id-token: write
+
+# concurrency:
+#     group: "pages"
+#     cancel-in-progress: false
+
+jobs:
+    maven-deploy-doc:
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: [ubuntu-latest]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up JDK 17
+              uses: actions/setup-java@v4
+              with:
+                  java-version: 17
+                  distribution: "temurin"
+
+            - name: Cache
+              uses: actions/cache@v4
+              with:
+                  path: ~/.m2/repository
+                  key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+
+            - name: Build documentation
+              run: mvn -U -B -P documentation clean site site:stage
+
+            - name: Setup pages
+              uses: actions/configure-pages@v5
+
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: ./target/docs
+
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4

@@ -20,3 +20,7 @@ jobs:
         uses: ./.github/workflows/maven-test.yml
         with:
             service: shuju
+
+    deploy-doc:
+        needs: [test]
+        uses: ./.github/workflows/maven-deploy-doc.yml

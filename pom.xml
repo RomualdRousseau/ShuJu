@@ -366,7 +366,7 @@
                         <version>3.20.0</version>
                         <configuration>
                             <skipDeploy>true</skipDeploy>
-                            <stagingDirectory>${maven.multiModuleProjectDirectory}/docs</stagingDirectory>
+                            <stagingDirectory>${maven.multiModuleProjectDirectory}/target/docs</stagingDirectory>
                         </configuration>
                     </plugin>
                     <plugin>
