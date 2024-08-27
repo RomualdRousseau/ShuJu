@@ -36,7 +36,7 @@ jobs:
               run: mvn -U -B clean initialize
 
             - name: Deploy project
-              run: mvn -B install
+              run: mvn -U -B -DskipTests install
 
             - name: Build documentation
               run: mvn -B -P documentation site site:stage
