@@ -14,7 +14,7 @@
 
     <name>shuju</name>
     <description>
-        Collection of various algorithms implemented in Java covering domains such as mathematics and data science..
+        Collection of various algorithms implemented in Java covering domains such as mathematics and data science.
     </description>
 
     <dependencies>
