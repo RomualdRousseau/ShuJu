@@ -23,4 +23,4 @@ jobs:
         needs: [deploy-snapshot]
         uses: ./.github/workflows/maven-deploy-doc.yml
         with:
-            version: 1.44-SNAPSHOT
+            version: 1.29-SNAPSHOT
