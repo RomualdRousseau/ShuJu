@@ -23,3 +23,6 @@ buildNumber.properties
 *.sublime-project
 *.sublime-workspace
 .vscode
+
+# Environment variables file
+.env
