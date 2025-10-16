@@ -50,7 +50,7 @@ int lerpColor3(int c1, int c2, int c3, float amt) {
 Tensor2D kernel(Tensor2D v) {
   float g = 0.5;
   float z = exp(-pow(v.norm(0, 0), 2) / 2 * pow(g, 2));
-  return new Tensor2D(new float[] { v.get(0, 0), v.get(1, 0), z }, false);
+  return new Tensor2D(new float[] { v.get(0, 0), v.get(1, 0), z }, true);
 }
 
 void buildModelSVM() {
@@ -71,8 +71,8 @@ void fitModel() {
   for (int i = 0; i < 1000; i++) {
     optimizer.zeroGradients();
     for (DataRow row : dataset.rows()) {
-      Tensor2D input = new Tensor2D(row.features().get(0).copy().map(-10, 10, -1, 1), false);
-      Tensor2D target = new Tensor2D(new float[] { row.label().argmax() * 2 - 1 }, false);
+      Tensor2D input = new Tensor2D(row.features().get(0).copy().map(-10, 10, -1, 1), true);
+      Tensor2D target = new Tensor2D(new float[] { row.label().argmax() * 2 - 1 }, true);
       optimizer.minimize(loss.loss(model.model(kernel(input)), target));
     }
     optimizer.step();
@@ -83,7 +83,7 @@ float[][] predictModel(int r) {
   float[][] result = new float[r + 1][r + 1];
   for (int i = 0; i <= r; i++) {
     for (int j = 0; j <= r; j++) {
-      Tensor2D input = new Tensor2D(new float[] { j, i }, false).map(0, r, -1, 1);
+      Tensor2D input = new Tensor2D(new float[] { j, i }, true).map(0, r, -1, 1);
       result[i][j] = model.model(kernel(input)).detach().map(-1, 1, 0, 1).get(0, 0);
     }
   }

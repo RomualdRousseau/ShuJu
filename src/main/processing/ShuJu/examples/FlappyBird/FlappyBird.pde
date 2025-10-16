@@ -8,7 +8,7 @@
  *  - Hit the spacebar to fly the bird. 
  *  - Move the mouse on the bottom to access different options; demo/play mode, train, save the best bird, audio on/off.
  *  - In demo mode, the AI use the "data/melody.json" file as the brain for the bird. If it doesnt exist, the training mode starts (200 birds with neuro evolution).
- *  - Maximum scoe is 214... Valentine Day ;)
+ *  - Maximum score is 214... Valentine Day ;)
  *
  * Enhancements:
  *  - Relative features extraction as the NN input
@@ -28,13 +28,14 @@
  * Processing 3+ with Sound library
  */
 
-void settings() {
-  if (!ANDROID) {
-    size(600, 800, P2D);
-  }
-}
+//void settings() {
+//  if (!ANDROID) {
+//    size(600, 800, P2D);
+//  }
+//}
 
 void setup() {
+  size(600, 800, P2D);
   if (ANDROID) {
     requestAllPermissions();
     ensureDataPathExist();

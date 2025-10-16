@@ -157,13 +157,12 @@ void draw() {
   line(width / 2, 0, width / 2, height);
   line(0, height / 2, width, height / 2);
 
-  model.setTrainingMode(true);
   float error = 0.0;
   for (int i = 0; i < iterationCount; i++) {
     for(int j = 0; j < trainingInputs.length; j += miniBatch) {
       optimizer.zeroGradients();
       for(int k = j; k < Math.min(trainingInputs.length, j + miniBatch); k++) {
-        Layer output = model.model(trainingInputs[k]);
+        Layer output = model.model(trainingInputs[k], true);
         loss.loss(output, trainingTargets[k]);
         
         error += loss.getValue().flatten(0, 0);
@@ -177,7 +176,6 @@ void draw() {
     epochs++;
   }
   error /= (iterationCount * trainingInputs.length);
-  model.setTrainingMode(false);
 
   timeLine1.append(error);
   if (timeLine1.size() > width / timeStepX + 1) {

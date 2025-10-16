@@ -22,8 +22,8 @@ class Pillar {
     return this.bottom.x < -PILLAR_SIZE;
   }
 
-  void update() {
-    this.bottom.x += PILLAR_SCROLLING_SPEED * SIMULATION_TIME;
+  void update(float dt) {
+    this.bottom.x += PILLAR_SCROLLING_SPEED * dt;
     this.top.x = this.bottom.x;
   }
 

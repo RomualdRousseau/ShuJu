@@ -10,7 +10,7 @@ class Game_ {
     this.state = GameState.INIT;
     this.score = 0;
     this.frameCounter = 0;
-    this.pillarInterval = floor(PILLAR_INTERVAL / (3.0 * SIMULATION_TIME));
+    this.pillarInterval = floor(PILLAR_INTERVAL * frameRate / PILLAR_SCROLLING_SPEED);
     this.pillarCount = 0;
     
     landscape = new Landscape();
@@ -56,7 +56,9 @@ class Game_ {
   }
   
   void runOnce() {
-    landscape.update();
+    final float dt = 1.0f / frameRate;
+    
+    landscape.update(dt);
     
     switch(state) {
     case INIT:
@@ -74,12 +76,12 @@ class Game_ {
         this.spawnNewPillar();
 
         friend.meet(null);
-        friend.update();
+        friend.update(dt);
         friend.constrainToScreen();
         
         for (int i = pillars.size() - 1; i >= 0; i--) {
           Pillar pillar = pillars.get(i);
-          pillar.update();
+          pillar.update(dt);
           if(pillar.isOffView()) {
             if(isAudioPlayable()) {
               POINT_SOUND.play();
@@ -98,7 +100,7 @@ class Game_ {
           }
           bird.limit();
           bird.gravity();
-          bird.update();
+          bird.update(dt);
           if (bird.isOffscreen() || bird.hit()) {
             if(isAudioPlayable()) {
               CRASH_SOUND.play();
@@ -115,7 +117,7 @@ class Game_ {
             }
           }
           bird.constrainToScreen();
-          bird.emitSmoke();
+          bird.emitSmoke(dt);
         }
       }
       break;
@@ -125,7 +127,7 @@ class Game_ {
         Bird bird = birds.get(i);
         bird.limit();
         bird.gravity();
-        bird.update();
+        bird.update(dt);
         bird.constrainToScreen();
       }
       
@@ -137,7 +139,7 @@ class Game_ {
     case GAMEWIN:      
       for (int i = pillars.size() - 1; i >= 0; i--) {
         Pillar pillar = pillars.get(i);
-        pillar.update();
+        pillar.update(dt);
         if (pillar.isOffscreen()) {
           pillars.remove(pillar);
           landscape.stop();
@@ -145,16 +147,18 @@ class Game_ {
       }
 
       friend.meet(trophee);
-      friend.update();
+      friend.update(dt);
+      friend.hover_over();
       friend.constrainToScreen();
-      friend.emitFlowers();
+      friend.emitFlowers(dt);
       
       for (int i = birds.size() - 1; i >= 0; i--) {
         Bird bird = birds.get(i);
         bird.meet(trophee);
-        bird.update();
+        bird.update(dt);
+        bird.hover_over();
         bird.constrainToScreen();
-        bird.emitSmoke();
+        bird.emitSmoke(dt);
       }
 
       if (isSpaceBarPressed(GameMode.ALL)) {

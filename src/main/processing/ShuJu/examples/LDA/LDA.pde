@@ -93,7 +93,7 @@ void setup() {
   System.out.println(m);
   Tensor2D[] eig = Linalg.Eig(m, 1e-4);
   Tensor2D sort = Linalg.Sort(eig[0]);
-  Tensor2D lda = eig[1].matmul(sort).slice(0, 0, eig[1].rowCount(), 2);
+  Tensor2D lda = eig[1].matmul(sort).slice(0, 0, eig[1].getShape()[0], 2);
   System.out.println(lda);
   
   Tensor2D all = new Tensor2D(training.featuresAsVectorArray());

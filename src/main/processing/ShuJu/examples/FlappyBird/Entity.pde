@@ -19,9 +19,9 @@ abstract class Entity {
     this.velocity.mult(0);
   }
   
-  void update() {
-    this.velocity.add(this.acceleration.copy().mult(SIMULATION_TIME));
-    this.position.add(this.velocity.copy().mult(SIMULATION_TIME));
+  void update(float dt) {
+    this.velocity.add(this.acceleration.copy().mult(dt));
+    this.position.add(this.velocity.copy().mult(dt));
     this.acceleration.mult(0);
     this.life++;
   }

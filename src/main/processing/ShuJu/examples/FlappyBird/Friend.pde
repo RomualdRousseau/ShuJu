@@ -7,6 +7,10 @@ class Friend extends Entity {
     this.velocity = new PVector(0.0, 0.0);
     this.acceleration = new PVector(0.0, 0.0);
   }
+  
+  void hover_over() {
+    this.position.y += 0.1 * cos(frameCount / 10);
+  }
 
   void meet(Entity entity) {
     PVector target = null;
@@ -27,14 +31,14 @@ class Friend extends Entity {
     this.position.y = constrain(this.position.y, FRIEND_MASS / 2, HEIGHT - FRIEND_MASS / 2);
   }
 
-  void emitFlowers() {
+  void emitFlowers(float dt) {
     if (this.flowers.size() < 100) {
       this.flowers.add(new Flower(this));
     }
     for (int i = flowers.size() - 1; i >= 0; i--) {
       Flower flower = flowers.get(i);
       flower.gravity();
-      flower.update();
+      flower.update(dt);
       if (flower.life > FLOWER_LIFE) {
         flower.kill();
         flowers.remove(flower);

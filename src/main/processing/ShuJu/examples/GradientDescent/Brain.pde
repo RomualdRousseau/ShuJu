@@ -23,7 +23,7 @@ class Brain_ {
   }
 
   Tensor2D predict(PVector point) {
-    Tensor2D input = new Tensor2D(new float[] { point.x, point.y }, false);
+    Tensor2D input = new Tensor2D(new float[] { point.x, point.y }, true);
     return this.model.model(input).detach();
   }
 
@@ -32,8 +32,6 @@ class Brain_ {
       this.dataChanged = false;
       return;
     }
-
-    model.setTrainingMode(true);
 
     for (int n = 0; n < BRAIN_CLOCK; n++) {
       float sumAccu = 0.0;
@@ -44,10 +42,10 @@ class Brain_ {
       for (int i = 0; i < Map2D.points.size(); i++) {
         PVector point = Map2D.points.get(i);
 
-        Tensor2D input = new Tensor2D(new float[] { point.x, point.y }, false);
+        Tensor2D input = new Tensor2D(new float[] { point.x, point.y }, true);
         Tensor2D target = new Tensor2D(2, 1).oneHot(int(point.z));
 
-        Layer output = this.model.model(input);
+        Layer output = this.model.model(input, true);
         Loss loss = this.criterion.loss(output, target);
 
         if (output.detach().argmax(0, 0) == target.argmax(0, 0)) {
@@ -71,8 +69,6 @@ class Brain_ {
       this.accuracy = constrain(sumAccu / Map2D.points.size(), 0, 1);
       this.mean = constrain(sumMean / Map2D.points.size(), 0, 1);
     }
-
-    model.setTrainingMode(false);
   }
 
   void buildModelSoftmax() {

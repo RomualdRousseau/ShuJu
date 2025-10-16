@@ -11,7 +11,7 @@ class Car
   {
     SpriteSheet sp = spl.loadSpriteSheet("car.png", 64, 64);
     sprite = sp.getImage(0);
-    explosion = sp.getAnimation(9, 90);
+    explosion = sp.getAnimation(9, 90, 0);
 
     sensors[0] = new PVector(TURTLE_SIZE / 2, -ROAD_WIDTH);
     sensors[1] = new PVector(TURTLE_SIZE / 2, 0);

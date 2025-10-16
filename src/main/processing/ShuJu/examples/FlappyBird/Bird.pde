@@ -93,7 +93,7 @@ class Bird extends Entity implements Individual {
 
   float getFitness() {
     if (this.brainFitness == -1) {
-      this.brainFitness = this.life* (0.95 + 0.05 * bonus); // Give a 5% bonus if the bird flies around the center of the pillars
+      this.brainFitness = this.life * (0.95 + 0.05 * bonus); // Give a 5% bonus if the bird flies around the center of the pillars
     }
     return this.brainFitness;
   }
@@ -121,7 +121,7 @@ class Bird extends Entity implements Individual {
       return false;
     }
 
-    float r = BIRD_MASS / 4; // Roughly the hit box, somehow generous. hey! I want meet my baby
+    float r = BIRD_MASS / 50; // Roughly the hit box, somehow generous. hey! I want meet my baby
     float dx = closest.bottom.x - this.position.x; // Negative is important here because the position of the pillar is relative to the center of the bird
 
     if (dx < r && dx > -(PILLAR_SIZE + r)) {
@@ -153,10 +153,14 @@ class Bird extends Entity implements Individual {
       (closest.top.x - this.position.x) / WIDTH,
       (closest.top.y - this.position.y) / HEIGHT,
       (closest.bottom.y - this.position.y) / HEIGHT
-      }, false);
+      }, true);
     Tensor2D output = this.brain.model(input).detach();
 
     return output.get(0, 0) > output.get(1, 0);
+  }
+  
+  void hover_over() {
+    this.position.y += 0.1 * cos(frameCount / 10);
   }
 
   void meet(Entity entity) {
@@ -202,13 +206,13 @@ class Bird extends Entity implements Individual {
     return closest;
   }
 
-  void emitSmoke() {
+  void emitSmoke(float dt) {
     if (this.smoke.size() < 5 && this.velocity.heading() > radians(45)) {
       this.smoke.add(new Particle(this));
     }
     for (int i = smoke.size() - 1; i >= 0; i--) {
       Particle particle = smoke.get(i);
-      particle.update();
+      particle.update(dt);
       if (particle.life > SMOKE_LIFE) {
         particle.kill();
         smoke.remove(particle);

@@ -23,15 +23,15 @@ public class QMatrixNnImpl extends QMatrix {
         this.numOutputs = (int) Math.ceil(Math.log(numActions) * binaryRatio);
 
         this.model = new Model()
-            .add(new DenseBuilder()
-                .setInputUnits(numInputs)
-                .setUnits(numHiddens))
-            .add(new ActivationBuilder()
-                .setActivation(new Relu()))
-            .add(new DenseBuilder()
-                .setUnits(numOutputs + 1))
-            .add(new ActivationBuilder()
-                .setActivation(new Tanh()));
+                .add(new DenseBuilder()
+                        .setInputUnits(numInputs)
+                        .setUnits(numHiddens))
+                .add(new ActivationBuilder()
+                        .setActivation(new Relu()))
+                .add(new DenseBuilder()
+                        .setUnits(numOutputs + 1))
+                .add(new ActivationBuilder()
+                        .setActivation(new Tanh()));
 
         this.optimizer = new OptimizerRMSPropBuilder().build(this.model);
 
@@ -51,8 +51,8 @@ public class QMatrixNnImpl extends QMatrix {
         this.optimizer.zeroGradients();
 
         for (MemoryCell memory : this.memoryMap.replay(0, this.numStates)) {
-            Tensor2D state = new Tensor2D(MemoryCell.IntToFloatArray(memory.state, numInputs), false);
-            Tensor2D action = new Tensor2D(MemoryCell.IntToFloatArray(memory.action, numOutputs + 1), false);
+            Tensor2D state = new Tensor2D(MemoryCell.IntToFloatArray(memory.state, numInputs), true);
+            Tensor2D action = new Tensor2D(MemoryCell.IntToFloatArray(memory.action, numOutputs + 1), true);
             action.set(numOutputs, 0, (float) memory.reward);
             this.optimizer.minimize(this.loss.loss(this.model.model(state), action));
         }
@@ -61,13 +61,13 @@ public class QMatrixNnImpl extends QMatrix {
     }
 
     public int predictAction(int s) {
-        Tensor2D a = new Tensor2D(MemoryCell.IntToFloatArray(s, numInputs), false);
+        Tensor2D a = new Tensor2D(MemoryCell.IntToFloatArray(s, numInputs), true);
         Tensor2D b = this.model.model(a).detach();
         return MemoryCell.FloatArrayToInt(b.transpose().getFloats(0), numOutputs);
     }
 
     public double predictReward(int s) {
-        Tensor2D a = new Tensor2D(MemoryCell.IntToFloatArray(s, numInputs), false);
+        Tensor2D a = new Tensor2D(MemoryCell.IntToFloatArray(s, numInputs), true);
         Tensor2D b = this.model.model(a).detach();
         return b.get(numOutputs, 0);
     }

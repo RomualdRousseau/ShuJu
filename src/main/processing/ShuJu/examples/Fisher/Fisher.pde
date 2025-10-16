@@ -93,9 +93,9 @@ void setup() {
       .shuffle();
 
     // Training samples
-    DataSet training = fisherSet.subset(0, 110);
+    DataSet training = fisherSet.subset(0, 109);
     // Test samples
-    DataSet test = fisherSet.subset(110, 150);
+    DataSet test = fisherSet.subset(110, 149);
 
     // classification
     KNN knn = new KNN(6);
