@@ -1,4 +1,4 @@
-set positional-arguments
+set dotenv-load
 
 #
 # RECIPES
@@ -64,7 +64,7 @@ build-doc:
     mvn -P documentation site site:stage
 
 # Update all plugins and dependencies
-update-dependencies:
+update-deps:
     mvn -DcreateChecksum=true versions:display-dependency-updates
 
 # Update all plugins and dependencies
