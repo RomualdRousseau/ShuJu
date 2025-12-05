@@ -1,7 +1,4 @@
-set positional-arguments
 set dotenv-load
-
-export TF_CPP_MIN_LOG_LEVEL := "3"
 
 #
 # RECIPES
@@ -48,3 +45,11 @@ deploy-snapshot:
 # Deploy release to the maven repository
 deploy-release:
 	mvn clean deploy -DskipTests -P release -s .mvn/settings.xml
+
+# Update all plugins
+update-plugins:
+    mvn -DcreateChecksum=true -DprocessDependencyManagement=false versions:display-plugin-updates
+
+# Update all dependencies
+update-deps:
+    mvn -DcreateChecksum=true -DprocessDependencyManagement=false versions:display-dependency-updates
